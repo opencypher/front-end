@@ -80,8 +80,31 @@
 
     <dependency>
       <groupId>openCypher</groupId>
+      <artifactId>ast-9.0</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>openCypher</groupId>
       <artifactId>expressions-9.0</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>openCypher</groupId>
+      <artifactId>parser-9.0</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>openCypher</groupId>
+      <artifactId>parser-9.0</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <!-- scala -->

@@ -82,6 +82,14 @@
 
     <dependency>
       <groupId>openCypher</groupId>
+      <artifactId>rewriting-9.0</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>openCypher</groupId>
       <artifactId>parser-9.0</artifactId>
       <version>${project.version}</version>
     </dependency>
