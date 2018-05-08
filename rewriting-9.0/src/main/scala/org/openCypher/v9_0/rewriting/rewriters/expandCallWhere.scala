@@ -17,7 +17,7 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast._
-import org.openCypher.v9_0.internal.util.{Rewriter, bottomUp}
+import org.openCypher.v9_0.util.{Rewriter, bottomUp}
 
 // Rewrites CALL proc WHERE <p> ==> CALL proc WITH * WHERE <p>
 case object expandCallWhere extends Rewriter {

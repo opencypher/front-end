@@ -16,11 +16,11 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.Expression.SemanticContext
-import org.openCypher.v9_0.internal.expressions.functions._
-import org.openCypher.v9_0.internal.expressions.{Expression, FunctionInvocation, Property, _}
-import org.openCypher.v9_0.internal.util.LengthOnNonPathNotification
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.Expression.SemanticContext
+import org.openCypher.v9_0.expressions.functions._
+import org.openCypher.v9_0.expressions.{Expression, FunctionInvocation, Property, _}
+import org.openCypher.v9_0.util.LengthOnNonPathNotification
+import org.openCypher.v9_0.util.symbols._
 
 object SemanticFunctionCheck extends SemanticAnalysisTooling {
 

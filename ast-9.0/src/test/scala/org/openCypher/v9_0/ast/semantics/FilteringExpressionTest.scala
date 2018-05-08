@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.{DummyExpression, ListComprehension}
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.{DummyExpression, ListComprehension}
+import org.openCypher.v9_0.util.symbols._
 
 class FilteringExpressionTest extends SemanticFunSuite {
 

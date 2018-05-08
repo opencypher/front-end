@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.GreaterThanOrEqual
-import org.openCypher.v9_0.internal.util.DummyPosition
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.GreaterThanOrEqual
+import org.openCypher.v9_0.util.DummyPosition
+import org.openCypher.v9_0.util.symbols._
 
 class GreaterThanOrEqualTest extends InfixExpressionTestBase(GreaterThanOrEqual(_, _)(DummyPosition(0))) {
 

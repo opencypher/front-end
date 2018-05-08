@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.rewriting
 
-import org.openCypher.v9_0.internal.util.Rewriter
+import org.openCypher.v9_0.util.Rewriter
 
 object RewriterStep {
    implicit def namedProductRewriter(p: Product with Rewriter): ApplyRewriter = ApplyRewriter(p.productPrefix, p)

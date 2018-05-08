@@ -18,12 +18,12 @@ package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.SemanticCheckResult.{error, success}
 import org.openCypher.v9_0.ast.semantics._
-import org.openCypher.v9_0.internal.expressions.Expression.SemanticContext
-import org.openCypher.v9_0.internal.expressions.{functions, _}
-import org.openCypher.v9_0.internal.util.Foldable._
-import org.openCypher.v9_0.internal.util._
-import org.openCypher.v9_0.internal.util.helpers.StringHelper.RichString
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.Expression.SemanticContext
+import org.openCypher.v9_0.expressions.{functions, _}
+import org.openCypher.v9_0.util.Foldable._
+import org.openCypher.v9_0.util._
+import org.openCypher.v9_0.util.helpers.StringHelper.RichString
+import org.openCypher.v9_0.util.symbols._
 
 sealed trait Clause extends ASTNode with SemanticCheckable {
   def name: String

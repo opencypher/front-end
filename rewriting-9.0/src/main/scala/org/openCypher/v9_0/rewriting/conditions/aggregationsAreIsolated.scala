@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.conditions
 
-import org.openCypher.v9_0.internal.expressions.{Expression, IsAggregate, containsAggregate}
-import org.openCypher.v9_0.internal.util.Foldable._
+import org.openCypher.v9_0.expressions.{Expression, IsAggregate, containsAggregate}
+import org.openCypher.v9_0.util.Foldable._
 import org.openCypher.v9_0.rewriting.Condition
 
 case object aggregationsAreIsolated extends Condition {

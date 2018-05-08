@@ -18,9 +18,9 @@ package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast._
 import org.openCypher.v9_0.ast.conditions.hasAggregateButIsNotAggregate
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.helpers.fixedPoint
-import org.openCypher.v9_0.internal.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.helpers.fixedPoint
+import org.openCypher.v9_0.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp}
 
 /**
   * This rewriter makes sure that aggregations are on their own in RETURN/WITH clauses, so

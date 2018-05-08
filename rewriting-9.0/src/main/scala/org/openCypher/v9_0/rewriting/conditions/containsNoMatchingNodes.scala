@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.conditions
 
-import org.openCypher.v9_0.internal.util.Foldable._
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.util.Foldable._
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 case class containsNoMatchingNodes(matcher: PartialFunction[ASTNode, String]) extends (Any => Seq[String]) {
 

@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast._
-import org.openCypher.v9_0.internal.expressions.{Expression, Variable}
-import org.openCypher.v9_0.internal.util._
+import org.openCypher.v9_0.expressions.{Expression, Variable}
+import org.openCypher.v9_0.util._
 
 import scala.collection.mutable
 

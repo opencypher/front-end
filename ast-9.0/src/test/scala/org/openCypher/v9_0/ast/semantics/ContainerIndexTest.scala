@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.{ContainerIndex, DecimalDoubleLiteral, DummyExpression, SignedDecimalIntegerLiteral}
-import org.openCypher.v9_0.internal.util.DummyPosition
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.{ContainerIndex, DecimalDoubleLiteral, DummyExpression, SignedDecimalIntegerLiteral}
+import org.openCypher.v9_0.util.DummyPosition
+import org.openCypher.v9_0.util.symbols._
 
 class ContainerIndexTest extends SemanticFunSuite {
 

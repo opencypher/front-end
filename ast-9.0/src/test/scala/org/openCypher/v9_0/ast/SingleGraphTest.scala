@@ -17,7 +17,7 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticFeature, SemanticState}
-import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SingleGraphTest extends CypherFunSuite with AstConstructionTestSupport {
 

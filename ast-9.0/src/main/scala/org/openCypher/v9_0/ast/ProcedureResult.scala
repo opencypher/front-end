@@ -18,7 +18,7 @@ package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.SemanticCheck
 import org.openCypher.v9_0.ast.semantics.SemanticCheckResult.success
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 object ProcedureResult {
   def from(items: ProcedureResultItem*)(position: InputPosition): ProcedureResult =

@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.ast.semantics.functions
 
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.util.symbols._
 
 class DistanceTest extends FunctionTestBase("distance")  {
 

@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.SemanticState
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
-import org.openCypher.v9_0.internal.util.{DummyPosition, InputPosition}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.util.{DummyPosition, InputPosition}
 
 class PeriodicCommitHintTest extends CypherFunSuite with Positional {
   test("negative values should fail") {

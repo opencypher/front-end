@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.Expression.SemanticContext
-import org.openCypher.v9_0.internal.expressions.SignedHexIntegerLiteral
-import org.openCypher.v9_0.internal.util.DummyPosition
+import org.openCypher.v9_0.expressions.Expression.SemanticContext
+import org.openCypher.v9_0.expressions.SignedHexIntegerLiteral
+import org.openCypher.v9_0.util.DummyPosition
 
 class HexIntegerLiteralTest extends SemanticFunSuite {
   test("correctly parses hexadecimal numbers") {

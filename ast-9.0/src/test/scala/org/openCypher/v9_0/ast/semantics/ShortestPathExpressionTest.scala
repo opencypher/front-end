@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.symbols.{TypeSpec, _}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.symbols.{TypeSpec, _}
 
 class ShortestPathExpressionTest extends SemanticFunSuite {
 

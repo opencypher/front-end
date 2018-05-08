@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.Add
-import org.openCypher.v9_0.internal.util.DummyPosition
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.Add
+import org.openCypher.v9_0.util.DummyPosition
+import org.openCypher.v9_0.util.symbols._
 
 class AddTest extends InfixExpressionTestBase(Add(_, _)(DummyPosition(0))) {
 

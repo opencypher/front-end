@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.rewriting.rewriters
 
-import org.openCypher.v9_0.internal.expressions.{Expression, HasLabels, NodePattern}
+import org.openCypher.v9_0.expressions.{Expression, HasLabels, NodePattern}
 
 object LabelPredicateNormalizer extends MatchPredicateNormalizer {
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {

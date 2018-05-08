@@ -17,7 +17,7 @@
 package org.openCypher.v9_0.ast.conditions
 
 import org.openCypher.v9_0.ast.{OrderBy, SortItem}
-import org.openCypher.v9_0.internal.expressions.Variable
+import org.openCypher.v9_0.expressions.Variable
 import org.openCypher.v9_0.rewriting.Condition
 
 case object orderByOnlyOnVariables extends Condition {

@@ -18,8 +18,8 @@ package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.openCypher.v9_0.ast.semantics._
-import org.openCypher.v9_0.internal.expressions.{Expression, LogicalVariable, MapProjection}
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition, InternalException}
+import org.openCypher.v9_0.expressions.{Expression, LogicalVariable, MapProjection}
+import org.openCypher.v9_0.util.{ASTNode, InputPosition, InternalException}
 
 sealed trait ReturnItemsDef extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
   /**

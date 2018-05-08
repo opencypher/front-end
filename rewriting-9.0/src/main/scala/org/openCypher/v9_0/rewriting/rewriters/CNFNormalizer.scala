@@ -16,11 +16,11 @@
  */
 package org.openCypher.v9_0.rewriting.rewriters
 
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.expressions.functions.Exists
-import org.openCypher.v9_0.internal.util.Foldable._
-import org.openCypher.v9_0.internal.util.helpers.fixedPoint
-import org.openCypher.v9_0.internal.util.{Rewriter, bottomUp, inSequence, topDown}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.expressions.functions.Exists
+import org.openCypher.v9_0.util.Foldable._
+import org.openCypher.v9_0.util.helpers.fixedPoint
+import org.openCypher.v9_0.util.{Rewriter, bottomUp, inSequence, topDown}
 import org.openCypher.v9_0.rewriting.AstRewritingMonitor
 
 

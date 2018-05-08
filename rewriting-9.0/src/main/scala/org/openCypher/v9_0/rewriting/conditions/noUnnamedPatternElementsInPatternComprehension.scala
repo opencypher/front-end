@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.conditions
 
-import org.openCypher.v9_0.internal.expressions.{PatternComprehension, PatternElement, RelationshipsPattern}
-import org.openCypher.v9_0.internal.util.Foldable._
+import org.openCypher.v9_0.expressions.{PatternComprehension, PatternElement, RelationshipsPattern}
+import org.openCypher.v9_0.util.Foldable._
 import org.openCypher.v9_0.rewriting.Condition
 
 case object noUnnamedPatternElementsInPatternComprehension extends Condition {

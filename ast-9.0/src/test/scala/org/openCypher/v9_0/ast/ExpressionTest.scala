@@ -16,10 +16,10 @@
  */
 package org.openCypher.v9_0.ast
 
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.symbols._
-import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
-import org.openCypher.v9_0.internal.util.{DummyPosition, IdentityMap}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.symbols._
+import org.openCypher.v9_0.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.util.{DummyPosition, IdentityMap}
 
 class ExpressionTest extends CypherFunSuite with AstConstructionTestSupport {
 

@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics._
-import org.openCypher.v9_0.internal.expressions.{Pattern, Variable}
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.expressions.{Pattern, Variable}
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 sealed trait SingleGraphAs extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
 

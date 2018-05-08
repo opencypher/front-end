@@ -17,10 +17,10 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticError, SemanticState}
-import org.openCypher.v9_0.internal.expressions.{StringLiteral, Variable}
-import org.openCypher.v9_0.internal.util.DummyPosition
-import org.openCypher.v9_0.internal.util.symbols._
-import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.expressions.{StringLiteral, Variable}
+import org.openCypher.v9_0.util.DummyPosition
+import org.openCypher.v9_0.util.symbols._
+import org.openCypher.v9_0.util.test_helpers.CypherFunSuite
 
 class LoadCSVTest extends CypherFunSuite {
 

@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.conditions
 
-import org.openCypher.v9_0.internal.expressions.Variable
-import org.openCypher.v9_0.internal.util.Ref
+import org.openCypher.v9_0.expressions.Variable
+import org.openCypher.v9_0.util.Ref
 import org.openCypher.v9_0.rewriting.Condition
 
 case object noReferenceEqualityAmongVariables extends Condition {

@@ -17,7 +17,7 @@
 package org.openCypher.v9_0.ast.conditions
 
 import org.openCypher.v9_0.ast.Match
-import org.openCypher.v9_0.internal.expressions.{NodePattern, RelationshipPattern}
+import org.openCypher.v9_0.expressions.{NodePattern, RelationshipPattern}
 import org.openCypher.v9_0.rewriting.Condition
 
 case object noUnnamedPatternElementsInMatch extends Condition {

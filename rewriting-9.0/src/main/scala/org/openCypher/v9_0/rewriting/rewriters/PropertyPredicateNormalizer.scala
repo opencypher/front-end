@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.rewriting.rewriters
 
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.{FreshIdNameGenerator, InputPosition}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.{FreshIdNameGenerator, InputPosition}
 
 object PropertyPredicateNormalizer extends MatchPredicateNormalizer {
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {

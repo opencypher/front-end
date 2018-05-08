@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.LessThan
-import org.openCypher.v9_0.internal.util.DummyPosition
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.LessThan
+import org.openCypher.v9_0.util.DummyPosition
+import org.openCypher.v9_0.util.symbols._
 
 class LessThanTest extends InfixExpressionTestBase(LessThan(_, _)(DummyPosition(0))) {
 

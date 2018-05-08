@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.rewriting.rewriters
 
-import org.openCypher.v9_0.internal.expressions.{ContainerIndex, Property, PropertyKeyName, StringLiteral}
-import org.openCypher.v9_0.internal.util.{Rewriter, bottomUp}
+import org.openCypher.v9_0.expressions.{ContainerIndex, Property, PropertyKeyName, StringLiteral}
+import org.openCypher.v9_0.util.{Rewriter, bottomUp}
 
 case object replaceLiteralDynamicPropertyLookups extends Rewriter {
 

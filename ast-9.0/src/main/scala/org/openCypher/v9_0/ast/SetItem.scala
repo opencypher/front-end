@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics._
-import org.openCypher.v9_0.internal.expressions.{Expression, LabelName, LogicalProperty, Variable}
-import org.openCypher.v9_0.internal.util.symbols._
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.expressions.{Expression, LabelName, LogicalProperty, Variable}
+import org.openCypher.v9_0.util.symbols._
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 sealed trait SetItem extends ASTNode with SemanticCheckable
 

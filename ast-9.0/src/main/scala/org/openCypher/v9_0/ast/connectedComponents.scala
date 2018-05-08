@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.ast
 
-import org.openCypher.v9_0.internal.expressions.{LogicalVariable, NodePattern, PatternPart}
+import org.openCypher.v9_0.expressions.{LogicalVariable, NodePattern, PatternPart}
 
 import scala.annotation.tailrec
 import scala.collection.immutable

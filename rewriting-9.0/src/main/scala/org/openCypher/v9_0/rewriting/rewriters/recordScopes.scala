@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast.semantics.SemanticState
-import org.openCypher.v9_0.internal.expressions.{MapProjection, PatternComprehension}
-import org.openCypher.v9_0.internal.util.{Rewriter, topDown}
+import org.openCypher.v9_0.expressions.{MapProjection, PatternComprehension}
+import org.openCypher.v9_0.util.{Rewriter, topDown}
 
 case class recordScopes(semanticState: SemanticState) extends Rewriter {
 

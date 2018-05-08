@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticCheck, SemanticCheckResult, SemanticCheckable, SemanticError}
-import org.openCypher.v9_0.internal.expressions.IntegerLiteral
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.expressions.IntegerLiteral
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 case class PeriodicCommitHint(size: Option[IntegerLiteral])(val position: InputPosition) extends ASTNode with SemanticCheckable {
   def name = s"USING PERIODIC COMMIT $size"

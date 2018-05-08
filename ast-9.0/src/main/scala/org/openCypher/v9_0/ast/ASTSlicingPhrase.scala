@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics._
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.ASTNode
-import org.openCypher.v9_0.internal.util.symbols.CTInteger
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.ASTNode
+import org.openCypher.v9_0.util.symbols.CTInteger
 
 // Skip/Limit
 trait ASTSlicingPhrase extends SemanticCheckable with SemanticAnalysisTooling {

@@ -17,7 +17,7 @@
 package org.openCypher.v9_0.ast.semantics
 
 import org.openCypher.v9_0.ast.Statement
-import org.openCypher.v9_0.internal.util.InternalException
+import org.openCypher.v9_0.util.InternalException
 
 object SemanticChecker {
   def check(statement: Statement, state: SemanticState = SemanticState.clean): SemanticCheckResult = {

@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.ast.conditions
 
-import org.openCypher.v9_0.internal.expressions._
+import org.openCypher.v9_0.expressions._
 import org.openCypher.v9_0.rewriting.Condition
 
 case object normalizedEqualsArguments extends Condition {

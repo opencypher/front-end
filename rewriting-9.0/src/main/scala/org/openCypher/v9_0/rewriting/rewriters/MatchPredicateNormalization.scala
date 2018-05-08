@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast.{Match, Where}
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.{InputPosition, Rewriter, topDown}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.{InputPosition, Rewriter, topDown}
 
 abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer, getDegreeRewriting: Boolean) extends Rewriter {
 

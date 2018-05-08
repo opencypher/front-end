@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.DummyPosition
-import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.DummyPosition
+import org.openCypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SemanticFunSuite extends CypherFunSuite with SemanticAnalysisTooling {
 

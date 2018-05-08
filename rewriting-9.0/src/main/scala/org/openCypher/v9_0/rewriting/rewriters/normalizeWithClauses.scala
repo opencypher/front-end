@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast._
-import org.openCypher.v9_0.internal.expressions.{Expression, LogicalVariable, Variable}
-import org.openCypher.v9_0.internal.util._
+import org.openCypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
+import org.openCypher.v9_0.util._
 
 /**
  * This rewriter normalizes the scoping structure of a query, ensuring it is able to

@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast.{GraphAs, SingleGraphAs, SourceGraphAs, TargetGraphAs}
-import org.openCypher.v9_0.internal.expressions.{Expression, Variable}
-import org.openCypher.v9_0.internal.util.{FreshIdNameGenerator, Rewriter, bottomUp}
+import org.openCypher.v9_0.expressions.{Expression, Variable}
+import org.openCypher.v9_0.util.{FreshIdNameGenerator, Rewriter, bottomUp}
 
 case object normalizeGraphReturnItems extends Rewriter {
 

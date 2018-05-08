@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.conditions
 
-import org.openCypher.v9_0.internal.util.ASTNode
-import org.openCypher.v9_0.internal.util.Foldable._
+import org.openCypher.v9_0.util.ASTNode
+import org.openCypher.v9_0.util.Foldable._
 
 import scala.reflect.ClassTag
 

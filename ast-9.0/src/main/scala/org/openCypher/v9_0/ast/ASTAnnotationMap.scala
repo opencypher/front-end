@@ -16,7 +16,7 @@
  */
 package scala.org.openCypher.v9_0.ast
 
-import org.openCypher.v9_0.internal.util.{ASTNode, Eagerly, InputPosition}
+import org.openCypher.v9_0.util.{ASTNode, Eagerly, InputPosition}
 
 
 object ASTAnnotationMap {

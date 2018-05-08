@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.util.Ref
+import org.openCypher.v9_0.util.Ref
 
 import scala.compat.Platform.EOL
 

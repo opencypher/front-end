@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast
 
-import org.openCypher.v9_0.internal.expressions.FunctionName
-import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.expressions.FunctionName
+import org.openCypher.v9_0.util.test_helpers.CypherFunSuite
 
 class FunctionNameTest extends CypherFunSuite {
   test("equality should ignore case") {

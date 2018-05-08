@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.util.InputPosition
+import org.openCypher.v9_0.util.InputPosition
 
 sealed trait SemanticErrorDef {
   def msg: String

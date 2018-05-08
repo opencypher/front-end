@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.rewriting
 
-import org.openCypher.v9_0.internal.util.Rewriter
+import org.openCypher.v9_0.util.Rewriter
 
 sealed trait RewriterTask
 final case class RunConditions(previousName: Option[String], conditions: Set[RewriterCondition]) extends RewriterTask

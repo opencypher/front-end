@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck}
-import org.openCypher.v9_0.internal.expressions.{Expression, LogicalVariable}
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.expressions.{Expression, LogicalVariable}
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 case class OrderBy(sortItems: Seq[SortItem])(val position: InputPosition) extends ASTNode with SemanticCheckable {
   def semanticCheck = sortItems.semanticCheck

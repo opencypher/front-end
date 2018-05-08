@@ -17,8 +17,8 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast.GraphOfAs
-import org.openCypher.v9_0.internal.expressions.Expression
-import org.openCypher.v9_0.internal.util.{Rewriter, bottomUp}
+import org.openCypher.v9_0.expressions.Expression
+import org.openCypher.v9_0.util.{Rewriter, bottomUp}
 
 case object nameGraphOfPatternElements extends Rewriter {
 

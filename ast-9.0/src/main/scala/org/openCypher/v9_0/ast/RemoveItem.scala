@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck}
-import org.openCypher.v9_0.internal.expressions.{LabelName, LogicalProperty, LogicalVariable}
-import org.openCypher.v9_0.internal.util.symbols._
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.expressions.{LabelName, LogicalProperty, LogicalVariable}
+import org.openCypher.v9_0.util.symbols._
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 sealed trait RemoveItem extends ASTNode with SemanticCheckable
 

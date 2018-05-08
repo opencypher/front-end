@@ -16,10 +16,10 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.Expression
-import org.openCypher.v9_0.internal.expressions.Expression.SemanticContext
-import org.openCypher.v9_0.internal.util.symbols.TypeSpec
-import org.openCypher.v9_0.internal.util.{DummyPosition, InputPosition}
+import org.openCypher.v9_0.expressions.Expression
+import org.openCypher.v9_0.expressions.Expression.SemanticContext
+import org.openCypher.v9_0.util.symbols.TypeSpec
+import org.openCypher.v9_0.util.{DummyPosition, InputPosition}
 
 case class ErrorExpression(
                             error: SemanticError,

@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.{DummyExpression, Expression}
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.{DummyExpression, Expression}
+import org.openCypher.v9_0.util.symbols._
 
 abstract class InfixExpressionTestBase(ctr: (Expression, Expression) => Expression) extends SemanticFunSuite {
 

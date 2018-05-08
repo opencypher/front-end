@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.ast.semantics
 
-import org.openCypher.v9_0.internal.expressions.Expression.SemanticContext
+import org.openCypher.v9_0.expressions.Expression.SemanticContext
 
 object SemanticCheckResult {
   val success: SemanticCheck = SemanticCheckResult(_, Vector())

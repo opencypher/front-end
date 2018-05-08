@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck}
-import org.openCypher.v9_0.internal.expressions.{LogicalVariable, ProcedureOutput, Variable}
-import org.openCypher.v9_0.internal.util.symbols._
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.expressions.{LogicalVariable, ProcedureOutput, Variable}
+import org.openCypher.v9_0.util.symbols._
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 object ProcedureResultItem {
   def apply(output: ProcedureOutput, variable: Variable)(position: InputPosition): ProcedureResultItem =

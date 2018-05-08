@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.rewriting.rewriters
 
-import org.openCypher.v9_0.internal.expressions.{Equals, Not, NotEquals}
-import org.openCypher.v9_0.internal.util.{Rewriter, topDown}
+import org.openCypher.v9_0.expressions.{Equals, Not, NotEquals}
+import org.openCypher.v9_0.util.{Rewriter, topDown}
 
 case object normalizeNotEquals extends Rewriter {
 

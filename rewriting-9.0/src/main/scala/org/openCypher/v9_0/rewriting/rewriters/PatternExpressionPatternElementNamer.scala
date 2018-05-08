@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.rewriting.rewriters
 
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util._
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util._
 
 object PatternExpressionPatternElementNamer {
 

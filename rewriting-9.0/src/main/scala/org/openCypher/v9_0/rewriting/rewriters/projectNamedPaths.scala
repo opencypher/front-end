@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast.{AliasedReturnItem, With}
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.Foldable.FoldableAny
-import org.openCypher.v9_0.internal.util.{InternalException, Ref, Rewriter, topDown}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.Foldable.FoldableAny
+import org.openCypher.v9_0.util.{InternalException, Ref, Rewriter, topDown}
 
 import scala.annotation.tailrec
 

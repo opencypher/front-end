@@ -17,10 +17,10 @@
 package org.openCypher.v9_0.rewriting.rewriters
 
 import org.openCypher.v9_0.ast.AliasedReturnItem
-import org.openCypher.v9_0.internal.expressions.Expression
-import org.openCypher.v9_0.internal.util.Foldable.TreeAny
-import org.openCypher.v9_0.internal.util.Rewritable._
-import org.openCypher.v9_0.internal.util.{InternalException, Rewritable, Rewriter}
+import org.openCypher.v9_0.expressions.Expression
+import org.openCypher.v9_0.util.Foldable.TreeAny
+import org.openCypher.v9_0.util.Rewritable._
+import org.openCypher.v9_0.util.{InternalException, Rewritable, Rewriter}
 
 import scala.annotation.tailrec
 import scala.collection.mutable

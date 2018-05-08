@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticExpressionCheck}
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.InputPosition
-import org.openCypher.v9_0.internal.util.symbols.{CypherType, _}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.InputPosition
+import org.openCypher.v9_0.util.symbols.{CypherType, _}
 
 
 sealed trait Command extends Statement {

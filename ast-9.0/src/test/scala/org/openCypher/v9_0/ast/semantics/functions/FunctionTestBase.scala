@@ -17,10 +17,10 @@
 package org.openCypher.v9_0.ast.semantics.functions
 
 import org.openCypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticExpressionCheck, SemanticFunSuite, SemanticState}
-import org.openCypher.v9_0.internal.expressions.Expression.SemanticContext
-import org.openCypher.v9_0.internal.expressions.{DummyExpression, FunctionInvocation, FunctionName}
-import org.openCypher.v9_0.internal.util.DummyPosition
-import org.openCypher.v9_0.internal.util.symbols._
+import org.openCypher.v9_0.expressions.Expression.SemanticContext
+import org.openCypher.v9_0.expressions.{DummyExpression, FunctionInvocation, FunctionName}
+import org.openCypher.v9_0.util.DummyPosition
+import org.openCypher.v9_0.util.symbols._
 
 abstract class FunctionTestBase(funcName: String) extends SemanticFunSuite {
 

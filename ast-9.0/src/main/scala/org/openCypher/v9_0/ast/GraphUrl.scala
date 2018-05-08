@@ -17,9 +17,9 @@
 package org.openCypher.v9_0.ast
 
 import org.openCypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticCheckable, SemanticExpressionCheck}
-import org.openCypher.v9_0.internal.expressions.{Parameter, StringLiteral}
-import org.openCypher.v9_0.internal.util.symbols._
-import org.openCypher.v9_0.internal.util.{ASTNode, InputPosition}
+import org.openCypher.v9_0.expressions.{Parameter, StringLiteral}
+import org.openCypher.v9_0.util.symbols._
+import org.openCypher.v9_0.util.{ASTNode, InputPosition}
 
 final case class GraphUrl(url: Either[Parameter, StringLiteral])(val position: InputPosition)
   extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {

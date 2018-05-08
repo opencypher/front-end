@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.rewriting.rewriters
 
-import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.util.Foldable._
-import org.openCypher.v9_0.internal.util.{Rewriter, bottomUp}
+import org.openCypher.v9_0.expressions._
+import org.openCypher.v9_0.util.Foldable._
+import org.openCypher.v9_0.util.{Rewriter, bottomUp}
 
 /**
   * Merges multiple IN predicates into one.
