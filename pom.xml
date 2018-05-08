@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+<!--   <parent>
+    <groupId>org.neo4j</groupId>
+    <artifactId>parent</artifactId>
+    <version>3.5.0-SNAPSHOT</version>
+    <relativePath>../..</relativePath>
+  </parent>
+ -->
+  <groupId>openCypher</groupId>
+  <artifactId>front-end-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>openCypher Front End Parent</name>
+  <description>Project that builds the openCypher front end modules</description>
+
+  <properties>
+    <licensing.prepend.text>notice-asl-prefix.txt</licensing.prepend.text>
+    <license-text.header>ASL-2-header.txt</license-text.header>
+    <scala.version>2.11.12</scala.version>
+    <scala.binary.version>2.11</scala.binary.version>
+    <scala.target.vm>1.8</scala.target.vm>
+    <scala.java9.arg/>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+  <scm>
+    <connection>scm:git:git://github.com/neo4j/neo4j.git</connection>
+    <developerConnection>scm:git:git@github.com:neo4j/neo4j.git</developerConnection>
+    <url>https://github.com/neo4j/neo4j</url>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <modules>
+    <module>frontend-9.0</module>
+    <module>util-9.0</module>
+    <module>expressions-9.0</module>
+  </modules>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>annotations</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+
+    <!-- shared java test dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-core</artifactId>
+        <version>1.3</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>1.3</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.18.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_2.11</artifactId>
+      <version>2.2.5</version>
+    </dependency>
+
+  </dependencies>
+
+  <!-- Required versions for each dependency, inherited dependencies are set in dependencies -->
+
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- other -->
+      <dependency>
+        <groupId>org.parboiled</groupId>
+        <artifactId>parboiled-scala_2.11</artifactId>
+        <version>1.1.7</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>scala-library</artifactId>
+            <groupId>org.scala-lang</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+      <plugins>
+        <!-- Default scala compile settings -->
+        <plugin>
+          <groupId>net.alchim31.maven</groupId>
+          <artifactId>scala-maven-plugin</artifactId>
+          <version>3.2.2</version>
+
+          <configuration>
+            <scalaVersion>${scala.version}</scalaVersion>
+            <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
+            <args>
+              <arg>-Xmax-classfile-name</arg>
+              <arg>100</arg>
+              <arg>-Xlint</arg>
+              <arg>-target:jvm-${scala.target.vm}</arg>
+              <arg>${scala.java9.arg}</arg>
+            </args>
+            <jvmArgs>
+              <jvmArg>-Xms64m</jvmArg>
+              <jvmArg>-Xmx1024m</jvmArg>
+            </jvmArgs>
+          </configuration>
+
+          <!-- This is needed to mix scala and java code in the same module -->
+          <executions>
+            <execution>
+              <id>scala-compile</id>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>add-source</goal>
+                <goal>compile</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>scala-test-compile</id>
+              <phase>process-test-resources</phase>
+              <goals>
+                <goal>testCompile</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+      </plugins>
+  </build>
+</project>
