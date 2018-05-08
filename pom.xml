@@ -9,6 +9,7 @@
   <packaging>pom</packaging>
   <name>openCypher Front End Parent</name>
   <description>Project that builds the openCypher front end modules</description>
+  <inceptionYear>2002-2018</inceptionYear>
 
   <properties>
     <licensing.prepend.text>notice-asl-prefix.txt</licensing.prepend.text>
@@ -129,6 +130,49 @@
               <phase>process-test-resources</phase>
               <goals>
                 <goal>testCompile</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>3.0</version>
+          <configuration>
+            <strictCheck>true</strictCheck>
+            <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+            <properties>
+              <owner>Neo4j Sweden AB</owner> <!-- TODO  -->
+              <email>http://neo4j.com</email>
+            </properties>
+            <includes>
+              <include>src/**/*.java</include>
+              <include>src/**/*.js</include>
+              <include>src/**/*.scala</include>
+              <include>src/**/*.xml</include>
+              <include>src/**/*.feature</include>
+              <include>src/**/*.g4</include>
+            </includes>
+            <excludes>
+              <exclude>**/lib/*.js</exclude>
+              <exclude>**/lib/**/*.js</exclude>
+              <exclude>**/javascript/vend/**</exclude>
+            </excludes>
+            <mapping>
+              <java>SLASHSTAR_STYLE</java>
+              <scala>SLASHSTAR_STYLE</scala>
+              <feature>SCRIPT_STYLE</feature>
+              <g4>SLASHSTAR_STYLE</g4>
+            </mapping>
+          </configuration>
+          <executions>
+            <execution>
+              <id>check-licenses</id>
+              <!-- fail as early as possible -->
+              <phase>initialize</phase>
+              <goals>
+                <goal>check</goal>
               </goals>
             </execution>
           </executions>
