@@ -30,6 +30,13 @@ case class MapProjection(
     copy(definitionPos = Some(pos))(position)
 }
 
+case class DesugaredMapProjection(
+                                   name: LogicalVariable,
+                                   items: Seq[LiteralEntry],
+                                   includeAllProps: Boolean
+                                 )(val position: InputPosition) extends Expression
+
+
 sealed trait MapProjectionElement extends Expression
 
 case class LiteralEntry(key: PropertyKeyName, exp: Expression)(val position: InputPosition) extends MapProjectionElement

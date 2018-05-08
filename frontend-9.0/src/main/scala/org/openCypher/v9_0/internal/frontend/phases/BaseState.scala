@@ -16,11 +16,11 @@
  */
 package org.openCypher.v9_0.internal.frontend.phases
 
+import org.openCypher.v9_0.ast.semantics.{SemanticState, SemanticTable}
+import org.openCypher.v9_0.ast.{Query, Statement}
 import org.openCypher.v9_0.internal.frontend.PlannerName
-import org.openCypher.v9_0.internal.frontend.ast.{Query, Statement}
-import org.openCypher.v9_0.internal.frontend.semantics.{SemanticState, SemanticTable}
-import org.openCypher.v9_0.internal.util.{InputPosition, InternalException}
 import org.openCypher.v9_0.internal.util.symbols.CypherType
+import org.openCypher.v9_0.internal.util.{InputPosition, InternalException}
 
 trait BaseState {
   def queryText: String

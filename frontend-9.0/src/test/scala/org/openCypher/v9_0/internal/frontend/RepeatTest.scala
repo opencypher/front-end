@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.internal.frontend
 
-import org.openCypher.v9_0.internal.frontend.helpers.fixedPoint
 import org.openCypher.v9_0.internal.util.Rewriter
+import org.openCypher.v9_0.internal.util.helpers.fixedPoint
 import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
 
 class RepeatTest extends CypherFunSuite {

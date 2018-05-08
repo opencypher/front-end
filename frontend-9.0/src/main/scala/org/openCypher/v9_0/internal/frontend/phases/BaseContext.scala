@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.internal.frontend.phases
 
-import org.openCypher.v9_0.internal.util.{CypherException, InputPosition}
+import org.openCypher.v9_0.ast.semantics.SemanticErrorDef
 import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer
-import org.openCypher.v9_0.internal.frontend.semantics.SemanticErrorDef
+import org.openCypher.v9_0.internal.util.{CypherException, InputPosition}
 
 trait BaseContext {
   def tracer: CompilationPhaseTracer

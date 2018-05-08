@@ -16,7 +16,7 @@
  */
 package org.openCypher.v9_0.internal.util
 
-import Rewritable._
+import org.openCypher.v9_0.internal.util.Rewritable._
 
 trait ASTNode extends Product with Foldable with Rewritable {
 

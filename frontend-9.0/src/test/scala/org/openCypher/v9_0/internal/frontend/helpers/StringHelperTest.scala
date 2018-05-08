@@ -21,7 +21,7 @@ import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
 
 class StringHelperTest extends CypherFunSuite {
 
-  import StringHelper._
+  import org.openCypher.v9_0.internal.util.helpers.StringHelper._
 
   test("should not fix position when the text contains no line break") {
     val text = "(line 1, column 8 (offset: 7))"

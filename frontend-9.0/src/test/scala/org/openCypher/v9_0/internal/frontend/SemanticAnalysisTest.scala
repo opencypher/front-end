@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.internal.frontend
 
-import org.openCypher.v9_0.internal.frontend.ast.AstConstructionTestSupport
+import org.openCypher.v9_0.ast.AstConstructionTestSupport
+import org.openCypher.v9_0.ast.semantics.SemanticErrorDef
 import org.openCypher.v9_0.internal.frontend.phases._
-import org.openCypher.v9_0.internal.frontend.semantics.SemanticErrorDef
 import org.openCypher.v9_0.internal.util.symbols._
 import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
 

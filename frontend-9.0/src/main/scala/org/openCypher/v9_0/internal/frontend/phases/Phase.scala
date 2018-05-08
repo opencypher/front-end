@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.internal.frontend.phases
 
-import org.openCypher.v9_0.internal.frontend.helpers.closing
 import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer.CompilationPhase
 import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer.CompilationPhase.PIPE_BUILDING
+import org.openCypher.v9_0.internal.frontend.helpers.closing
 
 /*
 A phase is a leaf component of the tree structure that is the compilation pipe line.

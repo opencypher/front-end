@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.internal.expressions
 
-import org.openCypher.v9_0.internal.util.{Foldable, InputPosition, Rewritable}
 import org.openCypher.v9_0.internal.util.Rewritable._
+import org.openCypher.v9_0.internal.util.{Foldable, InputPosition, Rewritable}
 
 sealed trait PathStep extends Product with Foldable with Rewritable {
 

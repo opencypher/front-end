@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.internal.frontend.phases
 
-import org.openCypher.v9_0.internal.frontend.ast.rewriters._
 import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.openCypher.v9_0.internal.util.inSequence
+import org.openCypher.v9_0.rewriting.rewriters._
 
 case object PreparatoryRewriting extends Phase[BaseContext, BaseState, BaseState] {
 

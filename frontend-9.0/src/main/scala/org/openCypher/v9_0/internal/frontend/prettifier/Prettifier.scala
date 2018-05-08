@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.internal.frontend.prettifier
 
+import org.openCypher.v9_0.ast._
 import org.openCypher.v9_0.internal.expressions._
-import org.openCypher.v9_0.internal.frontend.ast._
 
 case class Prettifier(mkStringOf: ExpressionStringifier) {
   def asString(statement: Statement): String = statement match {

@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.internal.frontend.phases
 
-import org.openCypher.v9_0.internal.frontend.ast.Statement
-import org.openCypher.v9_0.internal.frontend.semantics.SemanticState
+import org.openCypher.v9_0.ast.Statement
+import org.openCypher.v9_0.ast.semantics.SemanticState
 
 import scala.reflect.ClassTag
 

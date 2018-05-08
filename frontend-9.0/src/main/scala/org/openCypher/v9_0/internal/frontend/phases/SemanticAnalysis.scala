@@ -16,11 +16,11 @@
  */
 package org.openCypher.v9_0.internal.frontend.phases
 
-import org.openCypher.v9_0.internal.frontend.ast.UnaliasedReturnItem
-import org.openCypher.v9_0.internal.frontend.ast.conditions.{StatementCondition, containsNoNodesOfType}
-import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
+import org.openCypher.v9_0.ast.UnaliasedReturnItem
+import org.openCypher.v9_0.ast.conditions.containsNoNodesOfType
+import org.openCypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticChecker, SemanticFeature, SemanticState}
 import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer
-import org.openCypher.v9_0.internal.frontend.semantics.{SemanticCheckResult, SemanticChecker, SemanticFeature, SemanticState}
+import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
 
 case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
   extends Phase[BaseContext, BaseState, BaseState] {

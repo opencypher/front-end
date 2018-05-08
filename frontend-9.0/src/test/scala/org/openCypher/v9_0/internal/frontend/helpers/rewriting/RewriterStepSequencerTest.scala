@@ -18,6 +18,7 @@ package org.openCypher.v9_0.internal.frontend.helpers.rewriting
 
 import org.openCypher.v9_0.internal.util.Rewriter
 import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.rewriting._
 
 class RewriterStepSequencerTest extends CypherFunSuite {
 

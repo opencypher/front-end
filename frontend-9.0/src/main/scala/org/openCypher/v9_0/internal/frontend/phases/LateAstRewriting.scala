@@ -17,7 +17,7 @@
 package org.openCypher.v9_0.internal.frontend.phases
 
 import org.openCypher.v9_0.internal.util.{Rewriter, inSequence}
-import org.openCypher.v9_0.internal.frontend.ast.rewriters._
+import org.openCypher.v9_0.rewriting.rewriters.{collapseMultipleInPredicates, nameUpdatingClauses, projectFreshSortExpressions, projectNamedPaths}
 
 object LateAstRewriting extends StatementRewriter {
   override def instance(context: BaseContext): Rewriter = inSequence(

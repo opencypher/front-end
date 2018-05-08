@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.internal.frontend.helpers
 
-import org.openCypher.v9_0.internal.frontend.ast.Statement
-import org.openCypher.v9_0.internal.frontend.semantics.{Scope, SemanticCheckResult, SemanticFeature, SemanticState}
+import org.openCypher.v9_0.ast.Statement
+import org.openCypher.v9_0.ast.semantics.{Scope, SemanticCheckResult, SemanticFeature, SemanticState}
 import org.scalatest.Assertions
 
 object StatementHelper extends Assertions {

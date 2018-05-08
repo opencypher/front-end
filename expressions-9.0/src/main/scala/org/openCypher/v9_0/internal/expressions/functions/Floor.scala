@@ -16,8 +16,8 @@
  */
 package org.openCypher.v9_0.internal.expressions.functions
 
-import org.openCypher.v9_0.internal.util.symbols._
 import org.openCypher.v9_0.internal.expressions.{TypeSignature, TypeSignatures}
+import org.openCypher.v9_0.internal.util.symbols._
 
 case object Floor extends Function with TypeSignatures {
   def name = "floor"

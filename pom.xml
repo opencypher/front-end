@@ -3,13 +3,6 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-<!--   <parent>
-    <groupId>org.neo4j</groupId>
-    <artifactId>parent</artifactId>
-    <version>3.5.0-SNAPSHOT</version>
-    <relativePath>../..</relativePath>
-  </parent>
- -->
   <groupId>openCypher</groupId>
   <artifactId>front-end-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
@@ -42,6 +35,9 @@
   </licenses>
 
   <modules>
+    <module>ast-9.0</module>
+    <module>rewriting-9.0</module>
+    <module>parser-9.0</module>
     <module>frontend-9.0</module>
     <module>util-9.0</module>
     <module>expressions-9.0</module>
@@ -93,26 +89,6 @@
     </dependency>
 
   </dependencies>
-
-  <!-- Required versions for each dependency, inherited dependencies are set in dependencies -->
-
-  <dependencyManagement>
-    <dependencies>
-
-      <!-- other -->
-      <dependency>
-        <groupId>org.parboiled</groupId>
-        <artifactId>parboiled-scala_2.11</artifactId>
-        <version>1.1.7</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>scala-library</artifactId>
-            <groupId>org.scala-lang</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <build>
       <plugins>

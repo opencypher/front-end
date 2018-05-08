@@ -18,8 +18,8 @@ package org.openCypher.v9_0.internal.util
 
 import java.lang.reflect.Method
 
-import Foldable._
-import Rewritable._
+import org.openCypher.v9_0.internal.util.Foldable._
+import org.openCypher.v9_0.internal.util.Rewritable._
 
 import scala.annotation.tailrec
 import scala.collection.mutable

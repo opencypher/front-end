@@ -16,11 +16,11 @@
  */
 package org.openCypher.v9_0.internal.frontend.prettifier
 
-import org.openCypher.v9_0.internal.frontend.ast.AstConstructionTestSupport
-import org.openCypher.v9_0.internal.frontend.parser.Expressions
-import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
+import org.openCypher.v9_0.ast.AstConstructionTestSupport
 import org.openCypher.v9_0.internal.expressions.Expression
-import org.parboiled.scala.{Parser, ReportingParseRunner, _}
+import org.openCypher.v9_0.internal.parser.Expressions
+import org.openCypher.v9_0.internal.util.test_helpers.CypherFunSuite
+import org.parboiled.scala.{Parser, ReportingParseRunner}
 
 class ExpressionStringifierTest
   extends CypherFunSuite

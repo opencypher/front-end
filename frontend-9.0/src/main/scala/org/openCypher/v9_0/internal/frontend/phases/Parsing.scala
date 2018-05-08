@@ -16,9 +16,9 @@
  */
 package org.openCypher.v9_0.internal.frontend.phases
 
-import org.openCypher.v9_0.internal.frontend.ast.Statement
+import org.openCypher.v9_0.ast.Statement
 import org.openCypher.v9_0.internal.frontend.CompilationPhaseTracer.CompilationPhase.PARSING
-import org.openCypher.v9_0.internal.frontend.parser.CypherParser
+import org.openCypher.v9_0.internal.parser.CypherParser
 
 case object Parsing extends Phase[BaseContext, BaseState, BaseState] {
   private val parser = new CypherParser

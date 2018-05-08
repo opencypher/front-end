@@ -56,44 +56,11 @@
   </build>
 
   <dependencies>
-
-    <!-- shared versions are defined in the parent pom -->
-
-    <!-- scala -->
-
-    <!--<dependency>-->
-      <!--<groupId>org.scala-lang</groupId>-->
-      <!--<artifactId>scala-library</artifactId>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-      <!--<artifactId>scala-reflect</artifactId>-->
-      <!--<groupId>org.scala-lang</groupId>-->
-    <!--</dependency>-->
-
-    <!--&lt;!&ndash; scala test dependencies &ndash;&gt;-->
-
-    <!--<dependency>-->
-      <!--<groupId>org.scalatest</groupId>-->
-      <!--<artifactId>scalatest_2.11</artifactId>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-      <!--<groupId>org.scalacheck</groupId>-->
-      <!--<artifactId>scalacheck_2.11</artifactId>-->
-    <!--</dependency>-->
-
-    <!--&lt;!&ndash; other &ndash;&gt;-->
-
-    <!--<dependency>-->
-      <!--<groupId>org.parboiled</groupId>-->
-      <!--<artifactId>parboiled-scala_2.11</artifactId>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-      <!--<groupId>org.apache.commons</groupId>-->
-      <!--<artifactId>commons-lang3</artifactId>-->
-    <!--</dependency>-->
-
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.7</version>
+    </dependency>
   </dependencies>
 
 </project>
