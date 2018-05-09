@@ -1,23 +1,24 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
-    <groupId>openCypher</groupId>
+    <groupId>org.opencypher</groupId>
     <artifactId>front-end-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>expressions-9.0</artifactId>
+  <artifactId>util-9.0</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0-SNAPSHOT</version>
-  <name>openCypher Expressions</name>
+  <name>openCypher Utils</name>
 
-  <description>Cypher expressions</description>
+  <description>Cypher utilities</description>
+  <url>http://components.neo4j.org/${project.artifactId}/${project.version}</url>
 
   <scm>
     <connection>scm:git:git://github.com/openCypher/front-end.git</connection>
-    <developerConnection>scm:git:git@github.com:openCypher/front-end.git</developerConnection>
+    <developerConnection>scm:git:git://github.com/openCypher/front-end.git</developerConnection>
     <url>https://github.com/openCypher/front-end</url>
   </scm>
 
@@ -55,25 +56,11 @@
   </build>
 
   <dependencies>
-
-    <!-- shared versions are defined in the parent pom -->
-
     <dependency>
-      <groupId>openCypher</groupId>
-      <artifactId>util-9.0</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.7</version>
     </dependency>
-
-    <dependency>
-      <groupId>openCypher</groupId>
-      <artifactId>util-9.0</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- scala -->
-
   </dependencies>
 
 </project>
