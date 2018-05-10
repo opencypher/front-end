@@ -11,9 +11,9 @@
   <artifactId>ast-9.0</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0-SNAPSHOT</version>
-  <name>Cypher Abstract Syntax Tree</name>
+  <name>openCypher AST for the Cypher Query Language</name>
 
-  <description>Cypher AST</description>
+  <description>Abstract Syntax Tree and semantic analysis for the Cypher query language</description>
 
   <scm>
     <connection>scm:git:git://github.com/openCypher/front-end.git</connection>

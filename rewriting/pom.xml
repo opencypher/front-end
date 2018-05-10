@@ -11,9 +11,9 @@
   <artifactId>rewriting-9.0</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0-SNAPSHOT</version>
-  <name>Cypher AST rewriters</name>
+  <name>openCypher Rewriting</name>
 
-  <description>Cypher AST rewriters</description>
+  <description>Tree rewriting support, and AST rewriters for the Cypher query language</description>
 
   <scm>
     <connection>scm:git:git://github.com/openCypher/front-end.git</connection>
