@@ -23,5 +23,5 @@ trait BaseContext {
   def notificationLogger: InternalNotificationLogger
   def exceptionCreator: (String, InputPosition) => CypherException
   def monitors: Monitors
-  def errorHandler: (Seq[SemanticErrorDef] => Unit)
+  def errorHandler: Seq[SemanticErrorDef] => Unit
 }

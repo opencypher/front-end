@@ -125,7 +125,7 @@ final case class Scope(symbolTable: Map[String, Symbol],
   def graphNames: Set[String] = selectSymbolNames(_.graph)
 
   def selectSymbolNames(f: Symbol => Boolean): Set[String] = symbolTable.collect {
-    case ((k, symbol)) if f(symbol) => k
+    case (k, symbol) if f(symbol) => k
   }.toSet
 
   def valueSymbolTable: Map[String, Symbol] = symbolTable.collect { case entry if !entry._2.graph => entry }

@@ -39,7 +39,7 @@ trait Phase[-C <: BaseContext, FROM, TO] extends Transformer[C, FROM, TO] {
 
   def postConditions: Set[Condition]
 
-  def name = getClass.getSimpleName
+  def name: String = getClass.getSimpleName
 }
 
 /*
@@ -53,7 +53,7 @@ trait VisitorPhase[-C <: BaseContext, STATE] extends Phase[C, STATE, STATE] {
 
   def visit(value: STATE, context: C): Unit
 
-  override def postConditions = Set.empty
+  override def postConditions: Set[Condition] = Set.empty
 }
 
 case class AddCondition[-C <: BaseContext, STATE](postCondition: Condition) extends Phase[C, STATE, STATE] {

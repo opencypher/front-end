@@ -64,24 +64,24 @@ class SemanticTable(
 
   def id(resolvedRelTypeName:RelTypeName):Option[RelTypeId] = resolvedRelTypeNames.get(resolvedRelTypeName.name)
 
-  def seen(expression: Expression) = types.contains(expression)
+  def seen(expression: Expression): Boolean = types.contains(expression)
 
-  def isNode(expr: String) = getTypeFor(expr) == CTNode.invariant
+  def isNode(expr: String): Boolean = getTypeFor(expr) == CTNode.invariant
 
-  def isRelationship(expr: String) = getTypeFor(expr) == CTRelationship.invariant
+  def isRelationship(expr: String): Boolean = getTypeFor(expr) == CTRelationship.invariant
 
-  def isRelationshipCollection(expr: String) = getTypeFor(expr) == CTList(CTRelationship).invariant
+  def isRelationshipCollection(expr: String): Boolean = getTypeFor(expr) == CTList(CTRelationship).invariant
 
-  def isNodeCollection(expr: String) = getTypeFor(expr) == CTList(CTNode).invariant
+  def isNodeCollection(expr: String): Boolean = getTypeFor(expr) == CTList(CTNode).invariant
 
-  def isNode(expr: LogicalVariable) = types(expr).specified == CTNode.invariant
+  def isNode(expr: LogicalVariable): Boolean = types(expr).specified == CTNode.invariant
 
-  def isRelationship(expr: LogicalVariable) = types(expr).specified == CTRelationship.invariant
+  def isRelationship(expr: LogicalVariable): Boolean = types(expr).specified == CTRelationship.invariant
 
-  def addNode(expr: Variable) =
+  def addNode(expr: Variable): SemanticTable =
     copy(types = types.updated(expr, ExpressionTypeInfo(CTNode.invariant, None)))
 
-  def addRelationship(expr: Variable) =
+  def addRelationship(expr: Variable): SemanticTable =
     copy(types = types.updated(expr, ExpressionTypeInfo(CTRelationship.invariant, None)))
 
   def replaceExpressions(rewriter: Rewriter): SemanticTable = {
@@ -94,10 +94,10 @@ class SemanticTable(
   def replaceNodes(replacements: (ASTNode, ASTNode)*): SemanticTable =
     copy(recordedScopes = recordedScopes.replaceKeys(replacements: _*))
 
-  def symbolDefinition(variable: Variable) =
+  def symbolDefinition(variable: Variable): SymbolUse =
     recordedScopes(variable).symbolTable(variable.name).definition
 
-  override def clone() = copy()
+  override def clone(): SemanticTable = copy()
 
   def copy(
             types: ASTAnnotationMap[Expression, ExpressionTypeInfo] = types,

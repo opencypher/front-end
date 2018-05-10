@@ -43,10 +43,10 @@ class ASTAnnotationMap[K <: ASTNode, V] private (store: Map[(K, InputPosition), 
   override def -(key: K): Map[K, V] =
     new ASTAnnotationMap(store - ((key, key.position)))
 
-  override def mapValues[C](f: (V) => C): ASTAnnotationMap[K, C] =
+  override def mapValues[C](f: V => C): ASTAnnotationMap[K, C] =
     new ASTAnnotationMap(Eagerly.immutableMapValues(store, f))
 
-  def replaceKeys(replacements: (K, K)*) = {
+  def replaceKeys(replacements: (K, K)*): ASTAnnotationMap[K, V] = {
     val expandedReplacements = replacements.map {
       case (oldKey, newKey) => (oldKey -> oldKey.position) -> (newKey -> newKey.position)
     }

@@ -39,5 +39,5 @@ case object PreparatoryRewriting extends Phase[BaseContext, BaseState, BaseState
 
   override val description = "rewrite the AST into a shape that semantic analysis can be performed on"
 
-  override def postConditions = Set.empty
+  override def postConditions: Set[Condition] = Set.empty
 }

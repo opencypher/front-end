@@ -31,11 +31,11 @@ object SyntaxDeprecationWarnings extends VisitorPhase[BaseContext, BaseState] {
   private def findDeprecations(statement: Statement): Set[InternalNotification] =
     statement.treeFold(Set.empty[InternalNotification]) {
       case f@FunctionInvocation(_, FunctionName(name), _, _) if aliases.get(name).nonEmpty =>
-        (seq) => (seq + DeprecatedFunctionNotification(f.position, name, aliases(name)), None)
+        seq => (seq + DeprecatedFunctionNotification(f.position, name, aliases(name)), None)
       case p@RelationshipPattern(Some(variable), _, Some(_), _, _, _) =>
-        (seq) => (seq + DeprecatedVarLengthBindingNotification(p.position, variable.name), None)
+        seq => (seq + DeprecatedVarLengthBindingNotification(p.position, variable.name), None)
       case p@RelationshipPattern(variable, _, length, properties, _, true) if variable.isDefined || length.isDefined || properties.isDefined =>
-        (seq) => (seq + DeprecatedRelTypeSeparatorNotification(p.position), None)
+        seq => (seq + DeprecatedRelTypeSeparatorNotification(p.position), None)
     }
 
   override def phase = DEPRECATION_WARNINGS
