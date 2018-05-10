@@ -29,6 +29,6 @@ final case class ApplyRewriter(name: String, rewriter: Rewriter) extends Rewrite
 final case class EnableRewriterCondition(cond: RewriterCondition) extends RewriterStep
 final case class DisableRewriterCondition(cond: RewriterCondition) extends RewriterStep
 
-trait Condition extends (Any => Seq[String]) {
+trait Condition extends Any => Seq[String] {
    def name: String
 }

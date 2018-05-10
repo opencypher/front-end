@@ -17,9 +17,9 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.expressions.{FunctionInvocation, FunctionName, RelationshipPattern}
-import CompilationPhaseTracer.CompilationPhase.DEPRECATION_WARNINGS
-import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, DeprecatedRelTypeSeparatorNotification, DeprecatedVarLengthBindingNotification, InternalNotification}
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.DEPRECATION_WARNINGS
 import org.opencypher.v9_0.rewriting.rewriters.replaceAliasedFunctionInvocations.aliases
+import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, DeprecatedRelTypeSeparatorNotification, DeprecatedVarLengthBindingNotification, InternalNotification}
 
 object SyntaxDeprecationWarnings extends VisitorPhase[BaseContext, BaseState] {
   override def visit(state: BaseState, context: BaseContext): Unit = {

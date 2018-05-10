@@ -16,8 +16,8 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{DummyPosition, Rewriter}
 import org.opencypher.v9_0.util.test_helpers.{CypherFunSuite, CypherTestSupport}
+import org.opencypher.v9_0.util.{DummyPosition, Rewriter}
 
 trait PredicateTestSupport extends CypherTestSupport {
   self: CypherFunSuite =>

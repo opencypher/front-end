@@ -18,8 +18,8 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_0.rewriting.rewriters.{expandStar, normalizeReturnClauses, normalizeWithClauses, projectFreshSortExpressions}
-import org.opencypher.v9_0.util.{Rewriter, inSequence}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.util.{Rewriter, inSequence}
 
 class ProjectFreshSortExpressionsTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {
   val rewriterUnderTest: Rewriter = projectFreshSortExpressions

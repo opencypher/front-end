@@ -15,10 +15,10 @@
  */
 package org.opencypher.v9_0.ast.conditions
 
+import org.opencypher.v9_0.rewriting.Condition
 import org.opencypher.v9_0.util.ASTNode
 
 import scala.reflect.ClassTag
-import org.opencypher.v9_0.rewriting.Condition
 
 case class containsNoNodesOfType[T <: ASTNode](implicit tag: ClassTag[T]) extends Condition {
   def apply(that: Any): Seq[String] = collectNodesOfType[T].apply(that).map {

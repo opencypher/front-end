@@ -17,10 +17,9 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.{expressions => ast}
-import org.parboiled.scala.Parser
+import org.parboiled.scala.{Parser, _}
 
 import scala.language.postfixOps
-import org.parboiled.scala._
 
 trait Literals extends Parser
   with Base with Strings {

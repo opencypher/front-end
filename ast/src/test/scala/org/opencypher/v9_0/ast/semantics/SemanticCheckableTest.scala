@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.util.{DummyPosition, symbols}
+import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

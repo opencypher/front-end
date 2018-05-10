@@ -15,12 +15,11 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.expressions.{Variable, Pattern => ASTPattern}
-import org.opencypher.v9_0.util.InputPosition
-import org.parboiled.scala.{Parser, Rule1}
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.{SeekOnly, SeekOrScan}
-import org.parboiled.scala._
+import org.opencypher.v9_0.expressions.{Variable, Pattern => ASTPattern}
+import org.opencypher.v9_0.util.InputPosition
+import org.parboiled.scala.{Parser, Rule1, _}
 
 trait Clauses extends Parser
   with StartPoints

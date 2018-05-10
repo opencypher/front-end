@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class StatementReturnColumnsTest extends CypherFunSuite with ParserTest[ast.Statement, List[String]] {
 

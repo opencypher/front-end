@@ -15,9 +15,9 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.{ASTNode, Rewriter}
-import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 
 import scala.annotation.tailrec
 /*

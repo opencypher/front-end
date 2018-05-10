@@ -16,8 +16,8 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

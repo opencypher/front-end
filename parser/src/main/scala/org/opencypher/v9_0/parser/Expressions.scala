@@ -17,9 +17,9 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.{expressions => ast}
+import org.parboiled.scala._
 
 import scala.collection.mutable.ListBuffer
-import org.parboiled.scala._
 
 trait Expressions extends Parser
   with Literals

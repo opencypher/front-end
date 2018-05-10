@@ -17,9 +17,9 @@ package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_0.rewriting.rewriters.{expandStar, inlineProjections, normalizeReturnClauses, normalizeWithClauses}
-import org.opencypher.v9_0.util.{InternalException, inSequence}
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.util.{InternalException, inSequence}
 
 class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport {
 

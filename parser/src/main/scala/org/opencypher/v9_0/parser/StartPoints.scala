@@ -15,10 +15,9 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.util.InputPosition
-import org.parboiled.scala.{Parser, ReductionRule2, Rule1}
 import org.opencypher.v9_0.ast
-import org.parboiled.scala._
+import org.opencypher.v9_0.util.InputPosition
+import org.parboiled.scala.{Parser, ReductionRule2, Rule1, _}
 
 trait StartPoints extends Parser
   with Literals

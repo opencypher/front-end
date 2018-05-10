@@ -15,8 +15,6 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.{expressions => exp}
-
 class ComparisonTest extends ParserAstTest[org.opencypher.v9_0.expressions.Expression] with Expressions {
   implicit val parser = Expression
 

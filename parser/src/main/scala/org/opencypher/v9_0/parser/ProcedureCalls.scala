@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala._
 
 trait ProcedureCalls {

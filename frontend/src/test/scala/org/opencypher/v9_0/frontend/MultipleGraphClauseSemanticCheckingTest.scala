@@ -17,10 +17,9 @@ package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState, SemanticTable}
-import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.frontend.phases._
-import org.opencypher.v9_0.parser
-import org.opencypher.v9_0.parser.{ParserTest, Statement}
+import org.opencypher.v9_0.{ast, parser}
+import org.opencypher.v9_0.parser.ParserTest
 import org.opencypher.v9_0.util.helpers.StringHelper
 import org.opencypher.v9_0.util.spi.MapToPublicExceptions
 import org.opencypher.v9_0.util.symbols.CypherType

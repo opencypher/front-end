@@ -17,10 +17,9 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.expressions.{Namespace => ASTNamespace}
 import org.opencypher.v9_0.util.{InputPosition, InternalException, SyntaxException}
-import org.parboiled.scala.Parser
 import org.parboiled.Context
 import org.parboiled.errors.{InvalidInputError, ParseError}
-import org.parboiled.scala._
+import org.parboiled.scala.{Parser, _}
 import org.parboiled.support.IndexRange
 
 trait Base extends Parser {

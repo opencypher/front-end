@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
-import CompilationPhaseTracer.CompilationPhase.PARSING
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
 import org.opencypher.v9_0.parser.CypherParser
 
 case object Parsing extends Phase[BaseContext, BaseState, BaseState] {

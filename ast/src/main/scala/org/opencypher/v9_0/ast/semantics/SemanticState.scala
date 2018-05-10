@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.ast.ASTAnnotationMap
 import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
 import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
 import org.opencypher.v9_0.util._
@@ -23,7 +24,6 @@ import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
 
 import scala.collection.immutable.HashMap
 import scala.language.postfixOps
-import org.opencypher.v9_0.ast.ASTAnnotationMap
 
 object SymbolUse {
   def apply(variable:LogicalVariable):SymbolUse = SymbolUse(variable.name, variable.position)

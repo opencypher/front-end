@@ -19,6 +19,7 @@ import org.parboiled.common.StringUtils
 import org.parboiled.errors.{DefaultInvalidInputErrorFormatter, InvalidInputError}
 import org.parboiled.matchers.{Matcher, TestNotMatcher}
 import org.parboiled.support.{Chars, MatcherPath}
+
 import scala.collection.JavaConversions._
 
 class InvalidInputErrorFormatter extends DefaultInvalidInputErrorFormatter {

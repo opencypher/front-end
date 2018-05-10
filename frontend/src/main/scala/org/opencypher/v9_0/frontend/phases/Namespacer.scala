@@ -18,9 +18,9 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.ast.semantics.{Scope, SemanticTable, SymbolUse}
 import org.opencypher.v9_0.expressions.{LogicalVariable, ProcedureOutput, Variable}
-import CompilationPhaseTracer.CompilationPhase
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.util.{Ref, Rewriter, bottomUp, inSequence}
-import CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 
 object Namespacer extends Phase[BaseContext, BaseState, BaseState] {
   type VariableRenamings = Map[Ref[Variable], Variable]

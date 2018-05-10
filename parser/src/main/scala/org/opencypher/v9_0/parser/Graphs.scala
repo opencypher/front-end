@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.parboiled.scala.Parser
-import org.parboiled.scala._
 import org.opencypher.v9_0.ast
+import org.parboiled.scala.{Parser, _}
 
 trait Graphs
   extends Parser

@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.{expressions => exp}
 import org.parboiled.scala._
 
 trait Command extends Parser
