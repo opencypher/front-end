@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.frontend.CompilationPhaseTracer.CompilationPhase
-import org.opencypher.v9_0.frontend.CompilationPhaseTracer.CompilationPhase.PIPE_BUILDING
+import CompilationPhaseTracer.CompilationPhase
+import CompilationPhaseTracer.CompilationPhase.PIPE_BUILDING
 import org.opencypher.v9_0.frontend.helpers.closing
 
 /*

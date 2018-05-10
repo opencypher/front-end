@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package scala.org.openCypher.v9_0.ast
+package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.util.{ASTNode, Eagerly, InputPosition}
 

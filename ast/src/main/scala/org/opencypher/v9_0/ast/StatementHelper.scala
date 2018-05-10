@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.frontend.helpers
+package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.{Scope, SemanticCheckResult, SemanticFeature, SemanticState}
 import org.scalatest.Assertions
 

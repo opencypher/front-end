@@ -18,8 +18,7 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticChecker, SemanticFeature, SemanticState}
-import org.opencypher.v9_0.frontend.CompilationPhaseTracer
-import org.opencypher.v9_0.frontend.CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
+import CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
 
 case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
   extends Phase[BaseContext, BaseState, BaseState] {
