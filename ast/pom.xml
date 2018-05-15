@@ -21,11 +21,6 @@
     <url>https://github.com/openCypher/front-end</url>
   </scm>
 
-  <properties>
-    <licensing.prepend.text>notice-asl-prefix.txt</licensing.prepend.text>
-    <license-text.header>${project.baseUri}/ASL-2-header.txt</license-text.header>
-  </properties>
-
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -35,10 +30,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.scalastyle</groupId>
-        <artifactId>scalastyle-maven-plugin</artifactId>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>

@@ -12,8 +12,7 @@
   <inceptionYear>2002-2018</inceptionYear>
 
   <properties>
-    <licensing.prepend.text>notice-asl-prefix.txt</licensing.prepend.text>
-    <license-text.header>ASL-2-header.txt</license-text.header>
+    <licensing.prepend.text>ASL-2-header.txt</licensing.prepend.text>
     <scala.version>2.11.12</scala.version>
     <scala.binary.version>2.11</scala.binary.version>
     <scala.target.vm>1.8</scala.target.vm>
@@ -36,6 +35,7 @@
   </licenses>
 
   <modules>
+    <module>build</module>
     <module>ast</module>
     <module>rewriting</module>
     <module>parser</module>
@@ -50,12 +50,6 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>annotations</artifactId>
-      <version>3.0.1</version>
     </dependency>
 
     <!-- shared java test dependencies -->
@@ -92,7 +86,42 @@
   </dependencies>
 
   <build>
-      <plugins>
+      <resources>
+        <resource>
+          <directory>src/main/resources</directory>
+        </resource>
+        <resource>
+          <directory>${basedir}</directory>
+          <targetPath>META-INF</targetPath>
+          <includes>
+            <include>COPYRIGHT.txt</include>
+            <include>NOTICE.txt</include>
+            <include>LICENSE.txt</include>
+            <include>LICENSES.txt</include>
+            <include>README*</include>
+            <include>CHANGES.txt</include>
+          </includes>
+        </resource>
+      </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <directory>${basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>COPYRIGHT.txt</include>
+          <include>NOTICE.txt</include>
+          <include>LICENSE.txt</include>
+          <include>LICENSES.txt</include>
+          <include>README*</include>
+          <include>CHANGES.txt</include>
+        </includes>
+      </testResource>
+    </testResources>
+
+    <plugins>
         <!-- Default scala compile settings -->
         <plugin>
           <groupId>net.alchim31.maven</groupId>
@@ -178,7 +207,49 @@
           </executions>
         </plugin>
 
-      </plugins>
+      <!-- Licensing settings -->
+      <plugin>
+        <groupId>org.neo4j.build.plugins</groupId>
+        <artifactId>licensing-maven-plugin</artifactId>
+        <version>1.7.6</version>
+        <configuration>
+          <failIfDisliked>true</failIfDisliked>
+          <failIfMissing>true</failIfMissing>
+          <plainTextReport>true</plainTextReport>
+          <prependText>${licensing.prepend.text}</prependText>
+          <includedScopes>compile</includedScopes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>list-all-licenses</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <licensingRequirementFiles>
+                <licensingRequirementFile>licensing-requirements-frontend.xml</licensingRequirementFile>
+              </licensingRequirementFiles>
+              <thirdPartyLicensingFilename>${project.artifactId}-${project.version}-NOTICE.txt
+              </thirdPartyLicensingFilename>
+              <checkExistingNoticeFile>${project.build.directory}/../NOTICE.txt</checkExistingNoticeFile>
+              <listPrependText>list-prefix.txt</listPrependText>
+              <listReport>${project.artifactId}-${project.version}-LICENSES.txt</listReport>
+              <checkExistingLicensesFile>${project.build.directory}/../LICENSES.txt</checkExistingLicensesFile>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>licensing-config</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+
+    </plugins>
   </build>
 
   <profiles>

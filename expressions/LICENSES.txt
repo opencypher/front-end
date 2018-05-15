@@ -5,8 +5,8 @@ libraries. For an overview of the licenses see the NOTICE.txt file.
 ------------------------------------------------------------------------------
 Apache Software License, Version 2.0
   Apache Commons Lang
-  parboiled-core
-  parboiled-scala
+  openCypher Utils
+  scalatest
 ------------------------------------------------------------------------------
 
                                  Apache License
@@ -259,6 +259,7 @@ SUCH DAMAGE.
 ------------------------------------------------------------------------------
 BSD License
   Scala Compiler
+  scala-xml
 ------------------------------------------------------------------------------
 
 Copyright (c) <year>, <copyright holder>

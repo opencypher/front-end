@@ -35,8 +35,6 @@
   </scm>
 
   <properties>
-    <licensing.prepend.text>notice-asl-prefix.txt</licensing.prepend.text>
-    <license-text.header>${project.baseUri}/ASL-2-header.txt</license-text.header>
     <moduleName>org.neo4j.cypher.internal.frontend.v3_5</moduleName>
   </properties>
 
@@ -46,15 +44,6 @@
       <url>http://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.scalastyle</groupId>
-        <artifactId>scalastyle-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
 
