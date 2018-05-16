@@ -11,6 +11,28 @@
   <description>Project that builds the openCypher front end modules</description>
   <inceptionYear>2002-2018</inceptionYear>
 
+  <url>https://www.opencypher.org</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/opencypher/front-end</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>opencypher</id>
+      <name>The openCypher team</name>
+      <email>opencypher@neo4j.com</email>
+      <url>https://www.opencypher.org/</url>
+    </developer>
+  </developers>
+
   <properties>
     <licensing.prepend.text>ASL-2-header.txt</licensing.prepend.text>
     <scala.version>2.11.12</scala.version>
@@ -20,19 +42,6 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
-
-  <scm>
-    <connection>scm:git:git://github.com/neo4j/neo4j.git</connection>
-    <developerConnection>scm:git:git@github.com:neo4j/neo4j.git</developerConnection>
-    <url>https://github.com/neo4j/neo4j</url>
-  </scm>
-
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
 
   <modules>
     <module>build</module>
@@ -127,7 +136,6 @@
           <groupId>net.alchim31.maven</groupId>
           <artifactId>scala-maven-plugin</artifactId>
           <version>3.2.2</version>
-
           <configuration>
             <scalaVersion>${scala.version}</scalaVersion>
             <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
@@ -152,6 +160,7 @@
               <goals>
                 <goal>add-source</goal>
                 <goal>compile</goal>
+                <goal>doc-jar</goal>
               </goals>
             </execution>
             <execution>
@@ -159,6 +168,21 @@
               <phase>process-test-resources</phase>
               <goals>
                 <goal>testCompile</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Builds a source JAR -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.0.0</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
               </goals>
             </execution>
           </executions>
