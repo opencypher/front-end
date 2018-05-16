@@ -9,6 +9,28 @@
   <name>openCypher Front End Licensing Configuration</name>
   <description>Config for licensing checks of the front end modules</description>
 
+  <url>https://www.opencypher.org</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/opencypher/front-end</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>opencypher</id>
+      <name>The openCypher team</name>
+      <email>opencypher@neo4j.com</email>
+      <url>https://www.opencypher.org/</url>
+    </developer>
+  </developers>
+
   <build>
   	<resources>
   		<resource>
