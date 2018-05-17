@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_1.frontend.phases
+package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_1.parser.CypherParser
-import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
+import org.parboiled.scala._
 
-case object Parsing extends Phase[BaseContext, BaseState, BaseState] {
-  private val parser = new CypherParser
+class BaseRulesTest extends ParserTest[Any, Any] with Base {
 
-  override def process(in: BaseState, ignored: BaseContext): BaseState =
-    in.withStatement(parser.parse(in.queryText, in.startPosition))
+  test("testWhitespaceHandling") {
+    implicit val parserToTest: Rule1[Boolean] = "a" ~ WS ~ "b" ~ push(true)
 
-  override val phase = PARSING
+    parsing("a b") shouldGive true
+    parsing("a　b") shouldGive true
+  }
 
-  override val description = "parse text into an AST object"
-
-  override def postConditions = Set(BaseContains[Statement])
+  def convert(result: Any): Any = result
 }

@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.frontend.prettifier
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.parser.CypherParser
+import org.opencypher.v9_1.parser.CypherParser
 import org.opencypher.v9_0.util.test_helpers.{CypherFunSuite, WindowsStringSafe}
 
 class PrettifierTest extends CypherFunSuite {

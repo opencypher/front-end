@@ -17,7 +17,7 @@ package org.opencypher.v9_1.rewriting
 
 import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions.{GetDegree, GreaterThan}
-import org.opencypher.v9_0.parser.ParserFixture.parser
+import org.opencypher.v9_1.parser.ParserFixture.parser
 import org.opencypher.v9_1.rewriting.rewriters.{LabelPredicateNormalizer, MatchPredicateNormalization, PropertyPredicateNormalizer}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{Rewriter, inSequence}

@@ -23,7 +23,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
 
-  import org.opencypher.v9_0.parser.ParserFixture.parser
+  import org.opencypher.v9_1.parser.ParserFixture.parser
 
   test("rewrites * in return") {
     assertRewrite(

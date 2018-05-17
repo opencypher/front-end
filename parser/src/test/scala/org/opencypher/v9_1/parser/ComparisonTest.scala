@@ -13,21 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_1.frontend.phases
+package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_1.parser.CypherParser
-import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
+class ComparisonTest extends ParserAstTest[org.opencypher.v9_0.expressions.Expression] with Expressions {
+  implicit val parser = Expression
 
-case object Parsing extends Phase[BaseContext, BaseState, BaseState] {
-  private val parser = new CypherParser
+  test("a < b") {
+    yields(lt(id("a"), id("b")))
+  }
 
-  override def process(in: BaseState, ignored: BaseContext): BaseState =
-    in.withStatement(parser.parse(in.queryText, in.startPosition))
+  test("a > b") {
+    yields(gt(id("a"), id("b")))
+  }
 
-  override val phase = PARSING
+  test("a > b AND b > c") {
+    yields(and(gt(id("a"), id("b")), gt(id("b"), id("c"))))
+  }
 
-  override val description = "parse text into an AST object"
+  test("a > b > c") {
+    yields(ands(gt(id("a"), id("b")), gt(id("b"), id("c"))))
+  }
 
-  override def postConditions = Set(BaseContains[Statement])
+  test("a > b > c > d") {
+    yields(ands(gt(id("a"), id("b")), gt(id("b"), id("c")), gt(id("c"), id("d"))))
+  }
 }

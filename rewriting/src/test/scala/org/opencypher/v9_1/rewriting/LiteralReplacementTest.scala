@@ -23,7 +23,7 @@ import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 
 class LiteralReplacementTest extends CypherFunSuite  {
 
-  import org.opencypher.v9_0.parser.ParserFixture.parser
+  import org.opencypher.v9_1.parser.ParserFixture.parser
 
   test("should extract starts with patterns") {
     assertRewrite("RETURN x STARTS WITH 'Pattern' as X", "RETURN x STARTS WITH {`  AUTOSTRING0`} as X", Map("  AUTOSTRING0" -> "Pattern"))

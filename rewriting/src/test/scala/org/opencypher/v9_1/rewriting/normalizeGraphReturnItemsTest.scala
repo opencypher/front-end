@@ -22,7 +22,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class normalizeGraphReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
 
-  import org.opencypher.v9_0.parser.ParserFixture._
+  import org.opencypher.v9_1.parser.ParserFixture._
 
   test("do not rename source graph") {
     val original = parser.parse("FROM GRAPH foo AT 'url' WITH * SOURCE GRAPH RETURN 1")

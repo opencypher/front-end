@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_1.frontend.phases
+package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_1.parser.CypherParser
-import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
+import org.opencypher.v9_0.ast
+import org.scalatest.mock.MockitoSugar
 
-case object Parsing extends Phase[BaseContext, BaseState, BaseState] {
-  private val parser = new CypherParser
+object ParserFixture extends MockitoSugar {
 
-  override def process(in: BaseState, ignored: BaseContext): BaseState =
-    in.withStatement(parser.parse(in.queryText, in.startPosition))
+  def parse(a: String): ast.Statement = parser.parse(a)
 
-  override val phase = PARSING
-
-  override val description = "parse text into an AST object"
-
-  override def postConditions = Set(BaseContains[Statement])
+  val parser = new CypherParser
 }

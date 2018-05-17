@@ -18,17 +18,17 @@ package org.opencypher.v9_1.frontend
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState, SemanticTable}
 import org.opencypher.v9_1.frontend.phases._
-import org.opencypher.v9_0.{ast, parser}
-import org.opencypher.v9_0.parser.ParserTest
+import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.helpers.StringHelper
 import org.opencypher.v9_0.util.spi.MapToPublicExceptions
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.{CypherException, InputPosition}
+import org.opencypher.v9_1.parser.{ParserTest, Statement}
 import org.parboiled.scala.Rule1
 
 class MultipleGraphClauseSemanticCheckingTest
   extends ParserTest[ast.Statement, SemanticCheckResult]
-    with parser.Statement
+    with Statement
     with AstConstructionTestSupport {
 
   // INFO: Use result.dumpAndExit to debug these tests

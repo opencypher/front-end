@@ -21,7 +21,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class NameMatchPatternElementTest extends CypherFunSuite {
 
-  import org.opencypher.v9_0.parser.ParserFixture._
+  import org.opencypher.v9_1.parser.ParserFixture._
 
   test("name all NodePatterns in Query") {
     val original = parser.parse("MATCH (n)-[r:Foo]->() RETURN n")

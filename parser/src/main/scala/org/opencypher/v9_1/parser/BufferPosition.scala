@@ -13,12 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_1.rewriting
+package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
-import org.opencypher.v9_1.parser.ParserFixture
+import org.opencypher.v9_0.util.InputPosition
+import org.parboiled.Context
+import org.parboiled.buffers.InputBuffer
 
-trait AstRewritingTestSupport extends CypherTestSupport with AstConstructionTestSupport {
-  val parser = ParserFixture.parser
+object BufferPosition {
+  def apply(buffer: InputBuffer, offset: Int): InputPosition = {
+    val position = buffer.getPosition(offset)
+    InputPosition(offset, position.line, position.column)
+  }
+}
+
+object ContextPosition {
+  def apply(ctx: Context[Any]): InputPosition =
+    BufferPosition(ctx.getInputBuffer, ctx.getMatchRange.start)
 }

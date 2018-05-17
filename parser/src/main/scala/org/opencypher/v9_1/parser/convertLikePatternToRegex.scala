@@ -13,12 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_1.rewriting
+package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
-import org.opencypher.v9_1.parser.ParserFixture
+import java.util.regex.Pattern._
 
-trait AstRewritingTestSupport extends CypherTestSupport with AstConstructionTestSupport {
-  val parser = ParserFixture.parser
+/**
+ * Converts [[ParsedLikePattern]] into a regular expression string
+ */
+case object convertLikePatternToRegex {
+  def apply(in: ParsedLikePattern, caseInsensitive: Boolean = false): String =
+    in.ops.map(convert).mkString(if (caseInsensitive) "(?i)" else "", "", "")
+
+  private def convert(in: LikePatternOp): String = in match {
+    case MatchText(s) => quote(s)
+    case MatchMany => ".*"
+    case MatchSingle => "."
+  }
 }

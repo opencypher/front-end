@@ -13,21 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_1.frontend.phases
+package org.opencypher.v9_1.parser.matchers
 
-import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_1.parser.CypherParser
-import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
+import org.parboiled.MatcherContext
+import org.parboiled.matchers.CustomMatcher
 
-case object Parsing extends Phase[BaseContext, BaseState, BaseState] {
-  private val parser = new CypherParser
+abstract class ScalaCharMatcher(label: String) extends CustomMatcher(label) {
 
-  override def process(in: BaseState, ignored: BaseContext): BaseState =
-    in.withStatement(parser.parse(in.queryText, in.startPosition))
+  protected def matchChar(c: Char): Boolean
 
-  override val phase = PARSING
+  def `match`[V](context: MatcherContext[V]): Boolean =
+    if (matchChar(context.getCurrentChar)) {
+      context.advanceIndex(1)
+      context.createNode()
+      true
+    } else {
+      false
+    }
 
-  override val description = "parse text into an AST object"
+  def isSingleCharMatcher: Boolean = true
 
-  override def postConditions = Set(BaseContains[Statement])
+  def canMatchEmpty: Boolean = false
+
+  def isStarterChar(c: Char): Boolean = matchChar(c)
+
+  def getStarterChar: Char = 'a'
 }

@@ -17,7 +17,7 @@ package org.opencypher.v9_1.frontend.prettifier
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.parser.Expressions
+import org.opencypher.v9_1.parser.Expressions
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.parboiled.scala.{Parser, ReportingParseRunner}
 

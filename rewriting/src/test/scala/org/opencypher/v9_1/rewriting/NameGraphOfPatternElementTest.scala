@@ -20,7 +20,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class NameGraphOfPatternElementTest extends CypherFunSuite {
 
-  import org.opencypher.v9_0.parser.ParserFixture._
+  import org.opencypher.v9_1.parser.ParserFixture._
 
   test("name all node patterns in GRAPH OF") {
     val original = parser.parse("RETURN GRAPH OF (n)-[r:Foo]->() RETURN n")
