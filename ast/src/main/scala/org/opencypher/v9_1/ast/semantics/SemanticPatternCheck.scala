@@ -45,7 +45,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
       case x:EveryPath =>
         (x.element, ctx) match {
           // single node variable is allowed to be already bound in MATCH and GRAPH OF
-          case (_: NodePattern, SemanticContext.GraphOf) =>
+          case (_: NodePattern, SemanticContext.Construct) =>
             declareVariables(ctx, x.element)
           case (_: NodePattern, SemanticContext.Match) =>
             declareVariables(ctx, x.element)
@@ -161,7 +161,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
   def check(ctx:SemanticContext, x:RelationshipPattern):SemanticCheck = {
     def checkNotUndirectedWhenCreating: SemanticCheck = {
       ctx match {
-        case SemanticContext.Create | SemanticContext.GraphOf if x.direction == SemanticDirection.BOTH =>
+        case SemanticContext.Create | SemanticContext.Construct if x.direction == SemanticDirection.BOTH =>
           error(s"Only directed relationships are supported in ${name(ctx)}", x.position)
         case _ =>
           SemanticCheckResult.success
@@ -174,7 +174,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
           case SemanticContext.Merge |
                SemanticContext.Create |
                SemanticContext.CreateUnique |
-               SemanticContext.GraphOf =>
+               SemanticContext.Construct =>
             error(s"Variable length relationships cannot be used in ${name(ctx)}", x.position)
           case _ =>
             None
@@ -217,7 +217,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         val possibleType = if (x.length.isEmpty) CTRelationship else CTList(CTRelationship)
 
         ctx match {
-          case SemanticContext.Match | SemanticContext.GraphOf =>
+          case SemanticContext.Match | SemanticContext.Construct =>
             implicitVariable(variable, possibleType)
           case SemanticContext.Expression =>
             ensureDefined(variable) chain
@@ -249,7 +249,7 @@ object checkNoParamMapsWhenMatching {
       SemanticError("Parameter maps cannot be used in MATCH patterns (use a literal map instead, eg. \"{id: {param}.id}\")", e.position)
     case (Some(e: Parameter), SemanticContext.Merge) =>
       SemanticError("Parameter maps cannot be used in MERGE patterns (use a literal map instead, eg. \"{id: {param}.id}\")", e.position)
-    case (Some(e: Parameter), SemanticContext.GraphOf) =>
+    case (Some(e: Parameter), SemanticContext.Construct) =>
       SemanticError("Parameter maps cannot be used in GRAPH OF patterns (use a literal map instead, eg. \"{id: {param}.id}\")", e.position)
     case _ =>
       None

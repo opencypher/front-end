@@ -18,7 +18,7 @@ package org.opencypher.v9_1.rewriting
 import org.opencypher.v9_1.rewriting.rewriters.nameGraphOfPatternElements
 import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
-class NameGraphOfPatternElementTest extends CypherFunSuite {
+class NameConstructPatternElementTest extends CypherFunSuite {
 
   import org.opencypher.v9_1.parser.ParserFixture._
 
