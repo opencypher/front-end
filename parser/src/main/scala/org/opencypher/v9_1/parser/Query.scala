@@ -23,9 +23,9 @@ trait Query extends Parser
   with Base {
 
   def Query: Rule1[ast.Query] = (
-      RegularQuery
-    | BulkImportQuery
-  )
+    RegularQuery
+      | BulkImportQuery
+    )
 
   def RegularQuery: Rule1[ast.Query] = rule {
     SingleQuery ~ zeroOrMore(WS ~ Union) ~~>> (ast.Query(None, _))
@@ -44,31 +44,27 @@ trait Query extends Parser
   }
 
   def Clause: Rule1[ast.Clause] = (
-      LoadCSV
-    | From
-    | Into
-    | Start
-    | Match
-    | Unwind
-    | Merge
-    | CreateGraph
-    | Create
-    | SetClause
-    | DeleteGraphs
-    | Delete
-    | Remove
-    | Foreach
-    | With
-    | Call
-    | Persist
-    | Relocate
-    | Return
-    | Snapshot
-    | Pragma
-  )
+    FromGraph
+      | ConstructGraph
+      | LoadCSV
+      | Start
+      | Match
+      | Unwind
+      | Merge
+      | CreateUnique
+      | Create
+      | SetClause
+      | Delete
+      | Remove
+      | Foreach
+      | With
+      | Call
+      | Return
+      | Pragma
+    )
 
-  def Union: ReductionRule1[ast.QueryPart, ast.QueryPart] = rule("UNION") (
-      keyword("UNION ALL") ~>> position ~~ SingleQuery ~~> ((q: ast.QueryPart, p, sq) => ast.UnionAll(q, sq)(p))
-    | keyword("UNION") ~>> position ~~ SingleQuery ~~> ((q: ast.QueryPart, p, sq) => ast.UnionDistinct(q, sq)(p))
+  def Union: ReductionRule1[ast.QueryPart, ast.QueryPart] = rule("UNION")(
+    keyword("UNION ALL") ~>> position ~~ SingleQuery ~~> ((q: ast.QueryPart, p, sq) => ast.UnionAll(q, sq)(p))
+      | keyword("UNION") ~>> position ~~ SingleQuery ~~> ((q: ast.QueryPart, p, sq) => ast.UnionDistinct(q, sq)(p))
   )
 }
