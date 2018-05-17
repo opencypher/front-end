@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_0.expressions.{Literal, StringLiteral, UnsignedDecimalIntegerLiteral}
+import org.opencypher.v9_1.expressions.{Literal, StringLiteral, UnsignedDecimalIntegerLiteral}
 import org.opencypher.v9_0.util.symbols._
 
 class LiteralTest extends SemanticFunSuite {

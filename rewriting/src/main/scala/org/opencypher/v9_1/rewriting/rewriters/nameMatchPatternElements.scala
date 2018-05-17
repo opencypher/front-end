@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast.Match
-import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_1.expressions.Expression
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 
 case object nameMatchPatternElements extends Rewriter {

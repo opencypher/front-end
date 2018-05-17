@@ -15,9 +15,10 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_1.rewriting.rewriters.InliningContext.INLINING_THRESHOLD
 import org.opencypher.v9_0.util._
+import org.opencypher.v9_1.expressions.{PathExpression, Variable}
 
 case class InliningContext(projections: Map[LogicalVariable, Expression] = Map.empty,
                            seenVariables: Set[LogicalVariable] = Set.empty,

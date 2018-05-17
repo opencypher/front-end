@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_1.ast
 
-import org.opencypher.v9_0.expressions.{LogicalVariable, Variable}
+import org.opencypher.v9_1.expressions.LogicalVariable
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.expressions.Variable
 
 class ConnectedComponentsTest extends CypherFunSuite {
   import connectedComponents._

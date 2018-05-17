@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_1.expressions.Expression
 import org.opencypher.v9_0.util.helpers.PartialFunctionSupport
 
 case class MatchPredicateNormalizerChain(normalizers: MatchPredicateNormalizer*) extends MatchPredicateNormalizer {

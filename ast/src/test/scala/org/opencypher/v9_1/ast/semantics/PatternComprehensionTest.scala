@@ -15,13 +15,15 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.expressions
+import org.opencypher.v9_1.expressions._
 
 class PatternComprehensionTest extends SemanticFunSuite {
 
   val n = NodePattern(Some(variable("n")), Seq.empty, None)(pos)
-  val x = NodePattern(Some(variable("x")), Seq.empty, None)(pos)
+  val x = expressions.NodePattern(Some(variable("x")), Seq.empty, None)(pos)
   val r = RelationshipPattern(None, Seq.empty, None, None, SemanticDirection.OUTGOING)(pos)
   val pattern = RelationshipsPattern(RelationshipChain(n, r, x)(pos))(pos)
   val property = Property(variable("x"), PropertyKeyName("prop")(pos))(pos)

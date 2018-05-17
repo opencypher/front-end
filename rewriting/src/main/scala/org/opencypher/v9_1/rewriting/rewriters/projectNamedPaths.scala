@@ -16,9 +16,11 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast.{AliasedReturnItem, With}
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.{InternalException, Ref, Rewriter, topDown}
+import org.opencypher.v9_1.expressions
+import org.opencypher.v9_1.expressions._
 
 import scala.annotation.tailrec
 
@@ -113,7 +115,7 @@ case object projectNamedPaths extends Rewriter {
 
     case part @ NamedPatternPart(variable, patternPart) =>
       acc =>
-        val pathExpr = PathExpression(patternPartPathExpression(patternPart))(part.position)
+        val pathExpr = expressions.PathExpression(patternPartPathExpression(patternPart))(part.position)
         (acc.withNamedPath(variable -> pathExpr).withProtectedVariable(Ref(variable)), Some(identity))
   }
 

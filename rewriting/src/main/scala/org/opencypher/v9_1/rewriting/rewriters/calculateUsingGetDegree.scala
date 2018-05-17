@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
+import org.opencypher.v9_1.expressions.{RelTypeName, SemanticDirection}
 
 /*
  * Calculates how to transform a pattern (a)-[:R1:R2...]->() to getDegree call

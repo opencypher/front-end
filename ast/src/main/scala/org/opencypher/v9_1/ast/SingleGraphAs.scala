@@ -16,9 +16,10 @@
 package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics._
-import org.opencypher.v9_0.expressions.{Pattern, Variable}
+import org.opencypher.v9_1.expressions.Variable
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
 import org.opencypher.v9_1.ast.semantics.{ContextGraphs, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState}
+import org.opencypher.v9_1.expressions.{Pattern, Variable}
 
 sealed trait SingleGraphAs extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
 

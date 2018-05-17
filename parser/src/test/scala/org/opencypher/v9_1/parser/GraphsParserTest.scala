@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_1.{expressions => exp}
 import org.opencypher.v9_0.util.{DummyPosition, InputPosition}
 import org.parboiled.scala._
 
@@ -92,5 +92,5 @@ class GraphsParserTest
     exp.NamedPatternPart(v("p"), exp.EveryPath(exp.NodePattern(None, List(), None)(pos)))(pos),
     exp.NamedPatternPart(v("q"), exp.EveryPath(exp.NodePattern(None, List(), None)(pos)))(pos)
   ))(pos)
-  private implicit def v(name: String): org.opencypher.v9_0.expressions.Variable = exp.Variable(name)(pos)
+  private implicit def v(name: String): org.opencypher.v9_1.expressions.Variable = exp.Variable(name)(pos)
 }

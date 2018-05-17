@@ -16,6 +16,7 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast
+import org.opencypher.v9_1.expressions.{Pattern, Variable}
 import org.parboiled.scala.{Parser, _}
 
 trait Graphs
@@ -26,15 +27,15 @@ trait Graphs
     ((Parameter ~~> (Left(_))) | (StringLiteral ~~> (Right(_)))) ~~>> (ast.GraphUrl(_))
   }
 
-  def GraphRef: Rule1[org.opencypher.v9_0.expressions.Variable] = !ReservedClauseStartKeyword ~~ Variable
+  def GraphRef: Rule1[Variable] = !ReservedClauseStartKeyword ~~ Variable
 
-  def GraphRefList: Rule1[List[org.opencypher.v9_0.expressions.Variable]] =
+  def GraphRefList: Rule1[List[Variable]] =
     oneOrMore(GraphRef, separator = CommaSep)
 
-  private def AsGraph: Rule1[org.opencypher.v9_0.expressions.Variable] =
+  private def AsGraph: Rule1[Variable] =
     keyword("AS") ~~ GraphRef
 
-  private def GraphAlias: Rule2[org.opencypher.v9_0.expressions.Variable, Option[org.opencypher.v9_0.expressions.Variable]] = rule("<graph-ref> AS <name>") {
+  private def GraphAlias: Rule2[Variable, Option[Variable]] = rule("<graph-ref> AS <name>") {
     GraphRef ~~ optional(AsGraph)
   }
 
@@ -59,11 +60,11 @@ trait Graphs
   }
 
   private def GraphOfShorthand: Rule1[ast.SingleGraphAs] =
-    keyword("GRAPH") ~~ GraphRef ~~ keyword("OF") ~~ Pattern ~~>> { (ref: org.opencypher.v9_0.expressions.Variable, of: org.opencypher.v9_0.expressions.Pattern) => ast
+    keyword("GRAPH") ~~ GraphRef ~~ keyword("OF") ~~ Pattern ~~>> { (ref: Variable, of: Pattern) => ast
       .GraphOfAs(of, Some(ref)) }
 
   private def GraphAtShorthand: Rule1[ast.SingleGraphAs] =
-    keyword("GRAPH") ~~ GraphRef ~~ keyword("AT") ~~ GraphUrl ~~>> { (ref: org.opencypher.v9_0.expressions.Variable, url: ast.GraphUrl) => ast
+    keyword("GRAPH") ~~ GraphRef ~~ keyword("AT") ~~ GraphUrl ~~>> { (ref: Variable, url: ast.GraphUrl) => ast
       .GraphAtAs(url, Some(ref)) }
 
   private def GraphShorthand = GraphOfShorthand | GraphAtShorthand

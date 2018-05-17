@@ -16,9 +16,9 @@
 package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.{SemanticCheck, SemanticExpressionCheck}
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
 import org.opencypher.v9_1.ast.semantics.{SemanticCheckable, SemanticExpressionCheck}
+import org.opencypher.v9_1.expressions.Variable
 
 final case class GraphRef(name: Variable)(val position: InputPosition)
   extends ASTNode with SemanticCheckable {

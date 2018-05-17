@@ -16,8 +16,9 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast._
-import org.opencypher.v9_0.expressions.{Expression, Variable}
+import org.opencypher.v9_1.expressions.Expression
 import org.opencypher.v9_0.util._
+import org.opencypher.v9_1.expressions.Variable
 
 import scala.collection.mutable
 

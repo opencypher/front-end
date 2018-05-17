@@ -17,7 +17,7 @@ package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast.{AstConstructionTestSupport, Clause}
 import org.opencypher.v9_1.ast
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_1.{expressions => exp}
 import org.parboiled.scala._
 
 import scala.language.implicitConversions

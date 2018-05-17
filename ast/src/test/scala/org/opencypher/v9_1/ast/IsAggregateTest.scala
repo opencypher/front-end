@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_1.ast
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.expressions.Namespace
 
 class IsAggregateTest extends CypherFunSuite with AstConstructionTestSupport {
 

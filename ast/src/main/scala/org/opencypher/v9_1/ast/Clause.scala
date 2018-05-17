@@ -17,13 +17,15 @@ package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.SemanticCheckResult.{error, success}
 import org.opencypher.v9_1.ast.semantics._
-import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions.{functions, _}
+import org.opencypher.v9_1.expressions.Expression.SemanticContext
+import org.opencypher.v9_1.expressions.{functions, _}
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_1.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState}
+import org.opencypher.v9_1.expressions._
+import org.opencypher.v9_1.expressions.functions.Exists
 
 sealed trait Clause extends ASTNode with SemanticCheckable {
   def name: String
@@ -271,7 +273,7 @@ case class Match(
         case In(Property(Variable(id), PropertyKeyName(name)),_) if id == variable =>
           acc => (acc :+ name, None)
         case predicate@FunctionInvocation(_, _, _, IndexedSeq(Property(Variable(id), PropertyKeyName(name))))
-          if id == variable && predicate.function == functions.Exists =>
+          if id == variable && predicate.function == Exists =>
           acc => (acc :+ name, None)
         case IsNotNull(Property(Variable(id), PropertyKeyName(name))) if id == variable =>
           acc => (acc :+ name, None)

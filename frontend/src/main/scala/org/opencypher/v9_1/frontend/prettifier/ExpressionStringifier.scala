@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_1.frontend.prettifier
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_0.util.InternalException
+import org.opencypher.v9_1.expressions._
 
 case class ExpressionStringifier(extender: Expression => String = e => throw new InternalException(s"failed to pretty print $e")) {
   def apply(ast: Expression): String = {

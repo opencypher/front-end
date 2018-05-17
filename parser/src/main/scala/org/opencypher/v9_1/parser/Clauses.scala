@@ -17,10 +17,11 @@ package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast
 import org.opencypher.v9_1.ast.{SeekOnly, SeekOrScan}
-import org.opencypher.v9_0.expressions.{Variable, Pattern => ASTPattern}
+import org.opencypher.v9_1.expressions.{Variable, Pattern => ASTPattern}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_1
 import org.opencypher.v9_1.ast.{Skip, Where}
+import org.opencypher.v9_1.expressions.{Pattern, Variable}
 import org.parboiled.scala.{Parser, Rule1, _}
 
 trait Clauses extends Parser
@@ -65,15 +66,15 @@ trait Clauses extends Parser
     keyword("CREATE") ~~ keyword(">>")  ~~ CreatedGraph ~~>>(t => ast.CreateNewTargetGraph(t._1, t._2, t._3, t._4))
   }
 
-  private def CreatedGraph: Rule1[(Boolean, Variable, Option[ASTPattern], ast.GraphUrl)] =
+  private def CreatedGraph: Rule1[(Boolean, Variable, Option[Pattern], ast.GraphUrl)] =
     CreatedGraphAt | CreatedGraphAs
 
-  private def CreatedGraphAt: Rule1[(Boolean,  Variable, Option[ASTPattern], ast.GraphUrl)] =
+  private def CreatedGraphAt: Rule1[(Boolean,  Variable, Option[Pattern], ast.GraphUrl)] =
     OptSnapshot ~~ keyword("GRAPH") ~~ Variable ~~ optional(keyword("OF") ~~ Pattern) ~~ keyword("AT") ~~ GraphUrl ~~> {
       (snapshot, graph, pattern, url) => (snapshot, graph, pattern, url)
     }
 
-  private def CreatedGraphAs: Rule1[(Boolean,  Variable, Option[ASTPattern], ast.GraphUrl)] =
+  private def CreatedGraphAs: Rule1[(Boolean,  Variable, Option[Pattern], ast.GraphUrl)] =
     OptSnapshot ~~ keyword("GRAPH") ~~ optional(keyword("OF") ~~ Pattern) ~~ keyword("AT") ~~ GraphUrl ~~ keyword("AS") ~~ Variable ~~> {
       (snapshot, pattern, url, graph) => (snapshot, graph, pattern, url)
     }

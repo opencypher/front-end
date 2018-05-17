@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.parser
 
+import org.opencypher.v9_1.{expressions => ast}
 import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.{expressions => ast}
 import org.parboiled.scala.{Parser, _}
 
 import scala.language.postfixOps
@@ -24,9 +24,9 @@ import scala.language.postfixOps
 trait Literals extends Parser
   with Base with Strings {
 
-  def Expression: Rule1[org.opencypher.v9_0.expressions.Expression]
+  def Expression: Rule1[org.opencypher.v9_1.expressions.Expression]
 
-  def Variable: Rule1[org.opencypher.v9_0.expressions.Variable] =
+  def Variable: Rule1[org.opencypher.v9_1.expressions.Variable] =
     rule("a variable") { SymbolicNameString ~~>> (ast.Variable(_) ) }.memoMismatches
 
   def ReservedClauseStartKeyword: Rule0 =
@@ -56,87 +56,87 @@ trait Literals extends Parser
     keyword("UNWIND") |
     keyword("WITH")
 
-  def ProcedureName: Rule1[org.opencypher.v9_0.expressions.ProcedureName] =
+  def ProcedureName: Rule1[org.opencypher.v9_1.expressions.ProcedureName] =
     rule("a procedure name") { SymbolicNameString ~~>> (ast.ProcedureName(_) ) }.memoMismatches
 
-  def FunctionName: Rule1[org.opencypher.v9_0.expressions.FunctionName] =
+  def FunctionName: Rule1[org.opencypher.v9_1.expressions.FunctionName] =
     rule("a function name") { SymbolicNameString ~~>> (ast.FunctionName(_) ) }.memoMismatches
 
-  def PropertyKeyName: Rule1[org.opencypher.v9_0.expressions.PropertyKeyName] =
+  def PropertyKeyName: Rule1[org.opencypher.v9_1.expressions.PropertyKeyName] =
     rule("a property key name") { SymbolicNameString ~~>> (ast.PropertyKeyName(_) ) }.memoMismatches
 
-  def PropertyKeyNames: Rule1[List[org.opencypher.v9_0.expressions.PropertyKeyName]] =
+  def PropertyKeyNames: Rule1[List[org.opencypher.v9_1.expressions.PropertyKeyName]] =
     rule("a list of property key names") {
       (oneOrMore(WS ~~ SymbolicNameString ~~ WS ~~>> (ast.PropertyKeyName(_) ), separator = ",") memoMismatches).suppressSubnodes
     }
 
-  def LabelName: Rule1[org.opencypher.v9_0.expressions.LabelName] =
+  def LabelName: Rule1[org.opencypher.v9_1.expressions.LabelName] =
     rule("a label name") { SymbolicNameString ~~>> (ast.LabelName(_) ) }.memoMismatches
 
-  def RelTypeName: Rule1[org.opencypher.v9_0.expressions.RelTypeName] =
+  def RelTypeName: Rule1[org.opencypher.v9_1.expressions.RelTypeName] =
     rule("a rel type name") { SymbolicNameString ~~>> (ast.RelTypeName(_) ) }.memoMismatches
 
-  def Operator: Rule1[org.opencypher.v9_0.expressions.Variable] = rule {
+  def Operator: Rule1[org.opencypher.v9_1.expressions.Variable] = rule {
     OpChar ~ zeroOrMore(OpCharTail) ~>>> (ast.Variable(_: String)) ~ !OpCharTail
   }
 
-  def MapLiteral: Rule1[org.opencypher.v9_0.expressions.MapExpression] = rule {
+  def MapLiteral: Rule1[org.opencypher.v9_1.expressions.MapExpression] = rule {
     group(
       ch('{') ~~ zeroOrMore(PropertyKeyName ~~ ch(':') ~~ Expression, separator = CommaSep) ~~ ch('}')
     ) ~~>> (ast.MapExpression(_))
   }
 
-  def LiteralEntry: Rule1[org.opencypher.v9_0.expressions.MapProjectionElement] = rule("literal entry")(
+  def LiteralEntry: Rule1[org.opencypher.v9_1.expressions.MapProjectionElement] = rule("literal entry")(
     PropertyKeyName ~~ ch(':') ~~ Expression ~~>> (ast.LiteralEntry(_, _)))
 
-  def PropertySelector: Rule1[org.opencypher.v9_0.expressions.MapProjectionElement] = rule("property selector")(
+  def PropertySelector: Rule1[org.opencypher.v9_1.expressions.MapProjectionElement] = rule("property selector")(
     ch('.') ~~ Variable ~~>> (ast.PropertySelector(_)))
 
-  def VariableSelector: Rule1[org.opencypher.v9_0.expressions.MapProjectionElement] = rule("variable selector")(
+  def VariableSelector: Rule1[org.opencypher.v9_1.expressions.MapProjectionElement] = rule("variable selector")(
     Variable ~~>> (ast.VariableSelector(_)))
 
-  def AllPropertiesSelector: Rule1[org.opencypher.v9_0.expressions.MapProjectionElement] = rule("all properties selector")(
+  def AllPropertiesSelector: Rule1[org.opencypher.v9_1.expressions.MapProjectionElement] = rule("all properties selector")(
     ch('.') ~~ ch('*') ~ push(ast.AllPropertiesSelector()(_)))
 
-  def MapProjection: Rule1[org.opencypher.v9_0.expressions.MapProjection] = rule {
+  def MapProjection: Rule1[org.opencypher.v9_1.expressions.MapProjection] = rule {
     group(
       Variable ~~ ch('{') ~~ zeroOrMore(LiteralEntry | PropertySelector | VariableSelector | AllPropertiesSelector, CommaSep) ~~ ch('}')
     ) ~~>> (ast.MapProjection(_, _))
   }
 
-  def Parameter: Rule1[org.opencypher.v9_0.expressions.Parameter] = rule("a parameter") {
+  def Parameter: Rule1[org.opencypher.v9_1.expressions.Parameter] = rule("a parameter") {
     NewParameter | OldParameter
   }
 
-  def NewParameter: Rule1[org.opencypher.v9_0.expressions.Parameter] = rule("a parameter (new syntax") {
+  def NewParameter: Rule1[org.opencypher.v9_1.expressions.Parameter] = rule("a parameter (new syntax") {
     ((ch('$') ~~ (UnescapedSymbolicNameString | EscapedSymbolicNameString | UnsignedDecimalInteger ~> (_.toString))) memoMismatches) ~~>> (ast.Parameter(_, CTAny))
   }
 
-  def OldParameter: Rule1[org.opencypher.v9_0.expressions.Parameter] = rule("a parameter (old syntax)") {
+  def OldParameter: Rule1[org.opencypher.v9_1.expressions.Parameter] = rule("a parameter (old syntax)") {
     ((ch('{') ~~ (UnescapedSymbolicNameString | EscapedSymbolicNameString | UnsignedDecimalInteger ~> (_.toString)) ~~ ch('}')) memoMismatches) ~~>> (ast.Parameter(_, CTAny))
   }
 
-  def NumberLiteral: Rule1[org.opencypher.v9_0.expressions.Literal] = rule("a number") (
+  def NumberLiteral: Rule1[org.opencypher.v9_1.expressions.Literal] = rule("a number") (
       DoubleLiteral
     | SignedIntegerLiteral
   ).memoMismatches
 
-  def DoubleLiteral: Rule1[org.opencypher.v9_0.expressions.DecimalDoubleLiteral] = rule("a floating point number") (
+  def DoubleLiteral: Rule1[org.opencypher.v9_1.expressions.DecimalDoubleLiteral] = rule("a floating point number") (
       ExponentDecimalReal ~>>> (ast.DecimalDoubleLiteral(_))
     | RegularDecimalReal ~>>> (ast.DecimalDoubleLiteral(_))
   )
 
-  def SignedIntegerLiteral: Rule1[org.opencypher.v9_0.expressions.SignedIntegerLiteral] = rule("an integer") (
+  def SignedIntegerLiteral: Rule1[org.opencypher.v9_1.expressions.SignedIntegerLiteral] = rule("an integer") (
       HexInteger ~>>> (ast.SignedHexIntegerLiteral(_))
     | OctalInteger ~>>> (ast.SignedOctalIntegerLiteral(_))
     | DecimalInteger ~>>> (ast.SignedDecimalIntegerLiteral(_))
   )
 
-  def UnsignedIntegerLiteral: Rule1[org.opencypher.v9_0.expressions.UnsignedIntegerLiteral] = rule("an unsigned integer") {
+  def UnsignedIntegerLiteral: Rule1[org.opencypher.v9_1.expressions.UnsignedIntegerLiteral] = rule("an unsigned integer") {
     UnsignedDecimalInteger ~>>> (ast.UnsignedDecimalIntegerLiteral(_))
   }
 
-  def RangeLiteral: Rule1[org.opencypher.v9_0.expressions.Range] = rule (
+  def RangeLiteral: Rule1[org.opencypher.v9_1.expressions.Range] = rule (
       group(
         optional(UnsignedIntegerLiteral ~ WS) ~
         ".." ~
@@ -145,19 +145,19 @@ trait Literals extends Parser
     | UnsignedIntegerLiteral ~~>> (l => ast.Range(Some(l), Some(l)))
   )
 
-  def NodeLabels: Rule1[Seq[org.opencypher.v9_0.expressions.LabelName]] = rule("node labels") {
+  def NodeLabels: Rule1[Seq[org.opencypher.v9_1.expressions.LabelName]] = rule("node labels") {
     (oneOrMore(NodeLabel, separator = WS) memoMismatches).suppressSubnodes
   }
 
-  def NodeLabel: Rule1[org.opencypher.v9_0.expressions.LabelName] = rule {
+  def NodeLabel: Rule1[org.opencypher.v9_1.expressions.LabelName] = rule {
     ((operator(":") ~~ LabelName) memoMismatches).suppressSubnodes
   }
 
-  def RelType: Rule1[org.opencypher.v9_0.expressions.RelTypeName] = rule {
+  def RelType: Rule1[org.opencypher.v9_1.expressions.RelTypeName] = rule {
     ((operator(":") ~~ RelTypeName) memoMismatches).suppressSubnodes
   }
 
-  def StringLiteral: Rule1[org.opencypher.v9_0.expressions.StringLiteral] = rule("\"...string...\"") {
+  def StringLiteral: Rule1[org.opencypher.v9_1.expressions.StringLiteral] = rule("\"...string...\"") {
     (((
        ch('\'') ~ StringCharacters('\'') ~ ch('\'')
      | ch('"') ~ StringCharacters('"') ~ ch('"')

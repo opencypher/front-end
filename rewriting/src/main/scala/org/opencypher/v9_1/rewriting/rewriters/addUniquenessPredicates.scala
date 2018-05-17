@@ -16,9 +16,11 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast.{Clause, Match, Merge}
-import org.opencypher.v9_0.expressions.{Expression, Pattern, _}
+import org.opencypher.v9_1.expressions.Expression
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_1.ast.Where
+import org.opencypher.v9_1.expressions
+import org.opencypher.v9_1.expressions._
 
 case object addUniquenessPredicates extends Rewriter {
 
@@ -72,7 +74,7 @@ case object addUniquenessPredicates extends Rewriter {
     }
 
   private def createPredicateFor(uniqueRels: Seq[UniqueRel], pos: InputPosition): Option[Expression] = {
-    createPredicatesFor(uniqueRels, pos).reduceOption(And(_, _)(pos))
+    createPredicatesFor(uniqueRels, pos).reduceOption(expressions.And(_, _)(pos))
   }
 
   def createPredicatesFor(uniqueRels: Seq[UniqueRel], pos: InputPosition): Seq[Expression] =

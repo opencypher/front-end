@@ -17,12 +17,12 @@ package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.{expressions => ast}
+import org.opencypher.v9_1.{expressions => ast}
 import org.parboiled.scala._
 
 class LiteralsTest extends ParserTest[Any, Any] with Literals {
 
-  def Expression: Rule1[org.opencypher.v9_0.expressions.Expression] = ???
+  def Expression: Rule1[org.opencypher.v9_1.expressions.Expression] = ???
   val t = DummyPosition(0)
 
   test("test variable can contain ascii") {

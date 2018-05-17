@@ -16,8 +16,9 @@
 package org.opencypher.v9_1.frontend.prettifier
 
 import org.opencypher.v9_1.ast._
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_1.ast.{Skip, Statement}
+import org.opencypher.v9_1.expressions.{NodePattern, PatternElement, PatternPart, RelationshipChain}
 
 case class Prettifier(mkStringOf: ExpressionStringifier) {
   def asString(statement: Statement): String = statement match {

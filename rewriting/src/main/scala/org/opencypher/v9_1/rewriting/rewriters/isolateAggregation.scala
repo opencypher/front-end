@@ -16,9 +16,10 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast._
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp}
+import org.opencypher.v9_1.expressions.Variable
 import org.opencypher.v9_1.rewriting.conditions.hasAggregateButIsNotAggregate
 
 /**

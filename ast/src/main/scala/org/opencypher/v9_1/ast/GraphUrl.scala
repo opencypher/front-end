@@ -16,10 +16,11 @@
 package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.SemanticCheck
-import org.opencypher.v9_0.expressions.{Parameter, StringLiteral}
+import org.opencypher.v9_1.expressions.StringLiteral
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
 import org.opencypher.v9_1.ast.semantics.{SemanticAnalysisTooling, SemanticCheckable, SemanticExpressionCheck}
+import org.opencypher.v9_1.expressions.Parameter
 
 final case class GraphUrl(url: Either[Parameter, StringLiteral])(val position: InputPosition)
   extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {

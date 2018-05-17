@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_1.expressions.Expression
 
 trait MatchPredicateNormalizer {
   val extract: PartialFunction[AnyRef, IndexedSeq[Expression]]

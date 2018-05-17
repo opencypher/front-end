@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.rewriting.conditions
 
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.Ref
+import org.opencypher.v9_1.expressions.Variable
 import org.opencypher.v9_1.rewriting.Condition
 
 case object noReferenceEqualityAmongVariables extends Condition {

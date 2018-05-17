@@ -15,11 +15,12 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.expressions
+import org.opencypher.v9_1.expressions.Or
 
-class OrTest extends InfixExpressionTestBase(Or(_, _)(DummyPosition(0))) {
+class OrTest extends InfixExpressionTestBase(expressions.Or(_, _)(DummyPosition(0))) {
 
   test("shouldCombineBooleans") {
     testValidTypes(CTBoolean, CTBoolean)(CTBoolean)

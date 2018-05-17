@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_1.expressions.PatternComprehension
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 
 case object namePatternComprehensionPatternElements extends Rewriter {

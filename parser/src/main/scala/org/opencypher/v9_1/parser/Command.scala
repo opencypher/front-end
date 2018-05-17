@@ -16,6 +16,7 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast
+import org.opencypher.v9_1.expressions.{LabelName, Variable}
 import org.parboiled.scala._
 
 trait Command extends Parser
@@ -39,7 +40,7 @@ trait Command extends Parser
       | DropIndex
   )
 
-  def PropertyExpressions: Rule1[Seq[org.opencypher.v9_0.expressions.Property]] = rule("multiple property expressions") {
+  def PropertyExpressions: Rule1[Seq[org.opencypher.v9_1.expressions.Property]] = rule("multiple property expressions") {
     oneOrMore(WS ~ Variable ~ PropertyLookup, separator = CommaSep)
   }
 
@@ -93,19 +94,19 @@ trait Command extends Parser
     group(keyword("DROP") ~~ RelationshipPropertyExistenceConstraintSyntax) ~~>> (ast.DropRelationshipPropertyExistenceConstraint(_, _, _))
   }
 
-  private def ProcedureArguments: Rule1[Option[Seq[org.opencypher.v9_0.expressions.Expression]]] = rule("arguments to a procedure") {
+  private def ProcedureArguments: Rule1[Option[Seq[org.opencypher.v9_1.expressions.Expression]]] = rule("arguments to a procedure") {
     optional(group("(" ~~
       zeroOrMore(Expression, separator = CommaSep) ~~ ")"
     ) ~~> (_.toIndexedSeq))
   }
 
-  private def NodeKeyConstraintSyntax: Rule3[org.opencypher.v9_0.expressions.Variable, org.opencypher.v9_0.expressions.LabelName, Seq[org.opencypher.v9_0.expressions.Property]] = keyword("CONSTRAINT ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
+  private def NodeKeyConstraintSyntax: Rule3[Variable, LabelName, Seq[org.opencypher.v9_1.expressions.Property]] = keyword("CONSTRAINT ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
     keyword("ASSERT") ~~ "(" ~~ PropertyExpressions ~~ ")" ~~ keyword("IS NODE KEY")
 
-  private def UniqueConstraintSyntax: Rule3[org.opencypher.v9_0.expressions.Variable, org.opencypher.v9_0.expressions.LabelName, org.opencypher.v9_0.expressions.Property] = keyword("CONSTRAINT ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
+  private def UniqueConstraintSyntax: Rule3[Variable, LabelName, org.opencypher.v9_1.expressions.Property] = keyword("CONSTRAINT ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
     keyword("ASSERT") ~~ PropertyExpression ~~ keyword("IS UNIQUE")
 
-  private def UniqueCompositeConstraintSyntax: Rule3[org.opencypher.v9_0.expressions.Variable, org.opencypher.v9_0.expressions.LabelName, Seq[org.opencypher.v9_0.expressions.Property]] = keyword("CONSTRAINT ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
+  private def UniqueCompositeConstraintSyntax: Rule3[Variable, LabelName, Seq[org.opencypher.v9_1.expressions.Property]] = keyword("CONSTRAINT ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
     keyword("ASSERT") ~~ "(" ~~ PropertyExpressions ~~ ")" ~~ keyword("IS UNIQUE")
 
   private def NodePropertyExistenceConstraintSyntax = keyword("CONSTRAINT ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~

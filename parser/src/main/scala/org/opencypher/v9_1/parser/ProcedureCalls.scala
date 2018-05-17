@@ -17,7 +17,7 @@ package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast
 import org.opencypher.v9_1.ast.Where
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_1.{expressions => exp}
 import org.opencypher.v9_0.util.InputPosition
 import org.parboiled.scala._
 
@@ -28,7 +28,7 @@ trait ProcedureCalls {
     group(keyword("CALL") ~~ Namespace ~ ProcedureName ~ ProcedureArguments ~~ ProcedureResult) ~~>> (ast.UnresolvedCall(_, _, _, _))
   }
 
-  private def ProcedureArguments: Rule1[Option[Seq[org.opencypher.v9_0.expressions.Expression]]] = rule("arguments to a procedure") {
+  private def ProcedureArguments: Rule1[Option[Seq[org.opencypher.v9_1.expressions.Expression]]] = rule("arguments to a procedure") {
     optional(group("(" ~~
       zeroOrMore(Expression, separator = CommaSep) ~~ ")"
     ) ~~> (_.toIndexedSeq))
@@ -63,7 +63,7 @@ trait ProcedureCalls {
       Variable ~~>> (ast.ProcedureResultItem(_))
     }
 
-  private def ProcedureOutput: Rule1[org.opencypher.v9_0.expressions.ProcedureOutput] =
+  private def ProcedureOutput: Rule1[org.opencypher.v9_1.expressions.ProcedureOutput] =
     rule("procedure output") {
       SymbolicNameString ~~>> (exp.ProcedureOutput(_))
     }

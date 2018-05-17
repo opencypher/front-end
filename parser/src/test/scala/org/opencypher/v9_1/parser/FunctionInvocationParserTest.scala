@@ -16,10 +16,10 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_1.{expressions => exp}
 
 class FunctionInvocationParserTest
-  extends ParserAstTest[org.opencypher.v9_0.expressions.FunctionInvocation]
+  extends ParserAstTest[org.opencypher.v9_1.expressions.FunctionInvocation]
     with Expressions
     with Literals
     with Base

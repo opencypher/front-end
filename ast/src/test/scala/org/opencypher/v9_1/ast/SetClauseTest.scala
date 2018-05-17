@@ -15,10 +15,11 @@
  */
 package org.opencypher.v9_1.ast
 
-import org.opencypher.v9_0.expressions.{DummyExpression, Property, PropertyKeyName}
+import org.opencypher.v9_1.expressions.{DummyExpression, Property}
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_1.ast.semantics.{SemanticFunSuite, SemanticState}
+import org.opencypher.v9_1.expressions.PropertyKeyName
 
 class SetClauseTest extends SemanticFunSuite {
 

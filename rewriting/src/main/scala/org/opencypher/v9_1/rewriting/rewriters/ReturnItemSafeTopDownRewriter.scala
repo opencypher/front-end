@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast.AliasedReturnItem
-import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_1.expressions.Expression
 import org.opencypher.v9_0.util.Foldable.TreeAny
 import org.opencypher.v9_0.util.Rewritable._
 import org.opencypher.v9_0.util.{InternalException, Rewritable, Rewriter}

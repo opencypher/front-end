@@ -16,10 +16,10 @@
 package org.opencypher.v9_1.rewriting
 
 import org.mockito.Mockito._
-import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_1.rewriting.rewriters.distributeLawsRewriter
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.expressions.Or
 
 class DistributeLawRewriterTest extends CypherFunSuite with PredicateTestSupport {
 

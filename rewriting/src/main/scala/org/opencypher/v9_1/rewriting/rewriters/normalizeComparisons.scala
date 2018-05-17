@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_0.util.{Rewriter, topDown}
+import org.opencypher.v9_1.expressions._
 
 
 case object normalizeComparisons extends Rewriter {

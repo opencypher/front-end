@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.ast.semantics.functions
 
-import org.opencypher.v9_0.expressions.Expression.SemanticContext
+import org.opencypher.v9_1.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.util.symbols._
 
 class PercentileDiscTest extends FunctionTestBase("percentileDisc") {
