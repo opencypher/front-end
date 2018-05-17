@@ -15,11 +15,11 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.ast.conditions._
 import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
-import org.opencypher.v9_0.rewriting.RewriterStepSequencer
-import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
+import org.opencypher.v9_1.rewriting.rewriters.LiteralExtraction
+import org.opencypher.v9_1.rewriting.RewriterStepSequencer
+import org.opencypher.v9_1.rewriting.conditions._
 
 case class AstRewriting(sequencer: String => RewriterStepSequencer, literalExtraction: LiteralExtraction,
                         getDegreeRewriting: Boolean = true// This does not really belong in the front end. Should move to a planner rewriter

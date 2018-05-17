@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.frontend.helpers.rewriting
 
-import org.opencypher.v9_0.rewriting._
+import org.opencypher.v9_1.rewriting._
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

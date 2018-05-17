@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.rewriting.RewriterCondition
+import org.opencypher.v9_1.rewriting.RewriterCondition
 
 case class StatementCondition(inner: Any => Seq[String]) extends Condition {
   override def check(state: AnyRef): Seq[String] = state match {

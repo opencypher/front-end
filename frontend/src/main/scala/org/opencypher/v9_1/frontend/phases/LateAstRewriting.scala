@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.rewriting.rewriters.{collapseMultipleInPredicates, nameUpdatingClauses, projectFreshSortExpressions, projectNamedPaths}
+import org.opencypher.v9_1.rewriting.rewriters.{collapseMultipleInPredicates, nameUpdatingClauses, projectFreshSortExpressions, projectNamedPaths}
 import org.opencypher.v9_0.util.{Rewriter, inSequence}
 
 object LateAstRewriting extends StatementRewriter {
