@@ -54,7 +54,10 @@ trait Literals extends Parser
     keyword("UNION") |
     keyword("USING") |
     keyword("UNWIND") |
-    keyword("WITH")
+    keyword("USE") |
+    keyword("CONSTRUCT") |
+    keyword("WITH") |
+    keyword("COPY")
 
   def ProcedureName: Rule1[org.opencypher.v9_1.expressions.ProcedureName] =
     rule("a procedure name") { SymbolicNameString ~~>> (ast.ProcedureName(_) ) }.memoMismatches

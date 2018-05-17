@@ -15,38 +15,37 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_1.expressions.Pattern.SemanticContext.name
+import org.opencypher.v9_1.expressions.Pattern.SemanticContext.{Construct, name}
 import org.opencypher.v9_1.expressions.Pattern.{SemanticContext, findDuplicateRelationships}
 import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_1.util.UnboundedShortestPathNotification
 import org.opencypher.v9_1.util.symbols._
-import org.opencypher.v9_1.expressions._
 
 object SemanticPatternCheck extends SemanticAnalysisTooling {
 
-  def check(ctx: SemanticContext, pattern:Pattern): SemanticCheck =
+  def check(ctx: SemanticContext, pattern: Pattern): SemanticCheck =
     pattern match {
-      case x:Pattern =>
+      case x: Pattern =>
         semanticCheckFold(x.patternParts)(declareVariables(ctx)) chain
           semanticCheckFold(x.patternParts)(check(ctx)) chain
           ensureNoDuplicateRelationships(x, ctx)
     }
 
-  def check(ctx: SemanticContext, pattern:RelationshipsPattern): SemanticCheck =
+  def check(ctx: SemanticContext, pattern: RelationshipsPattern): SemanticCheck =
     declareVariables(ctx, pattern.element) chain
       check(ctx, pattern.element)
 
-  def declareVariables(ctx:SemanticContext)(part:PatternPart):SemanticCheck =
+  def declareVariables(ctx: SemanticContext)(part: PatternPart): SemanticCheck =
     part match {
-      case x:NamedPatternPart =>
+      case x: NamedPatternPart =>
         declareVariables(ctx)(x.patternPart) chain
           declareVariable(x.variable, CTPath)
 
-      case x:EveryPath =>
+      case x: EveryPath =>
         (x.element, ctx) match {
-          // single node variable is allowed to be already bound in MATCH and GRAPH OF
-          case (_: NodePattern, SemanticContext.Construct) =>
-            declareVariables(ctx, x.element)
+          case (n: NodePattern, SemanticContext.Construct) =>
+            n.variable.fold(SemanticCheckResult.success)(implicitVariable(_, CTNode)) chain
+              declareVariables(ctx, n)
           case (_: NodePattern, SemanticContext.Match) =>
             declareVariables(ctx, x.element)
           case (n: NodePattern, _) =>
@@ -56,19 +55,19 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
             declareVariables(ctx, x.element)
         }
 
-      case x:ShortestPaths =>
+      case x: ShortestPaths =>
         declareVariables(ctx, x.element)
     }
 
-  def check(ctx: SemanticContext)(part:PatternPart):SemanticCheck =
+  def check(ctx: SemanticContext)(part: PatternPart): SemanticCheck =
     part match {
-      case x:NamedPatternPart =>
+      case x: NamedPatternPart =>
         check(ctx)(x.patternPart)
 
-      case x:EveryPath =>
+      case x: EveryPath =>
         check(ctx, x.element)
 
-      case x:ShortestPaths =>
+      case x: ShortestPaths =>
         def checkContext: SemanticCheck =
           ctx match {
             case SemanticContext.Merge =>
@@ -142,23 +141,24 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
           check(ctx, x.element)
     }
 
-  def check(ctx:SemanticContext, element:PatternElement):SemanticCheck =
+  def check(ctx: SemanticContext, element: PatternElement): SemanticCheck =
     element match {
-    case x:RelationshipChain =>
-      check(ctx, x.element) chain
-        check(ctx, x.relationship) chain
-        check(ctx, x.rightNode)
+      case x: RelationshipChain =>
+        check(ctx, x.element) chain
+          check(ctx, x.relationship) chain
+          check(ctx, x.rightNode)
 
-    case x:InvalidNodePattern =>
-      checkNodeProperties(ctx, x.properties) chain
-        error(s"Parentheses are required to identify nodes in patterns, i.e. (${x.id.name})", x.position)
+      case x: InvalidNodePattern =>
+        checkNodeProperties(ctx, x.properties) chain
+          error(s"Parentheses are required to identify nodes in patterns, i.e. (${x.id.name})", x.position)
 
-    case x:NodePattern =>
-      checkNodeProperties(ctx, x.properties)
+      case x: NodePattern =>
+        checkBaseVariable(ctx, x.baseNode, CTNode) chain
+          checkNodeProperties(ctx, x.properties)
 
     }
 
-  def check(ctx:SemanticContext, x:RelationshipPattern):SemanticCheck = {
+  def check(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck = {
     def checkNotUndirectedWhenCreating: SemanticCheck = {
       ctx match {
         case SemanticContext.Create | SemanticContext.Construct if x.direction == SemanticDirection.BOTH =>
@@ -188,36 +188,41 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
     checkNoVarLengthWhenUpdating chain
       checkNoParamMapsWhenMatching(x.properties, ctx) chain
       checkProperties chain
-      checkNotUndirectedWhenCreating
+      checkNotUndirectedWhenCreating chain
+      checkBaseVariable(ctx, x.baseRel, CTRelationship)
   }
 
-  def declareVariables(ctx:SemanticContext, element:PatternElement):SemanticCheck =
+  def declareVariables(ctx: SemanticContext, element: PatternElement): SemanticCheck =
     element match {
-      case x:RelationshipChain =>
+      case x: RelationshipChain =>
         declareVariables(ctx, x.element) chain
           declareVariables(ctx, x.relationship) chain
           declareVariables(ctx, x.rightNode)
 
-      case x:NodePattern =>
+      case x: NodePattern =>
         x.variable.fold(SemanticCheckResult.success) {
           variable =>
             ctx match {
               case SemanticContext.Expression =>
                 ensureDefined(variable) chain
                   expectType(CTNode.covariant, variable)
-              case _                          =>
+              case _ =>
                 implicitVariable(variable, CTNode)
             }
         }
     }
 
-  def declareVariables(ctx:SemanticContext, x:RelationshipPattern):SemanticCheck =
+  def declareVariables(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck =
     x.variable.fold(SemanticCheckResult.success) {
       variable =>
         val possibleType = if (x.length.isEmpty) CTRelationship else CTList(CTRelationship)
 
         ctx match {
-          case SemanticContext.Match | SemanticContext.Construct =>
+          case SemanticContext.Match =>
+            implicitVariable(variable, possibleType)
+          // In case of construct the variable could either be defined outside or may be defined once inside a new.
+          // This can only be checked on construct level, thus we use implicit semantics here.
+          case SemanticContext.Construct =>
             implicitVariable(variable, possibleType)
           case SemanticContext.Expression =>
             ensureDefined(variable) chain
@@ -233,7 +238,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         val id = duplicates.head
         val dups = duplicates.tail
 
-        acc chain SemanticError(s"Cannot use the same relationship variable '${id.name}' for multiple patterns", id.position, dups.map(_.position):_*)
+        acc chain SemanticError(s"Cannot use the same relationship variable '${id.name}' for multiple patterns", id.position, dups.map(_.position): _*)
     }
   }
 
@@ -241,6 +246,16 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
     checkNoParamMapsWhenMatching(properties, ctx) chain
       SemanticExpressionCheck.simple(properties) chain
       expectType(CTMap.covariant, properties)
+
+  def checkBaseVariable(ctx: SemanticContext, maybeBaseVar: Option[LogicalVariable], expectedType: CypherType): SemanticCheck =
+    maybeBaseVar.fold(SemanticCheckResult.success) { variable =>
+      requireMultigraphSupport(s"COPY OF", variable.position) chain (
+        ctx match {
+          case Construct => SemanticCheckResult.success
+          case _ => error("COPY OF is only allowed in NEW CLAUSES", variable.position)
+        }
+        ) chain implicitVariable(variable, expectedType)
+    }
 }
 
 object checkNoParamMapsWhenMatching {
