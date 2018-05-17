@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting.conditions
 
-import org.opencypher.v9_0.ast.{OrderBy, SortItem}
+import org.opencypher.v9_1.ast.{OrderBy, SortItem}
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_1.rewriting.Condition
 

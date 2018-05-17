@@ -17,7 +17,7 @@ package org.opencypher.v9_1.frontend.phases.rewriting
 
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
+import org.opencypher.v9_1.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_1.frontend.phases._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{CypherException, InputPosition, Rewriter}

@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.GraphOfAs
+import org.opencypher.v9_1.ast.GraphOfAs
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 

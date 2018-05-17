@@ -15,10 +15,12 @@
  */
 package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.{SeekOnly, SeekOrScan}
+import org.opencypher.v9_1.ast
+import org.opencypher.v9_1.ast.{SeekOnly, SeekOrScan}
 import org.opencypher.v9_0.expressions.{Variable, Pattern => ASTPattern}
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1
+import org.opencypher.v9_1.ast.{Skip, Where}
 import org.parboiled.scala.{Parser, Rule1, _}
 
 trait Clauses extends Parser
@@ -169,8 +171,8 @@ trait Clauses extends Parser
       )
   }
 
-  private def Where: Rule1[ast.Where] = rule("WHERE") {
-    group(keyword("WHERE") ~~ Expression) ~~>> (ast.Where(_))
+  private def Where: Rule1[Where] = rule("WHERE") {
+    group(keyword("WHERE") ~~ Expression) ~~>> (v9_1.ast.Where(_))
   }
 
   def PeriodicCommitHint: Rule1[ast.PeriodicCommitHint] = rule("USING PERIODIC COMMIT")(
@@ -201,7 +203,7 @@ trait Clauses extends Parser
       | PropertyExpression ~~> ast.RemovePropertyItem
   )
 
-  private def WithBody: Rule5[ast.ReturnItemsDef, ast.GraphReturnItems, Option[ast.OrderBy], Option[ast.Skip], Option[ast.Limit]] = {
+  private def WithBody: Rule5[ast.ReturnItemsDef, ast.GraphReturnItems, Option[ast.OrderBy], Option[Skip], Option[ast.Limit]] = {
     ReturnItems ~~
       FakeMandatoryGraphReturnItems ~~
       optional(Order) ~~
@@ -212,7 +214,7 @@ trait Clauses extends Parser
   private def FakeMandatoryGraphReturnItems: Rule1[ast.GraphReturnItems] =
     optional(GraphReturnItems) ~~>> { (optItem) => (pos: InputPosition) => optItem.getOrElse(ast.PassAllGraphReturnItems(pos)) }
 
-  private def ReturnBody: Rule5[ast.ReturnItemsDef, Option[ast.GraphReturnItems], Option[ast.OrderBy], Option[ast.Skip], Option[ast.Limit]] = {
+  private def ReturnBody: Rule5[ast.ReturnItemsDef, Option[ast.GraphReturnItems], Option[ast.OrderBy], Option[Skip], Option[ast.Limit]] = {
     ReturnItems ~~
       optional(GraphReturnItems) ~~
       optional(Order) ~~
@@ -239,8 +241,8 @@ trait Clauses extends Parser
       | group(Expression ~~ optional(keyword("ASCENDING") | keyword("ASC"))) ~~>> (ast.AscSortItem(_))
   )
 
-  private def Skip: Rule1[ast.Skip] = rule("SKIP") {
-    group(keyword("SKIP") ~~ Expression) ~~>> (ast.Skip(_))
+  private def Skip: Rule1[Skip] = rule("SKIP") {
+    group(keyword("SKIP") ~~ Expression) ~~>> (v9_1.ast.Skip(_))
   }
 
   private def Limit: Rule1[ast.Limit] = rule("LIMIT") {

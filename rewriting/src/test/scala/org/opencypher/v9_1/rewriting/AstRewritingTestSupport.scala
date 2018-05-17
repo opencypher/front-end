@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting
 
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_1.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 import org.opencypher.v9_1.parser.ParserFixture
 

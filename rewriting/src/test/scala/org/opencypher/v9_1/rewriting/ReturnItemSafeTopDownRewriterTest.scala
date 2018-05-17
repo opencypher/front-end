@@ -15,10 +15,11 @@
  */
 package org.opencypher.v9_1.rewriting
 
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_1.ast._
 import org.opencypher.v9_0.expressions.{Equals, Variable}
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.ast.Where
 import org.opencypher.v9_1.rewriting.rewriters.ReturnItemSafeTopDownRewriter
 
 class ReturnItemSafeTopDownRewriterTest extends CypherFunSuite with AstConstructionTestSupport {

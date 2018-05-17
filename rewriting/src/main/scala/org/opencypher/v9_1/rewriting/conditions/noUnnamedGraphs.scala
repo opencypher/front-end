@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting.conditions
 
-import org.opencypher.v9_0.ast.SingleGraphAs
+import org.opencypher.v9_1.ast.SingleGraphAs
 import org.opencypher.v9_1.rewriting.Condition
 
 case object noUnnamedGraphs extends Condition {

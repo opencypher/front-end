@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_1.parser
 
+import org.opencypher.v9_1.ast
+import org.opencypher.v9_0.{expressions => exp}
 import org.opencypher.v9_0.util.{DummyPosition, InputPosition}
-import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala._
 
 import scala.language.implicitConversions

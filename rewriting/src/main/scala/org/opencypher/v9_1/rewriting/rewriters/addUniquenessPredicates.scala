@@ -15,9 +15,10 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Clause, Match, Merge, Where}
+import org.opencypher.v9_1.ast.{Clause, Match, Merge}
 import org.opencypher.v9_0.expressions.{Expression, Pattern, _}
 import org.opencypher.v9_0.util._
+import org.opencypher.v9_1.ast.Where
 
 case object addUniquenessPredicates extends Rewriter {
 

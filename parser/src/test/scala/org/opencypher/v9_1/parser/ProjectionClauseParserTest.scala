@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Clause, GraphReturnItems, PassAllGraphReturnItems}
+import org.opencypher.v9_1.ast
+import org.opencypher.v9_1.ast.{AstConstructionTestSupport, Clause, GraphReturnItems, PassAllGraphReturnItems}
 import org.parboiled.scala._
 
 class ProjectionClauseParserTest

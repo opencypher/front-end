@@ -15,9 +15,10 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.ast.semantics.{SemanticFeature, SemanticState}
 import org.opencypher.v9_0.expressions.{Expression, Variable}
+import org.opencypher.v9_1.ast._
+import org.opencypher.v9_1.ast.semantics.SemanticFeature
+import org.opencypher.v9_1.ast.semantics.SemanticState
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 
 case class expandStar(state: SemanticState) extends Rewriter {

@@ -15,9 +15,10 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Match, Where}
+import org.opencypher.v9_1.ast.Match
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.{InputPosition, Rewriter, topDown}
+import org.opencypher.v9_1.ast.Where
 
 abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer, getDegreeRewriting: Boolean) extends Rewriter {
 

@@ -15,10 +15,10 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.expressions.{FunctionInvocation, FunctionName, RelationshipPattern}
 import org.opencypher.v9_1.rewriting.rewriters.replaceAliasedFunctionInvocations.aliases
 import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, DeprecatedRelTypeSeparatorNotification, DeprecatedVarLengthBindingNotification, InternalNotification}
+import org.opencypher.v9_1.ast.Statement
 import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase.DEPRECATION_WARNINGS
 
 object SyntaxDeprecationWarnings extends VisitorPhase[BaseContext, BaseState] {

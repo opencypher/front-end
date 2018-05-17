@@ -15,9 +15,10 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.ast.{Statement, UnaliasedReturnItem}
+import org.opencypher.v9_1.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.expressions.NotEquals
+import org.opencypher.v9_1.ast.Statement
+import org.opencypher.v9_1.ast.semantics.SemanticState
 import org.opencypher.v9_1.rewriting.RewriterStep._
 import org.opencypher.v9_1.rewriting.rewriters._
 import org.opencypher.v9_1.rewriting.{RewriterCondition, RewriterStepSequencer}

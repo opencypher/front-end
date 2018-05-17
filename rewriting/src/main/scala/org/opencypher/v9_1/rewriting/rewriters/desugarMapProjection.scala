@@ -15,9 +15,9 @@
  */
 package org.opencypher.v9_1.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.{InputPosition, InternalException, Rewriter, topDown}
+import org.opencypher.v9_1.ast.semantics.SemanticState
 
 /*
 Handles rewriting map projection elements to literal entries when possible. If the user

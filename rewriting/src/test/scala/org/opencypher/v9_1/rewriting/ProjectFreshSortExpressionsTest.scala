@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.rewriting
 
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
+import org.opencypher.v9_1.ast.AstConstructionTestSupport
+import org.opencypher.v9_1.ast.semantics.{SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_1.rewriting.rewriters.{expandStar, normalizeReturnClauses, normalizeWithClauses, projectFreshSortExpressions}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{Rewriter, inSequence}

@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_0.ast.StatementHelper._
-import org.opencypher.v9_0.ast.semantics.ScopeTestHelper._
+import org.opencypher.v9_1.ast.StatementHelper._
+import org.opencypher.v9_1.ast.semantics.ScopeTestHelper._
 import org.opencypher.v9_1.parser.ParserFixture.parse
 import org.opencypher.v9_0.util.symbols.TypeSpec
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
