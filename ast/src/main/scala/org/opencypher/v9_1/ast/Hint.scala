@@ -17,8 +17,8 @@ package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics._
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.{ASTNode, InputPosition, InternalException, NonEmptyList}
+import org.opencypher.v9_1.util.symbols._
+import org.opencypher.v9_1.util.{ASTNode, InputPosition, InternalException, NonEmptyList}
 import org.opencypher.v9_1.ast.semantics.{SemanticAnalysisTooling, SemanticCheckable}
 import org.opencypher.v9_1.expressions.{LabelName, Parameter, PropertyKeyName, Variable}
 

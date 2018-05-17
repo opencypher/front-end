@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.expressions
 
 import org.opencypher.v9_1.expressions.functions.UnresolvedFunction
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1.util.InputPosition
 
 object FunctionInvocation {
   def apply(name: FunctionName, argument: Expression)(position: InputPosition): FunctionInvocation =

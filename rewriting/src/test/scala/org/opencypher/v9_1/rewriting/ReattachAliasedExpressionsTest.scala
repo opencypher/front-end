@@ -16,8 +16,8 @@
 package org.opencypher.v9_1.rewriting
 
 import org.opencypher.v9_1.rewriting.rewriters.reattachAliasedExpressions
-import org.opencypher.v9_0.util.Rewriter
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.Rewriter
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 class ReattachAliasedExpressionsTest extends CypherFunSuite with RewriteTest {
 

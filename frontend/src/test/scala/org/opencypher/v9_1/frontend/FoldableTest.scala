@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.frontend
 
-import org.opencypher.v9_0.util.Foldable
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.Foldable
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 object FoldableTest {
   trait Exp extends Foldable

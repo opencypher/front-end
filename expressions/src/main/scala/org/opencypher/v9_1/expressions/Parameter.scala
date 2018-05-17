@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.expressions
 
-import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.util.InputPosition
+import org.opencypher.v9_1.util.symbols._
 
 case class Parameter(name: String,
                      parameterType: CypherType)(val position: InputPosition)

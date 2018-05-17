@@ -18,8 +18,8 @@ package org.opencypher.v9_1.rewriting
 import org.opencypher.v9_1.ast._
 import org.opencypher.v9_1.ast.semantics.{SemanticFeature, SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_1.rewriting.rewriters.{expandStar, normalizeGraphReturnItems, normalizeReturnClauses, normalizeWithClauses}
-import org.opencypher.v9_0.util.inSequence
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.inSequence
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
 

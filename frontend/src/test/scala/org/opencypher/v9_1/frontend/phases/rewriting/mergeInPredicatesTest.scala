@@ -17,7 +17,7 @@ package org.opencypher.v9_1.frontend.phases.rewriting
 
 import org.opencypher.v9_1.ast.Query
 import org.opencypher.v9_1.rewriting.rewriters.mergeInPredicates
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_1.frontend.phases.CNFNormalizer
 import org.opencypher.v9_1.rewriting.AstRewritingTestSupport
 

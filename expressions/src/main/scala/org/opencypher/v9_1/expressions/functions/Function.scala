@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.expressions.functions
 
 import org.opencypher.v9_1.expressions.{Expression, FunctionInvocation, FunctionName}
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1.util.InputPosition
 
 
 object Function {

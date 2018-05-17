@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.expressions.Expression
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_1.util.{ASTNode, InputPosition}
 
 case class Skip(expression: Expression)(val position: InputPosition) extends ASTNode with ASTSlicingPhrase {
   override def name = "SKIP" // ASTSlicingPhrase name

@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.SemanticCheck
-import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_1.util.ASTNode
 
 trait Statement extends ASTNode {
   def semanticCheck: SemanticCheck

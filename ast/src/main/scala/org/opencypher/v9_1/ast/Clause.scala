@@ -19,10 +19,10 @@ import org.opencypher.v9_1.ast.semantics.SemanticCheckResult.{error, success}
 import org.opencypher.v9_1.ast.semantics._
 import org.opencypher.v9_1.expressions.Expression.SemanticContext
 import org.opencypher.v9_1.expressions.{functions, _}
-import org.opencypher.v9_0.util.Foldable._
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.util.helpers.StringHelper.RichString
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.util.Foldable._
+import org.opencypher.v9_1.util._
+import org.opencypher.v9_1.util.helpers.StringHelper.RichString
+import org.opencypher.v9_1.util.symbols._
 import org.opencypher.v9_1.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState}
 import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_1.expressions.functions.Exists

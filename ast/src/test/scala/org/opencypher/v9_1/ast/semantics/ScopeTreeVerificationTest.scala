@@ -16,8 +16,8 @@
 package org.opencypher.v9_1.ast.semantics
 
 import org.opencypher.v9_1.ast.semantics.ScopeTestHelper._
-import org.opencypher.v9_0.util.helpers.StringHelper.RichString
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.helpers.StringHelper.RichString
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 class ScopeTreeVerificationTest extends CypherFunSuite {
 

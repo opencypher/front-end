@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_0.util.{CypherException, InputPosition, SyntaxException}
+import org.opencypher.v9_1.util.{CypherException, InputPosition, SyntaxException}
 
 class SyntaxExceptionCreator(queryText: String, preParserOffset: Option[InputPosition]) extends ((String, InputPosition) => CypherException) {
   override def apply(message: String, position: InputPosition): CypherException = {

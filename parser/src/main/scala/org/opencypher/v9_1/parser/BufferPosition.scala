@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1.util.InputPosition
 import org.parboiled.Context
 import org.parboiled.buffers.InputBuffer
 

@@ -18,7 +18,7 @@ package org.opencypher.v9_1.ast
 import org.opencypher.v9_1.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_1.ast.semantics._
 import org.opencypher.v9_1.expressions.{Expression, LogicalVariable, MapProjection}
-import org.opencypher.v9_0.util.{ASTNode, InputPosition, InternalException}
+import org.opencypher.v9_1.util.{ASTNode, InputPosition, InternalException}
 import org.opencypher.v9_1.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticState}
 
 sealed trait ReturnItemsDef extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {

@@ -17,8 +17,8 @@ package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast.{AliasedReturnItem, With}
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util.Foldable.FoldableAny
-import org.opencypher.v9_0.util.{InternalException, Ref, Rewriter, topDown}
+import org.opencypher.v9_1.util.Foldable.FoldableAny
+import org.opencypher.v9_1.util.{InternalException, Ref, Rewriter, topDown}
 import org.opencypher.v9_1.expressions
 import org.opencypher.v9_1.expressions._
 

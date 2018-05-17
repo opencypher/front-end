@@ -19,8 +19,8 @@ import org.opencypher.v9_1.ast.{Where, _}
 import org.opencypher.v9_1.ast.semantics.{SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_1.rewriting.rewriters.{expandStar, normalizeReturnClauses, normalizeWithClauses, projectNamedPaths}
-import org.opencypher.v9_0.util.inSequence
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.inSequence
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_1.expressions._
 
 class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport {

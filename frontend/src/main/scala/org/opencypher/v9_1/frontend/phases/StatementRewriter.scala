@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_1.util.Rewriter
 import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase
 import org.opencypher.v9_1.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 

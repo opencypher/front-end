@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.expressions
 
-import org.opencypher.v9_0.util.{ASTNode, Ref, Rewriter, bottomUp}
+import org.opencypher.v9_1.util.{ASTNode, Ref, Rewriter, bottomUp}
 
 import scala.collection.immutable.Stack
 

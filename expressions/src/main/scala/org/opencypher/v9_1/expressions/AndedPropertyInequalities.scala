@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.expressions
 
-import org.opencypher.v9_0.util.NonEmptyList
+import org.opencypher.v9_1.util.NonEmptyList
 
 case class AndedPropertyInequalities(
                                       variable: LogicalVariable,

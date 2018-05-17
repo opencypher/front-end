@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.expressions
 
-import org.opencypher.v9_0.util.symbols.CypherType
+import org.opencypher.v9_1.util.symbols.CypherType
 
 case class CoerceTo(expr: Expression, typ: CypherType) extends Expression {
   def position = expr.position

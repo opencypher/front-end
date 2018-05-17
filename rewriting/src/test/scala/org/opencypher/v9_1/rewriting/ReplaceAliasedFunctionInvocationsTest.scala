@@ -18,7 +18,7 @@ package org.opencypher.v9_1.rewriting
 import org.opencypher.v9_1.ast.AstConstructionTestSupport
 import org.opencypher.v9_1.expressions.{FunctionInvocation, FunctionName}
 import org.opencypher.v9_1.rewriting.rewriters.replaceAliasedFunctionInvocations
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 class ReplaceAliasedFunctionInvocationsTest extends CypherFunSuite with AstConstructionTestSupport {
 

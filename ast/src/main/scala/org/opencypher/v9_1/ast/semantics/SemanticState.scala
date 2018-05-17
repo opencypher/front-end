@@ -17,9 +17,9 @@ package org.opencypher.v9_1.ast.semantics
 
 import org.opencypher.v9_1.ast.ASTAnnotationMap
 import org.opencypher.v9_1.expressions.{Expression, LogicalVariable}
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.util.helpers.{TreeElem, TreeZipper}
-import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
+import org.opencypher.v9_1.util._
+import org.opencypher.v9_1.util.helpers.{TreeElem, TreeZipper}
+import org.opencypher.v9_1.util.symbols.{TypeSpec, _}
 import org.opencypher.v9_1.ast.semantics.SemanticState.ScopeLocation
 import org.opencypher.v9_1.expressions.Variable
 

@@ -17,8 +17,8 @@ package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast._
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.{ASTNode, IdentityMap, Rewriter, bottomUp}
+import org.opencypher.v9_1.util.symbols._
+import org.opencypher.v9_1.util.{ASTNode, IdentityMap, Rewriter, bottomUp}
 import org.opencypher.v9_1.expressions.{NodePattern, Parameter, RelationshipPattern}
 
 object literalReplacement {

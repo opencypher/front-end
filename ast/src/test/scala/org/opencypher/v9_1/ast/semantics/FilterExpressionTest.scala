@@ -16,8 +16,8 @@
 package org.opencypher.v9_1.ast.semantics
 
 import org.opencypher.v9_1.expressions.{DummyExpression, FilterExpression, True}
-import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.util.DummyPosition
+import org.opencypher.v9_1.util.symbols._
 
 class FilterExpressionTest extends SemanticFunSuite {
 

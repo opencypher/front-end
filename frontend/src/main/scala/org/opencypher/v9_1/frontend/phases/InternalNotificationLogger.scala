@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.util.{InputPosition, InternalNotification}
+import org.opencypher.v9_1.util.{InputPosition, InternalNotification}
 
 /**
  * A NotificationLogger records notifications.

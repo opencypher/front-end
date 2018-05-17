@@ -17,8 +17,8 @@ package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics._
 import org.opencypher.v9_1.expressions.{Expression, LogicalProperty, Variable}
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_1.util.symbols._
+import org.opencypher.v9_1.util.{ASTNode, InputPosition}
 import org.opencypher.v9_1.ast.semantics.{SemanticAnalysisTooling, SemanticCheckable, SemanticExpressionCheck}
 import org.opencypher.v9_1.expressions.{LabelName, Variable}
 

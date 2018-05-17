@@ -17,7 +17,7 @@ package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast._
 import org.opencypher.v9_1.expressions.Expression
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_1.util.{Rewriter, bottomUp}
 
 /**
  * This rewriter ensures that WITH clauses containing a ORDER BY or WHERE are split, such that the ORDER BY or WHERE does not

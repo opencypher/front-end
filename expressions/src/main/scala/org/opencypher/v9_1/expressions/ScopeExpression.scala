@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.expressions
 
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1.util.InputPosition
 
 // Scope expressions bundle together variables of a new scope
 // together with any child expressions that get evaluated in a context where

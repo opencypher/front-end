@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.expressions.{Namespace => ASTNamespace}
-import org.opencypher.v9_0.util.{InputPosition, InternalException, SyntaxException}
+import org.opencypher.v9_1.util.{InputPosition, InternalException, SyntaxException}
 import org.parboiled.Context
 import org.parboiled.errors.{InvalidInputError, ParseError}
 import org.parboiled.scala.{Parser, _}

@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.expressions.functions
 
 import org.opencypher.v9_1.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.util.symbols._
 import org.opencypher.v9_1.expressions.{TypeSignature, TypeSignatures}
 
 case object Cos extends Function with TypeSignatures {

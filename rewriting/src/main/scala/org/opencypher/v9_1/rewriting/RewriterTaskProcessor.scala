@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting
 
-import org.opencypher.v9_0.util.{InternalException, Rewriter}
+import org.opencypher.v9_1.util.{InternalException, Rewriter}
 
 trait RewriterTaskProcessor extends (RewriterTask => Rewriter) {
   def sequenceName: String

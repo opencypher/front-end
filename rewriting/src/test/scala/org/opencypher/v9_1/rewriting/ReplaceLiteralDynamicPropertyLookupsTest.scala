@@ -17,8 +17,8 @@ package org.opencypher.v9_1.rewriting
 
 import org.opencypher.v9_1.ast.AstConstructionTestSupport
 import org.opencypher.v9_1.expressions.{ContainerIndex, Property, StringLiteral}
-import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.ASTNode
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_1.expressions.PropertyKeyName
 import org.opencypher.v9_1.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 

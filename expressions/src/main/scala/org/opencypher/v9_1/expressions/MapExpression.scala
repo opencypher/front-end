@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.expressions
 
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1.util.InputPosition
 
 case class MapExpression(items: Seq[(PropertyKeyName, Expression)])(val position: InputPosition) extends Expression {
 

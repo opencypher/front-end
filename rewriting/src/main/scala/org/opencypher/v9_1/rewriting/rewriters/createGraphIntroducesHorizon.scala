@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast._
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_1.util.{Rewriter, bottomUp}
 
 case object createGraphIntroducesHorizon extends Rewriter {
 

@@ -16,8 +16,8 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_1.util
+import org.opencypher.v9_1.util.{Rewriter, bottomUp}
 
 case object foldConstants extends Rewriter {
   def apply(that: AnyRef): AnyRef =

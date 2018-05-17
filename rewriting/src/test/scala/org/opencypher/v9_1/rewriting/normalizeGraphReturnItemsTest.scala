@@ -18,7 +18,7 @@ package org.opencypher.v9_1.rewriting
 import org.opencypher.v9_1.ast._
 import org.opencypher.v9_1.expressions.{SignedDecimalIntegerLiteral, StringLiteral}
 import org.opencypher.v9_1.rewriting.rewriters.normalizeGraphReturnItems
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 class normalizeGraphReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
 

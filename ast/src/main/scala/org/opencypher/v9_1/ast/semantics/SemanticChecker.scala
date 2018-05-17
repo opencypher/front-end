@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_0.util.InternalException
+import org.opencypher.v9_1.util.InternalException
 import org.opencypher.v9_1.ast.Statement
 
 object SemanticChecker {

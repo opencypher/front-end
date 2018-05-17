@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.SemanticCheck
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_1.util.{ASTNode, InputPosition}
 import org.opencypher.v9_1.ast.semantics.SemanticCheckable
 
 sealed trait MergeAction extends ASTNode with SemanticCheckable

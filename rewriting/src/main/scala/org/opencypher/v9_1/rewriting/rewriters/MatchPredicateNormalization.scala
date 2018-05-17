@@ -17,7 +17,7 @@ package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast.Match
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util.{InputPosition, Rewriter, topDown}
+import org.opencypher.v9_1.util.{InputPosition, Rewriter, topDown}
 import org.opencypher.v9_1.ast.Where
 import org.opencypher.v9_1.expressions
 import org.opencypher.v9_1.expressions.{And, GreaterThan, Not, Or}

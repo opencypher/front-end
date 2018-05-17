@@ -18,8 +18,8 @@ package org.opencypher.v9_1.ast.semantics
 import org.opencypher.v9_1.expressions.Pattern.SemanticContext.name
 import org.opencypher.v9_1.expressions.Pattern.{SemanticContext, findDuplicateRelationships}
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util.UnboundedShortestPathNotification
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.util.UnboundedShortestPathNotification
+import org.opencypher.v9_1.util.symbols._
 import org.opencypher.v9_1.expressions._
 
 object SemanticPatternCheck extends SemanticAnalysisTooling {

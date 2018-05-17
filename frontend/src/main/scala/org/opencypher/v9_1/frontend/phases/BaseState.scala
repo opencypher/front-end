@@ -17,8 +17,8 @@ package org.opencypher.v9_1.frontend.phases
 
 import org.opencypher.v9_1.ast.semantics.SemanticTable
 import org.opencypher.v9_1.ast.Query
-import org.opencypher.v9_0.util.symbols.CypherType
-import org.opencypher.v9_0.util.{InputPosition, InternalException}
+import org.opencypher.v9_1.util.symbols.CypherType
+import org.opencypher.v9_1.util.{InputPosition, InternalException}
 import org.opencypher.v9_1.ast.Statement
 import org.opencypher.v9_1.ast.semantics.{SemanticState, SemanticTable}
 import org.opencypher.v9_1.frontend.PlannerName

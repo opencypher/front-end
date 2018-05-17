@@ -17,7 +17,7 @@ package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_1.expressions.{Expression, LogicalVariable}
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_1.util.{ASTNode, InputPosition}
 import org.opencypher.v9_1.ast.semantics.{SemanticCheckable, SemanticExpressionCheck}
 
 case class OrderBy(sortItems: Seq[SortItem])(val position: InputPosition) extends ASTNode with SemanticCheckable {

@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1.util.InputPosition
 import org.opencypher.v9_1.expressions.Variable
 import org.parboiled.scala.{Parser, ReductionRule2, Rule1, _}
 

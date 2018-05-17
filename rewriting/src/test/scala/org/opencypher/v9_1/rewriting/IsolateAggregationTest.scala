@@ -17,8 +17,8 @@ package org.opencypher.v9_1.rewriting
 
 import org.opencypher.v9_1.ast.AstConstructionTestSupport
 import org.opencypher.v9_1.rewriting.rewriters.{isolateAggregation, normalizeReturnClauses, normalizeWithClauses}
-import org.opencypher.v9_0.util.inSequence
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.inSequence
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_1.ast.semantics.SyntaxExceptionCreator
 
 class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {

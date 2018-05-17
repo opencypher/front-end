@@ -18,7 +18,7 @@ package org.opencypher.v9_1.frontend.phases
 import org.opencypher.v9_1.ast._
 import org.opencypher.v9_1.ast.semantics.{Scope, SemanticTable}
 import org.opencypher.v9_1.expressions.{LogicalVariable, Variable}
-import org.opencypher.v9_0.util.{Ref, Rewriter, bottomUp, inSequence}
+import org.opencypher.v9_1.util.{Ref, Rewriter, bottomUp, inSequence}
 import org.opencypher.v9_1.ast.Statement
 import org.opencypher.v9_1.ast.semantics.{Scope, SymbolUse}
 import org.opencypher.v9_1.expressions.{ProcedureOutput, Variable}

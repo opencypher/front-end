@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util.{FreshIdNameGenerator, InputPosition}
+import org.opencypher.v9_1.util.{FreshIdNameGenerator, InputPosition}
 import org.opencypher.v9_1.expressions.{And, Equals, Parameter, Variable}
 
 object PropertyPredicateNormalizer extends MatchPredicateNormalizer {

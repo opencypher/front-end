@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.frontend.phases
 
-import org.opencypher.v9_0.util.AssertionUtils.ifAssertionsEnabled
-import org.opencypher.v9_0.util.InternalException
+import org.opencypher.v9_1.util.AssertionUtils.ifAssertionsEnabled
+import org.opencypher.v9_1.util.InternalException
 
 trait Transformer[-C <: BaseContext, -FROM, TO] {
   def transform(from: FROM, context: C): TO

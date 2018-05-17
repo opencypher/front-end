@@ -19,8 +19,8 @@ import org.opencypher.v9_1.ast._
 import org.opencypher.v9_1.expressions.{GetDegree, GreaterThan}
 import org.opencypher.v9_1.parser.ParserFixture.parser
 import org.opencypher.v9_1.rewriting.rewriters.{LabelPredicateNormalizer, MatchPredicateNormalization, PropertyPredicateNormalizer}
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{Rewriter, inSequence}
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.{Rewriter, inSequence}
 
 class MatchPredicateNormalizerTest extends CypherFunSuite with RewriteTest {
 

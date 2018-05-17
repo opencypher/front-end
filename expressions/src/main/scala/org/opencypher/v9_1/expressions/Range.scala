@@ -15,6 +15,6 @@
  */
 package org.opencypher.v9_1.expressions
 
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_1.util.{ASTNode, InputPosition}
 
 case class Range(lower: Option[UnsignedIntegerLiteral], upper: Option[UnsignedIntegerLiteral])(val position: InputPosition) extends ASTNode

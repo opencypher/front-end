@@ -17,7 +17,7 @@ package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.ast._
 import org.opencypher.v9_1.expressions.{Expression, LogicalVariable}
-import org.opencypher.v9_0.util._
+import org.opencypher.v9_1.util._
 import org.opencypher.v9_1.ast.Where
 import org.opencypher.v9_1.expressions.Variable
 

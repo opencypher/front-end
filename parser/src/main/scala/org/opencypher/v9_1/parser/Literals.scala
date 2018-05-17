@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.{expressions => ast}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_1.util.symbols._
 import org.parboiled.scala.{Parser, _}
 
 import scala.language.postfixOps

@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_1.util.DummyPosition
 import org.opencypher.v9_1.{expressions => exp}
 
 class FunctionInvocationParserTest

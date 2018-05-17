@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.rewriting.rewriters
 
 import org.opencypher.v9_1.expressions.{Expression, In, ListLiteral}
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_1.util.{Rewriter, bottomUp}
 import org.opencypher.v9_1.expressions
 import org.opencypher.v9_1.expressions.{In, Ors}
 

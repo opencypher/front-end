@@ -17,7 +17,7 @@ package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_1.ast.semantics._
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_1.util.{ASTNode, InputPosition}
 import org.opencypher.v9_1.ast.semantics.{ContextGraphs, Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticState}
 
 sealed trait GraphReturnItem extends ASTNode {

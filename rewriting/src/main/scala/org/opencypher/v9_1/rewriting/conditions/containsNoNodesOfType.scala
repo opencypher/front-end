@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting.conditions
 
-import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_1.util.ASTNode
 import org.opencypher.v9_1.rewriting.Condition
 
 import scala.reflect.ClassTag

@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.frontend.helpers
 
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{Fby, Last, NonEmptyList}
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.{Fby, Last, NonEmptyList}
 
 class NonEmptyListTest extends CypherFunSuite {
 

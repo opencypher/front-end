@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_1.rewriting
 
-import org.opencypher.v9_0.util.{Rewriter, inSequence}
+import org.opencypher.v9_1.util.{Rewriter, inSequence}
 
 import scala.collection.mutable
 

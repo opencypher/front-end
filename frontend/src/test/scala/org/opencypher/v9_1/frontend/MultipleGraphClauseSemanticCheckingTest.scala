@@ -19,10 +19,10 @@ import org.opencypher.v9_1.ast.AstConstructionTestSupport
 import org.opencypher.v9_1.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState, SemanticTable}
 import org.opencypher.v9_1.frontend.phases._
 import org.opencypher.v9_1.ast
-import org.opencypher.v9_0.util.helpers.StringHelper
-import org.opencypher.v9_0.util.spi.MapToPublicExceptions
-import org.opencypher.v9_0.util.symbols.CypherType
-import org.opencypher.v9_0.util.{CypherException, InputPosition}
+import org.opencypher.v9_1.util.helpers.StringHelper
+import org.opencypher.v9_1.util.spi.MapToPublicExceptions
+import org.opencypher.v9_1.util.symbols.CypherType
+import org.opencypher.v9_1.util.{CypherException, InputPosition}
 import org.opencypher.v9_1.parser.{ParserTest, Statement}
 import org.parboiled.scala.Rule1
 

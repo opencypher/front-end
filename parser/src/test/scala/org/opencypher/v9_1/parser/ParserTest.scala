@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.parser
 
-import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.InputPosition
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 import org.parboiled.errors.InvalidInputError
 import org.parboiled.scala._
 

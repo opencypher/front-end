@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_1.frontend.symbols
 
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.symbols._
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 class CypherTypeTest extends CypherFunSuite {
   test("parents should be full path up type tree branch") {

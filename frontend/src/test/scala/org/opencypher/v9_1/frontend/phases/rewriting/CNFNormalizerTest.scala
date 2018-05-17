@@ -19,8 +19,8 @@ import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.opencypher.v9_1.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_1.frontend.phases._
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{CypherException, InputPosition, Rewriter}
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.{CypherException, InputPosition, Rewriter}
 import org.opencypher.v9_1.frontend.phases.{CNFNormalizer, CompilationPhaseTracer, InternalNotificationLogger, Monitors}
 import org.opencypher.v9_1.rewriting.{AstRewritingMonitor, PredicateTestSupport}
 import org.scalatest.mock.MockitoSugar

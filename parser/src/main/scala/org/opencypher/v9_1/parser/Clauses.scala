@@ -18,7 +18,7 @@ package org.opencypher.v9_1.parser
 import org.opencypher.v9_1.ast
 import org.opencypher.v9_1.ast.{SeekOnly, SeekOrScan}
 import org.opencypher.v9_1.expressions.{Variable, Pattern => ASTPattern}
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_1.util.InputPosition
 import org.opencypher.v9_1
 import org.opencypher.v9_1.ast.{Skip, Where}
 import org.opencypher.v9_1.expressions.{Pattern, Variable}

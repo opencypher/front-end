@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.rewriting
 
 import org.opencypher.v9_1.rewriting.rewriters.{nameMatchPatternElements, nameUpdatingClauses}
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
 
 
 class NameMatchPatternElementTest extends CypherFunSuite {

@@ -17,8 +17,8 @@ package org.opencypher.v9_1.ast
 
 import org.opencypher.v9_1.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.symbols.{CypherType, _}
+import org.opencypher.v9_1.util.InputPosition
+import org.opencypher.v9_1.util.symbols.{CypherType, _}
 import org.opencypher.v9_1.ast.semantics.{SemanticAnalysisTooling, SemanticExpressionCheck}
 import org.opencypher.v9_1.expressions.{LabelName, PropertyKeyName, RelTypeName, Variable}
 
