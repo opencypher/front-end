@@ -17,7 +17,6 @@ package org.opencypher.v9_1.rewriting
 
 import org.opencypher.v9_1.ast.{Where, _}
 import org.opencypher.v9_1.ast.semantics.{SemanticState, SyntaxExceptionCreator}
-import org.opencypher.v9_1.expressions._
 import org.opencypher.v9_1.rewriting.rewriters.{expandStar, normalizeReturnClauses, normalizeWithClauses, projectNamedPaths}
 import org.opencypher.v9_1.util.inSequence
 import org.opencypher.v9_1.util.test_helpers.CypherFunSuite
@@ -37,7 +36,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
 
   private def parseReturnedExpr(queryText: String) =
     projectionInlinedAst(queryText) match {
-      case Query(_, SingleQuery(Seq(_, Return(_, ReturnItems(_, Seq(AliasedReturnItem(expr, Variable("p")))), _, _, _, _, _)))) => expr
+      case Query(_, SingleQuery(Seq(_, Return(_, ReturnItems(_, Seq(AliasedReturnItem(expr, Variable("p")))), _, _, _, _)))) => expr
     }
 
   test("MATCH p = (a) RETURN p" ) {
@@ -65,13 +64,13 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
       With(distinct = false,
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(PathExpression(NodePathStep(a, NilPathStep))(pos), p)(pos)
-        ))(pos), PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None, None)(pos)
 
     val RETURN =
       Return(distinct = false,
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(p, p)(pos)
-        ))(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None)(pos)
 
     val expected: Query = Query(None, SingleQuery(List(MATCH, WITH, RETURN))(pos))(pos)
 
@@ -95,13 +94,13 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(PathExpression(NodePathStep(a, NilPathStep))(pos), p)(pos),
           AliasedReturnItem(a, a)(pos)
-        ))(pos), PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None, None)(pos)
 
     val RETURN=
       Return(distinct = false,
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(p, p)(pos)
-        ))(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None)(pos)
 
     val expected: Query = Query(None, SingleQuery(List(MATCH, WITH, RETURN))(pos))(pos)
 
@@ -126,7 +125,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
       With(distinct = false,
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(PathExpression(NodePathStep(a, NilPathStep))(pos), p)(pos)
-        ))(pos), PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None, None)(pos)
 
     val MATCH2 =
       Match(optional = false,
@@ -140,14 +139,14 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(p, p)(pos),
           AliasedReturnItem(PathExpression(NodePathStep(b, NilPathStep))(pos), q)(pos)
-        ))(pos), PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None, None)(pos)
 
     val RETURN=
       Return(distinct = false,
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(p, p)(pos),
           AliasedReturnItem(q, q)(pos)
-        ))(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None)(pos)
 
     val expected: Query = Query(None, SingleQuery(List(MATCH1, WITH1, MATCH2, WITH2, RETURN))(pos))(pos)
 
@@ -220,7 +219,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(PathExpression(NodePathStep(aId, SingleRelationshipPathStep(rId, SemanticDirection.OUTGOING, NilPathStep)))(pos), fresh30)(pos),
           AliasedReturnItem(SignedDecimalIntegerLiteral("42")(pos), fresh33)(pos)
-        ))(pos), PassAllGraphReturnItems(pos),
+        ))(pos),
         Some(OrderBy(List(AscSortItem(fresh33)(pos)))(pos)),
         None, None, None
       )(pos)
@@ -232,7 +231,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
           AliasedReturnItem(fresh30, pId)(pos),
           AliasedReturnItem(fresh33, orderId)(pos)
         ))(pos),
-        None, None, None, None
+        None, None, None
       )(pos)
 
     val expected: Query = Query(None, SingleQuery(List(MATCH, WITH, RETURN))(pos))(pos)
@@ -270,7 +269,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
         ReturnItems(includeExisting = false, List(
           AliasedReturnItem(SignedDecimalIntegerLiteral("1")(pos), Variable("x")(pos))(pos)
         ))(pos),
-        None, None, None, None
+        None, None, None
       )(pos)
 
     val expected: Query = Query(None, SingleQuery(List(MATCH, RETURN))(pos))(pos)
@@ -297,20 +296,20 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(FunctionInvocation(FunctionName("length")(pos), pathExpression)(pos), l)(pos),
           AliasedReturnItem(CountStar()(pos), x)(pos)
-        ))(pos), PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None, None)(pos)
 
     val WITH2 =
       With(distinct = false,
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(l, l)(pos),
           AliasedReturnItem(x, x)(pos)
-        ))(pos), PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None, None)(pos)
 
     val RETURN =
       Return(distinct = false,
         ReturnItems(includeExisting = false, Seq(
           AliasedReturnItem(Add(l, x)(pos), varFor("l + x"))(pos)
-        ))(pos), None, None, None, None)(pos)
+        ))(pos), None, None, None)(pos)
 
     val expected: Query = Query(None, SingleQuery(List(MATCH, WITH1, WITH2, RETURN))(pos))(pos)
 

@@ -15,10 +15,9 @@
  */
 package org.opencypher.v9_1.ast.semantics
 
-import org.opencypher.v9_1.expressions._
-import org.opencypher.v9_1.util.symbols._
 import org.opencypher.v9_1.expressions
 import org.opencypher.v9_1.expressions._
+import org.opencypher.v9_1.util.symbols._
 
 class PatternComprehensionTest extends SemanticFunSuite {
 
@@ -71,7 +70,7 @@ class PatternComprehensionTest extends SemanticFunSuite {
     val result = SemanticExpressionCheck.simple(expression)(semanticState)
 
     result.errors shouldBe Seq(
-      SemanticError("Type mismatch: n already defined with conflicting type Boolean (expected Node)", pos, pos)
+      SemanticError("Type mismatch: n defined with conflicting type Boolean (expected Node)", pos, pos)
     )
   }
 }

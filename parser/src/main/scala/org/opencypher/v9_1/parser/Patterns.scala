@@ -72,22 +72,23 @@ trait Patterns extends Parser
       | LeftArrowHead ~~ Dash ~~ RelationshipDetail ~~ Dash ~ push(SemanticDirection.INCOMING)
       | Dash ~~ RelationshipDetail ~~ Dash ~~ RightArrowHead ~ push(SemanticDirection.OUTGOING)
       | Dash ~~ RelationshipDetail ~~ Dash ~ push(SemanticDirection.BOTH)
-    ) ~~>> ((variable, relTypes, range, props, dir) => ast.RelationshipPattern(variable, relTypes.types, range,
-      props, dir, relTypes.legacySeparator))
+    ) ~~>> ((variable, base, relTypes, range, props, dir) => ast.RelationshipPattern(variable, relTypes.types, range,
+      props, dir, relTypes.legacySeparator, base))
   }
 
-  private def RelationshipDetail: Rule4[
+  private def RelationshipDetail: Rule5[
+      Option[ast.Variable],
       Option[org.opencypher.v9_1.expressions.Variable],
       MaybeLegacyRelTypes,
       Option[Option[org.opencypher.v9_1.expressions.Range]],
       Option[org.opencypher.v9_1.expressions.Expression]] = rule("[") {
     (
         "[" ~~
-          MaybeVariable ~~
+          MaybeVariableWithBase ~~
           RelationshipTypes ~~ MaybeVariableLength ~
           MaybeProperties ~~
         "]"
-      | EMPTY ~ push(None) ~ push(MaybeLegacyRelTypes()) ~ push(None) ~ push(None)
+      | EMPTY ~ push(None) ~ push(None) ~ push(MaybeLegacyRelTypes()) ~ push(None) ~ push(None)
     )
   }
 
@@ -112,12 +113,12 @@ trait Patterns extends Parser
   )
 
   private def NodePattern: Rule1[org.opencypher.v9_1.expressions.NodePattern] = rule("a node pattern") (
-      group("(" ~~ MaybeVariable ~ MaybeNodeLabels ~ MaybeProperties ~~ ")") ~~>> (ast.NodePattern(_, _, _))
+    group("(" ~~ MaybeVariableWithBase ~ MaybeNodeLabels ~ MaybeProperties ~~ ")") ~~>> { (v, base, labels, props) => ast.NodePattern(v, labels, props, base)}
     | group(Variable ~ MaybeNodeLabels ~ MaybeProperties)  ~~>> (ast.InvalidNodePattern(_, _, _)) // Here to give nice error messages
   )
 
-  private def MaybeVariable: Rule1[Option[org.opencypher.v9_1.expressions.Variable]] = rule("a variable") {
-    optional(Variable)
+  private def MaybeVariableWithBase: Rule2[Option[ast.Variable], Option[ast.Variable]] = rule("a variable") {
+    optional(!keyword("COPY OF") ~ Variable) ~~ optional(keyword("COPY OF") ~~ Variable)
   }
 
   private def MaybeNodeLabels: Rule1[Seq[org.opencypher.v9_1.expressions.LabelName]] = rule("node labels") (

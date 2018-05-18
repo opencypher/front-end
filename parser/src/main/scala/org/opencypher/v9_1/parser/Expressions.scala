@@ -67,6 +67,7 @@ trait Expressions extends Parser
 
   private def PartialComparisonExpression: Rule1[PartialComparison] = (
       group(operator("=") ~~ Expression7) ~~>> { expr: org.opencypher.v9_1.expressions.Expression => pos: InputPosition => PartialComparison(eq, expr, pos) }
+    | group(operator("~") ~~ Expression7) ~~>> { expr: ast.Expression => pos: InputPosition => PartialComparison(eqv, expr, pos) }
     | group(operator("<>") ~~ Expression7) ~~>> { expr: org.opencypher.v9_1.expressions.Expression => pos: InputPosition => PartialComparison(ne, expr, pos) }
     | group(operator("!=") ~~ Expression7) ~~>> { expr: org.opencypher.v9_1.expressions.Expression => pos: InputPosition => PartialComparison(bne, expr, pos) }
     | group(operator("<") ~~ Expression7) ~~>> { expr: org.opencypher.v9_1.expressions.Expression => pos: InputPosition => PartialComparison(lt, expr, pos) }
@@ -75,6 +76,7 @@ trait Expressions extends Parser
     | group(operator(">=") ~~ Expression7) ~~>> { expr: org.opencypher.v9_1.expressions.Expression => pos: InputPosition => PartialComparison(gte, expr, pos) } )
 
   private def eq(lhs:org.opencypher.v9_1.expressions.Expression, rhs:org.opencypher.v9_1.expressions.Expression): InputPosition => org.opencypher.v9_1.expressions.Expression = expressions.Equals(lhs, rhs)
+  private def eqv(lhs:ast.Expression, rhs:ast.Expression): InputPosition => ast.Expression = ast.Equivalent(lhs, rhs)
   private def ne(lhs:org.opencypher.v9_1.expressions.Expression, rhs:org.opencypher.v9_1.expressions.Expression): InputPosition => org.opencypher.v9_1.expressions.Expression = expressions.NotEquals(lhs, rhs)
   private def bne(lhs:org.opencypher.v9_1.expressions.Expression, rhs:org.opencypher.v9_1.expressions.Expression): InputPosition => org.opencypher.v9_1.expressions.Expression = expressions.InvalidNotEquals(lhs, rhs)
   private def lt(lhs:org.opencypher.v9_1.expressions.Expression, rhs:org.opencypher.v9_1.expressions.Expression): InputPosition => org.opencypher.v9_1.expressions.Expression = expressions.LessThan(lhs, rhs)
