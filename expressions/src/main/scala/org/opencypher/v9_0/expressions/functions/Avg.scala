@@ -23,6 +23,7 @@ case object Avg extends AggregatingFunction with TypeSignatures {
 
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(CTInteger), outputType = CTInteger),
-    TypeSignature(argumentTypes = Vector(CTFloat), outputType = CTFloat)
+    TypeSignature(argumentTypes = Vector(CTFloat), outputType = CTFloat),
+    TypeSignature(argumentTypes = Vector(CTDuration), outputType = CTDuration)
   )
 }
