@@ -19,13 +19,11 @@ import org.opencypher.v9_0.util.InputPosition
 
 case class Variable(name: String)(val position: InputPosition) extends LogicalVariable {
 
-  override def copyId = copy()(position)
+  override def copyId: Variable = copy()(position)
 
-  override def renameId(newName: String) = copy(name = newName)(position)
+  override def renameId(newName: String): Variable = copy(name = newName)(position)
 
-  override def bumpId = copy()(position.bumped())
-
-  override def asCanonicalStringVal: String = name
+  override def bumpId: Variable = copy()(position.bumped())
 }
 
 object Variable {

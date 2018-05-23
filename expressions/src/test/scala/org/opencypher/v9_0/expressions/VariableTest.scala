@@ -16,22 +16,29 @@
 package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-abstract class LogicalVariable extends Expression {
-  def name: String
+class VariableTest extends CypherFunSuite {
+  test("variable names are handled by the trait") {
+    val _name = "testVariable"
+    val variable = new LogicalVariable {
+      override def name: String = _name
 
-  def copyId: LogicalVariable
+      override def copyId: LogicalVariable = ???
 
-  def renameId(newName: String): LogicalVariable
+      override def renameId(newName: String): LogicalVariable = ???
 
-  def bumpId: LogicalVariable
+      override def bumpId: LogicalVariable = ???
 
-  def position: InputPosition
+      override def position: InputPosition = ???
 
-  override def asCanonicalStringVal: String = name
+      override def productElement(n: Int): Any = ???
+
+      override def productArity: Int = ???
+
+      override def canEqual(that: Any): Boolean = ???
+    }
+
+    variable.asCanonicalStringVal should equal(_name)
+  }
 }
-
-object LogicalVariable {
-  def unapply(arg: Variable): Option[String] = Some(arg.name)
-}
-
