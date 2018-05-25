@@ -18,7 +18,7 @@ package org.opencypher.v9_1.util
 /**
  * Describes a notification
  */
-sealed trait InternalNotification
+trait InternalNotification
 
 case class DeprecatedStartNotification(position: InputPosition, alternativeQuery: String) extends InternalNotification
 
@@ -26,44 +26,10 @@ case class CartesianProductNotification(position: InputPosition, isolatedVariabl
 
 case class LengthOnNonPathNotification(position: InputPosition) extends InternalNotification
 
-case object PlannerUnsupportedNotification extends InternalNotification
-
-case object RuntimeUnsupportedNotification extends InternalNotification
-
-case class IndexHintUnfulfillableNotification(label: String, propertyKeys: Seq[String]) extends InternalNotification
-
-case class JoinHintUnfulfillableNotification(identified: Seq[String]) extends InternalNotification
-
-case class JoinHintUnsupportedNotification(identified: Seq[String]) extends InternalNotification
-
-case class IndexLookupUnfulfillableNotification(labels: Set[String]) extends InternalNotification
-
-case object EagerLoadCsvNotification extends InternalNotification
-
-case object LargeLabelWithLoadCsvNotification extends InternalNotification
-
-case class MissingLabelNotification(position: InputPosition, label: String) extends InternalNotification
-
-case class MissingRelTypeNotification(position: InputPosition, relType: String) extends InternalNotification
-
-case class MissingPropertyNameNotification(position: InputPosition, name: String) extends InternalNotification
-
 case class UnboundedShortestPathNotification(position: InputPosition) extends InternalNotification
 
-case class ExhaustiveShortestPathForbiddenNotification(position: InputPosition) extends InternalNotification
-
 case class DeprecatedFunctionNotification(position: InputPosition, oldName: String, newName: String) extends InternalNotification
-
-case class DeprecatedProcedureNotification(position: InputPosition, oldName: String, newName: String) extends InternalNotification
-
-case class ProcedureWarningNotification(position: InputPosition, procedure: String, warning: String) extends InternalNotification
-
-case class DeprecatedFieldNotification(position: InputPosition, procedure: String, field: String) extends InternalNotification
 
 case class DeprecatedVarLengthBindingNotification(position: InputPosition, variable: String) extends InternalNotification
 
 case class DeprecatedRelTypeSeparatorNotification(position: InputPosition) extends InternalNotification
-
-case object DeprecatedPlannerNotification extends InternalNotification
-
-case class ExperimentalFeatureNotification(msg: String) extends InternalNotification
