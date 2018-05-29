@@ -2,7 +2,7 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 = The Cypher Front End Modules
 
-image:https://travis-ci.org/opencypher/front-end.svg?branch=9.0["Build Status", link="https://travis-ci.org/opencypher/front-end"]
+image:https://travis-ci.org/opencypher/front-end.svg?branch=9.1["Build Status", link="https://travis-ci.org/opencypher/front-end"]
 
 This repository holds a fully functional front end for the Cypher Property Graph Query Language. 
 This includes a parser, an AST, semantic checking and analysis, and AST rewriting support.
