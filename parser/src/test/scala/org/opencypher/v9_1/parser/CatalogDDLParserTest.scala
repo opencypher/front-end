@@ -16,7 +16,7 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast
-import org.opencypher.v9_1.ast.{AstConstructionTestSupport, ReturnGraph}
+import org.opencypher.v9_1.ast.{AstConstructionTestSupport, QualifiedGraphName, ReturnGraph}
 import org.parboiled.scala.Rule1
 
 class CatalogDDLParserTest
@@ -24,6 +24,7 @@ class CatalogDDLParserTest
 
   implicit val parser: Rule1[ast.Statement] = Statement
 
+  val singleQuery = ast.SingleQuery(Seq(ast.ConstructGraph()(pos)))(pos)
   private val returnGraph: ReturnGraph = ast.ReturnGraph(None)(pos)
 
   test("CREATE GRAPH foo.bar { RETURN GRAPH }") {
@@ -58,12 +59,41 @@ class CatalogDDLParserTest
   test("CREATE GRAPH foo.bar { CONSTRUCT }") {
     val graphName = ast.QualifiedGraphName("foo", List("bar"))
 
-    yields(ast.CreateGraph(graphName, ast.SingleQuery(Seq(ast.ConstructGraph()(pos)))(pos)))
+    yields(ast.CreateGraph(graphName, singleQuery))
   }
 
   // missing graph name
   test("CREATE GRAPH { RETURN GRAPH }") {
     failsToParse
+  }
+
+  test("CREATE GRAPH `foo.bar.baz.baz` { CONSTRUCT }"){
+    yields(ast.CreateGraph(
+      new QualifiedGraphName(List("foo.bar.baz.baz")),
+      singleQuery
+    ))
+  }
+
+  test("CREATE GRAPH `foo.bar`.baz { CONSTRUCT }"){
+    yields(ast.CreateGraph(
+      new QualifiedGraphName(List("foo.bar", "baz")),
+      singleQuery
+    ))
+  }
+
+
+  test("CREATE GRAPH foo.`bar.baz` { CONSTRUCT }"){
+    yields(ast.CreateGraph(
+      new QualifiedGraphName(List("foo", "bar.baz")),
+      singleQuery
+    ))
+  }
+
+  test("CREATE GRAPH `foo.bar`.`baz.baz` { CONSTRUCT }"){
+    yields(ast.CreateGraph(
+      new QualifiedGraphName(List("foo.bar", "baz.baz")),
+      singleQuery
+    ))
   }
 
   // missing graph name

@@ -16,9 +16,8 @@
 package org.opencypher.v9_1.parser
 
 import org.opencypher.v9_1.ast.{AstConstructionTestSupport, Clause}
-import org.opencypher.v9_1.ast
 import org.opencypher.v9_1.expressions.RelationshipChain
-import org.opencypher.v9_1.{expressions => exp}
+import org.opencypher.v9_1.{ast, expressions => exp}
 import org.parboiled.scala._
 
 import scala.language.implicitConversions
@@ -170,6 +169,39 @@ class MultipleGraphClausesParsingTest
   ignore("RETURN GRAPH union") {
     yields(ast.ReturnGraph(Some(ast.QualifiedGraphName("union"))))
   }
+
+  test("FROM GRAPH `foo.bar.baz.baz`"){
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar.baz.baz"))))
+  }
+
+  test("FROM GRAPH `foo.bar`.baz"){
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar", "baz"))))
+  }
+  
+  test("FROM GRAPH foo.`bar.baz`"){
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo", "bar.baz"))))
+  }
+  
+  test("FROM GRAPH `foo.bar`.`baz.baz`"){
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar", "baz.baz"))))
+  }
+
+  test("CONSTRUCT ON `foo.bar.baz.baz`"){
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo.bar.baz.baz")))))
+  }
+
+  test("CONSTRUCT ON `foo.bar`.baz"){
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo.bar", "baz")))))
+  }
+
+  test("CONSTRUCT ON foo.`bar.baz`"){
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo", "bar.baz")))))
+  }
+
+  test("CONSTRUCT ON `foo.bar`.`baz.baz`"){
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo.bar", "baz.baz")))))
+  }
+  
 
   private val nodePattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(None, List(), None)(pos))))(pos)
 
