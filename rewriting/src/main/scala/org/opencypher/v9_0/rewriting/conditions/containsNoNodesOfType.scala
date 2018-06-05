@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.ast.conditions
+package org.opencypher.v9_0.rewriting.conditions
 
-import org.opencypher.v9_0.rewriting.Condition
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.rewriting.Condition
 
 import scala.reflect.ClassTag
 

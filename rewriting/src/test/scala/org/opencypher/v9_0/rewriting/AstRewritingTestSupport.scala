@@ -16,8 +16,8 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.parser.ParserFixture
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
+import org.opencypher.v9_0.parser.ParserFixture
 
 trait AstRewritingTestSupport extends CypherTestSupport with AstConstructionTestSupport {
   val parser = ParserFixture.parser

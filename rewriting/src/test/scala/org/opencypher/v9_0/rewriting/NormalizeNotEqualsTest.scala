@@ -19,6 +19,7 @@ import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.expressions.{Equals, Not, NotEquals}
 
 
 class NormalizeNotEqualsTest extends CypherFunSuite {

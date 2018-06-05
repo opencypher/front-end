@@ -19,6 +19,7 @@ import org.opencypher.v9_0.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.expressions.ReduceExpression.AccumulatorExpressionTypeMismatchMessageGenerator
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions._
 
 import scala.util.Try
 
@@ -87,6 +88,11 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
 
       case x:Equals =>
         check(ctx, x.arguments) chain
+          checkTypes(x, x.signatures)
+
+      case x:Equivalent =>
+        requireCypher10Support("`~` (equivalence)", x.position) chain
+          check(ctx, x.arguments) chain
           checkTypes(x, x.signatures)
 
       case x:NotEquals =>

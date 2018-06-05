@@ -15,9 +15,9 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.rewriters._
 import org.opencypher.v9_0.util.{Rewriter, inSequence}
+import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 
 case object CNFNormalizer extends StatementRewriter {
 

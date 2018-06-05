@@ -16,10 +16,11 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.ast.conditions.hasAggregateButIsNotAggregate
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.conditions.hasAggregateButIsNotAggregate
 
 /**
   * This rewriter makes sure that aggregations are on their own in RETURN/WITH clauses, so
@@ -54,7 +55,7 @@ case object isolateAggregation extends Rewriter {
             case e => AliasedReturnItem(e, Variable(AggregationNameGenerator.name(e.position))(e.position))(e.position)
           }
           val pos = clause.position
-          val withClause = With(distinct = false, ReturnItems(includeExisting = false, withReturnItems.toIndexedSeq)(pos), PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+          val withClause = With(distinct = false, ReturnItems(includeExisting = false, withReturnItems.toIndexedSeq)(pos), None, None, None, None)(pos)
 
           val expressionRewriter = createRewriterFor(withReturnItems)
           val resultClause = clause.endoRewrite(expressionRewriter)

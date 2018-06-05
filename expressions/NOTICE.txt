@@ -20,12 +20,7 @@ Third-party licenses
 Apache Software License, Version 2.0
   Apache Commons Lang
   openCypher Utils
-  scalatest
 
 BSD - Scala License
   Scala Library
-
-BSD License
-  Scala Compiler
-  scala-xml
 

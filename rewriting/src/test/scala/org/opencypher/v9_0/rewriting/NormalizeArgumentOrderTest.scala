@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.expressions._
 
 class NormalizeArgumentOrderTest extends CypherFunSuite with AstConstructionTestSupport {
 

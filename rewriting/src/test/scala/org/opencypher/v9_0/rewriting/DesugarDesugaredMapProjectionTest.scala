@@ -15,12 +15,12 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.util.{Rewriter, inSequence}
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.{desugarMapProjection, normalizeReturnClauses, normalizeWithClauses, recordScopes}
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{Rewriter, inSequence}
 
 class DesugarDesugaredMapProjectionTest extends CypherFunSuite {
 

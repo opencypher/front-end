@@ -17,6 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions.{In, Variable}
 
 /*
 TODO: This should implement Rewriter instead

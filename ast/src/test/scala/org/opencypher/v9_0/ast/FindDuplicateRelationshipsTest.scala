@@ -18,6 +18,8 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions._
 
 class FindDuplicateRelationshipsTest extends CypherFunSuite {
 
@@ -34,22 +36,22 @@ class FindDuplicateRelationshipsTest extends CypherFunSuite {
   }
 
   test("find duplicate relationships in a long rel chain") {
-    val relPath = EveryPath(relChain(relR, relS, relR))
+    val relPath = expressions.EveryPath(relChain(relR, relS, relR))
     val pattern = Pattern(Seq(relPath))(pos)
 
     Pattern.findDuplicateRelationships(pattern) should equal(Set(Seq(relR, relR)))
   }
 
   test("does not find duplicate relationships across pattern parts if there is none") {
-    val relPath = EveryPath(RelationshipChain(node, relPattern(relR), node)(pos))
-    val otherRelPath = EveryPath(RelationshipChain(node, relPattern(relS), node)(pos))
+    val relPath = EveryPath(expressions.RelationshipChain(node, relPattern(relR), node)(pos))
+    val otherRelPath = EveryPath(expressions.RelationshipChain(node, relPattern(relS), node)(pos))
     val pattern = Pattern(Seq(relPath, otherRelPath))(pos)
 
     Pattern.findDuplicateRelationships(pattern) should equal(Set.empty)
   }
 
   test("does not find duplicate relationships in a long rel chain if there is none") {
-    val relPath = EveryPath(relChain(relS, relR))
+    val relPath = expressions.EveryPath(relChain(relS, relR))
     val pattern = Pattern(Seq(relPath))(pos)
 
     Pattern.findDuplicateRelationships(pattern) should equal(Set.empty)
@@ -57,7 +59,7 @@ class FindDuplicateRelationshipsTest extends CypherFunSuite {
 
   private def relChain(ids: Variable*) =
     ids.foldRight(node.asInstanceOf[PatternElement]) {
-      (id, n) => RelationshipChain(n, relPattern(id), node)(pos)
+      (id, n) => expressions.RelationshipChain(n, relPattern(id), node)(pos)
     }
 
   private def relPattern(id: Variable) =

@@ -15,10 +15,10 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics._
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck}
 
 case class Where(expression: Expression)(val position: InputPosition)
   extends ASTNode with SemanticCheckable {

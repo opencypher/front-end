@@ -15,9 +15,9 @@
  */
 package org.opencypher.v9_0.parser
 
+import org.opencypher.v9_0.{expressions => exp}
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.{expressions => exp}
 
 
 class MapProjectionTest extends ParserTest[Any, Any] with Expressions {

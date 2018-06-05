@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.{Expression, In, ListLiteral, Ors}
+import org.opencypher.v9_0.expressions.{Expression, In, ListLiteral}
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions.{In, Ors}
 
 import scala.collection.immutable.Iterable
 
@@ -49,7 +51,7 @@ case object collapseMultipleInPredicates extends Rewriter {
       val flattenConst: Iterable[In] = groupedINPredicates.map {
         case (lhs, values) =>
           val pos = lhs.position
-          In(lhs, ListLiteral(values.map(_.expr).toIndexedSeq)(pos))(pos)
+          expressions.In(lhs, ListLiteral(values.map(_.expr).toIndexedSeq)(pos))(pos)
       }
 
       // Return the original non-rewritten predicates with our new ones

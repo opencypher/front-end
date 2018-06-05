@@ -17,38 +17,39 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.{CTInteger, CTList, CTNode, CTPath, CTString, TypeSpec}
+import org.opencypher.v9_0.ast.semantics
 
 object ScopeTestHelper {
 
   def symUse(name: String, offset: Int) =
     SymbolUse(name, pos(offset))
 
-  def scope(entries: Symbol*)(children: Scope*): Scope =
+  def scope(entries: semantics.Symbol*)(children: Scope*): Scope =
     Scope(entries.map { symbol => symbol.name -> symbol }.toMap, children.toSeq)
 
-  def nodeSymbol(name: String, offsets: Int*): Symbol =
+  def nodeSymbol(name: String, offsets: Int*): semantics.Symbol =
     typedSymbol(name, TypeSpec.exact(CTNode), offsets: _*)
 
-  def allSymbol(name: String, offsets: Int*): Symbol =
+  def allSymbol(name: String, offsets: Int*): semantics.Symbol =
     typedSymbol(name, TypeSpec.all, offsets: _*)
 
-  def intSymbol(name: String, offsets: Int*): Symbol =
+  def intSymbol(name: String, offsets: Int*): semantics.Symbol =
     typedSymbol(name, TypeSpec.exact(CTInteger), offsets: _*)
 
-  def stringSymbol(name: String, offsets: Int*): Symbol =
+  def stringSymbol(name: String, offsets: Int*): semantics.Symbol =
     typedSymbol(name, TypeSpec.exact(CTString), offsets: _*)
 
-  def intCollectionSymbol(name: String, offsets: Int*): Symbol =
+  def intCollectionSymbol(name: String, offsets: Int*): semantics.Symbol =
     typedSymbol(name, TypeSpec.exact(CTList(CTInteger)), offsets: _*)
 
-  def pathCollectionSymbol(name: String, offsets: Int*): Symbol =
+  def pathCollectionSymbol(name: String, offsets: Int*): semantics.Symbol =
     typedSymbol(name, TypeSpec.exact(CTList(CTPath)), offsets: _*)
 
-  def intCollectionCollectionSymbol(name: String, offsets: Int*): Symbol =
+  def intCollectionCollectionSymbol(name: String, offsets: Int*): semantics.Symbol =
     typedSymbol(name, TypeSpec.exact(CTList(CTList(CTInteger))), offsets: _*)
 
   def typedSymbol(name: String, typeSpec: TypeSpec, offsets: Int*) =
-    Symbol(name, offsets.map(offset => pos(offset)).toSet, typeSpec)
+    semantics.Symbol(name, offsets.map(offset => pos(offset)).toSet, typeSpec)
 
   def pos(offset: Int): InputPosition = {
     new InputPosition(offset, 1, offset + 1)

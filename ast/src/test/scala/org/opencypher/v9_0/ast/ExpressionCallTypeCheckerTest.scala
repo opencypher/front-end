@@ -16,10 +16,11 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticExpressionCheck, SemanticState}
-import org.opencypher.v9_0.expressions.{DummyExpression, Expression, TypeSignature}
+import org.opencypher.v9_0.expressions.{DummyExpression, Expression}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.expressions.TypeSignature
 
 class ExpressionCallTypeCheckerTest extends CypherFunSuite with AstConstructionTestSupport {
 

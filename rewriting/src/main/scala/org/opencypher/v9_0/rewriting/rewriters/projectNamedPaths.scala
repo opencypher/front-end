@@ -19,6 +19,8 @@ import org.opencypher.v9_0.ast.{AliasedReturnItem, With}
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.{InternalException, Ref, Rewriter, topDown}
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions._
 
 import scala.annotation.tailrec
 
@@ -113,7 +115,7 @@ case object projectNamedPaths extends Rewriter {
 
     case part @ NamedPatternPart(variable, patternPart) =>
       acc =>
-        val pathExpr = PathExpression(patternPartPathExpression(patternPart))(part.position)
+        val pathExpr = expressions.PathExpression(patternPartPathExpression(patternPart))(part.position)
         (acc.withNamedPath(variable -> pathExpr).withProtectedVariable(Ref(variable)), Some(identity))
   }
 
@@ -127,10 +129,10 @@ case object projectNamedPaths extends Rewriter {
   @tailrec
   private def flip(element: PatternElement, step: PathStep): PathStep  = {
     element match {
-      case NodePattern(node, _, _) =>
+      case NodePattern(node, _, _, _) =>
         NodePathStep(node.get.copyId, step)
 
-      case RelationshipChain(relChain, RelationshipPattern(rel, _, length, _, direction, _), _) => length match {
+      case RelationshipChain(relChain, RelationshipPattern(rel, _, length, _, direction, _, _), _) => length match {
         case None =>
           flip(relChain, SingleRelationshipPathStep(rel.get.copyId, direction, step))
 

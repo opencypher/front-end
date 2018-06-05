@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.{NodePattern, RelationshipPattern, Variable}
+import org.opencypher.v9_0.expressions.{RelationshipPattern, Variable}
 import org.opencypher.v9_0.util.{Rewriter, UnNamedNameGenerator, bottomUp}
+import org.opencypher.v9_0.expressions.{NodePattern, RelationshipPattern, Variable}
 
 case object nameAllPatternElements extends Rewriter {
 

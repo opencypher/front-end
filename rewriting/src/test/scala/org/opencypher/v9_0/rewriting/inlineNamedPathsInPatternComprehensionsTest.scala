@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.rewriting.rewriters.{inlineNamedPathsInPatternComprehensions, projectNamedPaths}
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.expressions._
 
 class inlineNamedPathsInPatternComprehensionsTest extends CypherFunSuite with AstConstructionTestSupport {
 

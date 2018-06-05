@@ -16,11 +16,12 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.expressions.functions.Exists
-import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.{Rewriter, bottomUp, inSequence, topDown}
+import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 
 
 case class deMorganRewriter()(implicit monitor: AstRewritingMonitor) extends Rewriter {

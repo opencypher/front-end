@@ -16,10 +16,12 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions.{Equals, Variable}
-import org.opencypher.v9_0.rewriting.rewriters.ReturnItemSafeTopDownRewriter
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.expressions.{Equals, Variable}
+import org.opencypher.v9_0.rewriting.rewriters.ReturnItemSafeTopDownRewriter
 
 class ReturnItemSafeTopDownRewriterTest extends CypherFunSuite with AstConstructionTestSupport {
 
@@ -36,7 +38,7 @@ class ReturnItemSafeTopDownRewriterTest extends CypherFunSuite with AstConstruct
 
     def createWith(item: ReturnItem) = {
       val returnItems = ReturnItems(includeExisting = false, Seq(item))(pos)
-      With(distinct = false, returnItems, PassAllGraphReturnItems(pos), None, None, None, None)(pos)
+      With(distinct = false, returnItems, None, None, None, None)(pos)
     }
 
     val originalReturnItem = AliasedReturnItem(Equals(varFor("foo"), literalInt(42))(pos), varFor("foo"))(pos)

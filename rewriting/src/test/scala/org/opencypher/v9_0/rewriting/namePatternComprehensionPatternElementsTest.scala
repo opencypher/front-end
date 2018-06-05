@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.rewriting.rewriters.namePatternComprehensionPatternElements
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.expressions.{NodePattern, RelationshipChain, RelationshipPattern, RelationshipsPattern}
 
 class namePatternComprehensionPatternElementsTest extends CypherFunSuite with AstConstructionTestSupport {
 
@@ -30,9 +31,9 @@ class namePatternComprehensionPatternElementsTest extends CypherFunSuite with As
                         NodePattern(None, Seq.empty, None) _) _) _, None, StringLiteral("foo") _) _
 
     namePatternComprehensionPatternElements(input) match {
-      case PatternComprehension(_, RelationshipsPattern(RelationshipChain(NodePattern(Some(_), _, _),
-                                                                          RelationshipPattern(Some(_), _, _, _, _, _),
-                                                                          NodePattern(Some(_), _, _))), _, _, _) => ()
+      case PatternComprehension(_, RelationshipsPattern(RelationshipChain(NodePattern(Some(_), _, _, _),
+                                                                          RelationshipPattern(Some(_), _, _, _, _, _, _),
+                                                                          NodePattern(Some(_), _, _, _))), _, _, _) => ()
       case _ => fail("All things were not named")
     }
   }

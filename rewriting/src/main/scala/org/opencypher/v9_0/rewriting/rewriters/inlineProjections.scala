@@ -19,6 +19,8 @@ import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.fixedPoint
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.expressions.Pattern
 
 
 case object inlineProjections extends Rewriter {

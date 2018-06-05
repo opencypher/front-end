@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.parser
 
+import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.{expressions => exp}
 import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala._
 
 trait ProcedureCalls {
@@ -38,12 +40,12 @@ trait ProcedureCalls {
         group(
           keyword("YIELD") ~~
           oneOrMore(ProcedureResultItem, separator = CommaSep) ~~
-          optional(group(keyword("WHERE") ~~ Expression ~~>> (ast.Where(_))))
+          optional(group(keyword("WHERE") ~~ Expression ~~>> (Where(_))))
         ) ~~> { (a, b) => a -> b } ~~>> (procedureResult(_))
       )
     }
 
-  private def procedureResult(data: (List[ast.ProcedureResultItem], Option[ast.Where]))(pos: InputPosition) = {
+  private def procedureResult(data: (List[ast.ProcedureResultItem], Option[Where]))(pos: InputPosition) = {
     val (items, optWhere) = data
     ast.ProcedureResult(items.toIndexedSeq, optWhere)(pos)
   }

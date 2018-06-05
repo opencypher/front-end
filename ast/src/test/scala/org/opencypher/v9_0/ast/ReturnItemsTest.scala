@@ -15,9 +15,9 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.ast.semantics.SemanticState
 
 class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
 

@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.semantics._
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck}
 
 // Skip/Limit
 trait ASTSlicingPhrase extends SemanticCheckable with SemanticAnalysisTooling {

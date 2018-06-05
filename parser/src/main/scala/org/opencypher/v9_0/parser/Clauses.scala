@@ -15,15 +15,14 @@
  */
 package org.opencypher.v9_0.parser
 
+import org.opencypher.v9_0
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.{SeekOnly, SeekOrScan}
-import org.opencypher.v9_0.expressions.{Variable, Pattern => ASTPattern}
-import org.opencypher.v9_0.util.InputPosition
-import org.parboiled.scala.{Parser, Rule1, _}
+import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.expressions.{Pattern => ASTPattern}
+import org.parboiled.scala._
 
 trait Clauses extends Parser
   with StartPoints
-  with Graphs
   with Patterns
   with Expressions
   with Base
@@ -40,64 +39,28 @@ trait Clauses extends Parser
       (ast.LoadCSV(_, _, _, _))
   }
 
-  def From: Rule1[ast.With] = rule("FROM") {
-    keyword("FROM") ~~ SingleGraph ~~>> (ast.From(_))
+  def FromGraph: Rule1[ast.FromGraph]= rule("FROM GRAPH") {
+    group(keyword("FROM GRAPH") ~~ QualifiedGraphName ~~>> (ast.FromGraph(_)))
   }
 
-  def Into: Rule1[ast.With] = rule("INTO") {
-    keyword("INTO") ~~ SingleGraph ~~>> (ast.Into(_))
+  def ConstructGraph: Rule1[ast.ConstructGraph] = rule("CONSTRUCT") {
+    group(keyword("CONSTRUCT") ~~ optional(keyword("ON") ~~ oneOrMore(QualifiedGraphName, CommaSep)) ~~
+      zeroOrMore(WS ~ Clone) ~~
+      zeroOrMore(WS ~ New) ~~>> { (on, clones, news) =>
+      ast.ConstructGraph(clones, news, on.getOrElse(List.empty))
+    })
   }
 
-  def CreateGraph: Rule1[ast.CreateGraphClause] =
-    CreateNewSourceGraph | CreateNewTargetGraph | CreateRegularGraph
-
-  private def CreateRegularGraph: Rule1[ast.CreateRegularGraph] = rule("CREATE GRAPH") {
-    keyword("CREATE") ~~ CreatedGraph ~~>>(t => ast.CreateRegularGraph(t._1, t._2, t._3, t._4))
+  def Clone: Rule1[ast.Clone] = rule("CLONE (construct subclause)") {
+    group(keyword("CLONE") ~~ oneOrMore(ReturnItem, CommaSep)) ~~>> (ast.Clone(_))
   }
 
-  private def CreateNewSourceGraph: Rule1[ast.CreateNewSourceGraph] = rule("CREATE GRAPH >>") {
-    keyword("CREATE") ~~ CreatedGraph ~~ keyword(">>") ~~>>(t => ast.CreateNewSourceGraph(t._1, t._2, t._3, t._4))
+  def New: Rule1[ast.New] = rule("NEW (construct subclause)") {
+    group(keyword("NEW") ~~ Pattern) ~~>> (ast.New(_))
   }
 
-  private def CreateNewTargetGraph: Rule1[ast.CreateNewTargetGraph] = rule("CREATE >> GRAPH") {
-    keyword("CREATE") ~~ keyword(">>")  ~~ CreatedGraph ~~>>(t => ast.CreateNewTargetGraph(t._1, t._2, t._3, t._4))
-  }
-
-  private def CreatedGraph: Rule1[(Boolean, Variable, Option[ASTPattern], ast.GraphUrl)] =
-    CreatedGraphAt | CreatedGraphAs
-
-  private def CreatedGraphAt: Rule1[(Boolean,  Variable, Option[ASTPattern], ast.GraphUrl)] =
-    OptSnapshot ~~ keyword("GRAPH") ~~ Variable ~~ optional(keyword("OF") ~~ Pattern) ~~ keyword("AT") ~~ GraphUrl ~~> {
-      (snapshot, graph, pattern, url) => (snapshot, graph, pattern, url)
-    }
-
-  private def CreatedGraphAs: Rule1[(Boolean,  Variable, Option[ASTPattern], ast.GraphUrl)] =
-    OptSnapshot ~~ keyword("GRAPH") ~~ optional(keyword("OF") ~~ Pattern) ~~ keyword("AT") ~~ GraphUrl ~~ keyword("AS") ~~ Variable ~~> {
-      (snapshot, pattern, url, graph) => (snapshot, graph, pattern, url)
-    }
-
-  private def OptSnapshot: Rule1[Boolean] = rule("[SNAPSHOT]") {
-    optional(keyword("SNAPSHOT") ~~ push(true)) ~~>(_.getOrElse(false))
-  }
-
-  def Persist: Rule1[ast.Persist] = rule("PERSIST") {
-    keyword("PERSIST") ~~ BoundGraph ~~ keyword("TO") ~~ GraphUrl ~~>>(ast.Persist(_, _))
-  }
-
-  def Snapshot: Rule1[ast.Snapshot] = rule("SNAPSHOT") {
-    keyword("SNAPSHOT") ~~ BoundGraph ~~ keyword("TO") ~~ GraphUrl ~~>>(ast.Snapshot(_, _))
-  }
-
-  def Relocate: Rule1[ast.Relocate] = rule("RELOCATE") {
-    keyword("RELOCATE") ~~ BoundGraph ~~ keyword("TO") ~~ GraphUrl ~~>>(ast.Relocate(_, _))
-  }
-
-  def DeleteGraphs: Rule1[ast.DeleteGraphs] = rule("DELETE GRAPHS") {
-    keyword("DELETE") ~~ (
-      (keyword("GRAPHS") ~~ oneOrMore(Variable, separator = CommaSep) ~~>>(ast.DeleteGraphs(_)))
-      |
-      (oneOrMore(keyword("GRAPH") ~~ Variable, separator = CommaSep) ~~>>(ast.DeleteGraphs(_)))
-    )
+  def QualifiedGraphName = rule("qualified graph name foo.bar.baz") {
+    group(SymbolicNameString ~~ zeroOrMore("." ~~ SymbolicNameString) ~~> (ast.QualifiedGraphName(_, _)))
   }
 
   def Start: Rule1[ast.Start] = rule("START") {
@@ -120,10 +83,13 @@ trait Clauses extends Parser
     ) ~~>> (ast.Merge(_, _))
   }
 
-  def Create: Rule1[ast.Clause] = rule("CREATE")(
+  def Create: Rule1[Create] = rule("CREATE") {
+    group(keyword("CREATE") ~~ Pattern) ~~>> (ast.Create(_))
+  }
+
+  def CreateUnique: Rule1[CreateUnique] = rule("CREATE UNIQUE") {
     group(keyword("CREATE UNIQUE") ~~ Pattern) ~~>> (ast.CreateUnique(_))
-      | group(keyword("CREATE") ~~ Pattern) ~~>> (ast.Create(_))
-  )
+  }
 
   def SetClause: Rule1[ast.SetClause] = rule("SET") {
     group(keyword("SET") ~~ oneOrMore(SetItem, separator = CommaSep)) ~~>> (ast.SetClause(_))
@@ -145,32 +111,31 @@ trait Clauses extends Parser
   }
 
   def With: Rule1[ast.With] = rule("WITH")(
-    group(keyword("WITH DISTINCT") ~~ WithBody ~~ optional(Where)) ~~>> (ast.With(distinct = true, _, _, _, _, _, _))
-      | group(keyword("WITH") ~~ GraphReturnItems) ~~>> (ast.With(_))
-      | group(keyword("WITH") ~~ WithBody ~~ optional(Where)) ~~>> (ast.With(distinct = false, _, _, _, _, _, _))
+    group(keyword("WITH DISTINCT") ~~ WithBody ~~ optional(Where)) ~~>> (ast.With(distinct = true, _, _, _, _, _))
+      | group(keyword("WITH") ~~ WithBody ~~ optional(Where)) ~~>> (ast.With(distinct = false, _, _, _, _, _))
   )
 
   def Unwind: Rule1[ast.Unwind] = rule("UNWIND")(
     group(keyword("UNWIND") ~~ Expression ~~ keyword("AS") ~~ Variable) ~~>> (ast.Unwind(_, _))
   )
 
-  def Return: Rule1[ast.Return] = rule("RETURN")(
-    group(keyword("RETURN DISTINCT") ~~ ReturnBody) ~~>> (ast.Return(distinct = true, _, _, _, _, _))
-      | group(keyword("RETURN") ~~ GraphReturnItems) ~~>> (ast.Return(_))
-      | group(keyword("RETURN") ~~ ReturnBody) ~~>> (ast.Return(distinct = false, _, _, _, _, _))
+  def Return: Rule1[ast.Clause] = rule("RETURN")(
+    group(keyword("RETURN GRAPH")) ~ push(ast.ReturnGraph(None)(_))
+      | group(keyword("RETURN DISTINCT") ~~ ReturnBody) ~~>> (ast.Return(distinct = true, _, _, _, _))
+      | group(keyword("RETURN") ~~ ReturnBody) ~~>> (ast.Return(distinct = false, _, _, _, _))
   )
 
   def Pragma: Rule1[ast.Clause] = rule("") {
     keyword("_PRAGMA") ~~ (
       group(
         keyword("WITH NONE") ~ push(ast.ReturnItems(includeExisting = false, Seq())(_)) ~~ optional(Skip) ~~ optional(
-          Limit) ~~ optional(Where)) ~~>> (ast.With(distinct = false, _, ast.PassAllGraphReturnItems(InputPosition.NONE), None, _, _, _))
+          Limit) ~~ optional(Where)) ~~>> (ast.With(distinct = false, _, None, _, _, _))
         | group(keyword("WITHOUT") ~~ oneOrMore(Variable, separator = CommaSep)) ~~>> (ast.PragmaWithout(_))
       )
   }
 
-  private def Where: Rule1[ast.Where] = rule("WHERE") {
-    group(keyword("WHERE") ~~ Expression) ~~>> (ast.Where(_))
+  private def Where: Rule1[Where] = rule("WHERE") {
+    group(keyword("WHERE") ~~ Expression) ~~>> (v9_0.ast.Where(_))
   }
 
   def PeriodicCommitHint: Rule1[ast.PeriodicCommitHint] = rule("USING PERIODIC COMMIT")(
@@ -201,20 +166,15 @@ trait Clauses extends Parser
       | PropertyExpression ~~> ast.RemovePropertyItem
   )
 
-  private def WithBody: Rule5[ast.ReturnItemsDef, ast.GraphReturnItems, Option[ast.OrderBy], Option[ast.Skip], Option[ast.Limit]] = {
+  private def WithBody: Rule4[ast.ReturnItemsDef, Option[ast.OrderBy], Option[Skip], Option[ast.Limit]] = {
     ReturnItems ~~
-      FakeMandatoryGraphReturnItems ~~
       optional(Order) ~~
       optional(Skip) ~~
       optional(Limit)
   }
 
-  private def FakeMandatoryGraphReturnItems: Rule1[ast.GraphReturnItems] =
-    optional(GraphReturnItems) ~~>> { (optItem) => (pos: InputPosition) => optItem.getOrElse(ast.PassAllGraphReturnItems(pos)) }
-
-  private def ReturnBody: Rule5[ast.ReturnItemsDef, Option[ast.GraphReturnItems], Option[ast.OrderBy], Option[ast.Skip], Option[ast.Limit]] = {
+  private def ReturnBody: Rule4[ast.ReturnItemsDef, Option[ast.OrderBy], Option[Skip], Option[ast.Limit]] = {
     ReturnItems ~~
-      optional(GraphReturnItems) ~~
       optional(Order) ~~
       optional(Skip) ~~
       optional(Limit)
@@ -239,8 +199,8 @@ trait Clauses extends Parser
       | group(Expression ~~ optional(keyword("ASCENDING") | keyword("ASC"))) ~~>> (ast.AscSortItem(_))
   )
 
-  private def Skip: Rule1[ast.Skip] = rule("SKIP") {
-    group(keyword("SKIP") ~~ Expression) ~~>> (ast.Skip(_))
+  private def Skip: Rule1[Skip] = rule("SKIP") {
+    group(keyword("SKIP") ~~ Expression) ~~>> (v9_0.ast.Skip(_))
   }
 
   private def Limit: Rule1[ast.Limit] = rule("LIMIT") {

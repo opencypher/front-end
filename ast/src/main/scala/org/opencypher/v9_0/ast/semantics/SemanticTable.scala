@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.ASTAnnotationMap
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.{LabelName, PropertyKeyName, RelTypeName, Variable}
 
 import scala.collection.mutable
 

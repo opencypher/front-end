@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.ast.conditions
+package org.opencypher.v9_0.rewriting.conditions
 
 import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.{NodePattern, RelationshipPattern}
 import org.opencypher.v9_0.rewriting.Condition
 
@@ -27,14 +28,14 @@ case object noUnnamedPatternElementsInMatch extends Condition {
 
   private def unnamedRelationshipPatterns(that: Any): Seq[String] = {
     collectNodesOfType[RelationshipPattern].apply(that).collect {
-      case rel@RelationshipPattern(None, _, _, _, _, _) =>
+      case rel@RelationshipPattern(None, _, _, _, _, _, _) =>
         s"RelationshipPattern at ${rel.position} is unnamed"
     }
   }
 
   private def unnamedNodePatterns(that: Any): Seq[String] = {
     collectNodesOfType[NodePattern].apply(that).collect {
-      case node@NodePattern(None, _, _) =>
+      case node@NodePattern(None, _, _, _) =>
         s"NodePattern at ${node.position} is unnamed"
     }
   }

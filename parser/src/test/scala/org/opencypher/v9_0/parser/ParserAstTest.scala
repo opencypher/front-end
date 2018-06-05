@@ -15,9 +15,9 @@
  */
 package org.opencypher.v9_0.parser
 
+import org.opencypher.v9_0.{expressions => exp}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.TestName
-import org.opencypher.v9_0.{expressions => exp}
 import org.parboiled.scala._
 
 trait ParserAstTest[AST] extends ParserTest[AST, AST] with TestName {

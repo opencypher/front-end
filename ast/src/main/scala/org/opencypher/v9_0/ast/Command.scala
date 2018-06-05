@@ -15,10 +15,12 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticExpressionCheck}
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.{CypherType, _}
+import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticExpressionCheck}
+import org.opencypher.v9_0.expressions.{LabelName, PropertyKeyName, RelTypeName, Variable}
 
 
 sealed trait Command extends Statement {

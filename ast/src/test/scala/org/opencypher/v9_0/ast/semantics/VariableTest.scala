@@ -15,9 +15,9 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.Variable
 
 class VariableTest extends SemanticFunSuite {
 

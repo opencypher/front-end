@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.{expressions => ast}
+import org.opencypher.v9_0.util.symbols._
 import org.parboiled.scala.{Parser, _}
 
 import scala.language.postfixOps
@@ -54,7 +54,10 @@ trait Literals extends Parser
     keyword("UNION") |
     keyword("USING") |
     keyword("UNWIND") |
-    keyword("WITH")
+    keyword("USE") |
+    keyword("CONSTRUCT") |
+    keyword("WITH") |
+    keyword("COPY")
 
   def ProcedureName: Rule1[org.opencypher.v9_0.expressions.ProcedureName] =
     rule("a procedure name") { SymbolicNameString ~~>> (ast.ProcedureName(_) ) }.memoMismatches

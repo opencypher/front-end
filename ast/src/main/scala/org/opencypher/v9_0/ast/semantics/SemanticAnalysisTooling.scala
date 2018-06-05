@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.Expression.{DefaultTypeMismatchMessageGenerator, SemanticContext}
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.{TypeSignature, _}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
 
@@ -181,23 +181,6 @@ trait SemanticAnalysisTooling {
   def implicitVariable(v:LogicalVariable, possibleType: CypherType): (SemanticState) => Either[SemanticError, SemanticState] =
     (_: SemanticState).implicitVariable(v, possibleType)
 
-  def declareGraph(v:Variable): (SemanticState) => Either[SemanticError, SemanticState] =
-    (_: SemanticState).declareGraph(v)
-
-  def declareGraphMarkedAsGenerated(v:Variable): SemanticCheck = {
-    val declare = (_: SemanticState).declareGraph(v)
-    val mark = (_: SemanticState).localMarkAsGenerated(v)
-    declare chain mark
-  }
-
-  def implicitGraph(v:Variable): (SemanticState) => Either[SemanticError, SemanticState] =
-    (_: SemanticState).implicitGraph(v)
-
-  def ensureGraphDefined(v:Variable): SemanticCheck = {
-    val ensured = (_: SemanticState).ensureGraphDefined(v)
-    ensured chain expectType(CTGraphRef.covariant, v)
-  }
-
   def requireMultigraphSupport(msg: String, position: InputPosition): SemanticCheck =
     s => {
       if(!s.features(SemanticFeature.MultipleGraphs))
@@ -207,6 +190,15 @@ trait SemanticAnalysisTooling {
       else
         SemanticCheckResult.success(s)
   }
+
+  def requireCypher10Support(msg: String, position: InputPosition): SemanticCheck =
+    s => {
+      if(!s.features(SemanticFeature.Cypher10Support))
+        SemanticCheckResult(s,
+          List(FeatureError(s"$msg is a Cypher 10 feature and is not available in this implementation of Cypher.", position)))
+      else
+        SemanticCheckResult.success(s)
+    }
 
   def error(msg: String, position: InputPosition)(state: SemanticState): SemanticCheckResult =
     SemanticCheckResult(state, Vector(SemanticError(msg, position)))

@@ -15,11 +15,11 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.rewriting.rewriters.{Forced, IfNoParameter, LiteralExtraction, literalReplacement}
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions.Parameter
 
 class LiteralReplacementTest extends CypherFunSuite  {
 
@@ -31,10 +31,6 @@ class LiteralReplacementTest extends CypherFunSuite  {
 
   test("should not extract literal dynamic property lookups") {
     assertDoesNotRewrite("MATCH n RETURN n[\"name\"]")
-  }
-
-  test("should not extract string literals in graph urls") {
-    assertDoesNotRewrite("WITH GRAPH foo AT 'blub' MATCH (n) RETURN n")
   }
 
   test("should extract literals in return clause") {

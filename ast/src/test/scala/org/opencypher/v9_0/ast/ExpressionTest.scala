@@ -19,6 +19,7 @@ import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{DummyPosition, IdentityMap}
+import org.opencypher.v9_0.expressions._
 
 class ExpressionTest extends CypherFunSuite with AstConstructionTestSupport {
 

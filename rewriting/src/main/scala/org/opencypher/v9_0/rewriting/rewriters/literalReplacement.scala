@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.{ASTNode, IdentityMap, Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions.{NodePattern, Parameter, RelationshipPattern}
 
 object literalReplacement {
 
@@ -53,8 +54,6 @@ object literalReplacement {
     case r: RelationshipPattern =>
       acc => (r.properties.treeFold(acc)(literalMatcher), None)
     case ContainerIndex(_, _: StringLiteral) =>
-      acc => (acc, None)
-    case _: GraphUrl =>
       acc => (acc, None)
     case l: StringLiteral =>
       acc =>

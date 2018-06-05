@@ -17,6 +17,8 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.{expressions => ast}
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions._
 import org.parboiled.scala._
 
 import scala.collection.mutable.ListBuffer
@@ -32,24 +34,24 @@ trait Expressions extends Parser
 
   private def Expression12: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") {
     Expression11 ~ zeroOrMore(WS ~ (
-        group(keyword("OR") ~~ Expression11) ~~>> (ast.Or(_: org.opencypher.v9_0.expressions.Expression, _))
+        group(keyword("OR") ~~ Expression11) ~~>> (Or(_: org.opencypher.v9_0.expressions.Expression, _))
     ): ReductionRule1[org.opencypher.v9_0.expressions.Expression, org.opencypher.v9_0.expressions.Expression])
   }
 
   private def Expression11: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") {
     Expression10 ~ zeroOrMore(WS ~ (
-        group(keyword("XOR") ~~ Expression10) ~~>> (ast.Xor(_: org.opencypher.v9_0.expressions.Expression, _))
+        group(keyword("XOR") ~~ Expression10) ~~>> (expressions.Xor(_: org.opencypher.v9_0.expressions.Expression, _))
     ): ReductionRule1[org.opencypher.v9_0.expressions.Expression, org.opencypher.v9_0.expressions.Expression])
   }
 
   private def Expression10: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") {
     Expression9 ~ zeroOrMore(WS ~ (
-        group(keyword("AND") ~~ Expression9) ~~>> (ast.And(_: org.opencypher.v9_0.expressions.Expression, _))
+        group(keyword("AND") ~~ Expression9) ~~>> (And(_: org.opencypher.v9_0.expressions.Expression, _))
     ): ReductionRule1[org.opencypher.v9_0.expressions.Expression, org.opencypher.v9_0.expressions.Expression])
   }
 
   private def Expression9: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") (
-      group(keyword("NOT") ~~ Expression9) ~~>> (ast.Not(_))
+      group(keyword("NOT") ~~ Expression9) ~~>> (expressions.Not(_))
     | Expression8
   )
 
@@ -65,6 +67,7 @@ trait Expressions extends Parser
 
   private def PartialComparisonExpression: Rule1[PartialComparison] = (
       group(operator("=") ~~ Expression7) ~~>> { expr: org.opencypher.v9_0.expressions.Expression => pos: InputPosition => PartialComparison(eq, expr, pos) }
+    | group(operator("~") ~~ Expression7) ~~>> { expr: ast.Expression => pos: InputPosition => PartialComparison(eqv, expr, pos) }
     | group(operator("<>") ~~ Expression7) ~~>> { expr: org.opencypher.v9_0.expressions.Expression => pos: InputPosition => PartialComparison(ne, expr, pos) }
     | group(operator("!=") ~~ Expression7) ~~>> { expr: org.opencypher.v9_0.expressions.Expression => pos: InputPosition => PartialComparison(bne, expr, pos) }
     | group(operator("<") ~~ Expression7) ~~>> { expr: org.opencypher.v9_0.expressions.Expression => pos: InputPosition => PartialComparison(lt, expr, pos) }
@@ -72,13 +75,14 @@ trait Expressions extends Parser
     | group(operator("<=") ~~ Expression7) ~~>> { expr: org.opencypher.v9_0.expressions.Expression => pos: InputPosition => PartialComparison(lte, expr, pos) }
     | group(operator(">=") ~~ Expression7) ~~>> { expr: org.opencypher.v9_0.expressions.Expression => pos: InputPosition => PartialComparison(gte, expr, pos) } )
 
-  private def eq(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = ast.Equals(lhs, rhs)
-  private def ne(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = ast.NotEquals(lhs, rhs)
-  private def bne(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = ast.InvalidNotEquals(lhs, rhs)
-  private def lt(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = ast.LessThan(lhs, rhs)
-  private def gt(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = ast.GreaterThan(lhs, rhs)
-  private def lte(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = ast.LessThanOrEqual(lhs, rhs)
-  private def gte(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = ast.GreaterThanOrEqual(lhs, rhs)
+  private def eq(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = expressions.Equals(lhs, rhs)
+  private def eqv(lhs:ast.Expression, rhs:ast.Expression): InputPosition => ast.Expression = ast.Equivalent(lhs, rhs)
+  private def ne(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = expressions.NotEquals(lhs, rhs)
+  private def bne(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = expressions.InvalidNotEquals(lhs, rhs)
+  private def lt(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = expressions.LessThan(lhs, rhs)
+  private def gt(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = expressions.GreaterThan(lhs, rhs)
+  private def lte(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = expressions.LessThanOrEqual(lhs, rhs)
+  private def gte(lhs:org.opencypher.v9_0.expressions.Expression, rhs:org.opencypher.v9_0.expressions.Expression): InputPosition => org.opencypher.v9_0.expressions.Expression = expressions.GreaterThanOrEqual(lhs, rhs)
 
   private def comparisons(first: org.opencypher.v9_0.expressions.Expression, rest: List[PartialComparison]): InputPosition => org.opencypher.v9_0.expressions.Expression = {
     rest match {
@@ -91,7 +95,7 @@ trait Expressions extends Parser
           result.append(rhs(lhs))
           lhs = rhs.expr
         }
-        ast.Ands(Set(result: _*))
+        Ands(Set(result: _*))
     }
   }
 
@@ -124,13 +128,13 @@ trait Expressions extends Parser
 
   private def Expression3: Rule1[org.opencypher.v9_0.expressions.Expression] = rule("an expression") {
     Expression2 ~ zeroOrMore(WS ~ (
-      group(operator("=~") ~~ Expression2) ~~>> (ast.RegexMatch(_: org.opencypher.v9_0.expressions.Expression, _))
-      | group(keyword("IN") ~~ Expression2) ~~>> (ast.In(_: org.opencypher.v9_0.expressions.Expression, _))
-      | group(keyword("STARTS WITH") ~~ Expression2) ~~>> (ast.StartsWith(_: org.opencypher.v9_0.expressions.Expression, _))
-      | group(keyword("ENDS WITH") ~~ Expression2) ~~>> (ast.EndsWith(_: org.opencypher.v9_0.expressions.Expression, _))
-      | group(keyword("CONTAINS") ~~ Expression2) ~~>> (ast.Contains(_: org.opencypher.v9_0.expressions.Expression, _))
-      | keyword("IS NULL") ~~>> (ast.IsNull(_: org.opencypher.v9_0.expressions.Expression))
-      | keyword("IS NOT NULL") ~~>> (ast.IsNotNull(_: org.opencypher.v9_0.expressions.Expression))
+      group(operator("=~") ~~ Expression2) ~~>> (expressions.RegexMatch(_: org.opencypher.v9_0.expressions.Expression, _))
+      | group(keyword("IN") ~~ Expression2) ~~>> (expressions.In(_: org.opencypher.v9_0.expressions.Expression, _))
+      | group(keyword("STARTS WITH") ~~ Expression2) ~~>> (expressions.StartsWith(_: org.opencypher.v9_0.expressions.Expression, _))
+      | group(keyword("ENDS WITH") ~~ Expression2) ~~>> (expressions.EndsWith(_: org.opencypher.v9_0.expressions.Expression, _))
+      | group(keyword("CONTAINS") ~~ Expression2) ~~>> (expressions.Contains(_: org.opencypher.v9_0.expressions.Expression, _))
+      | keyword("IS NULL") ~~>> (expressions.IsNull(_: org.opencypher.v9_0.expressions.Expression))
+      | keyword("IS NOT NULL") ~~>> (expressions.IsNotNull(_: org.opencypher.v9_0.expressions.Expression))
     ): ReductionRule1[org.opencypher.v9_0.expressions.Expression, org.opencypher.v9_0.expressions.Expression])
   }
 
@@ -164,8 +168,8 @@ trait Expressions extends Parser
     | group(keyword("ANY") ~~ "(" ~~ FilterExpression ~~ ")") ~~>> (ast.AnyIterablePredicate(_, _, _))
     | group(keyword("NONE") ~~ "(" ~~ FilterExpression ~~ ")") ~~>> (ast.NoneIterablePredicate(_, _, _))
     | group(keyword("SINGLE") ~~ "(" ~~ FilterExpression ~~ ")") ~~>> (ast.SingleIterablePredicate(_, _, _))
-    | ShortestPathPattern ~~> ast.ShortestPathExpression
-    | RelationshipsPattern ~~> ast.PatternExpression
+    | ShortestPathPattern ~~> expressions.ShortestPathExpression
+    | RelationshipsPattern ~~> PatternExpression
     | parenthesizedExpression
     | FunctionInvocation
     | Variable
@@ -181,10 +185,10 @@ trait Expressions extends Parser
     operator(".") ~~ (PropertyKeyName ~~>> (ast.Property(_: org.opencypher.v9_0.expressions.Expression, _)))
   }
 
-  private def FilterExpression: Rule3[org.opencypher.v9_0.expressions.Variable, org.opencypher.v9_0.expressions.Expression, Option[org.opencypher.v9_0.expressions.Expression]] =
+  private def FilterExpression: Rule3[Variable, org.opencypher.v9_0.expressions.Expression, Option[org.opencypher.v9_0.expressions.Expression]] =
     IdInColl ~ optional(WS ~ keyword("WHERE") ~~ Expression)
 
-  private def IdInColl: Rule2[org.opencypher.v9_0.expressions.Variable, org.opencypher.v9_0.expressions.Expression] =
+  private def IdInColl: Rule2[Variable, org.opencypher.v9_0.expressions.Expression] =
     Variable ~~ keyword("IN") ~~ Expression
 
   def FunctionInvocation: Rule1[org.opencypher.v9_0.expressions.FunctionInvocation] = rule("a function") {

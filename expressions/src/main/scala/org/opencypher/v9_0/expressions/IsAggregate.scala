@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.expressions
 
-import org.opencypher.v9_0.expressions.functions.{AggregatingFunction, UserDefinedFunctionInvocation}
+import org.opencypher.v9_0.expressions.functions.AggregatingFunction
+import org.opencypher.v9_0.expressions.functions.UserDefinedFunctionInvocation
 
 
 object IsAggregate {

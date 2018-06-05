@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics._
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticState}
 
 case class Query(periodicCommitHint: Option[PeriodicCommitHint], part: QueryPart)(val position: InputPosition)
   extends Statement with SemanticAnalysisTooling {
@@ -102,12 +103,13 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     val lastError = lastPair.last match {
       case _: UpdateClause => None
       case _: Return => None
+      case _: ReturnGraph => None
       case _: CallClause if clauses.size == 1 => None
       case clause =>
         Some(SemanticError(s"Query cannot conclude with ${clause.name} (must be RETURN or an update clause)", clause.position))
     }
 
-    SemanticCheckResult(s, errors ++ lastError)
+    semantics.SemanticCheckResult(s, errors ++ lastError)
   }
 
   private def checkClauses: SemanticCheck = s => {
@@ -129,7 +131,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     val closingResult = clause.semanticCheck(state)
     val nextState = closingResult.state.newSiblingScope
     val continuationResult = clause.semanticCheckContinuation(closingResult.state.currentScope.scope)(nextState)
-    SemanticCheckResult(continuationResult.state, prevErrors ++ closingResult.errors ++ continuationResult.errors)
+    semantics.SemanticCheckResult(continuationResult.state, prevErrors ++ closingResult.errors ++ continuationResult.errors)
   }
 }
 
@@ -165,7 +167,7 @@ sealed trait Union extends QueryPart with SemanticAnalysisTooling {
     } else {
       Seq(SemanticError("All sub queries in an UNION must have the same column names", position))
     }
-    SemanticCheckResult(state, errors)
+    semantics.SemanticCheckResult(state, errors)
   }
 
   private def checkUnionAggregation: SemanticCheck = (part, this) match {

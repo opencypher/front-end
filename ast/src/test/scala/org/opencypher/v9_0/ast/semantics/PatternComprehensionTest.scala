@@ -15,13 +15,14 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.symbols._
 
 class PatternComprehensionTest extends SemanticFunSuite {
 
   val n = NodePattern(Some(variable("n")), Seq.empty, None)(pos)
-  val x = NodePattern(Some(variable("x")), Seq.empty, None)(pos)
+  val x = expressions.NodePattern(Some(variable("x")), Seq.empty, None)(pos)
   val r = RelationshipPattern(None, Seq.empty, None, None, SemanticDirection.OUTGOING)(pos)
   val pattern = RelationshipsPattern(RelationshipChain(n, r, x)(pos))(pos)
   val property = Property(variable("x"), PropertyKeyName("prop")(pos))(pos)
@@ -69,7 +70,7 @@ class PatternComprehensionTest extends SemanticFunSuite {
     val result = SemanticExpressionCheck.simple(expression)(semanticState)
 
     result.errors shouldBe Seq(
-      SemanticError("Type mismatch: n already defined with conflicting type Boolean (expected Node)", pos, pos)
+      SemanticError("Type mismatch: n defined with conflicting type Boolean (expected Node)", pos, pos)
     )
   }
 }

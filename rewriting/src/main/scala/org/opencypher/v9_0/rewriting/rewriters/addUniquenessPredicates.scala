@@ -15,9 +15,12 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Clause, Match, Merge, Where}
-import org.opencypher.v9_0.expressions.{Expression, Pattern, _}
+import org.opencypher.v9_0.ast.{Clause, Match, Merge}
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.util._
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions._
 
 case object addUniquenessPredicates extends Rewriter {
 
@@ -63,7 +66,7 @@ case object addUniquenessPredicates extends Rewriter {
       case _: ShortestPaths =>
         acc => (acc, None)
 
-      case RelationshipChain(_, patRel@RelationshipPattern(optIdent, types, _, _, _, _), _) =>
+      case RelationshipChain(_, patRel@RelationshipPattern(optIdent, types, _, _, _, _, _), _) =>
         acc => {
           val ident = optIdent.getOrElse(throw new InternalException("This rewriter cannot work with unnamed patterns"))
           (acc :+ UniqueRel(ident, types.toSet, patRel.isSingleLength), Some(identity))
@@ -71,7 +74,7 @@ case object addUniquenessPredicates extends Rewriter {
     }
 
   private def createPredicateFor(uniqueRels: Seq[UniqueRel], pos: InputPosition): Option[Expression] = {
-    createPredicatesFor(uniqueRels, pos).reduceOption(And(_, _)(pos))
+    createPredicatesFor(uniqueRels, pos).reduceOption(expressions.And(_, _)(pos))
   }
 
   def createPredicatesFor(uniqueRels: Seq[UniqueRel], pos: InputPosition): Seq[Expression] =

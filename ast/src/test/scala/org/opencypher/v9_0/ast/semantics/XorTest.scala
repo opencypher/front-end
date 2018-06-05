@@ -15,11 +15,12 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions.Xor
 
-class XorTest extends InfixExpressionTestBase(Xor(_, _)(DummyPosition(0))) {
+class XorTest extends InfixExpressionTestBase(expressions.Xor(_, _)(DummyPosition(0))) {
 
   test("shouldCombineBooleans") {
     testValidTypes(CTBoolean, CTBoolean)(CTBoolean)

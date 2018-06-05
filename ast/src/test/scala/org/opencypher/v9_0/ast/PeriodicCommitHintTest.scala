@@ -15,10 +15,11 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{DummyPosition, InputPosition}
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.{EveryPath, NodePattern, Pattern}
 
 class PeriodicCommitHintTest extends CypherFunSuite with Positional {
   test("negative values should fail") {
@@ -71,7 +72,7 @@ class PeriodicCommitHintTest extends CypherFunSuite with Positional {
     val literal: StringLiteral = StringLiteral("Hello world!")(pos)
     val returnItem = UnaliasedReturnItem(literal, "Hello world!")(pos)
     val returnItems = ReturnItems(includeExisting = false, Seq(returnItem))(pos)
-    val returns: Return = Return(distinct = false, returnItems, None, None, None, None)(pos)
+    val returns: Return = Return(distinct = false, returnItems, None, None, None)(pos)
     val queryPart = SingleQuery(Seq(returns))(pos)
     val query = Query(Some(hint), queryPart)(pos)
 

@@ -161,24 +161,20 @@ class MatchPredicateNormalizerTest extends CypherFunSuite with RewriteTest {
 
   test("rewrite outgoing pattern to getDegree call") {
     rewrite(parseForRewriting("MATCH (a) WHERE (a)-[:R]->() RETURN a.prop")) should matchPattern {
-      case Query(_, SingleQuery(Seq(Match(_, _, _,
-                                             Some(Where(GreaterThan(GetDegree(_,_,_), _)))), Return(_, _, _, _,_, _, _))))=>
-
+      case Query(_, SingleQuery(Seq(Match(_, _, _, Some(Where(GreaterThan(_: GetDegree, _)))), _: Return))) =>
     }
   }
 
   test("rewrite incoming pattern to getDegree call") {
     val rewrite1 = rewrite(parseForRewriting("MATCH (a) WHERE ()-[:R]->(a) RETURN a.prop"))
     rewrite1 should matchPattern {
-      case Query(_, SingleQuery(Seq(Match(_, _, _,
-                                          Some(Where(GreaterThan(GetDegree(_,_,_), _)))), Return(_, _, _, _,_, _, _))))=>
-
+      case Query(_, SingleQuery(Seq(Match(_, _, _, Some(Where(GreaterThan(_: GetDegree, _)))), _: Return))) =>
     }
   }
 
   test("does not rewrite getDegree if turned off") {
     val rewriter1 = new MatchPredicateNormalization(PropertyPredicateNormalizer, getDegreeRewriting = false) {}
-    val rewriter2 = new MatchPredicateNormalization(LabelPredicateNormalizer, getDegreeRewriting = false){}
+    val rewriter2 = new MatchPredicateNormalization(LabelPredicateNormalizer, getDegreeRewriting = false) {}
 
     val rewriterUnderTest: Rewriter = inSequence(
       rewriter1,

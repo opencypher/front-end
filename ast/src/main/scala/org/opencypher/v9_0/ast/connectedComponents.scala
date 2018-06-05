@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions.{LogicalVariable, NodePattern, PatternPart}
+import org.opencypher.v9_0.expressions.{LogicalVariable, NodePattern}
+import org.opencypher.v9_0.expressions.PatternPart
 
 import scala.annotation.tailrec
 import scala.collection.immutable
@@ -35,7 +36,7 @@ object connectedComponents {
 
   def apply(patternParts: Seq[PatternPart]): IndexedSeq[ConnectedComponent] = {
     val parts: immutable.IndexedSeq[ComponentPart] = patternParts.map(_.fold(Set.empty[LogicalVariable]) {
-      case NodePattern(Some(id), _, _) => list => list + id
+      case NodePattern(Some(id), _, _, _) => list => list + id
     }).toIndexedSeq
 
     this.apply(parts)
