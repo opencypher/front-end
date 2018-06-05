@@ -170,18 +170,39 @@ class MultipleGraphClausesParsingTest
     yields(ast.ReturnGraph(Some(ast.QualifiedGraphName("union"))))
   }
 
+  // TODO: Causes parser to fail with its unhelpful error message
+  ignore("FROM graph") {
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph"))))
+  }
+
+  test("FROM GRAPH graph") {
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph"))))
+  }
+
+  test("FROM `graph`") {
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph"))))
+  }
+
   test("FROM GRAPH `foo.bar.baz.baz`"){
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar.baz.baz"))))
+  }
+
+  test("FROM graph1"){
+    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph1"))))
+  }
+
+  test("FROM `foo.bar.baz.baz`"){
     yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar.baz.baz"))))
   }
 
   test("FROM GRAPH `foo.bar`.baz"){
     yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar", "baz"))))
   }
-  
+
   test("FROM GRAPH foo.`bar.baz`"){
     yields(ast.FromGraph(ast.QualifiedGraphName(List("foo", "bar.baz"))))
   }
-  
+
   test("FROM GRAPH `foo.bar`.`baz.baz`"){
     yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar", "baz.baz"))))
   }
@@ -201,7 +222,7 @@ class MultipleGraphClausesParsingTest
   test("CONSTRUCT ON `foo.bar`.`baz.baz`"){
     yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo.bar", "baz.baz")))))
   }
-  
+
 
   private val nodePattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(None, List(), None)(pos))))(pos)
 

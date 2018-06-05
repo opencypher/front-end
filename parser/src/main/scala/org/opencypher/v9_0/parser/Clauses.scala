@@ -40,7 +40,7 @@ trait Clauses extends Parser
   }
 
   def FromGraph: Rule1[ast.FromGraph]= rule("FROM GRAPH") {
-    group(keyword("FROM GRAPH") ~~ QualifiedGraphName ~~>> (ast.FromGraph(_)))
+    group(keyword("FROM") ~~ optional(keyword("GRAPH")) ~~ QualifiedGraphName ~~>> (ast.FromGraph(_)))
   }
 
   def ConstructGraph: Rule1[ast.ConstructGraph] = rule("CONSTRUCT") {
