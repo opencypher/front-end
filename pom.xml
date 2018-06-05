@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.opencypher</groupId>
-  <artifactId>front-end-parent-9.1</artifactId>
-  <version>9.1.0-SNAPSHOT</version>
+  <artifactId>front-end-parent-9.0</artifactId>
+  <version>9.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>openCypher Front End Parent</name>
   <description>Project that builds the openCypher front end modules</description>
