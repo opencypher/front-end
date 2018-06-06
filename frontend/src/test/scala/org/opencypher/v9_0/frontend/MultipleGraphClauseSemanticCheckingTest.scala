@@ -34,6 +34,33 @@ class MultipleGraphClauseSemanticCheckingTest
 
   implicit val parser: Rule1[Query] = Query
 
+  test("allows both versions of FROM") {
+    parsing(
+      """FROM foo.bar
+        |MATCH (a:Swedish)
+        |CONSTRUCT
+        |   NEW (b COPY OF A:Programmer)
+        |FROM GRAPH bar.foo
+        |MATCH (a:Foo)
+        |RETURN a.name""".stripMargin) shouldVerify { result: SemanticCheckResult =>
+
+      result.errors shouldBe empty
+    }
+  }
+
+  test("does not allow RETURN GRAPH in middle of query") {
+    parsing(
+      """MATCH (a:Swedish)
+        |CONSTRUCT
+        |   NEW (b COPY OF A:Programmer)
+        |RETURN GRAPH
+        |MATCH (a:Foo)
+        |RETURN a.name""".stripMargin) shouldVerify { result: SemanticCheckResult =>
+
+      result.errorMessages should equal(Set("RETURN GRAPH can only be used at the end of the query"))
+    }
+  }
+
   test("allows COPY OF Node") {
     parsing(
       """MATCH (a:Swedish)
