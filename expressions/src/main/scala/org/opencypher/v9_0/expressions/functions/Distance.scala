@@ -15,12 +15,11 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Distance extends Function with TypeSignatures {
-  def name = "distance"
+  val name = "distance"
 
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(CTGeometry, CTGeometry), outputType = CTFloat),

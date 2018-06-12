@@ -18,7 +18,7 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.{error, success}
 import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState, _}
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.expressions.functions.{Distance, Exists}
 import org.opencypher.v9_0.expressions.{functions, _}
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util._
@@ -394,8 +394,12 @@ case class Match(
           acc =>
             val newAcc: Seq[String] = Seq(expr.lhs, expr.rhs).foldLeft(acc) { (acc, expr) =>
               expr match {
-                case Property(Variable(id), PropertyKeyName(name)) if id == variable => acc :+ name
-                case _ => acc
+                case Property(Variable(id), PropertyKeyName(name)) if id == variable =>
+                  acc :+ name
+                case FunctionInvocation(Namespace(List()), FunctionName(Distance.name), _, Seq(Property(Variable(id), PropertyKeyName(name)), _)) if id == variable =>
+                  acc :+ name
+                case _ =>
+                  acc
               }
             }
             (newAcc, None)
