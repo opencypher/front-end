@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting.rewriters
+package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.{Variable, _}
+import org.opencypher.v9_0.rewriting.conditions.{aggregationsAreIsolated, hasAggregateButIsNotAggregate}
+import org.opencypher.v9_0.rewriting.rewriters.ReturnItemSafeTopDownRewriter
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp}
-import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.rewriting.conditions.hasAggregateButIsNotAggregate
 
 /**
   * This rewriter makes sure that aggregations are on their own in RETURN/WITH clauses, so
@@ -38,8 +38,13 @@ import org.opencypher.v9_0.rewriting.conditions.hasAggregateButIsNotAggregate
   * WITH n.name AS x1, count(*) AS x2, n.foo as X3
   * RETURN { name: x1, count: x2 }
   */
-case object isolateAggregation extends Rewriter {
-  def apply(that: AnyRef): AnyRef = instance(that)
+case object isolateAggregation extends StatementRewriter {
+
+  override def instance(context: BaseContext): Rewriter = bottomUp(rewriter, _.isInstanceOf[Expression])
+
+  override def description: String = "Makes sure that aggregations are on their own in RETURN/WITH clauses"
+
+  override def postConditions: Set[Condition] = Set(StatementCondition(aggregationsAreIsolated))
 
   private val rewriter = Rewriter.lift {
     case q@SingleQuery(clauses) =>
@@ -114,8 +119,6 @@ case object isolateAggregation extends Rewriter {
     }
     expressionsToGoToWith
   }
-
-  private val instance = bottomUp(rewriter, _.isInstanceOf[Expression])
 
   private def getExpressions(c: Clause): Set[Expression] = c match {
     case clause: Return => clause.returnItems.items.map(_.expression).toSet

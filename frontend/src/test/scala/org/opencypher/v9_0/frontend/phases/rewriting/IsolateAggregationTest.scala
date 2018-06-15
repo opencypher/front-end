@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting
+package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.rewriting.rewriters.{isolateAggregation, normalizeReturnClauses, normalizeWithClauses}
+import org.opencypher.v9_0.ast.semantics.SyntaxExceptionCreator
+import org.opencypher.v9_0.frontend.phases.{Monitors, isolateAggregation}
+import org.opencypher.v9_0.rewriting.RewriteTest
+import org.opencypher.v9_0.rewriting.rewriters.{normalizeReturnClauses, normalizeWithClauses}
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.ast.semantics.SyntaxExceptionCreator
 
 class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {
-  val rewriterUnderTest = isolateAggregation
+  val rewriterUnderTest = isolateAggregation.instance(new TestContext(mock[Monitors]))
 
   test("does not rewrite things that should not be rewritten") {
     assertIsNotRewritten("MATCH n RETURN n AS n")
