@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.frontend.prettifier
+package org.opencypher.v9_0.ast.prettifier
 
-import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.ast.{Skip, Statement}
-import org.opencypher.v9_0.expressions.{NodePattern, PatternElement, PatternPart, RelationshipChain}
+import org.opencypher.v9_0.ast.{Skip, Statement, _}
+import org.opencypher.v9_0.expressions.{NodePattern, PatternElement, PatternPart, RelationshipChain, _}
 
 case class Prettifier(mkStringOf: ExpressionStringifier) {
   def asString(statement: Statement): String = statement match {

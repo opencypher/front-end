@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.frontend.prettifier.{ExpressionStringifier, Prettifier}
+import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
 import org.opencypher.v9_0.util.AssertionUtils.ifAssertionsEnabled
 import org.opencypher.v9_0.util.InternalException
 

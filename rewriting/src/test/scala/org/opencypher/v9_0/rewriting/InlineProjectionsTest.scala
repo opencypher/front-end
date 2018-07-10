@@ -105,9 +105,7 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
 
     result should equal(parser.parse(
       """MATCH (a)
-        |WITH a AS a
         |WITH a AS a WHERE true
-        |WITH a AS a
         |RETURN a AS a
       """.stripMargin))
   }
@@ -340,9 +338,7 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
       """MATCH (owner)
         |WITH owner AS `owner`, COUNT(*) AS xyz
         |WITH owner AS `owner`, xyz AS `xyz`
-        |WITH owner AS `owner`, xyz AS `xyz`, owner AS `owner`
         |WHERE (owner)--()
-        |WITH xyz AS `xyz`, owner AS `owner`
         |RETURN owner AS `owner`
       """.stripMargin))
   }
