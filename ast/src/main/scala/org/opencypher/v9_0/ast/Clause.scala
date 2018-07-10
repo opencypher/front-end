@@ -709,12 +709,3 @@ case class Return(distinct: Boolean,
         Seq.empty
     }
 }
-
-case class PragmaWithout(excluded: Seq[LogicalVariable])(val position: InputPosition) extends HorizonClause {
-  override def name = "_PRAGMA WITHOUT"
-
-  val excludedNames: Set[String] = excluded.map(_.name).toSet
-
-  override def semanticCheckContinuation(previousScope: Scope): SemanticCheck = s =>
-    success(s.importValuesFromScope(previousScope, excludedNames))
-}
