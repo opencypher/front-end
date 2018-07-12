@@ -18,7 +18,6 @@ package org.opencypher.v9_0.ast.semantics
 import org.opencypher.v9_0.ast.StatementHelper._
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper._
 import org.opencypher.v9_0.parser.ParserFixture.parse
-import org.opencypher.v9_0.util.symbols.TypeSpec
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 
@@ -224,7 +223,7 @@ class ScopeTreeTest extends CypherFunSuite {
     val expected = scope()(
       scope()(),
       scope(intSymbol("p", 10, 36), intSymbol("rng", 25))(),
-      scope(intSymbol("p", 10, 36, 37), typedSymbol("rng", TypeSpec.all, 25, 47))()
+      scope(intSymbol("p", 10, 36, 37))()
     )
 
     actual should equal(expected)

@@ -607,8 +607,9 @@ sealed trait ProjectionClause extends HorizonClause {
       val shuffleResult = (orderBy.semanticCheck chain checkSkip chain checkLimit) (specialStateForShuffle)
       val shuffleErrors = shuffleResult.errors
 
-      // We still need to declare the return items, and register the use of variables in the ORDER BY clause. But we
-      // don't want to see errors from ORDER BY - we'll get them through shuffleErrors instead
+      // We still need to declare the return items, and register the use of variables in the ORDER BY clause.
+      // This orderBy might fail because we're giving it the wrong scope. We ignore these errors since
+      // shuffleScope, which is run with the correct scope for ORDER BY, will give us these errors.
       val orderByResult = (returnItems.declareVariables(previousScope) chain ignoreErrors(orderBy.semanticCheck)) (s)
       val fixedOrderByResult = specialReturnItems match {
         case ReturnItems(star, items) if star =>
@@ -618,7 +619,10 @@ sealed trait ProjectionClause extends HorizonClause {
         case _ =>
           orderByResult
       }
-      fixedOrderByResult.copy(errors = fixedOrderByResult.errors ++ shuffleErrors)
+      // The shuffleResult has the correct type table since it was allowed to see stuff from the previous scope
+      // the fixedOrderByResult has the correct scope. We mix the correct things together here.
+      fixedOrderByResult.copy(state = fixedOrderByResult.state.copy(typeTable = shuffleResult.state.typeTable),
+                              errors = fixedOrderByResult.errors ++ shuffleErrors)
     }
     declareAllTheThings
   }
@@ -643,7 +647,13 @@ sealed trait ProjectionClause extends HorizonClause {
     s => limit.semanticCheck(SemanticState.clean).errors
 
   private def ignoreErrors(inner: SemanticCheck): SemanticCheck =
-    s => success(inner.apply(s).state)
+    s => {
+      // Make sure not to declare variables just to suppress errors since they are ignored anyways
+      val innerState = s.copy(declareVariablesToSuppressDuplicateErrors = false)
+      val innerResultState = inner.apply(innerState).state
+      // Switch back to previous declaration behavior
+      success(innerResultState.copy(declareVariablesToSuppressDuplicateErrors = s.declareVariablesToSuppressDuplicateErrors))
+    }
 
   def verifyOrderByAggregationUse(fail: (String, InputPosition) => Nothing): Unit = {
     val aggregationInProjection = returnItems.containsAggregate
