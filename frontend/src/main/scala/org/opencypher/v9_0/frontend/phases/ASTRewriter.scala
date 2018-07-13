@@ -15,15 +15,13 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.ast.UnaliasedReturnItem
-import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.{Statement, UnaliasedReturnItem}
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.rewriting.RewriterStep._
-import org.opencypher.v9_0.rewriting.rewriters._
-import org.opencypher.v9_0.rewriting.{RewriterCondition, RewriterStepSequencer}
 import org.opencypher.v9_0.rewriting.conditions._
-import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
+import org.opencypher.v9_0.rewriting.rewriters.{replaceLiteralDynamicPropertyLookups, _}
+import org.opencypher.v9_0.rewriting.{RewriterCondition, RewriterStepSequencer}
 
 class ASTRewriter(rewriterSequencer: (String) => RewriterStepSequencer,
                   literalExtraction: LiteralExtraction,
@@ -37,7 +35,6 @@ class ASTRewriter(rewriterSequencer: (String) => RewriterStepSequencer,
       normalizeComparisons,
       enableCondition(noReferenceEqualityAmongVariables),
       enableCondition(containsNoNodesOfType[UnaliasedReturnItem]),
-      enableCondition(orderByOnlyOnVariables),
       enableCondition(noDuplicatesInReturnItems),
       expandStar(semanticState),
       enableCondition(containsNoReturnAll),
