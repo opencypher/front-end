@@ -202,14 +202,14 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           case Right(ss) => SemanticCheckResult.success(ss)
           case Left(error) =>
             if (s.declareVariablesToSuppressDuplicateErrors) {
-              // Most of the time we want to suppress if this error occurs again
+              // Most of the time we want to suppress if this error occurs again, by declaring the missing variable now
               s.declareVariable(x, CTAny.covariant) match {
                 // if the variable is a graph, declaring it will fail
                 case Right(ss) => SemanticCheckResult.error(ss, error)
                 case Left(_error) => SemanticCheckResult.error(s, _error)
               }
             } else {
-              // Unless we are ignoring errors anyway in which case this might mess up the scope
+              // If we are ignoring errors anyway, the fake declaration might mess up the scope
               SemanticCheckResult.error(s, error)
             }
         }

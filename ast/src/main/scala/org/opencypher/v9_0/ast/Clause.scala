@@ -624,8 +624,8 @@ sealed trait ProjectionClause extends HorizonClause {
         case _ =>
           orderByResult
       }
-      // The shuffleResult has the correct type table since it was allowed to see stuff from the previous scope
-      // the fixedOrderByResult has the correct scope. We mix the correct things together here.
+      // The shuffleResult has the correct type table since it was allowed to see stuff from the previous scope.
+      // The fixedOrderByResult has the correct scope. We mix the correct things together here.
       fixedOrderByResult.copy(state = fixedOrderByResult.state.copy(typeTable = shuffleResult.state.typeTable),
                               errors = fixedOrderByResult.errors ++ shuffleErrors)
     }
