@@ -596,6 +596,11 @@ sealed trait ProjectionClause extends HorizonClause {
 
   def isReturn: Boolean = false
 
+  /**
+    * @return copy of this ProjectionClause with new return items
+    */
+  def withReturnItems(items: Seq[ReturnItem]): ProjectionClause
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       returnItems.semanticCheck
@@ -685,6 +690,9 @@ case class With(distinct: Boolean,
     super.semanticCheckContinuation(previousScope) chain
       where.semanticCheck
 
+  override def withReturnItems(items: Seq[ReturnItem]): With =
+    this.copy(returnItems = ReturnItems(returnItems.includeExisting, items)(returnItems.position))(this.position)
+
   private def checkAliasedReturnItems: SemanticState => Seq[SemanticError] = state => returnItems match {
     case li: ReturnItems => li.items.filter(_.alias.isEmpty).map(i => SemanticError("Expression in WITH must be aliased (use AS)", i.position))
     case _ => Seq()
@@ -710,6 +718,9 @@ case class Return(distinct: Boolean,
   override def returnColumns: List[String] = returnItems.items.map(_.name).toList
 
   override def semanticCheck: SemanticCheck = super.semanticCheck chain checkVariableScope
+
+  override def withReturnItems(items: Seq[ReturnItem]): Return =
+    this.copy(returnItems = ReturnItems(returnItems.includeExisting, items)(returnItems.position))(this.position)
 
   private def checkVariableScope: SemanticState => Seq[SemanticError] = s =>
     returnItems match {

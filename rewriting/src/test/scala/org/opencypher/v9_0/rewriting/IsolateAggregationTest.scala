@@ -16,13 +16,47 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.semantics.SyntaxExceptionCreator
 import org.opencypher.v9_0.rewriting.rewriters.{isolateAggregation, normalizeReturnClauses, normalizeWithClauses}
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.ast.semantics.SyntaxExceptionCreator
 
 class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {
   val rewriterUnderTest = isolateAggregation
+
+  test("refers to renamed variable in where clause") {
+    assertRewrite(
+      """
+        |MATCH (owner)
+        |WITH owner, count(*) > 0 AS collected
+        |WHERE (owner)-->()
+        |RETURN owner
+      """.stripMargin,
+      """
+        |MATCH (owner)
+        |WITH owner AS `  AGGREGATION20`, count(*) AS `  AGGREGATION27`
+        |WITH `  AGGREGATION20` AS owner, `  AGGREGATION27` > 0 AS collected
+        |  WHERE (owner)-->()
+        |RETURN owner AS owner
+      """.stripMargin)
+  }
+
+  test("refers to renamed variable in order by clause") {
+    assertRewrite(
+      """
+        |MATCH (owner)
+        |WITH owner, count(*) > 0 AS collected
+        |ORDER BY owner.foo
+        |RETURN owner
+      """.stripMargin,
+      """
+        |MATCH (owner)
+        |WITH owner AS `  AGGREGATION20`, count(*) AS `  AGGREGATION27`
+        |WITH `  AGGREGATION20` AS owner, `  AGGREGATION27` > 0 AS collected
+        |  ORDER BY owner.foo
+        |RETURN owner AS owner
+      """.stripMargin)
+  }
 
   test("does not rewrite things that should not be rewritten") {
     assertIsNotRewritten("MATCH n RETURN n AS n")
