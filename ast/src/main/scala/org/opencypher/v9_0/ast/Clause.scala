@@ -588,6 +588,8 @@ sealed trait ProjectionClause extends HorizonClause {
 
   def orderBy: Option[OrderBy]
 
+  def where: Option[Where]
+
   def skip: Option[Skip]
 
   def limit: Option[Limit]
@@ -607,27 +609,34 @@ sealed trait ProjectionClause extends HorizonClause {
 
   override def semanticCheckContinuation(previousScope: Scope): SemanticCheck = {
     val declareAllTheThings = (s: SemanticState) => {
-      val specialReturnItems = createSpecialReturnItems(previousScope, s)
-      val specialStateForShuffle = specialReturnItems.declareVariables(previousScope)(s).state
-      val shuffleResult = (orderBy.semanticCheck chain checkSkip chain checkLimit) (specialStateForShuffle)
-      val shuffleErrors = shuffleResult.errors
 
-      // We still need to declare the return items, and register the use of variables in the ORDER BY clause.
-      // This orderBy might fail because we're giving it the wrong scope. We ignore these errors since
-      // shuffleScope, which is run with the correct scope for ORDER BY, will give us these errors.
-      val orderByResult = (returnItems.declareVariables(previousScope) chain ignoreErrors(orderBy.semanticCheck)) (s)
+      // ORDER BY and WHERE after a WITH have a special scope such that they can see both variables from before the WITH and from after
+      // Since thw current scoping system does not allow that in a nice way, we run the semantic check for these two twice
+      // In the first run we construct a scope with all necessary variables defined to find errors in these subclauses
+      val specialReturnItems = createSpecialReturnItems(previousScope, s)
+      val specialStateForOrderByAndWhere = specialReturnItems.declareVariables(previousScope)(s).state
+      val orderByAndWhereResult = (orderBy.semanticCheck chain checkSkip chain checkLimit chain where.semanticCheck) (specialStateForOrderByAndWhere)
+      val orderByAndWhereErrors = orderByAndWhereResult.errors
+
+      // In the second run we want to make sure to declare the return items, and register the use of variables in the ORDER BY and WHERE.
+      // This will be executed with the scope which as valid after the WITH. Therefore this second check can lead to false errors, which we ignore.
+      val actualResult = (returnItems.declareVariables(previousScope) chain ignoreErrors(orderBy.semanticCheck chain where.semanticCheck)) (s)
+
+      // We fix symbol positions by merging with the return items from the extended scope
       val fixedOrderByResult = specialReturnItems match {
         case ReturnItems(star, items) if star =>
-          val shuffleScope = shuffleResult.state.currentScope.scope
+          val orderByAndWhereScope = orderByAndWhereResult.state.currentScope.scope
           val definedHere = items.map(_.name).toSet
-          orderByResult.copy(orderByResult.state.mergeSymbolPositionsFromScope(shuffleScope, definedHere))
+          actualResult.copy(actualResult.state.mergeSymbolPositionsFromScope(orderByAndWhereScope, definedHere))
         case _ =>
-          orderByResult
+          actualResult
       }
-      // The shuffleResult has the correct type table since it was allowed to see stuff from the previous scope.
-      // The fixedOrderByResult has the correct scope. We mix the correct things together here.
-      fixedOrderByResult.copy(state = fixedOrderByResult.state.copy(typeTable = shuffleResult.state.typeTable),
-                              errors = fixedOrderByResult.errors ++ shuffleErrors)
+      // Finally we need to combine:
+      // The orderByAndWhereResult has the correct type table since it was allowed to see stuff from the previous scope.
+      // The fixedOrderByResult has the correct scope.
+      // We keep errors from both results.
+      fixedOrderByResult.copy(state = fixedOrderByResult.state.copy(typeTable = orderByAndWhereResult.state.typeTable),
+                              errors = fixedOrderByResult.errors ++ orderByAndWhereErrors)
     }
     declareAllTheThings
   }
@@ -686,10 +695,6 @@ case class With(distinct: Boolean,
     super.semanticCheck chain
       checkAliasedReturnItems
 
-  override def semanticCheckContinuation(previousScope: Scope): SemanticCheck =
-    super.semanticCheckContinuation(previousScope) chain
-      where.semanticCheck
-
   override def withReturnItems(items: Seq[ReturnItem]): With =
     this.copy(returnItems = ReturnItems(returnItems.includeExisting, items)(returnItems.position))(this.position)
 
@@ -714,6 +719,8 @@ case class Return(distinct: Boolean,
   override def name = "RETURN"
 
   override def isReturn: Boolean = true
+
+  override def where: Option[Where] = None
 
   override def returnColumns: List[String] = returnItems.items.map(_.name).toList
 

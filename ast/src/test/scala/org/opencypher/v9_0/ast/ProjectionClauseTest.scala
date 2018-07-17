@@ -15,11 +15,10 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.{PropertyKeyName, _}
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.PropertyKeyName
 
 class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
@@ -97,6 +96,34 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
     // THEN the n variable should be an integer
     result.errors shouldBe empty
     result.state.symbol("introducedVariable") shouldNot be(empty)
+  }
+
+  test("test where and order by scoping referring to previous scope items") {
+    // GIVEN MATCH n, m WITH m AS X ORDER BY n.foo, X.bar WHERE n.foo = 10 AND X.bar = 2
+    val where: Where = Where(And(
+     Equals(Property(Variable("n")(pos), PropertyKeyName("foo")(pos))(pos), UnsignedDecimalIntegerLiteral("10")(pos))(pos),
+     Equals(Property(Variable("X")(pos), PropertyKeyName("bar")(pos))(pos), UnsignedDecimalIntegerLiteral("2")(pos))(pos)
+    )(pos))(pos)
+
+    val orderBy: OrderBy = OrderBy(Seq(
+      AscSortItem(Property(varFor("n"), PropertyKeyName("foo")_)_)_,
+      AscSortItem(Property(varFor("X"), PropertyKeyName("bar")_)_)_
+    ))_
+
+    val returnItem = AliasedReturnItem(varFor("m"), varFor("X"))_
+    val listedReturnItems = ReturnItems(includeExisting = false, Seq(returnItem))_
+    val withObj = With(distinct = false, listedReturnItems, Some(orderBy), None, None, Some(where))_
+
+    // WHEN
+    val beforeState = SemanticState.clean.newChildScope.declareVariable(varFor("n"), CTNode).right.get.declareVariable(varFor("m"), CTNode).right.get
+    val middleState = withObj.semanticCheck(beforeState).state
+    val result = withObj.semanticCheckContinuation(middleState.currentScope.scope)(middleState.newSiblingScope)
+
+    // THEN the n and m variable is no longer accessible
+    result.errors shouldBe empty
+    result.state.symbol("n") shouldBe empty
+    result.state.symbol("m") shouldBe empty
+    result.state.symbol("X") shouldNot be(empty)
   }
 
   test("test order by scoping & shadowing 2") {
