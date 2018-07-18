@@ -16,12 +16,11 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.{Rewriter, bottomUp, inSequence, topDown}
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.expressions.functions.Exists
-import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 
 
 case class deMorganRewriter()(implicit monitor: AstRewritingMonitor) extends Rewriter {
@@ -99,10 +98,14 @@ object simplifyPredicates extends Rewriter {
 
   private val step: Rewriter = Rewriter.lift {
     case Not(Not(exp))                    => exp
-    case p@Ands(exps) if exps.size == 1   => exps.head
-    case p@Ors(exps) if exps.size == 1    => exps.head
-    case p@Ands(exps) if exps.contains(T) => Ands(exps.filterNot(T == _))(p.position)
-    case p@Ors(exps) if exps.contains(F)  => Ors(exps.filterNot(F == _))(p.position)
+    case p@Ands(exps) if exps.isEmpty     =>  throw new IllegalStateException("we should never get here")
+    case p@Ors(exps) if exps.isEmpty      =>  throw new IllegalStateException("we should never get here")
+    case p@Ands(exps) if exps.contains(T) =>
+      val nonTrue = exps.filterNot(T == _)
+      if (nonTrue.isEmpty) True()(p.position) else Ands(nonTrue)(p.position)
+    case p@Ors(exps) if exps.contains(F)  =>
+      val nonFalse = exps.filterNot(F == _)
+      if (nonFalse.isEmpty) False()(p.position) else Ors(nonFalse)(p.position)
     case p@Ors(exps) if exps.contains(T)  => True()(p.position)
     case p@Ands(exps) if exps.contains(F) => False()(p.position)
   }
