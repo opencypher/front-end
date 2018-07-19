@@ -588,6 +588,8 @@ sealed trait ProjectionClause extends HorizonClause {
 
   def orderBy: Option[OrderBy]
 
+  def where: Option[Where]
+
   def skip: Option[Skip]
 
   def limit: Option[Limit]
@@ -596,29 +598,45 @@ sealed trait ProjectionClause extends HorizonClause {
 
   def isReturn: Boolean = false
 
+  /**
+    * @return copy of this ProjectionClause with new return items
+    */
+  def withReturnItems(items: Seq[ReturnItem]): ProjectionClause
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       returnItems.semanticCheck
 
   override def semanticCheckContinuation(previousScope: Scope): SemanticCheck = {
     val declareAllTheThings = (s: SemanticState) => {
-      val specialReturnItems = createSpecialReturnItems(previousScope, s)
-      val specialStateForShuffle = specialReturnItems.declareVariables(previousScope)(s).state
-      val shuffleResult = (orderBy.semanticCheck chain checkSkip chain checkLimit) (specialStateForShuffle)
-      val shuffleErrors = shuffleResult.errors
 
-      // We still need to declare the return items, and register the use of variables in the ORDER BY clause. But we
-      // don't want to see errors from ORDER BY - we'll get them through shuffleErrors instead
-      val orderByResult = (returnItems.declareVariables(previousScope) chain ignoreErrors(orderBy.semanticCheck)) (s)
+      // ORDER BY and WHERE after a WITH have a special scope such that they can see both variables from before the WITH and from after
+      // Since thw current scoping system does not allow that in a nice way, we run the semantic check for these two twice
+      // In the first run we construct a scope with all necessary variables defined to find errors in these subclauses
+      val specialReturnItems = createSpecialReturnItems(previousScope, s)
+      val specialStateForOrderByAndWhere = specialReturnItems.declareVariables(previousScope)(s).state
+      val orderByAndWhereResult = (orderBy.semanticCheck chain checkSkip chain checkLimit chain where.semanticCheck) (specialStateForOrderByAndWhere)
+      val orderByAndWhereErrors = orderByAndWhereResult.errors
+
+      // In the second run we want to make sure to declare the return items, and register the use of variables in the ORDER BY and WHERE.
+      // This will be executed with the scope which as valid after the WITH. Therefore this second check can lead to false errors, which we ignore.
+      val actualResult = (returnItems.declareVariables(previousScope) chain ignoreErrors(orderBy.semanticCheck chain where.semanticCheck)) (s)
+
+      // We fix symbol positions by merging with the return items from the extended scope
       val fixedOrderByResult = specialReturnItems match {
         case ReturnItems(star, items) if star =>
-          val shuffleScope = shuffleResult.state.currentScope.scope
+          val orderByAndWhereScope = orderByAndWhereResult.state.currentScope.scope
           val definedHere = items.map(_.name).toSet
-          orderByResult.copy(orderByResult.state.mergeSymbolPositionsFromScope(shuffleScope, definedHere))
+          actualResult.copy(actualResult.state.mergeSymbolPositionsFromScope(orderByAndWhereScope, definedHere))
         case _ =>
-          orderByResult
+          actualResult
       }
-      fixedOrderByResult.copy(errors = fixedOrderByResult.errors ++ shuffleErrors)
+      // Finally we need to combine:
+      // The orderByAndWhereResult has the correct type table since it was allowed to see stuff from the previous scope.
+      // The fixedOrderByResult has the correct scope.
+      // We keep errors from both results.
+      fixedOrderByResult.copy(state = fixedOrderByResult.state.copy(typeTable = orderByAndWhereResult.state.typeTable),
+                              errors = fixedOrderByResult.errors ++ orderByAndWhereErrors)
     }
     declareAllTheThings
   }
@@ -643,7 +661,13 @@ sealed trait ProjectionClause extends HorizonClause {
     s => limit.semanticCheck(SemanticState.clean).errors
 
   private def ignoreErrors(inner: SemanticCheck): SemanticCheck =
-    s => success(inner.apply(s).state)
+    s => {
+      // Make sure not to declare variables just to suppress errors since they are ignored anyways
+      val innerState = s.copy(declareVariablesToSuppressDuplicateErrors = false)
+      val innerResultState = inner.apply(innerState).state
+      // Switch back to previous declaration behavior
+      success(innerResultState.copy(declareVariablesToSuppressDuplicateErrors = s.declareVariablesToSuppressDuplicateErrors))
+    }
 
   def verifyOrderByAggregationUse(fail: (String, InputPosition) => Nothing): Unit = {
     val aggregationInProjection = returnItems.containsAggregate
@@ -671,9 +695,8 @@ case class With(distinct: Boolean,
     super.semanticCheck chain
       checkAliasedReturnItems
 
-  override def semanticCheckContinuation(previousScope: Scope): SemanticCheck =
-    super.semanticCheckContinuation(previousScope) chain
-      where.semanticCheck
+  override def withReturnItems(items: Seq[ReturnItem]): With =
+    this.copy(returnItems = ReturnItems(returnItems.includeExisting, items)(returnItems.position))(this.position)
 
   private def checkAliasedReturnItems: SemanticState => Seq[SemanticError] = state => returnItems match {
     case li: ReturnItems => li.items.filter(_.alias.isEmpty).map(i => SemanticError("Expression in WITH must be aliased (use AS)", i.position))
@@ -697,9 +720,14 @@ case class Return(distinct: Boolean,
 
   override def isReturn: Boolean = true
 
+  override def where: Option[Where] = None
+
   override def returnColumns: List[String] = returnItems.items.map(_.name).toList
 
   override def semanticCheck: SemanticCheck = super.semanticCheck chain checkVariableScope
+
+  override def withReturnItems(items: Seq[ReturnItem]): Return =
+    this.copy(returnItems = ReturnItems(returnItems.includeExisting, items)(returnItems.position))(this.position)
 
   private def checkVariableScope: SemanticState => Seq[SemanticError] = s =>
     returnItems match {
@@ -708,13 +736,4 @@ case class Return(distinct: Boolean,
       case _ =>
         Seq.empty
     }
-}
-
-case class PragmaWithout(excluded: Seq[LogicalVariable])(val position: InputPosition) extends HorizonClause {
-  override def name = "_PRAGMA WITHOUT"
-
-  val excludedNames: Set[String] = excluded.map(_.name).toSet
-
-  override def semanticCheckContinuation(previousScope: Scope): SemanticCheck = s =>
-    success(s.importValuesFromScope(previousScope, excludedNames))
 }

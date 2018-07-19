@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.frontend.prettifier
+package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
 import org.opencypher.v9_0.parser.CypherParser
 import org.opencypher.v9_0.util.test_helpers.{CypherFunSuite, WindowsStringSafe}
-import org.opencypher.v9_0.ast.Statement
 
-class PrettifierTest extends CypherFunSuite {
+class PrettifierIT extends CypherFunSuite {
   implicit val windowsSafe = WindowsStringSafe
 
   val stringifier: Prettifier = Prettifier(ExpressionStringifier())

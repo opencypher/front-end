@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
 import org.opencypher.v9_0.util.AssertionUtils.ifAssertionsEnabled
 import org.opencypher.v9_0.util.InternalException
 
@@ -44,6 +45,7 @@ object Transformer {
     override def transform(from: BaseState, context: BaseContext) = {
       println("     |||||||| PRINT AST: "+tag)
       println(from.maybeStatement.get)
+      println(Prettifier(ExpressionStringifier()).asString(from.maybeStatement.get))
       from
     }
 

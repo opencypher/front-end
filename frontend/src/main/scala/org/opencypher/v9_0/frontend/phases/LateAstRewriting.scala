@@ -15,16 +15,15 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.rewriting.rewriters.{collapseMultipleInPredicates, nameUpdatingClauses, projectFreshSortExpressions, projectNamedPaths}
+import org.opencypher.v9_0.rewriting.rewriters.{collapseMultipleInPredicates, nameUpdatingClauses, projectNamedPaths}
 import org.opencypher.v9_0.util.{Rewriter, inSequence}
 
 object LateAstRewriting extends StatementRewriter {
   override def instance(context: BaseContext): Rewriter = inSequence(
     collapseMultipleInPredicates,
     nameUpdatingClauses,
-    projectNamedPaths,
+    projectNamedPaths
 //    enableCondition(containsNamedPathOnlyForShortestPath), // TODO Re-enable
-    projectFreshSortExpressions
   )
 
   override def description: String = "normalize the AST"

@@ -16,12 +16,11 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ASTAnnotationMap
-import org.opencypher.v9_0.expressions.{Expression, LogicalVariable}
+import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
+import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.{TreeElem, TreeZipper}
 import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
-import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
-import org.opencypher.v9_0.expressions.Variable
 
 import scala.collection.immutable.HashMap
 import scala.language.postfixOps
@@ -242,7 +241,8 @@ case class SemanticState(currentScope: ScopeLocation,
                          recordedScopes: ASTAnnotationMap[ASTNode, Scope],
                          notifications: Set[InternalNotification] = Set.empty,
                          features: Set[SemanticFeature] = Set.empty,
-                         initialWith: Boolean = false
+                         initialWith: Boolean = false,
+                         declareVariablesToSuppressDuplicateErrors: Boolean = true
                         ) {
 
   def recogniseInitialWith: SemanticState = copy(initialWith = true)

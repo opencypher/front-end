@@ -91,12 +91,6 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
       "match a,x,y with a match (b) return a, b")
   }
 
-  test("expands _PRAGMA WITHOUT") {
-    assertRewrite(
-      "MATCH a,x,y _PRAGMA WITHOUT a MATCH b RETURN *",
-      "MATCH a,x,y WITH x, y MATCH b RETURN b, x, y")
-  }
-
   test("keeps listed items during expand") {
     assertRewrite(
       "MATCH (n) WITH *, 1 AS b RETURN *",

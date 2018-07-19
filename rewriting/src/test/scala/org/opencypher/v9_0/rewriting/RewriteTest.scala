@@ -15,23 +15,26 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
+import org.opencypher.v9_0.ast.semantics.SemanticChecker
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.semantics.SemanticChecker
 
 trait RewriteTest {
   self: CypherFunSuite =>
 
   def rewriterUnderTest: Rewriter
 
+  val prettifier = Prettifier(ExpressionStringifier(_.asCanonicalStringVal))
+
   protected def assertRewrite(originalQuery: String, expectedQuery: String) {
     val original = parseForRewriting(originalQuery)
     val expected = parseForRewriting(expectedQuery)
     SemanticChecker.check(original)
     val result = rewrite(original)
-    assert(result === expected, "\n" + originalQuery)
+    assert(result === expected, s"\n$originalQuery\nshould be rewritten to:\n$expectedQuery\nbut was rewritten to:\n${prettifier.asString(result.asInstanceOf[Statement])}")
   }
 
   protected def parseForRewriting(queryText: String): Statement = parser.parse(queryText.replace("\r\n", "\n"))
@@ -45,6 +48,6 @@ trait RewriteTest {
   protected def assertIsNotRewritten(query: String) {
     val original = parser.parse(query)
     val result = original.rewrite(rewriterUnderTest)
-    assert(result === original, "\n" + query)
+    assert(result === original, s"\n$query\nshould not have been rewritten but was to:\n${prettifier.asString(result.asInstanceOf[Statement])}")
   }
 }

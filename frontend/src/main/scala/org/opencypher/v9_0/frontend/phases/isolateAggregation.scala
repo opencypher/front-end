@@ -18,9 +18,8 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions.{Variable, _}
 import org.opencypher.v9_0.rewriting.conditions.{aggregationsAreIsolated, hasAggregateButIsNotAggregate}
-import org.opencypher.v9_0.rewriting.rewriters.ReturnItemSafeTopDownRewriter
 import org.opencypher.v9_0.util.helpers.fixedPoint
-import org.opencypher.v9_0.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp}
+import org.opencypher.v9_0.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp, _}
 
 /**
   * This rewriter makes sure that aggregations are on their own in RETURN/WITH clauses, so
@@ -50,22 +49,28 @@ case object isolateAggregation extends StatementRewriter {
     case q@SingleQuery(clauses) =>
 
       val newClauses = clauses.flatMap {
-        case clause if !clauseNeedingWork(clause) => IndexedSeq(clause)
-        case clause =>
-          val (withAggregations, others) = getExpressions(clause).partition(hasAggregateButIsNotAggregate(_))
+        case clause: ProjectionClause if clauseNeedingWork(clause) =>
+          val clauseReturnItems = clause.returnItems.items
+          val (withAggregations, others) = clauseReturnItems.map(_.expression).toSet.partition(hasAggregateButIsNotAggregate(_))
 
           val expressionsToIncludeInWith: Set[Expression] = others ++ extractExpressionsToInclude(withAggregations)
 
           val withReturnItems: Set[ReturnItem] = expressionsToIncludeInWith.map {
-            case e => AliasedReturnItem(e, Variable(AggregationNameGenerator.name(e.position))(e.position))(e.position)
+            e => AliasedReturnItem(e, Variable(AggregationNameGenerator.name(e.position))(e.position))(e.position)
           }
           val pos = clause.position
           val withClause = With(distinct = false, ReturnItems(includeExisting = false, withReturnItems.toIndexedSeq)(pos), None, None, None, None)(pos)
 
           val expressionRewriter = createRewriterFor(withReturnItems)
-          val resultClause = clause.endoRewrite(expressionRewriter)
+          val newReturnItems = clauseReturnItems.map {
+            case ri@AliasedReturnItem(expression, _) => ri.copy(expression = expression.endoRewrite(expressionRewriter))(ri.position)
+            case ri@UnaliasedReturnItem(expression, _) => ri.copy(expression = expression.endoRewrite(expressionRewriter))(ri.position)
+          }
+          val resultClause = clause.withReturnItems(newReturnItems)
 
           IndexedSeq(withClause, resultClause)
+
+        case clause => IndexedSeq(clause)
       }
 
       q.copy(clauses = newClauses)(q.position)
@@ -80,13 +85,12 @@ case object isolateAggregation extends StatementRewriter {
         }
         rewrittenExpression getOrElse original
     }
-
-    ReturnItemSafeTopDownRewriter(inner)
+    topDown(inner)
   }
 
   private def extractExpressionsToInclude(originalExpressions: Set[Expression]): Set[Expression] = {
     val expressionsToGoToWith: Set[Expression] = fixedPoint {
-      (expressions: Set[Expression]) => expressions.flatMap {
+      expressions: Set[Expression] => expressions.flatMap {
         case e@ReduceExpression(_, init, coll) if hasAggregateButIsNotAggregate(e) =>
           Seq(init, coll)
 
@@ -120,11 +124,7 @@ case object isolateAggregation extends StatementRewriter {
     expressionsToGoToWith
   }
 
-  private def getExpressions(c: Clause): Set[Expression] = c match {
-    case clause: Return => clause.returnItems.items.map(_.expression).toSet
-    case clause: With => clause.returnItems.items.map(_.expression).toSet
-    case _ => Set.empty
-  }
+  private val instance = bottomUp(rewriter, _.isInstanceOf[Expression])
 
   private def clauseNeedingWork(c: Clause): Boolean = c.treeExists {
     case e: Expression => hasAggregateButIsNotAggregate(e)
