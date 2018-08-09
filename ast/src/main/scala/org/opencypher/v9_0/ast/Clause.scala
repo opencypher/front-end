@@ -172,7 +172,8 @@ trait SingleRelTypeCheck {
 final case class ConstructGraph(
                                  clones: List[Clone] = List.empty,
                                  news: List[CreateInConstruct] = List.empty,
-                                 on: List[QualifiedGraphName] = List.empty
+                                 on: List[QualifiedGraphName] = List.empty,
+                                 sets: List[SetClause] = List.empty
                                )(val position: InputPosition) extends MultipleGraphClause {
 
   override def name = "CONSTRUCT"

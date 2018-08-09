@@ -16,7 +16,9 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Clause}
-import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.{Property, PropertyKeyName, RelationshipChain, SignedDecimalIntegerLiteral}
+import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.util.symbols.{CTAny, CTMap}
 import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala._
 
@@ -79,6 +81,20 @@ class MultipleGraphClausesParsingTest
       clones = List(clone),
       news = List(newClause))
     )
+  }
+
+  test("CONSTRUCT CREATE (a) SET a.prop = 1") {
+    val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(Some(exp.Variable("a")(pos)), List(), None)(pos))))(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
+
+    val set = ast.SetClause(List(ast.SetPropertyItem(
+      Property(exp.Variable("a")(pos),exp.PropertyKeyName("prop")(pos))(pos),SignedDecimalIntegerLiteral("1")(pos)
+    )(pos)))(pos)
+
+    yields(ast.ConstructGraph(
+      news = List(newClause),
+      sets = List(set)
+    ))
   }
 
   test("CONSTRUCT CREATE (:A)") {
