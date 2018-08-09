@@ -39,7 +39,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """FROM foo.bar
         |MATCH (a:Swedish)
         |CONSTRUCT
-        |   NEW (b COPY OF A:Programmer)
+        |   CREATE (b COPY OF A:Programmer)
         |FROM GRAPH bar.foo
         |MATCH (a:Foo)
         |RETURN a.name""".stripMargin) shouldVerify { result: SemanticCheckResult =>
@@ -52,7 +52,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a:Swedish)
         |CONSTRUCT
-        |   NEW (b COPY OF A:Programmer)
+        |   CREATE (b COPY OF A:Programmer)
         |RETURN GRAPH
         |MATCH (a:Foo)
         |RETURN a.name""".stripMargin) shouldVerify { result: SemanticCheckResult =>
@@ -65,7 +65,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a:Swedish)
         |CONSTRUCT
-        |   NEW (b COPY OF A:Programmer)
+        |   CREATE (b COPY OF A:Programmer)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -76,7 +76,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a:Swedish)
         |CONSTRUCT
-        |   NEW (COPY OF A:Programmer)
+        |   CREATE (COPY OF A:Programmer)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -87,7 +87,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH ()-[r]->()
         |CONSTRUCT
-        |   NEW (b COPY OF r:Programmer)
+        |   CREATE (b COPY OF r:Programmer)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(Set("Type mismatch: r defined with conflicting type Relationship (expected Node)"))
@@ -98,7 +98,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)
         |CONSTRUCT
-        |   NEW ()-[r COPY OF a]->()
+        |   CREATE ()-[r COPY OF a]->()
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(Set("Type mismatch: a defined with conflicting type Node (expected Relationship)"))
@@ -109,7 +109,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)
         |CONSTRUCT
-        |   NEW ()-[r COPY OF a]->()-[r2:REL]->()
+        |   CREATE ()-[r COPY OF a]->()-[r2:REL]->()
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(Set("Type mismatch: a defined with conflicting type Node (expected Relationship)"))
@@ -121,7 +121,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)-[r]-(b)
         |CONSTRUCT
         |   CLONE a, r, b
-        |   NEW (a)-[r]->(b)
+        |   CREATE (a)-[r]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -132,7 +132,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)-[r]-(b)
         |CONSTRUCT
-        |NEW (a)-[r]->(b)
+        |CREATE (a)-[r]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -144,7 +144,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)-[r]-(b)
         |CONSTRUCT
         |CLONE r as newR
-        |NEW (a)-[newR]->(b)
+        |CREATE (a)-[newR]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -156,11 +156,11 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a), (b)
         |CONSTRUCT
         |   CLONE a, b
-        |   NEW (a)-[r]->(b)
+        |   CREATE (a)-[r]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
-        Set("Exactly one relationship type must be specified for NEW. Did you forget to prefix your relationship type with a ':'?")
+        Set("Exactly one relationship type must be specified for CREATE. Did you forget to prefix your relationship type with a ':'?")
       )
     }
   }
@@ -171,11 +171,11 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a), (b)
         |CONSTRUCT
         |   CLONE a, b
-        |   NEW (a)-[r]->(b)-[r2:REL]->(c)
+        |   CREATE (a)-[r]->(b)-[r2:REL]->(c)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
-        Set("Exactly one relationship type must be specified for NEW. Did you forget to prefix your relationship type with a ':'?")
+        Set("Exactly one relationship type must be specified for CREATE. Did you forget to prefix your relationship type with a ':'?")
       )
     }
   }
@@ -184,9 +184,9 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a), (b)
         |CONSTRUCT
-        |   NEW (a2)
-        |   NEW (a2)-[r1:REL]->(b)
-        |   NEW (a2)-[r2:REL]->(a)
+        |   CREATE (a2)
+        |   CREATE (a2)-[r1:REL]->(b)
+        |   CREATE (a2)-[r2:REL]->(a)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -198,8 +198,8 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a), (b)
         |CONSTRUCT
-        |   NEW (a2)
-        |   NEW (a2)
+        |   CREATE (a2)
+        |   CREATE (a2)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -213,8 +213,8 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)-[r]->(b)
         |CONSTRUCT
         |   CLONE a, b
-        |   NEW (a)-[r2:REL]->(b)
-        |   NEW (b)-[r2:REL]->(a)
+        |   CREATE (a)-[r2:REL]->(b)
+        |   CREATE (b)-[r2:REL]->(a)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -227,8 +227,8 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a),(b)
         |CONSTRUCT
-        |   NEW (a2 COPY OF a)
-        |   NEW (a2 COPY OF b)-[r:REL]->(a)
+        |   CREATE (a2 COPY OF a)
+        |   CREATE (a2 COPY OF b)-[r:REL]->(a)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -242,7 +242,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)
         |CONSTRUCT
         |   CLONE a as newA
-        |   NEW (newA:FOO)
+        |   CREATE (newA:FOO)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -256,7 +256,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)
         |CONSTRUCT
         |   CLONE a
-        |   NEW (a:FOO)
+        |   CREATE (a:FOO)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -269,7 +269,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)
         |CONSTRUCT
-        |   NEW (a:FOO)
+        |   CREATE (a:FOO)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -283,7 +283,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)
         |CONSTRUCT
         |   CLONE a as newA
-        |   NEW (newA {foo: "bar"})
+        |   CREATE (newA {foo: "bar"})
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -297,7 +297,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)
         |CONSTRUCT
         |   CLONE a
-        |   NEW (a {foo: "bar"})
+        |   CREATE (a {foo: "bar"})
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -310,7 +310,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)
         |CONSTRUCT
-        |   NEW (a {foo: "bar"})
+        |   CREATE (a {foo: "bar"})
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -324,7 +324,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)-[r]->(b)
         |CONSTRUCT
         |   CLONE a, r as newR, b
-        |   NEW (a)-[newR:FOO]->(b)
+        |   CREATE (a)-[newR:FOO]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -338,7 +338,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)-[r]->(b)
         |CONSTRUCT
         |   CLONE a, r, b
-        |   NEW (a)-[r:FOO]->(b)
+        |   CREATE (a)-[r:FOO]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -351,7 +351,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)-[r]->(b)
         |CONSTRUCT
-        |   NEW (a)-[r:FOO]->(b)
+        |   CREATE (a)-[r:FOO]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -365,7 +365,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)-[r]->(b)
         |CONSTRUCT
         |   CLONE a, r as newR, b
-        |   NEW (a)-[newR {foo: "bar"}]->(b)
+        |   CREATE (a)-[newR {foo: "bar"}]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -379,7 +379,7 @@ class MultipleGraphClauseSemanticCheckingTest
       """MATCH (a)-[r]->(b)
         |CONSTRUCT
         |   CLONE a, r, b
-        |   NEW (a)-[r {foo: "bar"}]->(b)
+        |   CREATE (a)-[r {foo: "bar"}]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
@@ -392,7 +392,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)-[r]->(b)
         |CONSTRUCT
-        |   NEW (a)-[r {foo: "bar"}]->(b)
+        |   CREATE (a)-[r {foo: "bar"}]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(
