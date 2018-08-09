@@ -55,8 +55,8 @@ trait Clauses extends Parser
     group(keyword("CLONE") ~~ oneOrMore(ReturnItem, CommaSep)) ~~>> (ast.Clone(_))
   }
 
-  def New: Rule1[ast.New] = rule("NEW (construct subclause)") {
-    group(keyword("NEW") ~~ Pattern) ~~>> (ast.New(_))
+  def New: Rule1[ast.CreateInConstruct] = rule("NEW (construct subclause)") {
+    group(keyword("CREATE") ~~ Pattern) ~~>> (ast.CreateInConstruct(_))
   }
 
   def QualifiedGraphName = rule("qualified graph name foo.bar.baz") {
