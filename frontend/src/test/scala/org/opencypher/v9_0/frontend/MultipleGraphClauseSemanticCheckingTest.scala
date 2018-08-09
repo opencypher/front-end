@@ -132,7 +132,7 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)-[r]-(b)
         |CONSTRUCT
-        |CREATE (a)-[r]->(b)
+        |  CREATE (a)-[r]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -143,8 +143,8 @@ class MultipleGraphClauseSemanticCheckingTest
     parsing(
       """MATCH (a)-[r]-(b)
         |CONSTRUCT
-        |CLONE r as newR
-        |CREATE (a)-[newR]->(b)
+        |  CLONE r as newR
+        |  CREATE (a)-[newR]->(b)
         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
@@ -164,7 +164,6 @@ class MultipleGraphClauseSemanticCheckingTest
       )
     }
   }
-
 
   test("Require type for new relationships chained") {
     parsing(
@@ -398,6 +397,19 @@ class MultipleGraphClauseSemanticCheckingTest
       result.errorMessages should equal(
         Set("Modification of a cloned relationship is not allowed. Use COPY OF to manipulate the relationship")
       )
+    }
+  }
+
+  test("allow using set clauses instead of property patterns") {
+    parsing(
+      """|MATCH (a)
+         |CONSTRUCT
+         |  CREATE (a)
+         |  SET a.prop = 10
+         |  SET a.foo = hello
+         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
+
+      result.errors shouldBe empty
     }
   }
 

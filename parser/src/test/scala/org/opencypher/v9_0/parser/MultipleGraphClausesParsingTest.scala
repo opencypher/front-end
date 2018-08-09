@@ -97,6 +97,23 @@ class MultipleGraphClausesParsingTest
     ))
   }
 
+  test("CONSTRUCT CREATE (a) SET a.prop = 1 SET a:Foo") {
+    val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(Some(exp.Variable("a")(pos)), List(), None)(pos))))(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
+
+    val set1 = ast.SetClause(List(ast.SetPropertyItem(
+      Property(exp.Variable("a")(pos),exp.PropertyKeyName("prop")(pos))(pos),SignedDecimalIntegerLiteral("1")(pos)
+    )(pos)))(pos)
+    val set2 = ast.SetClause(List(ast.SetLabelItem(
+      exp.Variable("a")(pos), Seq(exp.LabelName("Foo")(pos))
+    )(pos)))(pos)
+
+    yields(ast.ConstructGraph(
+      news = List(newClause),
+      sets = List(set1, set2)
+    ))
+  }
+
   test("CONSTRUCT CREATE (:A)") {
     val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(None, Seq(exp.LabelName("A")(pos)), None)(pos))))(pos)
     val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
