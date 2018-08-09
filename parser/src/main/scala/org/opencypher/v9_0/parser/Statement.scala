@@ -32,16 +32,16 @@ trait Statement extends Parser
   )
 
   def CatalogCommand: Rule1[CatalogDDL] = rule("Catalog DDL statement") {
-    CreateGraph | DeleteGraph
+    CreateGraph | DropGraph
   }
 
-  def CreateGraph = rule("CREATE GRAPH") {
-    group(keyword("CREATE GRAPH") ~~ QualifiedGraphName ~~ "{" ~~
+  def CreateGraph = rule("CATALOG CREATE GRAPH") {
+    group(keyword("CATALOG CREATE GRAPH") ~~ QualifiedGraphName ~~ "{" ~~
       RegularQuery ~~
       "}") ~~>> (ast.CreateGraph(_, _))
   }
 
-  def DeleteGraph = rule("DELETE GRAPH") {
-    group(keyword("DELETE GRAPH") ~~ QualifiedGraphName) ~~>> (ast.DeleteGraph(_))
+  def DropGraph = rule("CATALOG DROP GRAPH") {
+    group(keyword("CATALOG DROP GRAPH") ~~ QualifiedGraphName) ~~>> (ast.DropGraph(_))
   }
 }
