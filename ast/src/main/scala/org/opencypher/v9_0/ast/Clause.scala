@@ -185,7 +185,8 @@ final case class ConstructGraph(
       checkDuplicatedRelationships chain
       checkModificationOfClonedEntities chain
       checkBaseNodes chain
-      news.semanticCheck
+      news.semanticCheck chain
+      sets.semanticCheck
 
   private def checkDuplicatedRelationships: SemanticCheck = (state) => {
     val relationshipVars = news.flatMap(_.pattern.patternParts).collect {
