@@ -81,7 +81,6 @@ object Function {
     Sum,
     Tail,
     Tan,
-    Timestamp,
     ToBoolean,
     ToFloat,
     ToInteger,

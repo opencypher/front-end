@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.expressions.{FunctionInvocation, FunctionName}
+import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.rewriting.rewriters.replaceAliasedFunctionInvocations
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -34,6 +34,17 @@ class ReplaceAliasedFunctionInvocationsTest extends CypherFunSuite with AstConst
     val before = FunctionInvocation(FunctionName("toInteger")(pos), literalInt(1))(pos)
 
     rewriter(before) should equal(before)
+  }
+
+  test("should rewrite timestamp()") {
+    val before = FunctionInvocation(FunctionName("timestamp")(pos), distinct = false, IndexedSeq.empty)(pos)
+
+
+    val after =
+      Property(
+        FunctionInvocation(Namespace()(pos), FunctionName("datetime")(pos), distinct = false, IndexedSeq.empty)(pos),
+        PropertyKeyName("epochMillis")(pos))(pos)
+    rewriter(before) should equal(after)
   }
 
 }
