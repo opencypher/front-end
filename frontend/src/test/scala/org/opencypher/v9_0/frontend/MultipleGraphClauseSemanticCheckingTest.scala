@@ -34,6 +34,20 @@ class MultipleGraphClauseSemanticCheckingTest
 
   implicit val parser: Rule1[Query] = Query
 
+
+  // TODO: Need to reset semantic state after CONSTRUCT
+  ignore("checks that all SET variables are in scope") {
+    parsing(
+      """|CONSTRUCT
+         |  CREATE (a)
+         |CONSTRUCT
+         |  SET a :Label
+         |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
+
+      result.errorMessages should equal(Set("Variable `a` not defined"))
+    }
+  }
+
   test("allows both versions of FROM") {
     parsing(
       """FROM foo.bar
