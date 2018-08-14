@@ -27,14 +27,14 @@ class CatalogDDLParserTest
   val singleQuery = ast.SingleQuery(Seq(ast.ConstructGraph()(pos)))(pos)
   private val returnGraph: ReturnGraph = ast.ReturnGraph(None)(pos)
 
-  test("CREATE GRAPH foo.bar { RETURN GRAPH }") {
+  test("CATALOG CREATE GRAPH foo.bar { RETURN GRAPH }") {
     val query = ast.SingleQuery(Seq(returnGraph))(pos)
     val graphName = ast.QualifiedGraphName("foo", List("bar"))
 
     yields(ast.CreateGraph(graphName, query))
   }
 
-  test("CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION ALL FROM GRAPH bar RETURN GRAPH }") {
+  test("CATALOG CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION ALL FROM GRAPH bar RETURN GRAPH }") {
     val useGraph1 = ast.FromGraph(ast.QualifiedGraphName("foo"))(pos)
     val useGraph2 = ast.FromGraph(ast.QualifiedGraphName("bar"))(pos)
     val lhs = ast.SingleQuery(Seq(useGraph1, returnGraph))(pos)
@@ -45,7 +45,7 @@ class CatalogDDLParserTest
     yields(ast.CreateGraph(graphName, union))
   }
 
-  test("CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION FROM GRAPH bar RETURN GRAPH }") {
+  test("CATALOG CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION FROM GRAPH bar RETURN GRAPH }") {
     val useGraph1 = ast.FromGraph(ast.QualifiedGraphName("foo"))(pos)
     val useGraph2 = ast.FromGraph(ast.QualifiedGraphName("bar"))(pos)
     val lhs = ast.SingleQuery(Seq(useGraph1, returnGraph))(pos)
@@ -56,40 +56,39 @@ class CatalogDDLParserTest
     yields(ast.CreateGraph(graphName, union))
   }
 
-  test("CREATE GRAPH foo.bar { CONSTRUCT }") {
+  test("CATALOG CREATE GRAPH foo.bar { CONSTRUCT }") {
     val graphName = ast.QualifiedGraphName("foo", List("bar"))
 
     yields(ast.CreateGraph(graphName, singleQuery))
   }
 
   // missing graph name
-  test("CREATE GRAPH { RETURN GRAPH }") {
+  test("CATALOG CREATE GRAPH { RETURN GRAPH }") {
     failsToParse
   }
 
-  test("CREATE GRAPH `foo.bar.baz.baz` { CONSTRUCT }"){
+  test("CATALOG CREATE GRAPH `foo.bar.baz.baz` { CONSTRUCT }"){
     yields(ast.CreateGraph(
       new QualifiedGraphName(List("foo.bar.baz.baz")),
       singleQuery
     ))
   }
 
-  test("CREATE GRAPH `foo.bar`.baz { CONSTRUCT }"){
+  test("CATALOG CREATE GRAPH `foo.bar`.baz { CONSTRUCT }"){
     yields(ast.CreateGraph(
       new QualifiedGraphName(List("foo.bar", "baz")),
       singleQuery
     ))
   }
 
-
-  test("CREATE GRAPH foo.`bar.baz` { CONSTRUCT }"){
+  test("CATALOG CREATE GRAPH foo.`bar.baz` { CONSTRUCT }"){
     yields(ast.CreateGraph(
       new QualifiedGraphName(List("foo", "bar.baz")),
       singleQuery
     ))
   }
 
-  test("CREATE GRAPH `foo.bar`.`baz.baz` { CONSTRUCT }"){
+  test("CATALOG CREATE GRAPH `foo.bar`.`baz.baz` { CONSTRUCT }"){
     yields(ast.CreateGraph(
       new QualifiedGraphName(List("foo.bar", "baz.baz")),
       singleQuery
@@ -97,14 +96,14 @@ class CatalogDDLParserTest
   }
 
   // missing graph name
-  test("DELETE GRAPH union") {
+  test("CATALOG DROP GRAPH union") {
     val graphName = ast.QualifiedGraphName("union")
 
-    yields(ast.DeleteGraph(graphName))
+    yields(ast.DropGraph(graphName))
   }
 
   // missing graph name; doesn't fail because it's a valid query if GRAPH is a variable
-  ignore("DELETE GRAPH") {
+  ignore("CATALOG DROP GRAPH") {
     failsToParse
   }
 }

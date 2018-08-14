@@ -99,9 +99,9 @@ final case class Clone(items: List[ReturnItem])(val position: InputPosition) ext
   }
 }
 
-case class New(pattern: Pattern)(val position: InputPosition) extends MultipleGraphClause with SingleRelTypeCheck {
+case class CreateInConstruct(pattern: Pattern)(val position: InputPosition) extends MultipleGraphClause with SingleRelTypeCheck {
 
-  override def name = "NEW"
+  override def name = "CREATE"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -170,10 +170,11 @@ trait SingleRelTypeCheck {
 }
 
 final case class ConstructGraph(
-                                 clones: List[Clone] = List.empty,
-                                 news: List[New] = List.empty,
-                                 on: List[QualifiedGraphName] = List.empty
-                               )(val position: InputPosition) extends MultipleGraphClause {
+  clones: List[Clone] = List.empty,
+  news: List[CreateInConstruct] = List.empty,
+  on: List[QualifiedGraphName] = List.empty,
+  sets: List[SetClause] = List.empty
+)(val position: InputPosition) extends MultipleGraphClause {
 
   override def name = "CONSTRUCT"
 
@@ -184,7 +185,8 @@ final case class ConstructGraph(
       checkDuplicatedRelationships chain
       checkModificationOfClonedEntities chain
       checkBaseNodes chain
-      news.semanticCheck
+      news.semanticCheck chain
+      sets.semanticCheck
 
   private def checkDuplicatedRelationships: SemanticCheck = (state) => {
     val relationshipVars = news.flatMap(_.pattern.patternParts).collect {

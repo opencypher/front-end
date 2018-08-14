@@ -37,7 +37,7 @@ object CreateGraph {
 final case class CreateGraph(graphName: QualifiedGraphName, query: QueryPart)
                             (val position: InputPosition) extends CatalogDDL {
 
-  override def name = "CREATE GRAPH"
+  override def name = "CATALOG CREATE GRAPH"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -45,9 +45,9 @@ final case class CreateGraph(graphName: QualifiedGraphName, query: QueryPart)
       query.semanticCheck
 }
 
-final case class DeleteGraph(graphName: QualifiedGraphName)(val position: InputPosition) extends CatalogDDL {
+final case class DropGraph(graphName: QualifiedGraphName)(val position: InputPosition) extends CatalogDDL {
 
-  override def name = "DELETE GRAPH"
+  override def name = "CATALOG DROP GRAPH"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain

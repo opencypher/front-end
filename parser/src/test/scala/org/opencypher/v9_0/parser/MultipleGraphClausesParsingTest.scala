@@ -16,7 +16,9 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Clause}
-import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.{Property, PropertyKeyName, RelationshipChain, SignedDecimalIntegerLiteral}
+import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.util.symbols.{CTAny, CTMap}
 import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala._
 
@@ -37,9 +39,9 @@ class MultipleGraphClausesParsingTest
     yields(ast.FromGraph(fooBarGraph))
   }
 
-  test("CONSTRUCT NEW ()") {
+  test("CONSTRUCT CREATE ()") {
     val patternParts = List(exp.EveryPath(exp.NodePattern(None,List(),None)(pos)))
-    yields(ast.ConstructGraph(news = List(ast.New(exp.Pattern(patternParts)(pos))(pos))))
+    yields(ast.ConstructGraph(news = List(ast.CreateInConstruct(exp.Pattern(patternParts)(pos))(pos))))
   }
 
   test("CONSTRUCT CLONE a") {
@@ -68,12 +70,12 @@ class MultipleGraphClausesParsingTest
     yields(ast.ConstructGraph(clones = List(aClone, bClone)))
   }
 
-  test("CONSTRUCT CLONE x NEW ({prop: 1})") {
+  test("CONSTRUCT CLONE x CREATE ({prop: 1})") {
     val clone: ast.Clone = ast.Clone(List(ast.UnaliasedReturnItem(varFor("x"), "x")(pos)))(pos)
 
     val properties = literalIntMap("prop" -> 1)
     val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(None, List(), Some(properties))(pos))))(pos)
-    val newClause: ast.New = ast.New(pattern)(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
 
     yields(ast.ConstructGraph(
       clones = List(clone),
@@ -81,63 +83,94 @@ class MultipleGraphClausesParsingTest
     )
   }
 
-  test("CONSTRUCT NEW (:A)") {
+  test("CONSTRUCT CREATE (a) SET a.prop = 1") {
+    val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(Some(exp.Variable("a")(pos)), List(), None)(pos))))(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
+
+    val set = ast.SetClause(List(ast.SetPropertyItem(
+      Property(exp.Variable("a")(pos),exp.PropertyKeyName("prop")(pos))(pos),SignedDecimalIntegerLiteral("1")(pos)
+    )(pos)))(pos)
+
+    yields(ast.ConstructGraph(
+      news = List(newClause),
+      sets = List(set)
+    ))
+  }
+
+  test("CONSTRUCT CREATE (a) SET a.prop = 1 SET a:Foo") {
+    val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(Some(exp.Variable("a")(pos)), List(), None)(pos))))(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
+
+    val set1 = ast.SetClause(List(ast.SetPropertyItem(
+      Property(exp.Variable("a")(pos),exp.PropertyKeyName("prop")(pos))(pos),SignedDecimalIntegerLiteral("1")(pos)
+    )(pos)))(pos)
+    val set2 = ast.SetClause(List(ast.SetLabelItem(
+      exp.Variable("a")(pos), Seq(exp.LabelName("Foo")(pos))
+    )(pos)))(pos)
+
+    yields(ast.ConstructGraph(
+      news = List(newClause),
+      sets = List(set1, set2)
+    ))
+  }
+
+  test("CONSTRUCT CREATE (:A)") {
     val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(None, Seq(exp.LabelName("A")(pos)), None)(pos))))(pos)
-    val newClause: ast.New = ast.New(pattern)(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
 
     yields(ast.ConstructGraph(news = List(newClause)))
   }
 
-  test("CONSTRUCT NEW (b COPY OF a:A)") {
+  test("CONSTRUCT CREATE (b COPY OF a:A)") {
     val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(Some(varFor("b")), Seq(exp.LabelName("A")(pos)), None, Some(varFor("a")))(pos))))(pos)
-    val newClause: ast.New = ast.New(pattern)(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
 
     yields(ast.ConstructGraph(news = List(newClause)))
   }
 
-  test("CONSTRUCT NEW (COPY OF a:A)") {
+  test("CONSTRUCT CREATE (COPY OF a:A)") {
     val pattern = exp.Pattern(List(exp.EveryPath(exp.NodePattern(None, Seq(exp.LabelName("A")(pos)), None, Some(varFor("a")))(pos))))(pos)
-    val newClause: ast.New = ast.New(pattern)(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
 
     yields(ast.ConstructGraph(news = List(newClause)))
   }
 
-  test("CONSTRUCT NEW ()-[r2 COPY OF r:REL]->()") {
+  test("CONSTRUCT CREATE ()-[r2 COPY OF r:REL]->()") {
     val relChain = RelationshipChain(
       exp.NodePattern(None, List.empty, None, None)(pos),
       exp.RelationshipPattern(Some(varFor("r2")), Seq(exp.RelTypeName("REL")(pos)), None, None, exp.SemanticDirection.OUTGOING, false, Some(varFor("r")))(pos),
       exp.NodePattern(None, List.empty, None, None)(pos)
     )(pos)
     val pattern = exp.Pattern(List(exp.EveryPath(relChain)))(pos)
-    val newClause: ast.New = ast.New(pattern)(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
 
     yields(ast.ConstructGraph(news = List(newClause)))
   }
 
-  test("CONSTRUCT NEW ()-[COPY OF r:REL]->()") {
+  test("CONSTRUCT CREATE ()-[COPY OF r:REL]->()") {
     val relChain = RelationshipChain(
       exp.NodePattern(None, List.empty, None, None)(pos),
       exp.RelationshipPattern(None, Seq(exp.RelTypeName("REL")(pos)), None, None, exp.SemanticDirection.OUTGOING, false, Some(varFor("r")))(pos),
       exp.NodePattern(None, List.empty, None, None)(pos)
     )(pos)
     val pattern = exp.Pattern(List(exp.EveryPath(relChain)))(pos)
-    val newClause: ast.New = ast.New(pattern)(pos)
+    val newClause: ast.CreateInConstruct = ast.CreateInConstruct(pattern)(pos)
 
     yields(ast.ConstructGraph(news = List(newClause)))
   }
 
-  test("CONSTRUCT CLONE x AS y NEW (a:A) NEW (a)-[:T]->(y)") {
+  test("CONSTRUCT CLONE x AS y CREATE (a:A) CREATE (a)-[:T]->(y)") {
     val clone: ast.Clone = ast.Clone(List(ast.AliasedReturnItem(varFor("x"), varFor("y"))(pos)))(pos)
 
     val pattern1 = exp.Pattern(List(exp.EveryPath(exp.NodePattern(Some(varFor("a")), Seq(exp.LabelName("A")(pos)), None)(pos))))(pos)
-    val new1: ast.New = ast.New(pattern1)(pos)
+    val new1: ast.CreateInConstruct = ast.CreateInConstruct(pattern1)(pos)
 
     val pattern2 = exp.Pattern(List(exp.EveryPath(exp.RelationshipChain(
       exp.NodePattern(Some(varFor("a")), Seq.empty, None)(pos),
       exp.RelationshipPattern(None, Seq(exp.RelTypeName("T")(pos)), None, None, exp.SemanticDirection.OUTGOING)(pos),
       exp.NodePattern(Some(varFor("y")), Seq.empty, None)(pos))(pos)
     )))(pos)
-    val new2: ast.New = ast.New(pattern2)(pos)
+    val new2: ast.CreateInConstruct = ast.CreateInConstruct(pattern2)(pos)
 
     yields(ast.ConstructGraph(clones = List(clone), news = List(new1, new2)))
   }
