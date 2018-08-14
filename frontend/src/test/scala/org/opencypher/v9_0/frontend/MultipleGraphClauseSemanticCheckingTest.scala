@@ -420,7 +420,7 @@ class MultipleGraphClauseSemanticCheckingTest
          |CONSTRUCT
          |  CREATE (a)
          |  SET a.prop = 10
-         |  SET a.foo = hello
+         |  SET a.foo = 'hello'
          |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errors shouldBe empty
