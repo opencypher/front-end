@@ -15,13 +15,11 @@
  */
 package org.opencypher.v9_0.frontend
 
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState, SemanticTable}
+import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState}
 import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Query}
+import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
 import org.opencypher.v9_0.frontend.phases._
 import org.opencypher.v9_0.parser.ParserTest
-import org.opencypher.v9_0.util.spi.MapToPublicExceptions
-import org.opencypher.v9_0.util.symbols.CypherType
-import org.opencypher.v9_0.util.{CypherException, InputPosition}
 import org.opencypher.v9_0.{ast, parser}
 import org.parboiled.scala.Rule1
 
@@ -402,7 +400,7 @@ class MultipleGraphClauseSemanticCheckingTest
   }
 
   override def convert(astNode: ast.Statement): SemanticCheckResult = {
-    val rewritten = PreparatoryRewriting.transform(TestState(Some(astNode)), TestContext).statement()
+    val rewritten = PreparatoryRewriting.transform(TestState(Some(astNode)), TestContext()).statement()
     val initialState = SemanticState.clean.withFeatures(SemanticFeature.MultipleGraphs, SemanticFeature.WithInitialQuerySignature)
     rewritten.semanticCheck(initialState)
   }
@@ -414,57 +412,4 @@ class MultipleGraphClauseSemanticCheckingTest
 
     def errorMessages: Set[String] = errors.map(_.msg).toSet
   }
-
-  //noinspection TypeAnnotation
-  case class TestState(override val maybeStatement: Option[ast.Statement]) extends BaseState {
-    override def queryText: String = statement.toString
-
-    override def startPosition: None.type = None
-
-    override object plannerName extends PlannerName {
-      override def name: String = "Test"
-
-      override def version: String = "3.4"
-
-      override def toTextOutput: String = name
-    }
-
-
-    override def maybeSemantics = None
-
-    override def maybeExtractedParams = None
-
-    override def maybeSemanticTable = None
-
-    override def accumulatedConditions = Set.empty
-
-    override def withStatement(s: ast.Statement) = copy(Some(s))
-
-    override def withSemanticTable(s: SemanticTable) = ???
-
-    override def withSemanticState(s: SemanticState) = ???
-
-    override def withParams(p: Map[String, Any]) = ???
-
-    override def initialFields: Map[String, CypherType] = Map.empty
-  }
-
-  //noinspection TypeAnnotation
-  object TestContext extends BaseContext {
-    override def tracer = CompilationPhaseTracer.NO_TRACING
-
-    override def notificationLogger = mock[InternalNotificationLogger]
-
-    override object exceptionCreator extends ((String, InputPosition) => CypherException) {
-      override def apply(msg: String, pos: InputPosition): CypherException = throw new CypherException() {
-        override def mapToPublic[T <: Throwable](mapper: MapToPublicExceptions[T]): T =
-          mapper.internalException(msg, this)
-      }
-    }
-
-    override def monitors = mock[Monitors]
-
-    override def errorHandler = _ => ()
-  }
-
 }

@@ -27,16 +27,16 @@ case object replaceAliasedFunctionInvocations extends Rewriter {
   /*
    * These are historical names for functions. They are all subject to removal in an upcoming major release.
    */
-  val renamedFunctions: Map[String, String] = TreeMap("toInt" -> "toInteger",
-                                                      "upper" -> "toUpper",
-                                                      "lower" -> "toLower",
-                                                      "rels" -> "relationships")(CaseInsensitiveOrdered)
+  val deprecatedFunctionReplacements: Map[String, String] = TreeMap("toInt" -> "toInteger",
+                                                                    "upper" -> "toUpper",
+                                                                    "lower" -> "toLower",
+                                                                    "rels" -> "relationships")(CaseInsensitiveOrdered)
 
   private def propertyOf(propertyKey:String): Expression => Expression =
     (incoming:Expression) => Property(incoming, PropertyKeyName(propertyKey)(incoming.position))(incoming.position)
 
   private val renameFunction: FunctionInvocation => Expression =
-    (incoming:FunctionInvocation) => renameFunctionTo(renamedFunctions(incoming.name))(incoming)
+    (incoming:FunctionInvocation) => renameFunctionTo(deprecatedFunctionReplacements(incoming.name))(incoming)
 
   private def renameFunctionTo(newName: String) = (incoming: FunctionInvocation) =>
     incoming.copy(functionName = FunctionName(newName)(incoming.functionName.position))(incoming.position)
