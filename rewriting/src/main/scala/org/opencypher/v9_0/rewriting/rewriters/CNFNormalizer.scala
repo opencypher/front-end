@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util.helpers.fixedPoint
@@ -118,10 +117,6 @@ case object normalizeSargablePredicates extends Rewriter {
   override def apply(that: AnyRef): AnyRef = instance(that)
 
   private val instance: Rewriter = topDown(Rewriter.lift {
-
-    // turn n.prop IS NOT NULL into exists(n.prop)
-    case predicate@IsNotNull(property@Property(_, _)) =>
-      Exists.asInvocation(property)(predicate.position)
 
     // remove not from inequality expressions by negating them
     case Not(inequality: InequalityExpression) =>
