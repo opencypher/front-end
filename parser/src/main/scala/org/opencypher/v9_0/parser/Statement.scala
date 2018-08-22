@@ -32,7 +32,7 @@ trait Statement extends Parser
   )
 
   def CatalogCommand: Rule1[CatalogDDL] = rule("Catalog DDL statement") {
-    CreateGraph | DropGraph
+    CreateGraph | DropGraph | CreateView | DropView
   }
 
   def CreateGraph = rule("CATALOG CREATE GRAPH") {
@@ -43,5 +43,15 @@ trait Statement extends Parser
 
   def DropGraph = rule("CATALOG DROP GRAPH") {
     group(keyword("CATALOG DROP GRAPH") ~~ QualifiedGraphName) ~~>> (ast.DropGraph(_))
+  }
+
+  def CreateView = rule("CATALOG CREATE VIEW") {
+  group((keyword("CATALOG CREATE VIEW") | keyword("CATALOG CREATE QUERY")) ~~ QualifiedGraphName ~~ "{" ~~
+      RegularQuery ~~
+      "}") ~~>> (ast.CreateView(_, _))
+  }
+
+  def DropView = rule("CATALOG DROP VIEW") {
+    group((keyword("CATALOG DROP VIEW") | keyword("CATALOG DROP QUERY")) ~~ QualifiedGraphName) ~~>> (ast.DropView(_))
   }
 }

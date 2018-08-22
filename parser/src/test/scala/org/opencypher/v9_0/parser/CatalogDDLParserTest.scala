@@ -24,8 +24,9 @@ class CatalogDDLParserTest
 
   implicit val parser: Rule1[ast.Statement] = Statement
 
-  val singleQuery = ast.SingleQuery(Seq(ast.ConstructGraph()(pos)))(pos)
+  private val singleQuery = ast.SingleQuery(Seq(ast.ConstructGraph()(pos)))(pos)
   private val returnGraph: ReturnGraph = ast.ReturnGraph(None)(pos)
+  private val returnQuery = ast.SingleQuery(Seq(returnGraph))(pos)
 
   test("CATALOG CREATE GRAPH foo.bar { RETURN GRAPH }") {
     val query = ast.SingleQuery(Seq(returnGraph))(pos)
@@ -105,5 +106,29 @@ class CatalogDDLParserTest
   // missing graph name; doesn't fail because it's a valid query if GRAPH is a variable
   ignore("CATALOG DROP GRAPH") {
     failsToParse
+  }
+
+  test("CATALOG CREATE VIEW viewName { RETURN GRAPH }") {
+    val graphName = ast.QualifiedGraphName("viewName")
+
+    yields(ast.CreateView(graphName, returnQuery))
+  }
+
+  test("CATALOG CREATE QUERY viewName { RETURN GRAPH }") {
+    val graphName = ast.QualifiedGraphName("viewName")
+
+    yields(ast.CreateView(graphName, returnQuery))
+  }
+
+  test("CATALOG DROP VIEW viewName") {
+    val graphName = ast.QualifiedGraphName("viewName")
+
+    yields(ast.DropView(graphName))
+  }
+
+  test("CATALOG DROP QUERY viewName") {
+    val graphName = ast.QualifiedGraphName("viewName")
+
+    yields(ast.DropView(graphName))
   }
 }
