@@ -29,7 +29,6 @@ sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
 }
 
 object CreateGraph {
-  // Ignore the periodicCommitHint
   def apply(graphName: QualifiedGraphName, query: Query)(position: InputPosition): CreateGraph =
     CreateGraph(graphName, query.part)(position)
 }
@@ -52,4 +51,20 @@ final case class DropGraph(graphName: QualifiedGraphName)(val position: InputPos
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
+}
+
+object CreateView {
+  def apply(graphName: QualifiedGraphName, query: Query)(position: InputPosition): CreateView =
+    CreateView(graphName, query.part)(position)
+}
+
+final case class CreateView(graphName: QualifiedGraphName, query: QueryPart)
+  (val position: InputPosition) extends CatalogDDL {
+
+  override def name = "CATALOG CREATE VIEW/QUERY"
+
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      SemanticState.recordCurrentScope(this) chain
+      query.semanticCheck
 }
