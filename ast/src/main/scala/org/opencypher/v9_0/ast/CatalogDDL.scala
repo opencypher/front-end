@@ -68,3 +68,12 @@ final case class CreateView(graphName: QualifiedGraphName, query: QueryPart)
       SemanticState.recordCurrentScope(this) chain
       query.semanticCheck
 }
+
+final case class DropView(graphName: QualifiedGraphName)(val position: InputPosition) extends CatalogDDL {
+
+  override def name = "CATALOG DROP VIEW/QUERY"
+
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      SemanticState.recordCurrentScope(this)
+}

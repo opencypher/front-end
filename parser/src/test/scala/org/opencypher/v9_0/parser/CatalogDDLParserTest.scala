@@ -119,4 +119,16 @@ class CatalogDDLParserTest
 
     yields(ast.CreateView(graphName, returnQuery))
   }
+
+  test("CATALOG DROP VIEW viewName") {
+    val graphName = ast.QualifiedGraphName("viewName")
+
+    yields(ast.DropView(graphName))
+  }
+
+  test("CATALOG DROP QUERY viewName") {
+    val graphName = ast.QualifiedGraphName("viewName")
+
+    yields(ast.DropView(graphName))
+  }
 }
