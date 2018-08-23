@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.expressions._
@@ -24,11 +23,23 @@ import org.opencypher.v9_0.expressions.functions.Exists
 
 class NormalizeSargablePredicatesTest extends CypherFunSuite with AstConstructionTestSupport {
 
-  test("a.prop IS NOT NULL rewritten to: exists(a.prop)") {
+  /*
+  Test asserts that unsafe rewrite is not performed.
+  Because IS NULL & IS NOT NULL are binary operators, whereas Exists is ternary, this rewrite is only safe when the node is not nullable.
+  Nullability information is not yet available at time of AST rewriting:
+     >          MATCH (n) WHERE n.foo IS NOT NULL RETURN n
+     >          MATCH (n) WHERE exists(n.foo)     RETURN n
+     > OPTIONAL MATCH (n) WHERE n.foo IS NOT NULL RETURN n
+     > OPTIONAL MATCH (n) WHERE exists(n.foo)     RETURN n     <---- unsafe
+   In the OPTIONAL MATCH case when n is null:
+     > n IS NOT NULL  ==>  false
+     > exists(n.foo)  ==>  null
+       > null.foo     == null
+       > exists(null) == null
+  */  test("a.prop IS NOT NULL should not be rewritten to: exists(a.prop)") {
     val input: Expression = IsNotNull(Property(varFor("a"), PropertyKeyName("prop")_)_)_
-    val output: Expression = Exists.asInvocation(Property(varFor("a"), PropertyKeyName("prop")_)_)(pos)
 
-    normalizeSargablePredicates(input) should equal(output)
+    normalizeSargablePredicates(input) should equal(input)
   }
 
   test("exists(a.prop) is not rewritten") {
