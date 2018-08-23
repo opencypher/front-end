@@ -5,7 +5,7 @@
 
   <groupId>org.opencypher</groupId>
   <artifactId>licensing-config</artifactId>
-  <version>9.0.7-SNAPSHOT</version>
+  <version>9.0.8-SNAPSHOT</version>
   <name>openCypher Front End Licensing Configuration</name>
   <description>Config for licensing checks of the front end modules</description>
 
