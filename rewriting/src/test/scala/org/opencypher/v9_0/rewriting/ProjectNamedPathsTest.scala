@@ -18,7 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_0.ast.{Where, _}
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.rewriting.rewriters.{expandStar, normalizeReturnClauses, normalizeWithClauses, projectNamedPaths}
+import org.opencypher.v9_0.rewriting.rewriters.{expandStar, normalizeWithAndReturnClauses, projectNamedPaths}
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -29,7 +29,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
   private def ast(queryText: String) = {
     val parsed = parser.parse(queryText)
     val mkException = new SyntaxExceptionCreator(queryText, Some(pos))
-    val normalized = parsed.endoRewrite(inSequence(normalizeReturnClauses(mkException), normalizeWithClauses(mkException)))
+    val normalized = parsed.endoRewrite(inSequence(normalizeWithAndReturnClauses(mkException)))
     val checkResult = normalized.semanticCheck(SemanticState.clean)
     normalized.endoRewrite(inSequence(expandStar(checkResult.state)))
   }
@@ -197,8 +197,6 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
     val rewritten = projectionInlinedAst("MATCH p = (a)-[r]->(b) RETURN p, 42 as order ORDER BY order")
 
     val aId = Variable("a")(pos)
-    val fresh30: Variable = Variable("  FRESHID30")(pos)
-    val fresh33: Variable = Variable("  FRESHID33")(pos)
     val orderId: Variable = Variable("order")(pos)
     val rId = Variable("r")(pos)
     val pId = Variable("p")(pos)
@@ -214,27 +212,17 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
             )(pos))
         ))(pos), List(), None)(pos)
 
-    val WITH =
-      With(distinct = false,
-        ReturnItems(includeExisting = false, Seq(
-          AliasedReturnItem(PathExpression(NodePathStep(aId, SingleRelationshipPathStep(rId, SemanticDirection.OUTGOING, NilPathStep)))(pos), fresh30)(pos),
-          AliasedReturnItem(SignedDecimalIntegerLiteral("42")(pos), fresh33)(pos)
-        ))(pos),
-        Some(OrderBy(List(AscSortItem(fresh33)(pos)))(pos)),
-        None, None, None
-      )(pos)
-
-
     val RETURN =
       Return(distinct = false,
-        ReturnItems(includeExisting = false, List(
-          AliasedReturnItem(fresh30, pId)(pos),
-          AliasedReturnItem(fresh33, orderId)(pos)
+        ReturnItems(includeExisting = false, Seq(
+          AliasedReturnItem(PathExpression(NodePathStep(aId, SingleRelationshipPathStep(rId, SemanticDirection.OUTGOING, NilPathStep)))(pos), pId)(pos),
+          AliasedReturnItem(SignedDecimalIntegerLiteral("42")(pos), orderId)(pos)
         ))(pos),
-        None, None, None
+        Some(OrderBy(List(AscSortItem(orderId)(pos)))(pos)),
+        None, None
       )(pos)
 
-    val expected: Query = Query(None, SingleQuery(List(MATCH, WITH, RETURN))(pos))(pos)
+    val expected: Query = Query(None, SingleQuery(List(MATCH, RETURN))(pos))(pos)
 
     rewritten should equal(expected)
   }

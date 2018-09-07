@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.SyntaxExceptionCreator
 import org.opencypher.v9_0.frontend.phases.{Monitors, isolateAggregation}
 import org.opencypher.v9_0.rewriting.RewriteTest
-import org.opencypher.v9_0.rewriting.rewriters.{normalizeReturnClauses, normalizeWithClauses}
+import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -222,6 +222,6 @@ class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstCon
 
   override protected def parseForRewriting(queryText: String) = {
     val mkException = new SyntaxExceptionCreator(queryText, Some(pos))
-    super.parseForRewriting(queryText).endoRewrite(inSequence(normalizeReturnClauses(mkException), normalizeWithClauses(mkException)))
+    super.parseForRewriting(queryText).endoRewrite(inSequence(normalizeWithAndReturnClauses(mkException)))
   }
 }
