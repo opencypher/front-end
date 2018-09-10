@@ -46,9 +46,10 @@ trait Statement extends Parser
   }
 
   def CreateView = rule("CATALOG CREATE VIEW") {
-  group((keyword("CATALOG CREATE VIEW") | keyword("CATALOG CREATE QUERY")) ~~ CatalogName ~~ "{" ~~
+    group((keyword("CATALOG CREATE VIEW") | keyword("CATALOG CREATE QUERY")) ~~
+      CatalogName ~~ optional("(" ~~ zeroOrMore(Parameter, separator = CommaSep) ~~ ")") ~~ "{" ~~
       RegularQuery ~~
-      "}") ~~>> (ast.CreateView(_, _))
+      "}") ~~>> ((name, params, query) => ast.CreateView(name, params.getOrElse(Seq.empty), query))
   }
 
   def DropView = rule("CATALOG DROP VIEW") {

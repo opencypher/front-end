@@ -15,8 +15,11 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticState}
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult._
+import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticCheckResult, SemanticState}
+import org.opencypher.v9_0.expressions.{GraphReference, Parameter}
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.symbols._
 
 
 sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
@@ -34,7 +37,7 @@ object CreateGraph {
 }
 
 final case class CreateGraph(graphName: CatalogName, query: QueryPart)
-                            (val position: InputPosition) extends CatalogDDL {
+  (val position: InputPosition) extends CatalogDDL {
 
   override def name = "CATALOG CREATE GRAPH"
 
@@ -54,11 +57,11 @@ final case class DropGraph(graphName: CatalogName)(val position: InputPosition) 
 }
 
 object CreateView {
-  def apply(graphName: CatalogName, query: Query)(position: InputPosition): CreateView =
-    CreateView(graphName, query.part)(position)
+  def apply(graphName: CatalogName, params: Seq[Parameter], query: Query)(position: InputPosition): CreateView =
+    CreateView(graphName, params, query.part)(position)
 }
 
-final case class CreateView(graphName: CatalogName, query: QueryPart)
+final case class CreateView(graphName: CatalogName, params: Seq[Parameter], query: QueryPart)
   (val position: InputPosition) extends CatalogDDL {
 
   override def name = "CATALOG CREATE VIEW/QUERY"
@@ -66,7 +69,18 @@ final case class CreateView(graphName: CatalogName, query: QueryPart)
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this) chain
+      recordGraphParameters chain
       query.semanticCheck
+
+  private def recordGraphParameters(state: SemanticState): SemanticCheckResult = {
+    params.foldLeft(success(state): SemanticCheckResult) { case (SemanticCheckResult(s, errors), p) =>
+      s.declareVariable(GraphReference(p.name)(position), CTGraphRef) match {
+        case Right(updatedState) => success(updatedState)
+        case Left(semanticError) => SemanticCheckResult(s, errors :+ semanticError)
+      }
+    }
+  }
+
 }
 
 final case class DropView(graphName: CatalogName)(val position: InputPosition) extends CatalogDDL {

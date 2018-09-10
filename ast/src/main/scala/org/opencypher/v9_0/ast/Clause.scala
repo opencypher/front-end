@@ -78,7 +78,14 @@ trait FromGraph extends MultipleGraphClause {
 
   override def name = "FROM GRAPH"
 
-  def graphName: CatalogName
+}
+
+final case class GraphByParameter(parameter: Parameter)(val position: InputPosition) extends FromGraph {
+
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      ensureDefined(GraphReference(parameter.name)(position)) chain
+      SemanticState.recordCurrentScope(this)
 
 }
 
@@ -88,7 +95,8 @@ final case class GraphLookup(graphName: CatalogName)(val position: InputPosition
     super.semanticCheck chain SemanticState.recordCurrentScope(this)
 }
 
-final case class ViewInvocation(graphName: CatalogName, params: Seq[FromGraph])(val position: InputPosition) extends FromGraph {
+final case class ViewInvocation(graphName: CatalogName, params: Seq[FromGraph])
+  (val position: InputPosition) extends FromGraph {
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -96,7 +104,8 @@ final case class ViewInvocation(graphName: CatalogName, params: Seq[FromGraph])(
       SemanticState.recordCurrentScope(this)
 }
 
-final case class Clone(items: List[ReturnItem])(val position: InputPosition) extends MultipleGraphClause with SemanticAnalysisTooling {
+final case class Clone(items: List[ReturnItem])
+  (val position: InputPosition) extends MultipleGraphClause with SemanticAnalysisTooling {
 
   override def name: String = "CLONE"
 
@@ -113,7 +122,8 @@ final case class Clone(items: List[ReturnItem])(val position: InputPosition) ext
   }
 }
 
-case class CreateInConstruct(pattern: Pattern)(val position: InputPosition) extends MultipleGraphClause with SingleRelTypeCheck {
+case class CreateInConstruct(pattern: Pattern)
+  (val position: InputPosition) extends MultipleGraphClause with SingleRelTypeCheck {
 
   override def name = "CREATE"
 
@@ -230,10 +240,10 @@ final case class ConstructGraph(
 
       case RelationshipChain(e, rel, node) =>
         val checks = checkModificationOfClonedEntities(e) chain checkModificationOfClonedEntities(node) chain (
-          if (rel.variable.isDefined && state.symbol(rel.variable.get.name).isDefined && (rel.types.nonEmpty || rel.properties.isDefined)) {
-            error("Modification of a cloned relationship is not allowed. Use COPY OF to manipulate the relationship", rel.position)
-          } else success
-          )
+                                                                                                              if (rel.variable.isDefined && state.symbol(rel.variable.get.name).isDefined && (rel.types.nonEmpty || rel.properties.isDefined)) {
+                                                                                                                error("Modification of a cloned relationship is not allowed. Use COPY OF to manipulate the relationship", rel.position)
+                                                                                                              } else success
+                                                                                                              )
         checks(state)
 
       case _ => success(state)

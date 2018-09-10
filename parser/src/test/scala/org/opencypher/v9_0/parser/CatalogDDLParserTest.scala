@@ -15,12 +15,14 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.{AstConstructionTestSupport, CatalogName, ReturnGraph}
+import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala.Rule1
 
 class CatalogDDLParserTest
   extends ParserAstTest[ast.Statement] with Statement with AstConstructionTestSupport {
+
 
   implicit val parser: Rule1[ast.Statement] = Statement
 
@@ -111,13 +113,28 @@ class CatalogDDLParserTest
   test("CATALOG CREATE VIEW viewName { RETURN GRAPH }") {
     val graphName = ast.CatalogName("viewName")
 
-    yields(ast.CreateView(graphName, returnQuery))
+    yields(ast.CreateView(graphName, Seq.empty, returnQuery))
   }
 
   test("CATALOG CREATE QUERY viewName { RETURN GRAPH }") {
     val graphName = ast.CatalogName("viewName")
 
-    yields(ast.CreateView(graphName, returnQuery))
+    yields(ast.CreateView(graphName, Seq.empty, returnQuery))
+  }
+
+  test("CATALOG CREATE VIEW foo.bar($graph1, $graph2) { FROM $graph1 RETURN GRAPH }") {
+    val query = ast.SingleQuery(Seq(ast.GraphByParameter(exp.Parameter("graph1", CTAny)(pos))(pos),  returnGraph))(pos)
+    val graphName = ast.CatalogName("foo", List("bar"))
+    val params = Seq(exp.Parameter("graph1", CTAny)(pos), exp.Parameter("graph2", CTAny)(pos))
+
+    yields(ast.CreateView(graphName, params, query))
+  }
+
+  test("CATALOG CREATE VIEW foo.bar() { RETURN GRAPH }") {
+    val query = ast.SingleQuery(Seq(returnGraph))(pos)
+    val graphName = ast.CatalogName("foo", List("bar"))
+
+    yields(ast.CreateView(graphName, Seq.empty, query))
   }
 
   test("CATALOG DROP VIEW viewName") {

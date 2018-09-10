@@ -17,6 +17,16 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
 
+case class GraphReference(name: String)(val position: InputPosition) extends LogicalVariable {
+
+  override def copyId: GraphReference = copy()(position)
+
+  override def renameId(newName: String): GraphReference = copy(name = newName)(position)
+
+  override def bumpId: GraphReference = copy()(position.bumped())
+
+}
+
 case class Variable(name: String)(val position: InputPosition) extends LogicalVariable {
 
   override def copyId: Variable = copy()(position)

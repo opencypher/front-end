@@ -40,12 +40,16 @@ trait Clauses extends Parser
   }
 
   def FromGraph: Rule1[ast.FromGraph]= rule("FROM GRAPH") {
-    group(keyword("FROM") ~~ optional(keyword("GRAPH"))) ~~ GraphOrView
+    group(keyword("FROM") ~~ optional(keyword("GRAPH"))) ~~ (GraphOrView | GraphByParameter)
   }
 
   def GraphOrView: Rule1[ast.FromGraph] = rule("parameterised or direct graph reference") {
     ViewInvocation ~~>> (ast.ViewInvocation(_, _)) |
       CatalogName ~~>> (ast.GraphLookup(_))
+  }
+
+  def GraphByParameter = rule("graph by parameter for view definitions") {
+    Parameter ~~>> (ast.GraphByParameter(_))
   }
 
   def ViewInvocation = rule("parameterised FROM GRAPH") {
