@@ -25,11 +25,7 @@ import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with RewritePhaseTest  {
-
-  override def rewriterPhaseUnderTest: Phase[BaseContext, BaseState, BaseState] = Namespacer
-
-  case class TestCase(query: String, rewrittenQuery: String, semanticTableExpressions: List[Expression])
+class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with RewritePhaseTest {
 
   val tests = Seq(
     TestCase(
@@ -131,8 +127,31 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
         varFor("  video@34"),
         Property(varFor("  video@34"), PropertyKeyName("key")(pos))(pos)
       )
+    ),
+    TestCase(
+      """WITH [1,2,3] AS nums
+        |RETURN reduce(weight=0, num IN nums | weight + num) AS weight
+        |ORDER BY weight DESC""".stripMargin,
+      """WITH [1,2,3] AS nums
+        |RETURN reduce(`  weight@35`=0, num IN nums | `  weight@35` + num ) AS weight
+        |ORDER BY weight DESC""".stripMargin,
+      List(varFor("  weight@35"))
+    ),
+    TestCase(
+      "WITH 1 AS foo FOREACH (foo IN [1,2,3] | CREATE (c)) RETURN foo as bar ORDER BY foo",
+      "WITH 1 AS `  foo@10` FOREACH (`  foo@23` IN [1,2,3] | CREATE (c)) RETURN `  foo@10` as bar ORDER BY `  foo@10`",
+      List(varFor("  foo@10"), varFor("  foo@23"))
+    ),
+    TestCase(
+      "WITH 1 AS foo FOREACH (bar IN [1,2,3] | CREATE (c)) RETURN foo as bar ORDER BY bar",
+      "WITH 1 AS foo FOREACH (`  bar@23` IN [1,2,3] | CREATE (c)) RETURN foo as bar ORDER BY bar",
+      List(varFor("  bar@23"))
     )
   )
+
+  override def rewriterPhaseUnderTest: Phase[BaseContext, BaseState, BaseState] = Namespacer
+
+  case class TestCase(query: String, rewrittenQuery: String, semanticTableExpressions: List[Expression])
 
   tests.foreach {
     case TestCase(q, rewritten, semanticTableExpressions) =>

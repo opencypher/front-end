@@ -15,12 +15,20 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.ast.{Statement, _}
-import org.opencypher.v9_0.ast.semantics.{Scope, SemanticTable, SymbolUse}
-import org.opencypher.v9_0.expressions.{LogicalVariable, ProcedureOutput, Variable}
+import org.opencypher.v9_0.ast.semantics.Scope
+import org.opencypher.v9_0.ast.semantics.SemanticTable
+import org.opencypher.v9_0.ast.semantics.SymbolUse
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.ProcedureOutput
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
-import org.opencypher.v9_0.util.{Ref, Rewriter, bottomUp, inSequence}
+import org.opencypher.v9_0.util.Ref
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.inSequence
 
 object Namespacer extends Phase[BaseContext, BaseState, BaseState] {
   type VariableRenamings = Map[Ref[Variable], Variable]
@@ -32,7 +40,7 @@ object Namespacer extends Phase[BaseContext, BaseState, BaseState] {
   override def process(from: BaseState, ignored: BaseContext): BaseState = {
     val ambiguousNames = shadowedNames(from.semantics().scopeTree)
     val variableDefinitions: Map[SymbolUse, SymbolUse] = from.semantics().scopeTree.allVariableDefinitions
-    val protectedVariables = returnAliases(from.statement())
+    val protectedVariables = protectedVarsInStatement(from.statement())
     val renamings = variableRenamings(from.statement(), variableDefinitions, ambiguousNames, protectedVariables)
 
     val rewriter = renamingRewriter(renamings)
@@ -53,16 +61,23 @@ object Namespacer extends Phase[BaseContext, BaseState, BaseState] {
     }.toSet
   }
 
-  private def returnAliases(statement: Statement): Set[Ref[LogicalVariable]] =
+  private def protectedVarsInStatement(statement: Statement): Set[Ref[LogicalVariable]] =
     statement.treeFold(Set.empty[Ref[LogicalVariable]]) {
 
       case _: With =>
         acc => (acc, Some(identity))
 
-      // ignore variable in StartItem that represents index names and key names
-      case Return(_, ReturnItems(_, items), _, _, _, _) =>
-        val variables = items.map(_.alias.map(Ref[LogicalVariable]).get)
-        acc => (acc ++ variables, Some(identity))
+      case Return(_, ReturnItems(_, items), orderBy, _, _, _) =>
+        val variablesInReturn = items.map(_.alias.get)
+        val refVars = variablesInReturn.map(Ref[LogicalVariable])
+        // If the order by refers to the alias introduced in the return, it is also protected
+        val protectedVariablesInOrderBy = orderBy.map(_.sortItems
+          .map(_.expression)
+          .filter(variablesInReturn.contains)
+          .map(_.asInstanceOf[LogicalVariable])
+          .map(Ref[LogicalVariable])
+        ).getOrElse(Seq.empty)
+        acc => (acc ++ refVars ++ protectedVariablesInOrderBy, Some(identity))
     }
 
   private def variableRenamings(statement: Statement, variableDefinitions: Map[SymbolUse, SymbolUse],
