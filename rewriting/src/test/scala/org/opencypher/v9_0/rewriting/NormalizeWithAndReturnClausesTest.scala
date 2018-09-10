@@ -178,6 +178,67 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
       """.stripMargin)
   }
 
+  test("WITH: does not rename variables for ORDER BY from RHS of AS, if they also exist on LHS of AS") {
+    assertIsNotRewritten(
+      """MATCH (x), (y)
+        |WITH x AS y, y as z
+        |ORDER BY y
+        |RETURN y AS y, z AS z
+        |""".stripMargin)
+  }
+
+  test("RETURN: does not rename variables for ORDER BY from RHS of AS, if they also exist on LHS of AS") {
+    assertIsNotRewritten(
+      """MATCH (x), (y)
+        |RETURN x AS y, y as z
+        |ORDER BY y
+        |""".stripMargin)
+  }
+
+  test("WITH: does not rename variables for ORDER BY from RHS of AS, if they also exist on LHS of AS. Expression in ORDER BY.") {
+    assertIsNotRewritten(
+      """MATCH (x), (y)
+        |WITH x AS y, y as z
+        |ORDER BY foo(y)
+        |RETURN y AS y, z AS z
+        |""".stripMargin)
+  }
+
+  test("RETURN: does not rename variables for ORDER BY from RHS of AS, if they also exist on LHS of AS. Expression in ORDER BY.") {
+    assertIsNotRewritten(
+      """MATCH (x), (y)
+        |RETURN x AS y, y as z
+        |ORDER BY foo(y)
+        |""".stripMargin)
+  }
+
+  test("WITH: renames variables for ORDER BY from LHS of AS, if the RHS also exist on LHS of another AS") {
+    assertRewrite(
+      """MATCH (x), (y)
+        |WITH x AS y, y as z
+        |ORDER BY x
+        |RETURN y AS y, z AS z
+        |""".stripMargin,
+
+      """MATCH (x), (y)
+        |WITH x AS y, y as z
+        |ORDER BY y
+        |RETURN y AS y, z AS z
+        |""".stripMargin)
+  }
+
+  test("RETURN: renames variables for ORDER BY from LHS of AS, if the RHS also exist on LHS of another AS") {
+    assertRewrite(
+      """MATCH (x), (y)
+        |RETURN x AS y, y as z
+        |ORDER BY x
+        |""".stripMargin,
+      """MATCH (x), (y)
+        |RETURN x AS y, y as z
+        |ORDER BY y
+        |""".stripMargin)
+  }
+
   test("renames variables for WHERE expressions that depend on existing aliases") {
     assertRewrite(
       """UNWIND [true] as n

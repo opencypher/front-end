@@ -125,13 +125,15 @@ case class normalizeWithAndReturnClauses(mkException: (String, InputPosition) =>
     */
   private def aliasExpression(existingAliases: Map[Expression, LogicalVariable], expression: Expression): Expression = {
     existingAliases.get(expression) match {
-      case Some(alias) =>
+      case Some(alias) if !existingAliases.valuesIterator.contains(expression) =>
         alias.copyId
-
-      case None =>
+      case _ =>
         val newExpression = expression.endoRewrite(topDown(Rewriter.lift {
           case subExpression: Expression =>
-            existingAliases.get(subExpression).map(_.copyId).getOrElse(subExpression)
+            existingAliases.get(subExpression) match {
+              case Some(subAlias) if !existingAliases.valuesIterator.contains(subExpression) => subAlias.copyId
+              case _ => subExpression
+            }
         }))
         newExpression
     }
