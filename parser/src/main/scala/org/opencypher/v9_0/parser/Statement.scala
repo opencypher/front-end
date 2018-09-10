@@ -36,22 +36,22 @@ trait Statement extends Parser
   }
 
   def CreateGraph = rule("CATALOG CREATE GRAPH") {
-    group(keyword("CATALOG CREATE GRAPH") ~~ QualifiedGraphName ~~ "{" ~~
+    group(keyword("CATALOG CREATE GRAPH") ~~ CatalogName ~~ "{" ~~
       RegularQuery ~~
       "}") ~~>> (ast.CreateGraph(_, _))
   }
 
   def DropGraph = rule("CATALOG DROP GRAPH") {
-    group(keyword("CATALOG DROP GRAPH") ~~ QualifiedGraphName) ~~>> (ast.DropGraph(_))
+    group(keyword("CATALOG DROP GRAPH") ~~ CatalogName) ~~>> (ast.DropGraph(_))
   }
 
   def CreateView = rule("CATALOG CREATE VIEW") {
-  group((keyword("CATALOG CREATE VIEW") | keyword("CATALOG CREATE QUERY")) ~~ QualifiedGraphName ~~ "{" ~~
+  group((keyword("CATALOG CREATE VIEW") | keyword("CATALOG CREATE QUERY")) ~~ CatalogName ~~ "{" ~~
       RegularQuery ~~
       "}") ~~>> (ast.CreateView(_, _))
   }
 
   def DropView = rule("CATALOG DROP VIEW") {
-    group((keyword("CATALOG DROP VIEW") | keyword("CATALOG DROP QUERY")) ~~ QualifiedGraphName) ~~>> (ast.DropView(_))
+    group((keyword("CATALOG DROP VIEW") | keyword("CATALOG DROP QUERY")) ~~ CatalogName) ~~>> (ast.DropView(_))
   }
 }

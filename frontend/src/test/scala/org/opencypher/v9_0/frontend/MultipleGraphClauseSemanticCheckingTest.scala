@@ -46,6 +46,18 @@ class MultipleGraphClauseSemanticCheckingTest
     }
   }
 
+  test("from parameterised views") {
+    parsing(
+      """FROM GRAPH foo.bar(myView(grok.baz), a)
+        |MATCH (a:A)
+        |CONSTRUCT
+        |  CREATE (a)-[:T]->(:B)
+        |RETURN GRAPH""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errors shouldBe empty
+    }
+  }
+
   test("allows both versions of FROM") {
     parsing(
       """FROM foo.bar

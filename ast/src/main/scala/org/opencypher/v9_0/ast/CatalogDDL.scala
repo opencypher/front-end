@@ -29,11 +29,11 @@ sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
 }
 
 object CreateGraph {
-  def apply(graphName: QualifiedGraphName, query: Query)(position: InputPosition): CreateGraph =
+  def apply(graphName: CatalogName, query: Query)(position: InputPosition): CreateGraph =
     CreateGraph(graphName, query.part)(position)
 }
 
-final case class CreateGraph(graphName: QualifiedGraphName, query: QueryPart)
+final case class CreateGraph(graphName: CatalogName, query: QueryPart)
                             (val position: InputPosition) extends CatalogDDL {
 
   override def name = "CATALOG CREATE GRAPH"
@@ -44,7 +44,7 @@ final case class CreateGraph(graphName: QualifiedGraphName, query: QueryPart)
       query.semanticCheck
 }
 
-final case class DropGraph(graphName: QualifiedGraphName)(val position: InputPosition) extends CatalogDDL {
+final case class DropGraph(graphName: CatalogName)(val position: InputPosition) extends CatalogDDL {
 
   override def name = "CATALOG DROP GRAPH"
 
@@ -54,11 +54,11 @@ final case class DropGraph(graphName: QualifiedGraphName)(val position: InputPos
 }
 
 object CreateView {
-  def apply(graphName: QualifiedGraphName, query: Query)(position: InputPosition): CreateView =
+  def apply(graphName: CatalogName, query: Query)(position: InputPosition): CreateView =
     CreateView(graphName, query.part)(position)
 }
 
-final case class CreateView(graphName: QualifiedGraphName, query: QueryPart)
+final case class CreateView(graphName: CatalogName, query: QueryPart)
   (val position: InputPosition) extends CatalogDDL {
 
   override def name = "CATALOG CREATE VIEW/QUERY"
@@ -69,7 +69,7 @@ final case class CreateView(graphName: QualifiedGraphName, query: QueryPart)
       query.semanticCheck
 }
 
-final case class DropView(graphName: QualifiedGraphName)(val position: InputPosition) extends CatalogDDL {
+final case class DropView(graphName: CatalogName)(val position: InputPosition) extends CatalogDDL {
 
   override def name = "CATALOG DROP VIEW/QUERY"
 

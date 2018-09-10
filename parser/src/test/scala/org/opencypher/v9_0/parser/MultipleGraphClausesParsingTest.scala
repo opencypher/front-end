@@ -32,12 +32,8 @@ class MultipleGraphClausesParsingTest
 
   implicit val parser: Rule1[Clause] = Clause
 
-  val fooBarGraph = ast.QualifiedGraphName(List("foo", "bar"))
-  val fooDiffGraph = ast.QualifiedGraphName(List("foo", "diff"))
-
-  test("FROM GRAPH foo.bar") {
-    yields(ast.FromGraph(fooBarGraph))
-  }
+  val fooBarGraph = ast.CatalogName(List("foo", "bar"))
+  val fooDiffGraph = ast.CatalogName(List("foo", "diff"))
 
   test("CONSTRUCT CREATE ()") {
     val patternParts = List(exp.EveryPath(exp.NodePattern(None,List(),None)(pos)))
@@ -180,13 +176,13 @@ class MultipleGraphClausesParsingTest
   }
 
   test("CONSTRUCT ON foo.bar") {
-    yields(ast.ConstructGraph(on = List(ast.QualifiedGraphName("foo", List("bar")))))
+    yields(ast.ConstructGraph(on = List(ast.CatalogName("foo", List("bar")))))
   }
 
   test("CONSTRUCT ON foo.bar, baz.boz") {
     yields(ast.ConstructGraph(on = List(
-      ast.QualifiedGraphName("foo", List("bar")),
-      ast.QualifiedGraphName("baz", List("boz"))
+      ast.CatalogName("foo", List("bar")),
+      ast.CatalogName("baz", List("boz"))
     )))
   }
 
@@ -200,60 +196,88 @@ class MultipleGraphClausesParsingTest
 
   // TODO: Parsing ambiguity; is it a graph name 'union' or no graph name and a UNION clause?
   ignore("RETURN GRAPH union") {
-    yields(ast.ReturnGraph(Some(ast.QualifiedGraphName("union"))))
+    yields(ast.ReturnGraph(Some(ast.CatalogName("union"))))
   }
 
   // TODO: Causes parser to fail with its unhelpful error message
   ignore("FROM graph") {
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("graph"))))
+  }
+
+  test("FROM GRAPH foo.bar") {
+    yields(ast.GraphLookup(fooBarGraph))
+  }
+
+  test("FROM GRAPH foo()") {
+    yields(ast.ViewInvocation(ast.CatalogName("foo"), Seq.empty))
+  }
+
+  test("FROM GRAPH foo   (    )") {
+    yields(ast.ViewInvocation(ast.CatalogName("foo"), Seq.empty))
+  }
+
+  test("FROM GRAPH foo.bar(baz(grok))") {
+    yields(ast.ViewInvocation(fooBarGraph, Seq(ast.ViewInvocation(ast.CatalogName("baz"), Seq(ast.GraphLookup(ast.CatalogName("grok"))(pos)))(pos))))
+  }
+
+  test("FROM GRAPH foo. bar   (baz  (grok   )  )") {
+    yields(ast.ViewInvocation(fooBarGraph, Seq(ast.ViewInvocation(ast.CatalogName("baz"), Seq(ast.GraphLookup(ast.CatalogName("grok"))(pos)))(pos))))
+  }
+
+  test("FROM GRAPH foo.bar(baz(grok), another.name)") {
+    yields(ast.ViewInvocation(fooBarGraph, Seq(ast.ViewInvocation(ast.CatalogName("baz"), Seq(ast.GraphLookup(ast.CatalogName("grok"))(pos)))(pos), ast.GraphLookup(ast.CatalogName("another", "name"))(pos))))
+  }
+
+  test("FROM foo.bar(baz(grok), another.name)") {
+    yields(ast.ViewInvocation(fooBarGraph, Seq(ast.ViewInvocation(ast.CatalogName("baz"), Seq(ast.GraphLookup(ast.CatalogName("grok"))(pos)))(pos), ast.GraphLookup(ast.CatalogName("another", "name"))(pos))))
   }
 
   test("FROM GRAPH graph") {
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("graph"))))
   }
 
   test("FROM `graph`") {
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("graph"))))
   }
 
   test("FROM GRAPH `foo.bar.baz.baz`"){
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar.baz.baz"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("foo.bar.baz.baz"))))
   }
 
   test("FROM graph1"){
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("graph1"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("graph1"))))
   }
 
   test("FROM `foo.bar.baz.baz`"){
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar.baz.baz"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("foo.bar.baz.baz"))))
   }
 
   test("FROM GRAPH `foo.bar`.baz"){
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar", "baz"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("foo.bar", "baz"))))
   }
 
   test("FROM GRAPH foo.`bar.baz`"){
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo", "bar.baz"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("foo", "bar.baz"))))
   }
 
   test("FROM GRAPH `foo.bar`.`baz.baz`"){
-    yields(ast.FromGraph(ast.QualifiedGraphName(List("foo.bar", "baz.baz"))))
+    yields(ast.GraphLookup(ast.CatalogName(List("foo.bar", "baz.baz"))))
   }
 
   test("CONSTRUCT ON `foo.bar.baz.baz`"){
-    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo.bar.baz.baz")))))
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.CatalogName(List("foo.bar.baz.baz")))))
   }
 
   test("CONSTRUCT ON `foo.bar`.baz"){
-    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo.bar", "baz")))))
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.CatalogName(List("foo.bar", "baz")))))
   }
 
   test("CONSTRUCT ON foo.`bar.baz`"){
-    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo", "bar.baz")))))
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.CatalogName(List("foo", "bar.baz")))))
   }
 
   test("CONSTRUCT ON `foo.bar`.`baz.baz`"){
-    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.QualifiedGraphName(List("foo.bar", "baz.baz")))))
+    yields(ast.ConstructGraph(List.empty, List.empty, List(ast.CatalogName(List("foo.bar", "baz.baz")))))
   }
 
 

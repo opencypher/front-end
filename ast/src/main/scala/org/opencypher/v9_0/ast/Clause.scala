@@ -74,12 +74,26 @@ sealed trait MultipleGraphClause extends Clause with SemanticAnalysisTooling {
     requireMultigraphSupport(s"The `$name` clause", position)
 }
 
-final case class FromGraph(graphName: QualifiedGraphName)(val position: InputPosition) extends MultipleGraphClause {
+trait FromGraph extends MultipleGraphClause {
 
   override def name = "FROM GRAPH"
 
+  def graphName: CatalogName
+
+}
+
+final case class GraphLookup(graphName: CatalogName)(val position: InputPosition) extends FromGraph {
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain SemanticState.recordCurrentScope(this)
+}
+
+final case class ViewInvocation(graphName: CatalogName, params: Seq[FromGraph])(val position: InputPosition) extends FromGraph {
+
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      params.semanticCheck chain
+      SemanticState.recordCurrentScope(this)
 }
 
 final case class Clone(items: List[ReturnItem])(val position: InputPosition) extends MultipleGraphClause with SemanticAnalysisTooling {
@@ -172,7 +186,7 @@ trait SingleRelTypeCheck {
 final case class ConstructGraph(
   clones: List[Clone] = List.empty,
   news: List[CreateInConstruct] = List.empty,
-  on: List[QualifiedGraphName] = List.empty,
+  on: List[CatalogName] = List.empty,
   sets: List[SetClause] = List.empty
 )(val position: InputPosition) extends MultipleGraphClause {
 
@@ -255,7 +269,7 @@ final case class ConstructGraph(
   }
 }
 
-final case class ReturnGraph(graphName: Option[QualifiedGraphName])(val position: InputPosition) extends MultipleGraphClause {
+final case class ReturnGraph(graphName: Option[CatalogName])(val position: InputPosition) extends MultipleGraphClause {
 
   override def name = "RETURN GRAPH"
 
