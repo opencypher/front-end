@@ -113,13 +113,13 @@ class CatalogDDLParserTest
   test("CATALOG CREATE VIEW viewName { RETURN GRAPH }") {
     val graphName = ast.CatalogName("viewName")
 
-    yields(ast.CreateView(graphName, Seq.empty, returnQuery))
+    yields(ast.CreateView(graphName, Seq.empty, returnQuery, "RETURN GRAPH"))
   }
 
   test("CATALOG CREATE QUERY viewName { RETURN GRAPH }") {
     val graphName = ast.CatalogName("viewName")
 
-    yields(ast.CreateView(graphName, Seq.empty, returnQuery))
+    yields(ast.CreateView(graphName, Seq.empty, returnQuery, "RETURN GRAPH"))
   }
 
   test("CATALOG CREATE VIEW foo.bar($graph1, $graph2) { FROM $graph1 RETURN GRAPH }") {
@@ -127,14 +127,14 @@ class CatalogDDLParserTest
     val graphName = ast.CatalogName("foo", List("bar"))
     val params = Seq(exp.Parameter("graph1", CTAny)(pos), exp.Parameter("graph2", CTAny)(pos))
 
-    yields(ast.CreateView(graphName, params, query))
+    yields(ast.CreateView(graphName, params, query, "FROM $graph1 RETURN GRAPH"))
   }
 
   test("CATALOG CREATE VIEW foo.bar() { RETURN GRAPH }") {
     val query = ast.SingleQuery(Seq(returnGraph))(pos)
     val graphName = ast.CatalogName("foo", List("bar"))
 
-    yields(ast.CreateView(graphName, Seq.empty, query))
+    yields(ast.CreateView(graphName, Seq.empty, query, "RETURN GRAPH"))
   }
 
   test("CATALOG DROP VIEW viewName") {

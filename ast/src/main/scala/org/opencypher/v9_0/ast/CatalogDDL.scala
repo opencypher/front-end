@@ -57,11 +57,11 @@ final case class DropGraph(graphName: CatalogName)(val position: InputPosition) 
 }
 
 object CreateView {
-  def apply(graphName: CatalogName, params: Seq[Parameter], query: Query)(position: InputPosition): CreateView =
-    CreateView(graphName, params, query.part)(position)
+  def apply(graphName: CatalogName, params: Seq[Parameter], query: Query, innerQString: String)(position: InputPosition): CreateView =
+    CreateView(graphName, params, query.part, innerQString)(position)
 }
 
-final case class CreateView(graphName: CatalogName, params: Seq[Parameter], query: QueryPart)
+final case class CreateView(graphName: CatalogName, params: Seq[Parameter], query: QueryPart, innerQString: String)
   (val position: InputPosition) extends CatalogDDL {
 
   override def name = "CATALOG CREATE VIEW/QUERY"
