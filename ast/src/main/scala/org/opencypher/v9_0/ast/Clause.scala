@@ -84,7 +84,6 @@ final case class GraphByParameter(parameter: Parameter)(val position: InputPosit
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
-      ensureDefined(GraphReference(s"$$${parameter.name}")(position)) chain
       SemanticState.recordCurrentScope(this)
 
 }

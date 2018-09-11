@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ASTAnnotationMap
 import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
-import org.opencypher.v9_0.expressions.{Expression, GraphReference, LogicalVariable, Variable}
+import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.{TreeElem, TreeZipper}
 import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
@@ -271,14 +271,10 @@ case class SemanticState(currentScope: ScopeLocation,
     currentScope.localSymbol(variable.name) match {
       case None =>
         Right(updateVariable(variable, possibleTypes, positions + variable.position))
-      case Some(symbol) => variable match {
-        case Variable(name) =>
-          Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position, symbol.positions.toSeq: _*))
-        case GraphReference(name) =>
-          Left(SemanticError(
-            s"Graph reference `$name` is already declared in the CREATE VIEW/QUERY", variable.position))
-      }
+      case Some(symbol) =>
+        Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position, symbol.positions.toSeq: _*))
     }
+
 
   def addNotification(notification: InternalNotification): SemanticState =
     copy(notifications = notifications + notification)
@@ -303,13 +299,7 @@ case class SemanticState(currentScope: ScopeLocation,
   def ensureVariableDefined(variable: LogicalVariable): Either[SemanticError, SemanticState] =
     this.symbol(variable.name) match {
       case None =>
-        variable match {
-          case Variable(name) =>
-            Left(SemanticError(s"Variable `$name` not defined", variable.position))
-          case GraphReference(name) =>
-            Left(SemanticError(
-              s"Graph reference `$name` needs to be defined in an outer CREATE VIEW/QUERY scope", variable.position))
-        }
+        Left(SemanticError(s"Variable `${variable.name}` not defined", variable.position))
       case Some(symbol) =>
         Right(updateVariable(variable, symbol.types, symbol.positions + variable.position))
     }

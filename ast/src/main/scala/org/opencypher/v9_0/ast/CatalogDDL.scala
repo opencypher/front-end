@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult._
 import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticCheckResult, SemanticState}
-import org.opencypher.v9_0.expressions.{GraphReference, Parameter}
+import org.opencypher.v9_0.expressions.{Parameter, Variable}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
 
@@ -74,7 +74,7 @@ final case class CreateView(graphName: CatalogName, params: Seq[Parameter], quer
 
   private def recordGraphParameters(state: SemanticState): SemanticCheckResult = {
     params.foldLeft(success(state): SemanticCheckResult) { case (SemanticCheckResult(s, errors), p) =>
-      s.declareVariable(GraphReference(s"$$${p.name}")(position), CTGraphRef) match {
+      s.declareVariable(Variable(s"$$${p.name}")(position), CTGraphRef) match {
         case Right(updatedState) => success(updatedState)
         case Left(semanticError) => SemanticCheckResult(s, errors :+ semanticError)
       }
