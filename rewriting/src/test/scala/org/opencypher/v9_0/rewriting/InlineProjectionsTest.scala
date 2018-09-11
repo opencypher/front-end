@@ -355,17 +355,17 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
 
   test("match (n) where id(n) IN [0,1,2,3] with n.division AS `n.division`, max(n.age) AS `max(n.age)` with `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` order by `max(n.age)`") {
     val result = projectionInlinedAst(
-      """match (n) where id(n) IN [0,1,2,3]
-        |with n.division AS `n.division`, max(n.age) AS `max(n.age)`
-        |with `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
-        |RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` order by `max(n.age)`
+      """MATCH (n) WHERE id(n) IN [0,1,2,3]
+        |WITH n.division AS `n.division`, max(n.age) AS `max(n.age)`
+        |WITH `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
+        |RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` ORDER BY `max(n.age)`
       """.stripMargin.fixNewLines)
 
     result should equal(ast(
-      s"""match (n) where id(n) IN [0,1,2,3]
-         |with n.division AS `n.division`, max(n.age) AS `max(n.age)`
-         |with `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
-         |RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` order by `max(n.age)`
+      s"""MATCH (n) WHERE id(n) IN [0,1,2,3]
+         |WITH n.division AS `n.division`, max(n.age) AS `max(n.age)`
+         |WITH `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
+         |RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` ORDER BY `max(n.age)`
       """.stripMargin.fixNewLines))
   }
 

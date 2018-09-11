@@ -72,10 +72,10 @@ case class normalizeWithAndReturnClauses(mkException: (String, InputPosition) =>
     * aliased (because they already were aliases or we just introduced an alias for them)
     * return items.
     *
-    * @param aliasExpressions if `true` this will create aliases for expressions like `n.prop` (RETURN case).
+    * @param inAReturn if `true` this will create aliases for expressions like `n.prop` (RETURN case).
     *      Otherwise it will return this in the unaliased set (WITH case).
     */
-  private def partitionReturnItems(returnItems: Seq[ReturnItem], aliasExpressions: Boolean): (Seq[ReturnItem], Seq[AliasedReturnItem]) =
+  private def partitionReturnItems(returnItems: Seq[ReturnItem], inAReturn: Boolean): (Seq[ReturnItem], Seq[AliasedReturnItem]) =
     returnItems.foldLeft((Vector.empty[ReturnItem], Vector.empty[AliasedReturnItem])) {
       case ((unaliasedItems, aliasedItems), item) => item match {
         case i: AliasedReturnItem =>
@@ -84,7 +84,7 @@ case class normalizeWithAndReturnClauses(mkException: (String, InputPosition) =>
         case i if i.alias.isDefined =>
           (unaliasedItems, aliasedItems :+ AliasedReturnItem(item.expression, item.alias.get.copyId)(item.position))
 
-        case _ if aliasExpressions =>
+        case _ if inAReturn =>
           // Unaliased return items in RETURN are OK
           val newPosition = item.expression.position.bumped()
           (unaliasedItems, aliasedItems :+ AliasedReturnItem(item.expression, Variable(item.name)(newPosition))(item.position))
