@@ -63,5 +63,9 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def listOf(expressions: Expression*): ListLiteral = ListLiteral(expressions)(pos)
 
+  def mapOf(keysAndValues: (String, Expression)*): MapExpression = MapExpression(keysAndValues.map {
+    case (k, v) => PropertyKeyName(k)(pos) -> v
+  })(pos)
+
   def TRUE: Expression = True()(pos)
 }
