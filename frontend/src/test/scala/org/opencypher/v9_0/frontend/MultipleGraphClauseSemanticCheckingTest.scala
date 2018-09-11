@@ -71,6 +71,18 @@ class MultipleGraphClauseSemanticCheckingTest
     }
   }
 
+  test("should not allow parameterised from referencing non-declared parameters in view query") {
+    parsing(
+      """CATALOG CREATE QUERY foo.bar($graph1, $graph2) {
+        |  FROM $graph3
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errorMessages should equal(Set(
+        "Graph reference `$graph3` needs to be defined in an outer CREATE VIEW/QUERY scope"))
+    }
+  }
+
   test("create parameterised views") {
     parsing(
       """CATALOG CREATE QUERY foo.bar($graph1, $graph2) {
