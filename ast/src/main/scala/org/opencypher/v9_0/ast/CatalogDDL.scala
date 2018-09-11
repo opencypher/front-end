@@ -74,7 +74,7 @@ final case class CreateView(graphName: CatalogName, params: Seq[Parameter], quer
 
   private def recordGraphParameters(state: SemanticState): SemanticCheckResult = {
     params.foldLeft(success(state): SemanticCheckResult) { case (SemanticCheckResult(s, errors), p) =>
-      s.declareVariable(GraphReference(p.name)(position), CTGraphRef) match {
+      s.declareVariable(GraphReference(s"$$${p.name}")(position), CTGraphRef) match {
         case Right(updatedState) => success(updatedState)
         case Left(semanticError) => SemanticCheckResult(s, errors :+ semanticError)
       }

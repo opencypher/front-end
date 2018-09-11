@@ -271,8 +271,13 @@ case class SemanticState(currentScope: ScopeLocation,
     currentScope.localSymbol(variable.name) match {
       case None =>
         Right(updateVariable(variable, possibleTypes, positions + variable.position))
-      case Some(symbol) =>
-        Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position, symbol.positions.toSeq: _*))
+      case Some(symbol) => variable match {
+        case Variable(name) =>
+          Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position, symbol.positions.toSeq: _*))
+        case GraphReference(name) =>
+          Left(SemanticError(
+            s"Graph reference `$name` is already declared in the CREATE VIEW/QUERY", variable.position))
+      }
     }
 
   def addNotification(notification: InternalNotification): SemanticState =
@@ -303,7 +308,7 @@ case class SemanticState(currentScope: ScopeLocation,
             Left(SemanticError(s"Variable `$name` not defined", variable.position))
           case GraphReference(name) =>
             Left(SemanticError(
-              s"Graph reference `$$$name` needs to be defined in an outer CREATE VIEW/QUERY scope", variable.position))
+              s"Graph reference `$name` needs to be defined in an outer CREATE VIEW/QUERY scope", variable.position))
         }
       case Some(symbol) =>
         Right(updateVariable(variable, symbol.types, symbol.positions + variable.position))

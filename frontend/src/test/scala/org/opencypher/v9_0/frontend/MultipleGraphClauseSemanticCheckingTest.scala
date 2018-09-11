@@ -71,7 +71,7 @@ class MultipleGraphClauseSemanticCheckingTest
     }
   }
 
-  test("should not allow parameterised from referencing non-declared parameters in view query") {
+  test("should not allow parameterised FROM referencing non-declared parameters in view query") {
     parsing(
       """CATALOG CREATE QUERY foo.bar($graph1, $graph2) {
         |  FROM $graph3
@@ -80,6 +80,29 @@ class MultipleGraphClauseSemanticCheckingTest
 
       result.errorMessages should equal(Set(
         "Graph reference `$graph3` needs to be defined in an outer CREATE VIEW/QUERY scope"))
+    }
+  }
+
+  test("parameterised views must use unique variables") {
+    parsing(
+      """CATALOG CREATE QUERY foo.bar($graph1, $graph1) {
+        |  FROM $graph1
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errorMessages should equal(Set("Graph reference `$graph1` is already declared in the CREATE VIEW/QUERY"))
+    }
+  }
+
+  test("parameterised views should allow normal variables with same name") {
+    parsing(
+      """CATALOG CREATE QUERY foo.bar($graph1) {
+        |  FROM $graph1
+        |  MATCH (graph1:A)
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errorMessages shouldBe empty
     }
   }
 
