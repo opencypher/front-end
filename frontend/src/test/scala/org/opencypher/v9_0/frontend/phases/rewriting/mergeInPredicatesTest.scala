@@ -16,10 +16,10 @@
 package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.Query
-import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.frontend.phases.CNFNormalizer
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
+import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class mergeInPredicatesTest extends CypherFunSuite with AstRewritingTestSupport {
 
@@ -82,7 +82,15 @@ class mergeInPredicatesTest extends CypherFunSuite with AstRewritingTestSupport 
                   "MATCH (n) RETURN n.prop IN [3] AS FOO")
   }
 
-  private def shouldRewrite(from: String, to: String) {
+  test("MATCH (n) RETURN (n.prop IN [1,2,3] OR TRUE) AND n.prop IN [3,4,5] AS FOO") {
+    shouldNotRewrite("MATCH (n) RETURN (n.prop IN [1,2,3] OR TRUE) AND n.prop IN [3,4,5] AS FOO")
+  }
+
+  test("MATCH (n) RETURN (n.prop IN [1,2,3] AND FALSE) OR n.prop IN [3,4,5] AS FOO") {
+    shouldNotRewrite("MATCH (n) RETURN (n.prop IN [1,2,3] AND FALSE) OR n.prop IN [3,4,5] AS FOO")
+  }
+
+  private def shouldRewrite(from: String, to: String): Unit = {
     val original = parser.parse(from).asInstanceOf[Query]
     val expected = parser.parse(to).asInstanceOf[Query]
     val common = CNFNormalizer.instance(TestContext())
@@ -90,4 +98,7 @@ class mergeInPredicatesTest extends CypherFunSuite with AstRewritingTestSupport 
 
     common(result) should equal(common(expected))
   }
+
+  private def shouldNotRewrite(query: String): Unit = shouldRewrite(query, query)
+
 }
