@@ -16,18 +16,16 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.{Where, _}
-import org.opencypher.v9_0.expressions.{Expression, LogicalVariable}
+import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
 import org.opencypher.v9_0.util._
 
 /**
   * This rewriter normalizes the scoping structure of a query, ensuring it is able to
   * be correctly processed for semantic checking. It makes sure that all return items
-  * in a WITH clauses are aliased.
+  * in WITH clauses are aliased.
   *
   * It also replaces expressions and subexpressions in ORDER BY and WHERE
   * to use aliases introduced by the WITH, where possible.
-  *
-  * This rewriter depends on normalizeReturnClauses having first been run.
   *
   * Example:
   *
@@ -39,30 +37,30 @@ import org.opencypher.v9_0.util._
   *
   * MATCH n
   * WITH n.prop AS prop ORDER BY prop DESC
-  * RETURN prop
+  * RETURN prop AS prop
   */
-case class normalizeWithClauses(mkException: (String, InputPosition) => CypherException) extends Rewriter {
+case class normalizeWithAndReturnClauses(mkException: (String, InputPosition) => CypherException) extends Rewriter {
 
   def apply(that: AnyRef): AnyRef = instance.apply(that)
 
-  private val clauseRewriter: (Clause => Clause) = {
+  private val clauseRewriter: Clause => Clause = {
     // Only alias return items
-    case clause@With(_, ri: ReturnItems, None, _, _, None) =>
-      val (unaliasedReturnItems, aliasedReturnItems) = partitionReturnItems(ri.items)
+    case clause@ProjectionClause(_, ri: ReturnItems, None, _, _, None) =>
+      val (unaliasedReturnItems, aliasedReturnItems) = partitionReturnItems(ri.items, clause.isReturn)
       val initialReturnItems = unaliasedReturnItems ++ aliasedReturnItems
-      clause.copy(returnItems = ri.copy(items = initialReturnItems)(ri.position))(clause.position)
+      clause.copyProjection(returnItems = ri.copy(items = initialReturnItems)(ri.position))
 
     // Alias return items and rewrite ORDER BY and WHERE
-    case clause@With(distinct, ri: ReturnItems, orderBy, skip, limit, where) =>
+    case clause@ProjectionClause(distinct, ri: ReturnItems, orderBy, skip, limit, where) =>
       clause.verifyOrderByAggregationUse((s, i) => throw mkException(s, i))
-      val (unaliasedReturnItems, aliasedReturnItems) = partitionReturnItems(ri.items)
+      val (unaliasedReturnItems, aliasedReturnItems) = partitionReturnItems(ri.items, clause.isReturn)
       val initialReturnItems = unaliasedReturnItems ++ aliasedReturnItems
 
       val existingAliases = aliasedReturnItems.map(i => i.expression -> i.alias.get.copyId).toMap
       val updatedOrderBy = orderBy.map(aliasOrderBy(existingAliases, _))
       val updatedWhere = where.map(aliasWhere(existingAliases, _))
 
-      clause.copy(returnItems = ri.copy(items = initialReturnItems)(ri.position), orderBy = updatedOrderBy, where = updatedWhere)(clause.position)
+      clause.copyProjection(returnItems = ri.copy(items = initialReturnItems)(ri.position), orderBy = updatedOrderBy, where = updatedWhere)
 
     // Not our business
     case clause =>
@@ -73,8 +71,11 @@ case class normalizeWithClauses(mkException: (String, InputPosition) => CypherEx
     * Aliases return items if possible. Return a tuple of unaliased (because impossible) and
     * aliased (because they already were aliases or we just introduced an alias for them)
     * return items.
+    *
+    * @param inAReturn if `true` this will create aliases for expressions like `n.prop` (RETURN case).
+    *      Otherwise it will return this in the unaliased set (WITH case).
     */
-  private def partitionReturnItems(returnItems: Seq[ReturnItem]): (Seq[ReturnItem], Seq[AliasedReturnItem]) =
+  private def partitionReturnItems(returnItems: Seq[ReturnItem], inAReturn: Boolean): (Seq[ReturnItem], Seq[AliasedReturnItem]) =
     returnItems.foldLeft((Vector.empty[ReturnItem], Vector.empty[AliasedReturnItem])) {
       case ((unaliasedItems, aliasedItems), item) => item match {
         case i: AliasedReturnItem =>
@@ -82,6 +83,11 @@ case class normalizeWithClauses(mkException: (String, InputPosition) => CypherEx
 
         case i if i.alias.isDefined =>
           (unaliasedItems, aliasedItems :+ AliasedReturnItem(item.expression, item.alias.get.copyId)(item.position))
+
+        case _ if inAReturn =>
+          // Unaliased return items in RETURN are OK
+          val newPosition = item.expression.position.bumped()
+          (unaliasedItems, aliasedItems :+ AliasedReturnItem(item.expression, Variable(item.name)(newPosition))(item.position))
 
         case _ =>
           // Unaliased return items in WITH will be preserved so that semantic check can report them as an error
@@ -119,13 +125,15 @@ case class normalizeWithClauses(mkException: (String, InputPosition) => CypherEx
     */
   private def aliasExpression(existingAliases: Map[Expression, LogicalVariable], expression: Expression): Expression = {
     existingAliases.get(expression) match {
-      case Some(alias) =>
+      case Some(alias) if !existingAliases.valuesIterator.contains(expression) =>
         alias.copyId
-
-      case None =>
+      case _ =>
         val newExpression = expression.endoRewrite(topDown(Rewriter.lift {
           case subExpression: Expression =>
-            existingAliases.get(subExpression).map(_.copyId).getOrElse(subExpression)
+            existingAliases.get(subExpression) match {
+              case Some(subAlias) if !existingAliases.valuesIterator.contains(subExpression) => subAlias.copyId
+              case _ => subExpression
+            }
         }))
         newExpression
     }

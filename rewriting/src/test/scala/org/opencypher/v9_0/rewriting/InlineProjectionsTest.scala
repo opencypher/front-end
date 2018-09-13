@@ -18,7 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
 import org.opencypher.v9_0.expressions.{Add, SignedDecimalIntegerLiteral, Variable}
-import org.opencypher.v9_0.rewriting.rewriters.{expandStar, inlineProjections, normalizeReturnClauses, normalizeWithClauses}
+import org.opencypher.v9_0.rewriting.rewriters.{expandStar, inlineProjections, normalizeWithAndReturnClauses}
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{InternalException, inSequence}
@@ -355,19 +355,17 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
 
   test("match (n) where id(n) IN [0,1,2,3] with n.division AS `n.division`, max(n.age) AS `max(n.age)` with `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` order by `max(n.age)`") {
     val result = projectionInlinedAst(
-      """match (n) where id(n) IN [0,1,2,3]
-        |with n.division AS `n.division`, max(n.age) AS `max(n.age)`
-        |with `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
-        |RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` order by `max(n.age)`
+      """MATCH (n) WHERE id(n) IN [0,1,2,3]
+        |WITH n.division AS `n.division`, max(n.age) AS `max(n.age)`
+        |WITH `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
+        |RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` ORDER BY `max(n.age)`
       """.stripMargin.fixNewLines)
 
-    val freshIdName = "`  FRESHID196`"
     result should equal(ast(
-      s"""match (n) where id(n) IN [0,1,2,3]
-         |with n.division AS `n.division`, max(n.age) AS `max(n.age)`
-         |with `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
-         |with `n.division` AS `n.division`, `max(n.age)` AS $freshIdName order by $freshIdName
-         |RETURN `n.division` AS `n.division`, $freshIdName AS `max(n.age)`
+      s"""MATCH (n) WHERE id(n) IN [0,1,2,3]
+         |WITH n.division AS `n.division`, max(n.age) AS `max(n.age)`
+         |WITH `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)`
+         |RETURN `n.division` AS `n.division`, `max(n.age)` AS `max(n.age)` ORDER BY `max(n.age)`
       """.stripMargin.fixNewLines))
   }
 
@@ -394,7 +392,7 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
   private def ast(queryText: String) = {
     val parsed = parser.parse(queryText)
     val mkException = new SyntaxExceptionCreator(queryText, Some(pos))
-    val normalized = parsed.endoRewrite(inSequence(normalizeReturnClauses(mkException), normalizeWithClauses(mkException)))
+    val normalized = parsed.endoRewrite(inSequence(normalizeWithAndReturnClauses(mkException)))
     val checkResult = normalized.semanticCheck(SemanticState.clean)
     normalized.endoRewrite(inSequence(expandStar(checkResult.state)))
   }

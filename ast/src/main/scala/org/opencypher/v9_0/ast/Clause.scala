@@ -583,6 +583,16 @@ sealed trait HorizonClause extends Clause with SemanticAnalysisTooling {
   def semanticCheckContinuation(previousScope: Scope): SemanticCheck
 }
 
+object ProjectionClause {
+
+  def unapply(arg: ProjectionClause): Option[(Boolean, ReturnItemsDef, Option[OrderBy], Option[Skip], Option[Limit], Option[Where])] = {
+    arg match {
+      case With(distinct, ri, orderBy, skip, limit, where) => Some((distinct, ri, orderBy, skip, limit, where))
+      case Return(distinct, ri, orderBy, skip, limit, _) => Some((distinct, ri, orderBy, skip, limit, None))
+    }
+  }
+}
+
 sealed trait ProjectionClause extends HorizonClause {
   def distinct: Boolean
 
@@ -599,6 +609,18 @@ sealed trait ProjectionClause extends HorizonClause {
   final def isWith: Boolean = !isReturn
 
   def isReturn: Boolean = false
+
+  def copyProjection(distinct: Boolean = this.distinct,
+           returnItems: ReturnItemsDef = this.returnItems,
+           orderBy: Option[OrderBy] = this.orderBy,
+           skip: Option[Skip] = this.skip,
+           limit: Option[Limit] = this.limit,
+           where: Option[Where] = this.where): ProjectionClause = {
+    this match {
+      case w:With => w.copy(distinct, returnItems, orderBy, skip, limit, where)(this.position)
+      case r:Return => r.copy(distinct, returnItems, orderBy, skip, limit, r.excludedNames)(this.position)
+    }
+  }
 
   /**
     * @return copy of this ProjectionClause with new return items
