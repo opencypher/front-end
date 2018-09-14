@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState}
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Query}
+import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Query, Statement}
 import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
 import org.opencypher.v9_0.frontend.phases._
 import org.opencypher.v9_0.parser.ParserTest
@@ -30,7 +30,7 @@ class MultipleGraphClauseSemanticCheckingTest
 
   // INFO: Use result.dumpAndExit to debug these tests
 
-  implicit val parser: Rule1[Query] = Query
+  implicit val parser: Rule1[Statement] = Statement
 
 
   // TODO: Need to reset semantic state after CONSTRUCT
@@ -43,6 +43,96 @@ class MultipleGraphClauseSemanticCheckingTest
          |RETURN GRAPH""".stripMargin) shouldVerify { result: SemanticCheckResult =>
 
       result.errorMessages should equal(Set("Variable `a` not defined"))
+    }
+  }
+
+  test("from parameterised views") {
+    parsing(
+      """FROM GRAPH foo.bar(myView(grok.baz), a)
+        |MATCH (a:A)
+        |CONSTRUCT
+        |  CREATE (a)-[:T]->(:B)
+        |RETURN GRAPH""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errors shouldBe empty
+    }
+  }
+
+  test("should allow parameterised from in normal query") {
+    parsing(
+      """FROM GRAPH $parameter
+        |MATCH (a:A)
+        |CONSTRUCT
+        |  CREATE (a)-[:T]->(:B)
+        |RETURN GRAPH""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errorMessages shouldBe empty
+    }
+  }
+
+  test("parameterised views must use unique variables") {
+    parsing(
+      """CATALOG CREATE QUERY foo.bar($graph1, $graph1) {
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errorMessages should equal(Set("Variable `$graph1` already declared"))
+    }
+  }
+
+  test("parameterised views should allow normal variables with same name") {
+    parsing(
+      """CATALOG CREATE QUERY foo.bar($graph1) {
+        |  FROM $graph1
+        |  MATCH (graph1:A)
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errorMessages shouldBe empty
+    }
+  }
+
+  test("create parameterised views") {
+    parsing(
+      """CATALOG CREATE QUERY foo.bar($graph1, $graph2) {
+        |  FROM $graph1
+        |  MATCH (a:A)
+        |  FROM $graph2
+        |  MATCH (b:B)
+        |  CONSTRUCT
+        |    CREATE (a)-[:T]->(b)
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errors shouldBe empty
+    }
+  }
+
+  test("create empty parameterised views") {
+    parsing(
+      """CATALOG CREATE VIEW foo.bar() {
+        |  FROM foo.bar
+        |  MATCH (b:B)
+        |  CONSTRUCT
+        |    CREATE (a)-[:T]->(b)
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errors shouldBe empty
+    }
+  }
+
+  test("create empty parameterised views without parentheses") {
+    parsing(
+      """CATALOG CREATE VIEW foo.bar {
+        |  FROM foo.bar()
+        |  MATCH (b:B)
+        |  CONSTRUCT
+        |    CREATE (a)-[:T]->(b)
+        |  RETURN GRAPH
+        |}""".stripMargin) shouldVerify { result => SemanticCheckResult
+
+      result.errors shouldBe empty
     }
   }
 

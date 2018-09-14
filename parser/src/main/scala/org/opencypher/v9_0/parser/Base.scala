@@ -143,6 +143,11 @@ trait Base extends Parser {
     }
   }
 
+  def captureString[A](r: Rule1[A]): Rule1[(A, String)] =
+    r ~~> withContext { (a: A, ctx) =>
+      a -> ctx.getInputBuffer.extract(ctx.getMatchRange.start, ctx.getMatchRange.end)
+    }
+
   implicit class RichRule0(r: Rule0) {
     def ~~(other: Rule0): Rule0 = r ~ WS ~ other
     def ~~[A](other: Rule1[A]): Rule1[A] = r ~ WS ~ other

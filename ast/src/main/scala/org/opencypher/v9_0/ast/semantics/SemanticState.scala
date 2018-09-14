@@ -275,6 +275,7 @@ case class SemanticState(currentScope: ScopeLocation,
         Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position, symbol.positions.toSeq: _*))
     }
 
+
   def addNotification(notification: InternalNotification): SemanticState =
     copy(notifications = notifications + notification)
 

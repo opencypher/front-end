@@ -40,11 +40,24 @@ trait Clauses extends Parser
   }
 
   def FromGraph: Rule1[ast.FromGraph]= rule("FROM GRAPH") {
-    group(keyword("FROM") ~~ optional(keyword("GRAPH")) ~~ QualifiedGraphName ~~>> (ast.FromGraph(_)))
+    group(keyword("FROM") ~~ optional(keyword("GRAPH"))) ~~ (GraphOrView | GraphByParameter)
+  }
+
+  def GraphOrView: Rule1[ast.FromGraph] = rule("parameterised or direct graph reference") {
+    ViewInvocation ~~>> (ast.ViewInvocation(_, _)) |
+      CatalogName ~~>> (ast.GraphLookup(_))
+  }
+
+  def GraphByParameter = rule("graph by parameter for view definitions") {
+    Parameter ~~>> (ast.GraphByParameter(_))
+  }
+
+  def ViewInvocation = rule("parameterised FROM GRAPH") {
+    CatalogName ~~ "(" ~~ zeroOrMore(GraphOrView, separator = CommaSep) ~~ ")"
   }
 
   def ConstructGraph: Rule1[ast.ConstructGraph] = rule("CONSTRUCT") {
-    group(keyword("CONSTRUCT") ~~ optional(keyword("ON") ~~ oneOrMore(QualifiedGraphName, CommaSep)) ~~
+    group(keyword("CONSTRUCT") ~~ optional(keyword("ON") ~~ oneOrMore(CatalogName, CommaSep)) ~~
       zeroOrMore(WS ~ Clone) ~~
       zeroOrMore(WS ~ ConstructCreate) ~~
       zeroOrMore(WS ~ SetClause) ~~>> { (on, clones, news, sets) =>
@@ -60,8 +73,8 @@ trait Clauses extends Parser
     group(keyword("CREATE") ~~ Pattern) ~~>> (ast.CreateInConstruct(_))
   }
 
-  def QualifiedGraphName = rule("qualified graph name foo.bar.baz") {
-    group(SymbolicNameString ~~ zeroOrMore("." ~~ SymbolicNameString) ~~> (ast.QualifiedGraphName(_, _)))
+  def CatalogName = rule("catalog name with parts; foo.bar.baz") {
+    group(SymbolicNameString ~~ zeroOrMore("." ~~ SymbolicNameString) ~~> (ast.CatalogName(_, _)))
   }
 
   def Start: Rule1[ast.Start] = rule("START") {

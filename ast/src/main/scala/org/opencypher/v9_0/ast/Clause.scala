@@ -74,15 +74,37 @@ sealed trait MultipleGraphClause extends Clause with SemanticAnalysisTooling {
     requireMultigraphSupport(s"The `$name` clause", position)
 }
 
-final case class FromGraph(graphName: QualifiedGraphName)(val position: InputPosition) extends MultipleGraphClause {
+trait FromGraph extends MultipleGraphClause {
 
   override def name = "FROM GRAPH"
+
+}
+
+final case class GraphByParameter(parameter: Parameter)(val position: InputPosition) extends FromGraph {
+
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      SemanticState.recordCurrentScope(this)
+
+}
+
+final case class GraphLookup(graphName: CatalogName)(val position: InputPosition) extends FromGraph {
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain SemanticState.recordCurrentScope(this)
 }
 
-final case class Clone(items: List[ReturnItem])(val position: InputPosition) extends MultipleGraphClause with SemanticAnalysisTooling {
+final case class ViewInvocation(graphName: CatalogName, params: Seq[FromGraph])
+  (val position: InputPosition) extends FromGraph {
+
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      params.semanticCheck chain
+      SemanticState.recordCurrentScope(this)
+}
+
+final case class Clone(items: List[ReturnItem])
+  (val position: InputPosition) extends MultipleGraphClause with SemanticAnalysisTooling {
 
   override def name: String = "CLONE"
 
@@ -99,7 +121,8 @@ final case class Clone(items: List[ReturnItem])(val position: InputPosition) ext
   }
 }
 
-case class CreateInConstruct(pattern: Pattern)(val position: InputPosition) extends MultipleGraphClause with SingleRelTypeCheck {
+case class CreateInConstruct(pattern: Pattern)
+  (val position: InputPosition) extends MultipleGraphClause with SingleRelTypeCheck {
 
   override def name = "CREATE"
 
@@ -172,7 +195,7 @@ trait SingleRelTypeCheck {
 final case class ConstructGraph(
   clones: List[Clone] = List.empty,
   news: List[CreateInConstruct] = List.empty,
-  on: List[QualifiedGraphName] = List.empty,
+  on: List[CatalogName] = List.empty,
   sets: List[SetClause] = List.empty
 )(val position: InputPosition) extends MultipleGraphClause {
 
@@ -216,10 +239,10 @@ final case class ConstructGraph(
 
       case RelationshipChain(e, rel, node) =>
         val checks = checkModificationOfClonedEntities(e) chain checkModificationOfClonedEntities(node) chain (
-          if (rel.variable.isDefined && state.symbol(rel.variable.get.name).isDefined && (rel.types.nonEmpty || rel.properties.isDefined)) {
-            error("Modification of a cloned relationship is not allowed. Use COPY OF to manipulate the relationship", rel.position)
-          } else success
-          )
+                                                                                                              if (rel.variable.isDefined && state.symbol(rel.variable.get.name).isDefined && (rel.types.nonEmpty || rel.properties.isDefined)) {
+                                                                                                                error("Modification of a cloned relationship is not allowed. Use COPY OF to manipulate the relationship", rel.position)
+                                                                                                              } else success
+                                                                                                              )
         checks(state)
 
       case _ => success(state)
@@ -255,7 +278,7 @@ final case class ConstructGraph(
   }
 }
 
-final case class ReturnGraph(graphName: Option[QualifiedGraphName])(val position: InputPosition) extends MultipleGraphClause {
+final case class ReturnGraph(graphName: Option[CatalogName])(val position: InputPosition) extends MultipleGraphClause {
 
   override def name = "RETURN GRAPH"
 

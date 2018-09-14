@@ -15,12 +15,14 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, QualifiedGraphName, ReturnGraph}
+import org.opencypher.v9_0.ast.{AstConstructionTestSupport, CatalogName, ReturnGraph}
+import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala.Rule1
 
 class CatalogDDLParserTest
   extends ParserAstTest[ast.Statement] with Statement with AstConstructionTestSupport {
+
 
   implicit val parser: Rule1[ast.Statement] = Statement
 
@@ -30,35 +32,35 @@ class CatalogDDLParserTest
 
   test("CATALOG CREATE GRAPH foo.bar { RETURN GRAPH }") {
     val query = ast.SingleQuery(Seq(returnGraph))(pos)
-    val graphName = ast.QualifiedGraphName("foo", List("bar"))
+    val graphName = ast.CatalogName("foo", List("bar"))
 
     yields(ast.CreateGraph(graphName, query))
   }
 
   test("CATALOG CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION ALL FROM GRAPH bar RETURN GRAPH }") {
-    val useGraph1 = ast.FromGraph(ast.QualifiedGraphName("foo"))(pos)
-    val useGraph2 = ast.FromGraph(ast.QualifiedGraphName("bar"))(pos)
+    val useGraph1 = ast.GraphLookup(ast.CatalogName("foo"))(pos)
+    val useGraph2 = ast.GraphLookup(ast.CatalogName("bar"))(pos)
     val lhs = ast.SingleQuery(Seq(useGraph1, returnGraph))(pos)
     val rhs = ast.SingleQuery(Seq(useGraph2, returnGraph))(pos)
     val union = ast.UnionAll(lhs, rhs)(pos)
-    val graphName = ast.QualifiedGraphName("foo", List("bar"))
+    val graphName = ast.CatalogName("foo", List("bar"))
 
     yields(ast.CreateGraph(graphName, union))
   }
 
   test("CATALOG CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION FROM GRAPH bar RETURN GRAPH }") {
-    val useGraph1 = ast.FromGraph(ast.QualifiedGraphName("foo"))(pos)
-    val useGraph2 = ast.FromGraph(ast.QualifiedGraphName("bar"))(pos)
+    val useGraph1 = ast.GraphLookup(ast.CatalogName("foo"))(pos)
+    val useGraph2 = ast.GraphLookup(ast.CatalogName("bar"))(pos)
     val lhs = ast.SingleQuery(Seq(useGraph1, returnGraph))(pos)
     val rhs = ast.SingleQuery(Seq(useGraph2, returnGraph))(pos)
     val union = ast.UnionDistinct(lhs, rhs)(pos)
-    val graphName = ast.QualifiedGraphName("foo", List("bar"))
+    val graphName = ast.CatalogName("foo", List("bar"))
 
     yields(ast.CreateGraph(graphName, union))
   }
 
   test("CATALOG CREATE GRAPH foo.bar { CONSTRUCT }") {
-    val graphName = ast.QualifiedGraphName("foo", List("bar"))
+    val graphName = ast.CatalogName("foo", List("bar"))
 
     yields(ast.CreateGraph(graphName, singleQuery))
   }
@@ -70,35 +72,35 @@ class CatalogDDLParserTest
 
   test("CATALOG CREATE GRAPH `foo.bar.baz.baz` { CONSTRUCT }"){
     yields(ast.CreateGraph(
-      new QualifiedGraphName(List("foo.bar.baz.baz")),
+      new CatalogName(List("foo.bar.baz.baz")),
       singleQuery
     ))
   }
 
   test("CATALOG CREATE GRAPH `foo.bar`.baz { CONSTRUCT }"){
     yields(ast.CreateGraph(
-      new QualifiedGraphName(List("foo.bar", "baz")),
+      new CatalogName(List("foo.bar", "baz")),
       singleQuery
     ))
   }
 
   test("CATALOG CREATE GRAPH foo.`bar.baz` { CONSTRUCT }"){
     yields(ast.CreateGraph(
-      new QualifiedGraphName(List("foo", "bar.baz")),
+      new CatalogName(List("foo", "bar.baz")),
       singleQuery
     ))
   }
 
   test("CATALOG CREATE GRAPH `foo.bar`.`baz.baz` { CONSTRUCT }"){
     yields(ast.CreateGraph(
-      new QualifiedGraphName(List("foo.bar", "baz.baz")),
+      new CatalogName(List("foo.bar", "baz.baz")),
       singleQuery
     ))
   }
 
   // missing graph name
   test("CATALOG DROP GRAPH union") {
-    val graphName = ast.QualifiedGraphName("union")
+    val graphName = ast.CatalogName("union")
 
     yields(ast.DropGraph(graphName))
   }
@@ -109,25 +111,40 @@ class CatalogDDLParserTest
   }
 
   test("CATALOG CREATE VIEW viewName { RETURN GRAPH }") {
-    val graphName = ast.QualifiedGraphName("viewName")
+    val graphName = ast.CatalogName("viewName")
 
-    yields(ast.CreateView(graphName, returnQuery))
+    yields(ast.CreateView(graphName, Seq.empty, returnQuery, "RETURN GRAPH"))
   }
 
   test("CATALOG CREATE QUERY viewName { RETURN GRAPH }") {
-    val graphName = ast.QualifiedGraphName("viewName")
+    val graphName = ast.CatalogName("viewName")
 
-    yields(ast.CreateView(graphName, returnQuery))
+    yields(ast.CreateView(graphName, Seq.empty, returnQuery, "RETURN GRAPH"))
+  }
+
+  test("CATALOG CREATE VIEW foo.bar($graph1, $graph2) { FROM $graph1 RETURN GRAPH }") {
+    val query = ast.SingleQuery(Seq(ast.GraphByParameter(exp.Parameter("graph1", CTAny)(pos))(pos),  returnGraph))(pos)
+    val graphName = ast.CatalogName("foo", List("bar"))
+    val params = Seq(exp.Parameter("graph1", CTAny)(pos), exp.Parameter("graph2", CTAny)(pos))
+
+    yields(ast.CreateView(graphName, params, query, "FROM $graph1 RETURN GRAPH"))
+  }
+
+  test("CATALOG CREATE VIEW foo.bar() { RETURN GRAPH }") {
+    val query = ast.SingleQuery(Seq(returnGraph))(pos)
+    val graphName = ast.CatalogName("foo", List("bar"))
+
+    yields(ast.CreateView(graphName, Seq.empty, query, "RETURN GRAPH"))
   }
 
   test("CATALOG DROP VIEW viewName") {
-    val graphName = ast.QualifiedGraphName("viewName")
+    val graphName = ast.CatalogName("viewName")
 
     yields(ast.DropView(graphName))
   }
 
   test("CATALOG DROP QUERY viewName") {
-    val graphName = ast.QualifiedGraphName("viewName")
+    val graphName = ast.CatalogName("viewName")
 
     yields(ast.DropView(graphName))
   }

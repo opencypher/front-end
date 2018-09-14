@@ -32,18 +32,18 @@
  */
 package org.opencypher.v9_0.ast
 
-object QualifiedGraphName {
+object CatalogName {
 
-  def apply(head: String, tail: List[String]): QualifiedGraphName = {
-    QualifiedGraphName(head :: tail)
+  def apply(head: String, tail: List[String]): CatalogName = {
+    CatalogName(head :: tail)
   }
 
-  def apply(parts: String*): QualifiedGraphName = {
-    QualifiedGraphName(parts.head, parts.tail.toList)
+  def apply(parts: String*): CatalogName = {
+    CatalogName(parts.head, parts.tail.toList)
   }
 }
 
 /**
   * A qualified graph name is used in a Cypher query to address a specific graph in the catalog.
   */
-case class QualifiedGraphName(parts: List[String])
+case class CatalogName(parts: List[String])
