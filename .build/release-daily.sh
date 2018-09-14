@@ -4,18 +4,21 @@
 set -e
 
 # Compute next release version (date)
-export BUILD_NUMBER_DATE
-BUILD_NUMBER_DATE=9.0.$(date -u +%Y%m%d)
-echo BUILD_NUMBER_DATE=$BUILD_NUMBER_DATE
+export RELEASE_VERSION
+RELEASE_VERSION=9.0.$(date -u +%Y%m%d)
+echo RELEASE_VERSION=$RELEASE_VERSION
 
 # Set the new version on Maven modules
-mvn versions:set -DnewVersion=$BUILD_NUMBER_DATE -DgenerateBackupPoms=false
+mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
 
 # Also set the version of the licensing module
-mvn -f build/pom.xml versions:set -DnewVersion=$BUILD_NUMBER_DATE -DgenerateBackupPoms=false
+mvn -f build/pom.xml versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
+
+# Export to TeamCity environment variable
+echo "##teamcity[setParameter name='env.RELEASE_VERSION' value='$RELEASE_VERSION']"
 
 # Make a release commit
-git commit -am "Release version $BUILD_NUMBER_DATE"
+git commit -am "Release version $RELEASE_VERSION"
 
 # Push the release commit to GitHub
 git push origin 9.0
