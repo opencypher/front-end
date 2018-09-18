@@ -17,10 +17,14 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ASTAnnotationMap
 import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
-import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.util.helpers.{TreeElem, TreeZipper}
-import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
+import org.opencypher.v9_0.util.helpers.TreeElem
+import org.opencypher.v9_0.util.helpers.TreeZipper
+import org.opencypher.v9_0.util.symbols.TypeSpec
+import org.opencypher.v9_0.util.symbols._
 
 import scala.collection.immutable.HashMap
 import scala.language.postfixOps
@@ -267,12 +271,19 @@ case class SemanticState(currentScope: ScopeLocation,
   def mergeSymbolPositionsFromScope(scope: Scope, exclude: Set[String] = Set.empty): SemanticState =
     copy(currentScope = currentScope.mergeSymbolPositionsFromScope(scope, exclude))
 
-  def declareVariable(variable: LogicalVariable, possibleTypes: TypeSpec, positions: Set[InputPosition] = Set.empty): Either[SemanticError, SemanticState] =
+  /**
+    * @param overriding if `true` then a previous occurrence of that variable is overridden.
+    *                   if `false` then a previous occurrence of that variable leads to an error
+    */
+  def declareVariable(variable: LogicalVariable,
+                      possibleTypes: TypeSpec,
+                      positions: Set[InputPosition] = Set.empty,
+                      overriding: Boolean = false): Either[SemanticError, SemanticState] =
     currentScope.localSymbol(variable.name) match {
-      case None =>
-        Right(updateVariable(variable, possibleTypes, positions + variable.position))
-      case Some(symbol) =>
+      case Some(symbol) if !overriding =>
         Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position, symbol.positions.toSeq: _*))
+      case _ =>
+        Right(updateVariable(variable, possibleTypes, positions + variable.position))
     }
 
 

@@ -17,9 +17,9 @@ package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
+import org.opencypher.v9_0.frontend.phases._
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.frontend.phases._
 
 class SemanticAnalysisTest extends CypherFunSuite with AstConstructionTestSupport {
 
@@ -43,6 +43,38 @@ class SemanticAnalysisTest extends CypherFunSuite with AstConstructionTestSuppor
     pipeline.transform(startState, ErrorCollectingContext)
 
     ErrorCollectingContext.errors shouldBe empty
+  }
+
+  test("Should allow overriding variable name in RETURN clause with an ORDER BY") {
+    val query = "MATCH (n) RETURN n.prop AS n ORDER BY n + 2"
+
+    val startState = initStartState(query, Map.empty)
+
+    pipeline.transform(startState, ErrorCollectingContext)
+
+    ErrorCollectingContext.errors shouldBe empty
+  }
+
+  test("Should not allow multiple columns with the same name in WITH") {
+    val query = "MATCH (n) WITH n.prop AS n, n.foo AS n ORDER BY n + 2 RETURN 1 AS one"
+
+    val startState = initStartState(query, Map.empty)
+
+    pipeline.transform(startState, ErrorCollectingContext)
+
+    println(ErrorCollectingContext.errors)
+
+    ErrorCollectingContext.errors.map(_.msg) should equal(List("Multiple result columns with the same name are not supported"))
+  }
+
+  test("Should not allow duplicate variable name") {
+    val query = "CREATE (n),(n) RETURN 1 as one"
+
+    val startState = initStartState(query, Map.empty)
+
+    pipeline.transform(startState, ErrorCollectingContext)
+
+    ErrorCollectingContext.errors.map(_.msg) should equal(List("Variable `n` already declared"))
   }
 
   private def initStartState(query: String, initialFields: Map[String, CypherType]) =

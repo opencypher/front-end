@@ -15,11 +15,21 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.{error, success}
-import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState, _}
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.error
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
+import org.opencypher.v9_0.ast.semantics.Scope
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.ast.semantics._
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions.functions.{Distance, Exists}
-import org.opencypher.v9_0.expressions.{functions, _}
+import org.opencypher.v9_0.expressions.functions.Distance
+import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.expressions.functions
+import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
@@ -658,11 +668,17 @@ sealed trait ProjectionClause extends HorizonClause {
     val declareAllTheThings = (s: SemanticState) => {
 
       // ORDER BY and WHERE after a WITH have a special scope such that they can see both variables from before the WITH and from after
-      // Since thw current scoping system does not allow that in a nice way, we run the semantic check for these two twice
+      // Since the current scoping system does not allow that in a nice way, we run the semantic check for these two twice
       // In the first run we construct a scope with all necessary variables defined to find errors in these subclauses
       val specialReturnItems = createSpecialReturnItems(previousScope, s)
-      val specialStateForOrderByAndWhere = specialReturnItems.declareVariables(previousScope)(s).state
-      val orderByAndWhereResult = (orderBy.semanticCheck chain checkSkip chain checkLimit chain where.semanticCheck) (specialStateForOrderByAndWhere)
+      val specialCheckForOrderByAndWhere =
+        specialReturnItems.declareVariables(previousScope) chain
+        orderBy.semanticCheck chain
+        checkSkip chain
+        checkLimit chain where.
+        semanticCheck
+
+      val orderByAndWhereResult = specialCheckForOrderByAndWhere(s)
       val orderByAndWhereErrors = orderByAndWhereResult.errors
 
       // In the second run we want to make sure to declare the return items, and register the use of variables in the ORDER BY and WHERE.
