@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.Expression.{DefaultTypeMismatchMessageGenerator, SemanticContext}
-import org.opencypher.v9_0.expressions.{TypeSignature, _}
+import org.opencypher.v9_0.expressions.Expression.DefaultTypeMismatchMessageGenerator
+import org.opencypher.v9_0.expressions.Expression.SemanticContext
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
 
@@ -165,20 +167,25 @@ trait SemanticAnalysisTooling {
       case e:java.lang.NumberFormatException => false
     }
 
-  def ensureDefined(v:LogicalVariable): (SemanticState) => Either[SemanticError, SemanticState] =
+  def ensureDefined(v:LogicalVariable): SemanticState => Either[SemanticError, SemanticState] =
     (_: SemanticState).ensureVariableDefined(v)
 
-  def declareVariable(v:LogicalVariable, possibleTypes: TypeSpec): (SemanticState) => Either[SemanticError, SemanticState] =
+  def declareVariable(v:LogicalVariable, possibleTypes: TypeSpec): SemanticState => Either[SemanticError, SemanticState] =
     (_: SemanticState).declareVariable(v, possibleTypes)
 
-  def declareVariable(
-                       v:LogicalVariable,
-                       typeGen: TypeGenerator,
-                       positions: Set[InputPosition] = Set.empty
-                     ): (SemanticState) => Either[SemanticError, SemanticState] =
-    (s: SemanticState) => s.declareVariable(v, typeGen(s), positions)
+  /**
+    * @param overriding if `true` then a previous occurrence of that variable is overridden.
+    *                   if `false` then a previous occurrence of that variable leads to an error
+    */
+  def declareVariable(v: LogicalVariable,
+                      typeGen: TypeGenerator,
+                      positions: Set[InputPosition] = Set.empty,
+                      overriding: Boolean = false
+                     ): SemanticState => Either[SemanticError, SemanticState] =
+    (s: SemanticState) =>
+      s.declareVariable(v, typeGen(s), positions, overriding)
 
-  def implicitVariable(v:LogicalVariable, possibleType: CypherType): (SemanticState) => Either[SemanticError, SemanticState] =
+  def implicitVariable(v:LogicalVariable, possibleType: CypherType): SemanticState => Either[SemanticError, SemanticState] =
     (_: SemanticState).implicitVariable(v, possibleType)
 
   def requireMultigraphSupport(msg: String, position: InputPosition): SemanticCheck =

@@ -17,9 +17,18 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics._
-import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, MapProjection}
-import org.opencypher.v9_0.util.{ASTNode, InputPosition, InternalException}
-import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticState}
+import org.opencypher.v9_0.ast.semantics.Scope
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.MapProjection
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.InternalException
 
 sealed trait ReturnItemsDef extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
   /**
@@ -40,7 +49,7 @@ final case class DiscardCardinality()(val position: InputPosition) extends Retur
   override def includeExisting: Boolean = false
   override def semanticCheck: SemanticCheck = _success
   override def items: Seq[ReturnItem] = Seq.empty
-  override def declareVariables(previousScope: Scope): (SemanticState) => SemanticCheckResult = _success
+  override def declareVariables(previousScope: Scope): SemanticState => SemanticCheckResult = _success
   override def containsAggregate = false
   override def withExisting(includeExisting: Boolean): DiscardCardinality = this
   private def _success(s: SemanticState) = success(s)
@@ -71,21 +80,22 @@ final case class ReturnItems(
     } chain items.foldSemanticCheck(item => item.alias match {
       case Some(variable) if item.expression == variable =>
         val positions = previousScope.symbol(variable.name).fold(Set.empty[InputPosition])(_.positions)
-        declareVariable(variable, types(item.expression), positions)
-      case Some(variable) => declareVariable(variable, types(item.expression))
-      case None           => (state) => SemanticCheckResult(state, Seq.empty)
+        declareVariable(variable, types(item.expression), positions, overriding = true)
+      case Some(variable) =>
+        declareVariable(variable, types(item.expression), overriding = true)
+      case None           => state => SemanticCheckResult(state, Seq.empty)
     })
 
   private def ensureProjectedToUniqueIds: SemanticCheck = {
     items.groupBy(_.name).foldLeft(success) {
-       case (acc, (k, items)) if items.size > 1 =>
-        acc chain SemanticError("Multiple result columns with the same name are not supported", items.head.position)
+       case (acc, (k, groupedItems)) if groupedItems.size > 1 =>
+        acc chain SemanticError("Multiple result columns with the same name are not supported", groupedItems.head.position)
        case (acc, _) =>
          acc
     }
   }
 
-  override def containsAggregate = items.exists(_.expression.containsAggregate)
+  override def containsAggregate: Boolean = items.exists(_.expression.containsAggregate)
 }
 
 sealed trait ReturnItem extends ASTNode with SemanticCheckable {
@@ -94,16 +104,16 @@ sealed trait ReturnItem extends ASTNode with SemanticCheckable {
   def name: String
   def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult
 
-  def semanticCheck = SemanticExpressionCheck.check(Expression.SemanticContext.Results, expression)
+  def semanticCheck: SemanticCheck = SemanticExpressionCheck.check(Expression.SemanticContext.Results, expression)
 }
 
 case class UnaliasedReturnItem(expression: Expression, inputText: String)(val position: InputPosition) extends ReturnItem {
-  val alias = expression match {
+  val alias: Option[LogicalVariable] = expression match {
     case i: LogicalVariable => Some(i.bumpId)
     case x: MapProjection => Some(x.name.bumpId)
     case _ => None
   }
-  val name = alias.map(_.name) getOrElse { inputText.trim }
+  val name: String = alias.map(_.name) getOrElse { inputText.trim }
 
   def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult =
     throw new InternalException("Should have been aliased before this step")
@@ -116,7 +126,7 @@ object AliasedReturnItem {
 //TODO variable should not be a Variable. A Variable is an expression, and the return item alias isn't
 case class AliasedReturnItem(expression: Expression, variable: LogicalVariable)(val position: InputPosition) extends ReturnItem {
   val alias = Some(variable)
-  val name = variable.name
+  val name: String = variable.name
 
   def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult = success(state)
 }
