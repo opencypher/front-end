@@ -15,21 +15,21 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.error
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.error
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics._
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
+import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.expressions.functions.Distance
 import org.opencypher.v9_0.expressions.functions.Exists
-import org.opencypher.v9_0.expressions.functions
-import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
@@ -673,10 +673,10 @@ sealed trait ProjectionClause extends HorizonClause {
       val specialReturnItems = createSpecialReturnItems(previousScope, s)
       val specialCheckForOrderByAndWhere =
         specialReturnItems.declareVariables(previousScope) chain
-        orderBy.semanticCheck chain
-        checkSkip chain
-        checkLimit chain where.
-        semanticCheck
+          orderBy.semanticCheck chain
+          checkSkip chain
+          checkLimit chain
+          where.semanticCheck
 
       val orderByAndWhereResult = specialCheckForOrderByAndWhere(s)
       val orderByAndWhereErrors = orderByAndWhereResult.errors
