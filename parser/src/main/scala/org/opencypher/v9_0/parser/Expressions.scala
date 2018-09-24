@@ -202,8 +202,9 @@ trait Expressions extends Parser
     group("[" ~~ FilterExpression ~ optional(WS ~ "|" ~~ Expression) ~~ "]") ~~>> (ast.ListComprehension(_, _, _, _))
   }
 
-  def PatternComprehension: Rule1[org.opencypher.v9_0.expressions.PatternComprehension] = rule("[") {
-    group("[" ~~ optional(Variable ~~ operator("=")) ~~ RelationshipsPattern ~ optional(WS ~ keyword("WHERE") ~~ Expression) ~~ "|" ~~ Expression ~~ "]") ~~>> (ast.PatternComprehension(_, _, _, _))
+  def PatternComprehension: Rule1[ast.PatternComprehension] = rule("[") {
+    group("[" ~~ optional(Variable ~~ operator("=")) ~~ RelationshipsPattern ~ optional(WS ~ keyword("WHERE") ~~ Expression) ~~ "|" ~~ Expression ~~ "]") ~~>> (
+      (a, b, c, d) => pos => ast.PatternComprehension(a, b, c, d)(pos, Set.empty))
   }
 
   def CaseExpression: Rule1[org.opencypher.v9_0.expressions.CaseExpression] = rule("CASE") {
