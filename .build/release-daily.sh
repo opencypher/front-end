@@ -20,9 +20,6 @@ echo "##teamcity[setParameter name='env.RELEASE_VERSION' value='$RELEASE_VERSION
 # Make a release commit
 git commit -am "Release version $RELEASE_VERSION"
 
-# Push the release commit to GitHub
-#git push origin 9.0
-
 # Find the git SHA of the commit
 export RELEASE_COMMIT=$(git rev-parse HEAD)
 
