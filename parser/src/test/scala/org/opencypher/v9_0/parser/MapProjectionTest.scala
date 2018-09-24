@@ -27,23 +27,23 @@ class MapProjectionTest extends ParserTest[Any, Any] with Expressions {
   test("testIdentifierCanContainASCII") {
     implicit val parserToTest = MapProjection
 
-    parsing("abc{}") shouldGive exp.MapProjection(exp.Variable("abc")(t), Seq.empty)(t)
+    parsing("abc{}") shouldGive exp.MapProjection(exp.Variable("abc")(t), Seq.empty)(t, None)
 
     parsing("abc{.id}") shouldGive
       exp.MapProjection(exp.Variable("abc")(t),
-        Seq(exp.PropertySelector(exp.Variable("id")(t))(t)))(t)
+        Seq(exp.PropertySelector(exp.Variable("id")(t))(t)))(t, None)
 
     parsing("abc{id}") shouldGive
       exp.MapProjection(exp.Variable("abc")(t),
-        Seq(exp.VariableSelector(exp.Variable("id")(t))(t)))(t)
+        Seq(exp.VariableSelector(exp.Variable("id")(t))(t)))(t, None)
 
     parsing("abc { id : 42 }") shouldGive
       exp.MapProjection(exp.Variable("abc")(t),
-        Seq(exp.LiteralEntry(exp.PropertyKeyName("id")(t), SignedDecimalIntegerLiteral("42")(t))(t)))(t)
+        Seq(exp.LiteralEntry(exp.PropertyKeyName("id")(t), SignedDecimalIntegerLiteral("42")(t))(t)))(t, None)
 
     parsing("abc { `a p a` : 42 }") shouldGive
       exp.MapProjection(exp.Variable("abc")(t),
-        Seq(exp.LiteralEntry(exp.PropertyKeyName("a p a")(t), SignedDecimalIntegerLiteral("42")(t))(t)))(t)
+        Seq(exp.LiteralEntry(exp.PropertyKeyName("a p a")(t), SignedDecimalIntegerLiteral("42")(t))(t)))(t, None)
 
     parsing("abc { id : 42, .foo, bar }") shouldGive
       exp.MapProjection(exp.Variable("abc")(t),
@@ -52,7 +52,7 @@ class MapProjectionTest extends ParserTest[Any, Any] with Expressions {
           exp.PropertySelector(exp.Variable("foo")(t))(t),
           exp.VariableSelector(exp.Variable("bar")(t))(t)
         )
-      )(t)
+      )(t, None)
   }
 
   def convert(result: Any): Any = result

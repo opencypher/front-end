@@ -101,10 +101,10 @@ trait Literals extends Parser
   def AllPropertiesSelector: Rule1[org.opencypher.v9_0.expressions.MapProjectionElement] = rule("all properties selector")(
     ch('.') ~~ ch('*') ~ push(ast.AllPropertiesSelector()(_)))
 
-  def MapProjection: Rule1[org.opencypher.v9_0.expressions.MapProjection] = rule {
+  def MapProjection: Rule1[ast.MapProjection] = rule {
     group(
       Variable ~~ ch('{') ~~ zeroOrMore(LiteralEntry | PropertySelector | VariableSelector | AllPropertiesSelector, CommaSep) ~~ ch('}')
-    ) ~~>> (ast.MapProjection(_, _))
+    ) ~~>> ((a, b) => pos => ast.MapProjection(a, b)(pos, None))
   }
 
   def Parameter: Rule1[org.opencypher.v9_0.expressions.Parameter] = rule("a parameter") {

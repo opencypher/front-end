@@ -99,7 +99,7 @@ case class ExpressionStringifier(extender: Expression => String = e => throw new
         s"all${prettyScope(scope, e)}"
       case NoneIterablePredicate(scope, e) =>
         s"none${prettyScope(scope, e)}"
-      case MapProjection(variable, items, _) =>
+      case MapProjection(variable, items) =>
         val itemsText = items.map {
           case LiteralEntry(k, e) => s"${backtick(k.name)}: ${this.apply(e)}"
           case VariableSelector(v) => this.apply(v)
