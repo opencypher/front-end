@@ -19,21 +19,28 @@ import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Statement}
 import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.Deprecations.{V1, V2}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, InputPosition}
 
-class SyntaxDeprecationWarningsTest extends CypherFunSuite with  AstConstructionTestSupport {
+class SyntaxDeprecationWarningsTest extends CypherFunSuite with AstConstructionTestSupport {
 
-  test("should warn about deprecated functions") {
-    check("RETURN toInt(2.71828)") should equal(Set(DeprecatedFunctionNotification(InputPosition(7, 1, 8), "toInt", "toInteger")))
-    check("RETURN upper('hello')") should equal(Set(DeprecatedFunctionNotification(InputPosition(7, 1, 8), "upper", "toUpper")))
-    check("RETURN rels($r)") should equal(Set(DeprecatedFunctionNotification(InputPosition(7, 1, 8), "rels", "relationships")))
-    check("RETURN timestamp()") shouldBe empty
+  private val returnPos = InputPosition(7, 1, 8)
+
+  test("should warn about V1 deprecations") {
+    check(V1, "RETURN toInt(2.71828)") should equal(Set(DeprecatedFunctionNotification(returnPos, "toInt", "toInteger")))
+    check(V1, "RETURN upper('hello')") should equal(Set(DeprecatedFunctionNotification(returnPos, "upper", "toUpper")))
+    check(V1, "RETURN rels($r)") should equal(Set(DeprecatedFunctionNotification(returnPos, "rels", "relationships")))
+    check(V1, "RETURN timestamp()") shouldBe empty
   }
 
-  private def check(query: String) = {
+  test("should warn about V2 deprecations") {
+    check(V2, "RETURN extract(a IN [{x: 1},{x: 2}] | a.x)") should be(Set(DeprecatedFunctionNotification(returnPos, "extract(...)", "[...]")))
+  }
+
+  private def check(deprecations: Deprecations, query: String) = {
     val logger = new RecordingNotificationLogger()
-    SyntaxDeprecationWarnings(Deprecations.V1).visit(TestState(Some(parse(query))), TestContext(logger))
+    SyntaxDeprecationWarnings(deprecations).visit(TestState(Some(parse(query))), TestContext(logger))
     logger.notifications
   }
 

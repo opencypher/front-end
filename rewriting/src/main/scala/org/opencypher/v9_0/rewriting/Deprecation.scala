@@ -69,6 +69,32 @@ object Deprecations {
     }
   }
 
+  case object V2 extends Deprecations {
+    private val functionRenames: Map[String, String] =
+      TreeMap(
+        "toInt" -> "toInteger",
+        "upper" -> "toUpper",
+        "lower" -> "toLower",
+        "rels" -> "relationships"
+      )(CaseInsensitiveOrdered)
+
+    override val find: PartialFunction[Any, Deprecation] = {
+
+      val additionalDeprecations: PartialFunction[Any, Deprecation] = {
+
+        // extract => list comprehension
+        case e@ExtractExpression(scope, expression) =>
+          Deprecation(
+            () => ListComprehension(scope, expression)(e.position),
+            () => Some(DeprecatedFunctionNotification(e.position, "extract(...)", "[...]"))
+          )
+
+      }
+
+      additionalDeprecations.orElse(V1.find)
+    }
+  }
+
   object CaseInsensitiveOrdered extends Ordering[String] {
     def compare(x: String, y: String): Int =
       x.compareToIgnoreCase(y)
