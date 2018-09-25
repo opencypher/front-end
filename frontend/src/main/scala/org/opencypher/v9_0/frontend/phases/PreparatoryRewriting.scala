@@ -18,15 +18,16 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.rewriting.rewriters._
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
+import org.opencypher.v9_0.rewriting.Deprecations
 
-case object PreparatoryRewriting extends Phase[BaseContext, BaseState, BaseState] {
+case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
 
   override def process(from: BaseState, context: BaseContext): BaseState = {
 
     val rewrittenStatement = from.statement().endoRewrite(inSequence(
       normalizeWithAndReturnClauses(context.exceptionCreator),
       expandCallWhere,
-      replaceAliasedFunctionInvocations,
+      replaceAliasedFunctionInvocations(deprecations),
       mergeInPredicates))
 
     from.withStatement(rewrittenStatement)

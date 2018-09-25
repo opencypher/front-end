@@ -22,7 +22,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ReplaceAliasedFunctionInvocationsTest extends CypherFunSuite with AstConstructionTestSupport {
 
-  val rewriter = replaceAliasedFunctionInvocations
+  private val rewriter = replaceAliasedFunctionInvocations(Deprecations.V1)
 
   test("should rewrite toInt()") {
     val before = FunctionInvocation(FunctionName("toInt")(pos), literalInt(1))(pos)
@@ -38,7 +38,6 @@ class ReplaceAliasedFunctionInvocationsTest extends CypherFunSuite with AstConst
 
   test("should rewrite timestamp()") {
     val before = FunctionInvocation(FunctionName("timestamp")(pos), distinct = false, IndexedSeq.empty)(pos)
-
 
     val after =
       Property(

@@ -18,6 +18,7 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Statement}
 import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
 import org.opencypher.v9_0.parser.ParserFixture.parser
+import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, InputPosition}
 
@@ -32,7 +33,7 @@ class SyntaxDeprecationWarningsTest extends CypherFunSuite with  AstConstruction
 
   private def check(query: String) = {
     val logger = new RecordingNotificationLogger()
-    SyntaxDeprecationWarnings.visit(TestState(Some(parse(query))), TestContext(logger))
+    SyntaxDeprecationWarnings(Deprecations.V1).visit(TestState(Some(parse(query))), TestContext(logger))
     logger.notifications
   }
 
