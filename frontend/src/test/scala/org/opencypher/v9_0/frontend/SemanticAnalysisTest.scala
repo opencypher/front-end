@@ -62,8 +62,6 @@ class SemanticAnalysisTest extends CypherFunSuite with AstConstructionTestSuppor
 
     pipeline.transform(startState, ErrorCollectingContext)
 
-    println(ErrorCollectingContext.errors)
-
     ErrorCollectingContext.errors.map(_.msg) should equal(List("Multiple result columns with the same name are not supported"))
   }
 

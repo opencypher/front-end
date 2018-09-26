@@ -146,6 +146,11 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
       "WITH 1 AS foo FOREACH (bar IN [1,2,3] | CREATE (c)) RETURN foo as bar ORDER BY bar",
       "WITH 1 AS foo FOREACH (`  bar@23` IN [1,2,3] | CREATE (c)) RETURN foo as bar ORDER BY bar",
       List(varFor("  bar@23"))
+    ),
+    TestCase(
+      "WITH 1 AS foo FOREACH (bar IN [1,2,3] | CREATE (c)) RETURN foo as bar ORDER BY bar + 2",
+      "WITH 1 AS foo FOREACH (`  bar@23` IN [1,2,3] | CREATE (c)) RETURN foo as bar ORDER BY bar + 2",
+      List(varFor("  bar@23"))
     )
   )
 
