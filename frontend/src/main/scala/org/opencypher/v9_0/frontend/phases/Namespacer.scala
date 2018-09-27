@@ -71,12 +71,14 @@ object Namespacer extends Phase[BaseContext, BaseState, BaseState] {
         val variablesInReturn = items.map(_.alias.get)
         val refVars = variablesInReturn.map(Ref[LogicalVariable])
         // If the order by refers to the alias introduced in the return, it is also protected
-        val protectedVariablesInOrderBy = orderBy.map(_.sortItems
-          .map(_.expression)
-          .filter(variablesInReturn.contains)
-          .map(_.asInstanceOf[LogicalVariable])
-          .map(Ref[LogicalVariable])
-        ).getOrElse(Seq.empty)
+        val expressionsInOrderBy = for {
+          order <- orderBy.toSeq
+          sortItem <- order.sortItems
+        } yield sortItem.expression
+
+        val variablesInOrderBy = expressionsInOrderBy.findByAllClass[LogicalVariable]
+
+        val protectedVariablesInOrderBy = variablesInOrderBy.filter(variablesInReturn.contains).map(Ref[LogicalVariable])
         acc => (acc ++ refVars ++ protectedVariablesInOrderBy, Some(identity))
     }
 
