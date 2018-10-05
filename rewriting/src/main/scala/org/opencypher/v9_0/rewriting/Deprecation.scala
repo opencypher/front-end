@@ -89,6 +89,13 @@ object Deprecations {
             () => Some(DeprecatedFunctionNotification(e.position, "extract(...)", "[...]"))
           )
 
+        // filter => list comprehension
+        case e@FilterExpression(scope, expression) =>
+          Deprecation(
+            () => ListComprehension(ExtractScope(scope.variable, scope.innerPredicate, None)(scope.position), expression)(e.position),
+            () => Some(DeprecatedFunctionNotification(e.position, "filter(...)", "[...]"))
+          )
+
       }
 
       additionalDeprecations.orElse(V1.find)

@@ -36,6 +36,7 @@ class SyntaxDeprecationWarningsTest extends CypherFunSuite with AstConstructionT
 
   test("should warn about V2 deprecations") {
     check(V2, "RETURN extract(a IN [{x: 1},{x: 2}] | a.x)") should be(Set(DeprecatedFunctionNotification(returnPos, "extract(...)", "[...]")))
+    check(V2, "RETURN filter(a IN [{x: 1},{x: 2}] WHERE a.x = 1)") should be(Set(DeprecatedFunctionNotification(returnPos, "filter(...)", "[...]")))
   }
 
   private def check(deprecations: Deprecations, query: String) = {
