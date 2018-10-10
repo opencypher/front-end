@@ -20,6 +20,7 @@ import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Query, Statement}
 import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
 import org.opencypher.v9_0.frontend.phases._
 import org.opencypher.v9_0.parser.ParserTest
+import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.{ast, parser}
 import org.parboiled.scala.Rule1
 
@@ -516,7 +517,7 @@ class MultipleGraphClauseSemanticCheckingTest
   }
 
   override def convert(astNode: ast.Statement): SemanticCheckResult = {
-    val rewritten = PreparatoryRewriting.transform(TestState(Some(astNode)), TestContext()).statement()
+    val rewritten = PreparatoryRewriting(Deprecations.V1).transform(TestState(Some(astNode)), TestContext()).statement()
     val initialState = SemanticState.clean.withFeatures(SemanticFeature.MultipleGraphs, SemanticFeature.WithInitialQuerySignature)
     rewritten.semanticCheck(initialState)
   }

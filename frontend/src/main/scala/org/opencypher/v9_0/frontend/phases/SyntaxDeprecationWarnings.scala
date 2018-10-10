@@ -16,12 +16,11 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.expressions.{FunctionInvocation, FunctionName, RelationshipPattern}
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.DEPRECATION_WARNINGS
-import org.opencypher.v9_0.rewriting.rewriters.replaceAliasedFunctionInvocations.deprecatedFunctionReplacements
-import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, DeprecatedRelTypeSeparatorNotification, DeprecatedVarLengthBindingNotification, InternalNotification}
+import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.util.InternalNotification
 
-object SyntaxDeprecationWarnings extends VisitorPhase[BaseContext, BaseState] {
+case class SyntaxDeprecationWarnings(deprecations: Deprecations) extends VisitorPhase[BaseContext, BaseState] {
   override def visit(state: BaseState, context: BaseContext): Unit = {
     val warnings = findDeprecations(state.statement())
 
@@ -29,14 +28,9 @@ object SyntaxDeprecationWarnings extends VisitorPhase[BaseContext, BaseState] {
   }
 
   private def findDeprecations(statement: Statement): Set[InternalNotification] =
-    statement.treeFold(Set.empty[InternalNotification]) {
-      case f@FunctionInvocation(_, FunctionName(name), _, _) if deprecatedFunctionReplacements.contains(name) =>
-        seq => (seq + DeprecatedFunctionNotification(f.position, name, deprecatedFunctionReplacements(name)), None)
-      case p@RelationshipPattern(Some(variable), _, Some(_), _, _, _, _) =>
-        seq => (seq + DeprecatedVarLengthBindingNotification(p.position, variable.name), None)
-      case p@RelationshipPattern(variable, _, length, properties, _, true, _) if variable.isDefined || length.isDefined || properties.isDefined =>
-        seq => (seq + DeprecatedRelTypeSeparatorNotification(p.position), None)
-    }
+    statement.fold(Set.empty[InternalNotification])(
+      deprecations.find.andThen(deprecation => acc => acc ++ deprecation.generateNotification())
+    )
 
   override def phase = DEPRECATION_WARNINGS
 

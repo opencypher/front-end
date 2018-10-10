@@ -15,46 +15,11 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 
-import scala.collection.immutable.TreeMap
-
-case object replaceAliasedFunctionInvocations extends Rewriter {
+case class replaceAliasedFunctionInvocations(deprecations: Deprecations) extends Rewriter {
 
   override def apply(that: AnyRef): AnyRef = instance(that)
-
-  /*
-   * These are historical names for functions. They are all subject to removal in an upcoming major release.
-   */
-  val deprecatedFunctionReplacements: Map[String, String] = TreeMap("toInt" -> "toInteger",
-                                                                    "upper" -> "toUpper",
-                                                                    "lower" -> "toLower",
-                                                                    "rels" -> "relationships")(CaseInsensitiveOrdered)
-
-  private def propertyOf(propertyKey:String): Expression => Expression =
-    (incoming:Expression) => Property(incoming, PropertyKeyName(propertyKey)(incoming.position))(incoming.position)
-
-  private val renameFunction: FunctionInvocation => Expression =
-    (incoming:FunctionInvocation) => renameFunctionTo(deprecatedFunctionReplacements(incoming.name))(incoming)
-
-  private def renameFunctionTo(newName: String) = (incoming: FunctionInvocation) =>
-    incoming.copy(functionName = FunctionName(newName)(incoming.functionName.position))(incoming.position)
-
-  private val aliases: Map[String, FunctionInvocation => Expression] = TreeMap("toInt" -> renameFunction,
-                                                                               "upper" -> renameFunction,
-                                                                               "lower" -> renameFunction,
-                                                                               "rels" -> renameFunction,
-                                                                               "timestamp" ->
-                                                                                 renameFunctionTo("datetime")
-                                                                                   .andThen(propertyOf("epochMillis")))(CaseInsensitiveOrdered)
-
-  val instance: Rewriter = bottomUp(Rewriter.lift {
-    case func@FunctionInvocation(_, FunctionName(name), _, _) if aliases.contains(name) => aliases(name)(func)
-  })
-}
-
-object CaseInsensitiveOrdered extends Ordering[String] {
-  def compare(x: String, y: String): Int =
-    x.compareToIgnoreCase(y)
+  val instance: Rewriter = bottomUp(Rewriter.lift(deprecations.find.andThen(d => d.generateReplacement())))
 }
