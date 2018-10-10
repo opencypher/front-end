@@ -28,12 +28,12 @@ class namePatternComprehensionPatternElementsTest extends CypherFunSuite with As
     val input: ASTNode = PatternComprehension(None, RelationshipsPattern(
       RelationshipChain(NodePattern(None, Seq.empty, None) _,
                         RelationshipPattern(None, Seq.empty, None, None, SemanticDirection.OUTGOING) _,
-                        NodePattern(None, Seq.empty, None) _) _) _, None, StringLiteral("foo") _) _
+                        NodePattern(None, Seq.empty, None) _) _) _, None, StringLiteral("foo") _)(pos, Set.empty)
 
     namePatternComprehensionPatternElements(input) match {
       case PatternComprehension(_, RelationshipsPattern(RelationshipChain(NodePattern(Some(_), _, _, _),
                                                                           RelationshipPattern(Some(_), _, _, _, _, _, _),
-                                                                          NodePattern(Some(_), _, _, _))), _, _, _) => ()
+                                                                          NodePattern(Some(_), _, _, _))), _, _) => ()
       case _ => fail("All things were not named")
     }
   }
@@ -44,7 +44,7 @@ class namePatternComprehensionPatternElementsTest extends CypherFunSuite with As
                                                                                                   RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, SemanticDirection.OUTGOING) _,
                                                                                                   NodePattern(Some(varFor("b")), Seq.empty, None) _) _) _,
                                                            None,
-                                                           StringLiteral("foo")_)_
+                                                           StringLiteral("foo")_)(pos, Set.empty)
 
     namePatternComprehensionPatternElements(input) should equal(input)
   }

@@ -16,8 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
-import org.opencypher.v9_0.ast.semantics.{SemanticChecker, SemanticFeature, SemanticState}
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticChecker, SemanticFeature, SemanticState}
+import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticChecker, SemanticFeature, SemanticState, SemanticTable}
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 
@@ -37,7 +36,8 @@ case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
 
     context.errorHandler(errors)
 
-    from.withSemanticState(state)
+    val table = SemanticTable(types = state.typeTable, recordedScopes = state.recordedScopes)
+    from.withSemanticState(state).withSemanticTable(table)
   }
 
   override def phase: CompilationPhaseTracer.CompilationPhase = SEMANTIC_CHECK

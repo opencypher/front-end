@@ -36,5 +36,6 @@ object CompilationPhases {
       transitiveClosure andThen
       rewriteEqualityToInPredicate andThen
       CNFNormalizer andThen
-      LateAstRewriting
+      LateAstRewriting andThen
+        SemanticAnalysis(warn = false)
 }
