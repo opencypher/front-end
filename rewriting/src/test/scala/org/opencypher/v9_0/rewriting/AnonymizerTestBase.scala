@@ -43,8 +43,8 @@ abstract class AnonymizerTestBase extends CypherFunSuite with RewriteTest {
   }
 
   private def assertRename(names: Set[String], rename: String => String): Unit = {
-    val anons = names.map(anonymizer.variable)
+    val anons = names.map(rename)
     anons.size should be(4)
-    anons should be(names.map(anonymizer.variable))
+    anons should be(names.map(rename))
   }
 }
