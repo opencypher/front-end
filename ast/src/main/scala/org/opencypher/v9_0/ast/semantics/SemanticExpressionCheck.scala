@@ -645,8 +645,12 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           val outerTypes: TypeGenerator = types(e)(_).wrapInList
           specifyType(outerTypes, x)
         }
-      case None =>
+      case None => withScopedState {
+        // Even if there is no usage of that variable, we need to declare it, to not confuse the Namespacer
+        declareVariable(x.variable, FilteringExpressions.possibleInnerTypes(x))
+      } chain {
         specifyType(types(x.expression), x)
+      }
     }
 }
 

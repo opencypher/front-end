@@ -50,4 +50,14 @@ class ListComprehensionTest extends SemanticFunSuite {
     result.errors should equal(Seq(error))
     result.state.symbol("x") should equal(None)
   }
+
+  test("should declare variables in list comprehension without predicate") {
+    val listComprehension = ListComprehension(Variable("x")(DummyPosition(2)), dummyExpression, None, None)(DummyPosition(0))
+    val result = SemanticExpressionCheck.simple(listComprehension)(SemanticState.clean)
+    result.errors shouldBe empty
+    // x should not be in the outer scope
+    result.state.symbol("x") should equal(None)
+    // x should be in the inner scope
+    result.state.scopeTree.children.head.symbolTable.keys should contain("x")
+  }
 }
