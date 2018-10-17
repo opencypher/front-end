@@ -75,46 +75,6 @@ class SemanticAnalysisTest extends CypherFunSuite with AstConstructionTestSuppor
     ErrorCollectingContext.errors.map(_.msg) should equal(List("Variable `n` already declared"))
   }
 
-  test("Should give helpful error when accessing illegal variable in ORDER BY after WITH DISTINCT") {
-    val query = "MATCH (p) WITH DISTINCT p.email AS mail ORDER BY p.name RETURN mail AS mail"
-
-    val startState = initStartState(query, Map.empty)
-
-    pipeline.transform(startState, ErrorCollectingContext)
-
-    ErrorCollectingContext.errors.map(_.msg) should equal(List("In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: p"))
-  }
-
-  test("Should give helpful error when accessing illegal variable in WHERE after WITH DISTINCT") {
-    val query = "MATCH (p) WITH DISTINCT p.email AS mail WHERE exists(p.name) RETURN mail AS mail"
-
-    val startState = initStartState(query, Map.empty)
-
-    pipeline.transform(startState, ErrorCollectingContext)
-
-    ErrorCollectingContext.errors.map(_.msg) should equal(List("In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: p"))
-  }
-
-  test("Should give helpful error when accessing illegal variable in ORDER BY after WITH with aggregation") {
-    val query = "MATCH (p) WITH collect(p.email) AS mail ORDER BY p.name RETURN mail AS mail"
-
-    val startState = initStartState(query, Map.empty)
-
-    pipeline.transform(startState, ErrorCollectingContext)
-
-    ErrorCollectingContext.errors.map(_.msg) should equal(List("In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: p"))
-  }
-
-  test("Should give helpful error when accessing illegal variable in WHERE after WITH with aggregation") {
-    val query = "MATCH (p) WITH collect(p.email) AS mail WHERE exists(p.name) RETURN mail AS mail"
-
-    val startState = initStartState(query, Map.empty)
-
-    pipeline.transform(startState, ErrorCollectingContext)
-
-    ErrorCollectingContext.errors.map(_.msg) should equal(List("In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: p"))
-  }
-
   private def initStartState(query: String, initialFields: Map[String, CypherType]) =
     InitialState(query, None, NoPlannerName, initialFields)
 }
