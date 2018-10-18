@@ -679,7 +679,9 @@ sealed trait ProjectionClause extends HorizonClause {
           where.semanticCheck
 
       val orderByAndWhereResult = specialCheckForOrderByAndWhere(s)
-      val orderByAndWhereErrors = orderByAndWhereResult.errors
+
+      val orderByAndWhereErrorMapper = warnOnAccessToRetrictedVariableInOrderByOrWhere(previousScope.symbolNames) _
+      val orderByAndWhereErrors = orderByAndWhereResult.errors.map(orderByAndWhereErrorMapper)
 
       // In the second run we want to make sure to declare the return items, and register the use of variables in the ORDER BY and WHERE.
       // This will be executed with the scope which as valid after the WITH. Therefore this second check can lead to false errors, which we ignore.
@@ -702,6 +704,23 @@ sealed trait ProjectionClause extends HorizonClause {
                               errors = fixedOrderByResult.errors ++ orderByAndWhereErrors)
     }
     declareAllTheThings
+  }
+
+  /**
+    * If you access a previously defined variable in a WITH/RETURN with DISTINCT or aggregation, that is not OK. Example:
+    * MATCH (a) RETURN sum(a.age) ORDER BY a.name
+    *
+    * This method takes the "Variable not defined" errors we get from the semantic analysis and provides a more helpful
+    * error message
+    * @param previousScopeVars all variables defined in the previous scope.
+    * @param error the error
+    * @return an error with a possibly better error message
+    */
+  private def warnOnAccessToRetrictedVariableInOrderByOrWhere(previousScopeVars: Set[String])(error: SemanticErrorDef): SemanticErrorDef = {
+    previousScopeVars.collectFirst {
+      case name if error.msg.equals(s"Variable `$name` not defined") => error.withMsg(
+        s"In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: $name")
+    }.getOrElse(error)
   }
 
   private def createSpecialReturnItems(previousScope: Scope, s: SemanticState): ReturnItemsDef = {

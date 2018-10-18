@@ -611,13 +611,13 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
       """MATCH (n)
         |WITH DISTINCT n.prop AS prop ORDER BY n.foo
         |RETURN prop AS prop
-      """.stripMargin, "Variable `n` not defined (line 2, column 39 (offset: 48))")
+      """.stripMargin, "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: n (line 2, column 39 (offset: 48))")
 
     assertNotRewritittenAndSemanticErrors(
       """MATCH (n)
         |WITH n.prop AS prop, collect(n.foo) AS foos ORDER BY n.foo
         |RETURN prop AS prop, foos AS foos
-      """.stripMargin, "Variable `n` not defined (line 2, column 54 (offset: 63))")
+      """.stripMargin, "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: n (line 2, column 54 (offset: 63))")
   }
 
   test("RETURN: aggregating: does not change grouping set when introducing aliases for ORDER BY with non-grouping expression") {
@@ -625,12 +625,12 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
     assertNotRewritittenAndSemanticErrors(
       """MATCH (n)
         |RETURN DISTINCT n.prop AS prop ORDER BY n.foo
-      """.stripMargin, "Variable `n` not defined (line 2, column 41 (offset: 50))")
+      """.stripMargin, "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: n (line 2, column 41 (offset: 50))")
 
     assertNotRewritittenAndSemanticErrors(
       """MATCH (n)
         |RETURN n.prop AS prop, collect(n.foo) AS foos ORDER BY n.foo
-      """.stripMargin, "Variable `n` not defined (line 2, column 56 (offset: 65))")
+      """.stripMargin, "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: n (line 2, column 56 (offset: 65))")
   }
 
   test("aggregating: does not change grouping set when introducing aliases for WHERE with non-grouping expression") {
@@ -639,14 +639,14 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
       """MATCH (n)
         |WITH DISTINCT n.prop AS prop WHERE n.foo
         |RETURN prop AS prop
-      """.stripMargin, "Variable `n` not defined (line 2, column 36 (offset: 45))")
+      """.stripMargin, "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: n (line 2, column 36 (offset: 45))")
 
 
     assertNotRewritittenAndSemanticErrors(
       """MATCH (n)
         |WITH n.prop AS prop, collect(n.foo) AS foos WHERE n.foo
         |RETURN prop AS prop, foos AS foos
-      """.stripMargin, "Variable `n` not defined (line 2, column 51 (offset: 60))")
+      """.stripMargin, "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN: n (line 2, column 51 (offset: 60))")
   }
 
   // Below: unordered, exploratory tests
