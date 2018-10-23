@@ -58,7 +58,85 @@ class PrettifierIT extends CypherFunSuite {
 
       "create (a)--(b) RETURN a" ->
         """CREATE (a)--(b)
-          |RETURN a""".stripMargin
+          |RETURN a""".stripMargin,
+
+      "match (a:Label {prop: 1}) RETURN a" ->
+        """MATCH (a:Label {prop: 1})
+          |RETURN a""".stripMargin,
+
+      "unwind [1,2,3] AS x RETURN x" ->
+        """UNWIND [1, 2, 3] AS x
+          |RETURN x""".stripMargin,
+
+      "CALL nsp.proc()" ->
+        """CALL nsp.proc()""".stripMargin,
+
+      "CALL proc()" ->
+        """CALL proc()""".stripMargin,
+
+      "CALL nsp1.nsp2.proc()" ->
+        """CALL nsp1.nsp2.proc()""".stripMargin,
+
+      "CALL nsp.proc(a)" ->
+        """CALL nsp.proc(a)""".stripMargin,
+
+      "CALL nsp.proc(a,b)" ->
+        """CALL nsp.proc(a, b)""".stripMargin,
+
+      "CALL nsp.proc() yield x" ->
+        """CALL nsp.proc() YIELD x""".stripMargin,
+
+      "CALL nsp.proc() yield x, y" ->
+        """CALL nsp.proc() YIELD x, y""".stripMargin,
+
+      "match (n) SET n.prop = 1" ->
+        """MATCH (n)
+          |SET n.prop = 1""".stripMargin,
+
+      "match (n) SET n.prop = 1, n.prop2 = 2" ->
+        """MATCH (n)
+          |SET n.prop = 1, n.prop2 = 2""".stripMargin,
+
+      "match (n) SET n:Label" ->
+        """MATCH (n)
+          |SET n:Label""".stripMargin,
+
+      "match (n) SET n:`La bel`" ->
+        """MATCH (n)
+          |SET n:`La bel`""".stripMargin,
+
+      "match (n) SET n:Label:Bla" ->
+        """MATCH (n)
+          |SET n:Label:Bla""".stripMargin,
+
+      "match (n) SET n += {prop: 1}" ->
+        """MATCH (n)
+          |SET n += {prop: 1}""".stripMargin,
+
+      "match (n) SET n = {prop: 1}" ->
+        """MATCH (n)
+          |SET n = {prop: 1}""".stripMargin,
+
+      "match (n) SET n:Label, n.prop = 1" ->
+        """MATCH (n)
+          |SET n:Label, n.prop = 1""".stripMargin,
+
+      "match (n) DELETE n" ->
+        """MATCH (n)
+          |DELETE n""".stripMargin,
+
+      "match (n), (m) DELETE n, m" ->
+        """MATCH (n), (m)
+          |DELETE n, m""".stripMargin,
+
+      "merge (n)" ->
+        "MERGE (n)",
+
+      "merge (n)--(m)" ->
+        "MERGE (n)--(m)",
+
+      "merge (n:Label {prop:1})--(m)" ->
+        "MERGE (n:Label {prop: 1})--(m)"
     )
 
   tests foreach {

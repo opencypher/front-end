@@ -29,6 +29,11 @@ case class Prettifier(mkStringOf: ExpressionStringifier) {
     case m: Match => asString(m)
     case w: With => asString(w)
     case c: Create => asString(c)
+    case u: Unwind => asString(u)
+    case u: UnresolvedCall => asString(u)
+    case s: SetClause => asString(s)
+    case d: Delete => asString(d)
+    case m: Merge => asString(m)
     case _ => clause.asCanonicalStringVal // TODO
   }
 
@@ -52,6 +57,10 @@ case class Prettifier(mkStringOf: ExpressionStringifier) {
     val p = m.pattern.patternParts.map(p => asString(p)).mkString(", ")
     val w = m.where.map(w => NL + "  WHERE " + mkStringOf(w.expression)).getOrElse("")
     s"${o}MATCH $p$w"
+  }
+
+  private def asString(merge: Merge): String = {
+    s"MERGE ${merge.pattern.patternParts.map(asString).mkString(", ")}"
   }
 
   private def asString(o: Skip): String = "SKIP " + mkStringOf(o.expression)
@@ -91,5 +100,32 @@ case class Prettifier(mkStringOf: ExpressionStringifier) {
   private def asString(c: Create): String = {
     val p = c.pattern.patternParts.map(p => asString(p)).mkString(", ")
     s"CREATE $p"
+  }
+
+  private def asString(u: Unwind): String = {
+    s"UNWIND ${mkStringOf(u.expression)} AS ${mkStringOf(u.variable)}"
+  }
+
+  private def asString(u: UnresolvedCall): String = {
+    val namespace = u.procedureNamespace.parts.mkString(".")
+    val prefix = if (namespace.isEmpty) "" else namespace + "."
+    val arguments = u.declaredArguments.map(list => list.map(mkStringOf(_)).mkString(", ")).getOrElse("")
+    val yields = u.declaredResult.map(result => " YIELD " + result.items.map(item => mkStringOf(item.variable)).mkString(", ")).getOrElse("")
+    s"CALL $prefix${u.procedureName.name}($arguments)$yields"
+  }
+
+  private def asString(s: SetClause): String = {
+    val items = s.items.map {
+      case SetPropertyItem(prop, exp) => s"${mkStringOf(prop)} = ${mkStringOf(exp)}"
+      case SetLabelItem(variable, labels) => mkStringOf(variable) + labels.map(label =>s":${ExpressionStringifier.backtick(label.name)}").mkString("")
+      case SetIncludingPropertiesFromMapItem(variable, exp) => s"${mkStringOf(variable)} += ${mkStringOf(exp)}"
+      case SetExactPropertiesFromMapItem(variable, exp) => s"${mkStringOf(variable)} = ${mkStringOf(exp)}"
+      case _ => s.asCanonicalStringVal
+    }
+    s"SET ${items.mkString(", ")}"
+  }
+
+  private def asString(delete: Delete): String = {
+    s"DELETE ${delete.expressions.map(mkStringOf(_)).mkString(", ")}"
   }
 }
