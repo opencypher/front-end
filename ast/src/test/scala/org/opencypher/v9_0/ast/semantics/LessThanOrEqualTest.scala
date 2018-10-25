@@ -15,30 +15,29 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.LessThanOrEqual
 
 class LessThanOrEqualTest extends InfixExpressionTestBase(expressions.LessThanOrEqual(_, _)(DummyPosition(0))) {
 
-  test("shouldSupportComparingIntegers") {
+  test("should support comparing integers") {
     testValidTypes(CTInteger, CTInteger)(CTBoolean)
   }
 
-  test("shouldSupportComparingDoubles") {
+  test("should support comparing doubles") {
     testValidTypes(CTFloat, CTFloat)(CTBoolean)
   }
 
-  test("shouldSupportComparingStrings") {
+  test("should support comparing strings") {
     testValidTypes(CTString, CTString)(CTBoolean)
   }
 
-  test("shouldSupportComparingPoints") {
+  test("should support comparing points") {
     testValidTypes(CTPoint, CTPoint)(CTBoolean)
   }
 
-  test("shouldSupportComparingTemporals") {
+  test("should support comparing temporals") {
     testValidTypes(CTDate, CTDate)(CTBoolean)
     testValidTypes(CTTime, CTTime)(CTBoolean)
     testValidTypes(CTLocalTime, CTLocalTime)(CTBoolean)
@@ -46,9 +45,23 @@ class LessThanOrEqualTest extends InfixExpressionTestBase(expressions.LessThanOr
     testValidTypes(CTLocalDateTime, CTLocalDateTime)(CTBoolean)
   }
 
-  test("shouldReturnErrorIfInvalidArgumentTypes") {
-    testInvalidApplication(CTNode, CTInteger)("Type mismatch: expected Float, Integer, Point, String, Date, Time, LocalTime, LocalDateTime or DateTime but was Node")
+  test("should return error if invalid argument types") {
+    testInvalidApplication(CTNode, CTInteger)(
+      "Type mismatch: expected Float, Integer, Point, String, Date, Time, LocalTime, LocalDateTime or DateTime but was Node")
     testInvalidApplication(CTInteger, CTNode)("Type mismatch: expected Float or Integer but was Node")
-    testInvalidApplication(CTDuration, CTDuration)("Type mismatch: expected Float, Integer, Point, String, Date, Time, LocalTime, LocalDateTime or DateTime but was Duration")
+    testInvalidApplication(CTDuration, CTDuration)(
+      "Type mismatch: expected Float, Integer, Point, String, Date, Time, LocalTime, LocalDateTime or DateTime but was Duration")
+  }
+
+  test("should support comparing all types with Cypher 9 comparison semantics") {
+    val types = List(CTList(CTAny), CTInteger, CTFloat, CTNumber, CTNode, CTPath, CTRelationship, CTMap, CTPoint,
+                     CTDate, CTDuration, CTBoolean, CTString, CTDateTime, CTGeometry, CTLocalDateTime, CTLocalTime,
+                     CTTime)
+
+    types.foreach { t1 =>
+      types.foreach { t2 =>
+        testValidTypes(t1, t2, useCypher9ComparisonSemantics = true)(CTBoolean)
+      }
+    }
   }
 }

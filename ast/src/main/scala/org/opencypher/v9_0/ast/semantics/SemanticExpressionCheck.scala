@@ -153,25 +153,32 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           checkTypes(x, x.signatures)
 
       case x:LessThan =>
-        check(ctx, x.arguments) chain
-          checkTypes(x, x.signatures)
+        check(ctx, x.arguments) chain ((state:SemanticState) =>
+          //According to spec comparing unrelated types should yield null not error
+          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
+          else checkTypes(x, x.signatures)(state))
 
       case x:LessThanOrEqual =>
-        check(ctx, x.arguments) chain
-          checkTypes(x, x.signatures)
+        check(ctx, x.arguments) chain ((state:SemanticState) =>
+          //According to spec comparing unrelated types should yield null not error
+          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
+          else checkTypes(x, x.signatures)(state))
 
       case x:GreaterThan =>
-        check(ctx, x.arguments) chain
-          checkTypes(x, x.signatures)
+        check(ctx, x.arguments) chain ((state:SemanticState) =>
+          //According to spec comparing unrelated types should yield null not error
+          //According to spec comparing unrelated types should yield null not error
+          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
+          else checkTypes(x, x.signatures)(state))
 
       case x:GreaterThanOrEqual =>
-        check(ctx, x.arguments) chain
-          checkTypes(x, x.signatures)
+        check(ctx, x.arguments) chain ((state:SemanticState) =>
+          //According to spec comparing unrelated types should yield null not error
+          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
+          else checkTypes(x, x.signatures)(state))
 
       case x:PartialPredicate[_] =>
         check(ctx, x.coveredPredicate)
-
-      //
 
       case x:CaseExpression =>
         val possibleTypes = unionOfTypes(x.possibleExpressions)
