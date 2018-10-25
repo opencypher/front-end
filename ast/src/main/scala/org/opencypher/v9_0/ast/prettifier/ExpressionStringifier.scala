@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast.prettifier
 
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.InternalException
+import ExpressionStringifier.backtick
 
 case class ExpressionStringifier(extender: Expression => String = e => throw new InternalException(s"failed to pretty print $e")) {
   def apply(ast: Expression): String = {
@@ -151,17 +152,11 @@ case class ExpressionStringifier(extender: Expression => String = e => throw new
     s"($v IN $e WHERE $p)"
   }
 
-  private def backtick(txt: String) = {
-    val needsBackticks = !(Character.isJavaIdentifierStart(txt.head) && txt.tail.forall(Character.isJavaIdentifierPart))
-    if (needsBackticks)
-      s"`$txt`"
-    else
-      txt
-  }
-
   private def props(prepend: String, e: Option[Expression]): String = {
-    val separator = if(prepend.isEmpty) "" else " "
-    e.map(e => s"$separator${this.apply(e)}").getOrElse(prepend)
+    e.map(e => {
+      val separator = if(prepend.isEmpty) "" else " "
+      s"$prepend$separator${this.apply(e)}"
+    }).getOrElse(prepend)
   }
 
   def node(nodePattern: NodePattern): String = {
@@ -251,5 +246,16 @@ case class ExpressionStringifier(extender: Expression => String = e => throw new
     case _ =>
       1
 
+  }
+}
+
+object ExpressionStringifier {
+
+  def backtick(txt: String): String = {
+    val needsBackticks = !(Character.isJavaIdentifierStart(txt.head) && txt.tail.forall(Character.isJavaIdentifierPart))
+    if (needsBackticks)
+      s"`$txt`"
+    else
+      txt
   }
 }
