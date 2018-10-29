@@ -20,25 +20,25 @@ import org.opencypher.v9_0.util.symbols._
 
 abstract class InfixExpressionTestBase(ctr: (Expression, Expression) => Expression) extends SemanticFunSuite {
 
-  protected def testValidTypes(lhsTypes: TypeSpec, rhsTypes: TypeSpec)(expected: TypeSpec) {
-    val (result, expression) = evaluateWithTypes(lhsTypes, rhsTypes)
+  protected def testValidTypes(lhsTypes: TypeSpec, rhsTypes: TypeSpec, useCypher9ComparisonSemantics: Boolean = false)(expected: TypeSpec) {
+    val (result, expression) = evaluateWithTypes(lhsTypes, rhsTypes, useCypher9ComparisonSemantics)
     result.errors shouldBe empty
     types(expression)(result.state) should equal(expected)
   }
 
-  protected def testInvalidApplication(lhsTypes: TypeSpec, rhsTypes: TypeSpec)(message: String) {
-    val (result, _) = evaluateWithTypes(lhsTypes, rhsTypes)
+  protected def testInvalidApplication(lhsTypes: TypeSpec, rhsTypes: TypeSpec, useCypher9ComparisonSemantics: Boolean = false)(message: String) {
+    val (result, _) = evaluateWithTypes(lhsTypes, rhsTypes, useCypher9ComparisonSemantics)
     result.errors should not be empty
     result.errors.head.msg should equal(message)
   }
 
-  protected def evaluateWithTypes(lhsTypes: TypeSpec, rhsTypes: TypeSpec): (SemanticCheckResult, Expression) = {
+  protected def evaluateWithTypes(lhsTypes: TypeSpec, rhsTypes: TypeSpec, useCypher9ComparisonSemantics: Boolean): (SemanticCheckResult, Expression) = {
     val lhs = DummyExpression(lhsTypes)
     val rhs = DummyExpression(rhsTypes)
 
     val expression = ctr(lhs, rhs)
 
-    val state = SemanticExpressionCheck.simple(Seq(lhs, rhs))(SemanticState.clean).state
+    val state = SemanticExpressionCheck.simple(Seq(lhs, rhs))(SemanticState.clean.withCypher9ComparabilitySemantics(useCypher9ComparisonSemantics)).state
     (SemanticExpressionCheck.simple(expression)(state), expression)
   }
 }

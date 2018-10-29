@@ -17,14 +17,10 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ASTAnnotationMap
 import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
-import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.LogicalVariable
-import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
 import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.util.helpers.TreeElem
-import org.opencypher.v9_0.util.helpers.TreeZipper
-import org.opencypher.v9_0.util.symbols.TypeSpec
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.helpers.{TreeElem, TreeZipper}
+import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
 
 import scala.collection.immutable.HashMap
 import scala.language.postfixOps
@@ -246,8 +242,8 @@ case class SemanticState(currentScope: ScopeLocation,
                          notifications: Set[InternalNotification] = Set.empty,
                          features: Set[SemanticFeature] = Set.empty,
                          initialWith: Boolean = false,
-                         declareVariablesToSuppressDuplicateErrors: Boolean = true
-                        ) {
+                         declareVariablesToSuppressDuplicateErrors: Boolean = true,
+                         cypher9ComparabilitySemantics: Boolean = false) {
 
   def recogniseInitialWith: SemanticState = copy(initialWith = true)
 
@@ -267,6 +263,8 @@ case class SemanticState(currentScope: ScopeLocation,
 
   def importValuesFromScope(scope: Scope, exclude: Set[String] = Set.empty): SemanticState =
     copy(currentScope = currentScope.importValuesFromScope(scope, exclude))
+
+  def withCypher9ComparabilitySemantics(cypher9ComparabilitySemantics: Boolean): SemanticState = copy(cypher9ComparabilitySemantics = cypher9ComparabilitySemantics)
 
   def mergeSymbolPositionsFromScope(scope: Scope, exclude: Set[String] = Set.empty): SemanticState =
     copy(currentScope = currentScope.mergeSymbolPositionsFromScope(scope, exclude))

@@ -15,10 +15,9 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.LessThan
 
 class LessThanTest extends InfixExpressionTestBase(expressions.LessThan(_, _)(DummyPosition(0))) {
 
@@ -50,5 +49,17 @@ class LessThanTest extends InfixExpressionTestBase(expressions.LessThan(_, _)(Du
     testInvalidApplication(CTNode, CTInteger)("Type mismatch: expected Float, Integer, Point, String, Date, Time, LocalTime, LocalDateTime or DateTime but was Node")
     testInvalidApplication(CTInteger, CTNode)("Type mismatch: expected Float or Integer but was Node")
     testInvalidApplication(CTDuration, CTDuration)("Type mismatch: expected Float, Integer, Point, String, Date, Time, LocalTime, LocalDateTime or DateTime but was Duration")
+  }
+
+  test("should support comparing all types with Cypher 9 comparison semantics") {
+    val types = List(CTList(CTAny), CTInteger, CTFloat, CTNumber, CTNode, CTPath, CTRelationship, CTMap, CTPoint,
+                     CTDate, CTDuration, CTBoolean, CTString, CTDateTime, CTGeometry, CTLocalDateTime, CTLocalTime,
+                     CTTime)
+
+    types.foreach { t1 =>
+      types.foreach { t2 =>
+        testValidTypes(t1, t2, useCypher9ComparisonSemantics = true)(CTBoolean)
+      }
+    }
   }
 }
