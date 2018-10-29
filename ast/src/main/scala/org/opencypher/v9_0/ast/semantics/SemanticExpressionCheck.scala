@@ -153,29 +153,16 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           checkTypes(x, x.signatures)
 
       case x:LessThan =>
-        check(ctx, x.arguments) chain ((state:SemanticState) =>
-          //According to spec comparing unrelated types should yield null not error
-          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
-          else checkTypes(x, x.signatures)(state))
+        check(ctx, x.arguments) chain checkComparison(x)
 
       case x:LessThanOrEqual =>
-        check(ctx, x.arguments) chain ((state:SemanticState) =>
-          //According to spec comparing unrelated types should yield null not error
-          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
-          else checkTypes(x, x.signatures)(state))
+        check(ctx, x.arguments) chain checkComparison(x)
 
       case x:GreaterThan =>
-        check(ctx, x.arguments) chain ((state:SemanticState) =>
-          //According to spec comparing unrelated types should yield null not error
-          //According to spec comparing unrelated types should yield null not error
-          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
-          else checkTypes(x, x.signatures)(state))
+        check(ctx, x.arguments) chain checkComparison(x)
 
       case x:GreaterThanOrEqual =>
-        check(ctx, x.arguments) chain ((state:SemanticState) =>
-          //According to spec comparing unrelated types should yield null not error
-          if (state.cypher9ComparabilitySemantics) expectType(CTBoolean.covariant, x)(state)
-          else checkTypes(x, x.signatures)(state))
+        check(ctx, x.arguments) chain checkComparison(x)
 
       case x:PartialPredicate[_] =>
         check(ctx, x.coveredPredicate)
@@ -659,5 +646,16 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         specifyType(types(x.expression), x)
       }
     }
+
+  private def checkComparison(x: InequalityExpression): SemanticCheck = (state: SemanticState) => {
+    //According to spec comparing unrelated types should yield null not error
+    if (state.cypher9ComparabilitySemantics) {
+      specifyType(CTBoolean, x)(state) match {
+        case Left(err) => SemanticCheckResult(state, List(err))
+        case Right(s) => SemanticCheckResult(s, List.empty)
+      }
+    }
+    else checkTypes(x, x.signatures)(state)
+  }
 }
 
