@@ -86,8 +86,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           checkTypes(x, x.signatures)
 
       case x:Equals =>
-        check(ctx, x.arguments) chain
-          checkTypes(x, x.signatures)
+        check(ctx, x.arguments) chain checkComparison(x, x.signatures)
 
       case x:Equivalent =>
         requireCypher10Support("`~` (equivalence)", x.position) chain
@@ -95,8 +94,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           checkTypes(x, x.signatures)
 
       case x:NotEquals =>
-        check(ctx, x.arguments) chain
-          checkTypes(x, x.signatures)
+        check(ctx, x.arguments) chain checkComparison(x, x.signatures)
 
       case x:InvalidNotEquals =>
         SemanticError(
@@ -153,16 +151,16 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           checkTypes(x, x.signatures)
 
       case x:LessThan =>
-        check(ctx, x.arguments) chain checkComparison(x)
+        check(ctx, x.arguments) chain checkComparison(x, x.signatures)
 
       case x:LessThanOrEqual =>
-        check(ctx, x.arguments) chain checkComparison(x)
+        check(ctx, x.arguments) chain checkComparison(x, x.signatures)
 
       case x:GreaterThan =>
-        check(ctx, x.arguments) chain checkComparison(x)
+        check(ctx, x.arguments) chain checkComparison(x, x.signatures)
 
       case x:GreaterThanOrEqual =>
-        check(ctx, x.arguments) chain checkComparison(x)
+        check(ctx, x.arguments) chain checkComparison(x, x.signatures)
 
       case x:PartialPredicate[_] =>
         check(ctx, x.coveredPredicate)
@@ -647,7 +645,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
       }
     }
 
-  private def checkComparison(x: InequalityExpression): SemanticCheck = (state: SemanticState) => {
+  private def checkComparison(x: Expression, signatures: Seq[TypeSignature]): SemanticCheck = (state: SemanticState) => {
     //According to spec comparing unrelated types should yield null not error
     if (state.cypher9ComparabilitySemantics) {
       specifyType(CTBoolean, x)(state) match {
@@ -655,7 +653,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         case Right(s) => SemanticCheckResult(s, List.empty)
       }
     }
-    else checkTypes(x, x.signatures)(state)
+    else checkTypes(x, signatures)(state)
   }
 }
 
