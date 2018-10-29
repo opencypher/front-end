@@ -18,7 +18,7 @@ package org.opencypher.v9_0.util.spi
 import org.opencypher.v9_0.util.CypherException
 
 trait MapToPublicExceptions[T <: Throwable] {
-  def failedIndexException(indexName: String, cause: Throwable): T
+  def failedIndexException(indexName: String, failureMessage: String, cause: Throwable): T
 
   def periodicCommitInOpenTransactionException(cause: Throwable): T
 
