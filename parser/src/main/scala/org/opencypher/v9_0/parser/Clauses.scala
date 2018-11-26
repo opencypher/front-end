@@ -140,7 +140,7 @@ trait Clauses extends Parser
   )
 
   private def Where: Rule1[Where] = rule("WHERE") {
-    group(keyword("WHERE") ~~ Expression) ~~>> (v9_0.ast.Where(_))
+    group(keyword("WHERE") ~~ Expression) ~~>> (ast.Where(_))
   }
 
   def PeriodicCommitHint: Rule1[ast.PeriodicCommitHint] = rule("USING PERIODIC COMMIT")(
@@ -205,7 +205,7 @@ trait Clauses extends Parser
   )
 
   private def Skip: Rule1[Skip] = rule("SKIP") {
-    group(keyword("SKIP") ~~ Expression) ~~>> (v9_0.ast.Skip(_))
+    group(keyword("SKIP") ~~ Expression) ~~>> (ast.Skip(_))
   }
 
   private def Limit: Rule1[ast.Limit] = rule("LIMIT") {
