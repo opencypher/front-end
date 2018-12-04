@@ -15,21 +15,11 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.Scope
-import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.error
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
-import org.opencypher.v9_0.ast.semantics.SemanticCheckable
-import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
-import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
-import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.ast.semantics._
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.{error, success}
+import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState, _}
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.expressions.functions
-import org.opencypher.v9_0.expressions.functions.Distance
-import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.expressions.{functions, _}
+import org.opencypher.v9_0.expressions.functions.{Distance, Exists}
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
@@ -311,14 +301,6 @@ case class Start(items: Seq[StartItem], where: Option[Where])(val position: Inpu
 
   private def rewrittenQuery: String = {
     val rewritten = items.map {
-      case NodeByIdentifiedIndex(variable, index, key, expression) =>
-        s"CALL db.index.explicit.seekNodes('$index', '$key', '${expression.asCanonicalStringVal}') YIELD node AS ${variable.asCanonicalStringVal}"
-      case NodeByIndexQuery(variable, index, expression) =>
-        s"CALL db.index.explicit.searchNodes('$index', '${expression.asCanonicalStringVal}') YIELD node AS ${variable.asCanonicalStringVal}"
-      case RelationshipByIdentifiedIndex(variable, index, key, expression) =>
-        s"CALL db.index.explicit.seekRelationships('$index', '$key', '${expression.asCanonicalStringVal}') YIELD relationship AS ${variable.asCanonicalStringVal}"
-      case RelationshipByIndexQuery(variable, index, expression) =>
-        s"CALL db.index.explicit.searchRelationships('$index', '${expression.asCanonicalStringVal}') YIELD relationship AS ${variable.asCanonicalStringVal}"
       case AllNodes(variable) => s"MATCH (${variable.asCanonicalStringVal})"
       case AllRelationships(variable) => s"MATCH ()-[${variable.asCanonicalStringVal}]->()"
       case NodeByIds(variable, ids) =>

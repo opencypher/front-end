@@ -15,12 +15,10 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics._
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheckable, _}
+import org.opencypher.v9_0.expressions.{LabelName, Parameter, PropertyKeyName, Variable, _}
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.{ASTNode, InputPosition, InternalException, NonEmptyList}
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheckable}
-import org.opencypher.v9_0.expressions.{LabelName, Parameter, PropertyKeyName, Variable}
 
 sealed trait Hint extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
   def variables: NonEmptyList[Variable]
@@ -43,13 +41,6 @@ object Hint {
 sealed trait UsingHint extends Hint
 
 // allowed on start item
-
-sealed trait ExplicitIndexHint extends UsingHint {
-  self: StartItem =>
-
-  def variable: Variable
-  def variables = NonEmptyList(variable)
-}
 
 sealed trait UsingIndexHintSpec {
   def fulfilledByScan: Boolean
@@ -105,12 +96,6 @@ sealed trait NodeStartItem extends StartItem {
   def semanticCheck = declareVariable(variable, CTNode)
 }
 
-case class NodeByIdentifiedIndex(variable: Variable, index: String, key: String, value: Expression)(val position: InputPosition)
-  extends NodeStartItem with ExplicitIndexHint with NodeHint
-
-case class NodeByIndexQuery(variable: Variable, index: String, query: Expression)(val position: InputPosition)
-  extends NodeStartItem with ExplicitIndexHint with NodeHint
-
 case class NodeByParameter(variable: Variable, parameter: Parameter)(val position: InputPosition) extends NodeStartItem
 case class AllNodes(variable: Variable)(val position: InputPosition) extends NodeStartItem
 
@@ -121,8 +106,6 @@ sealed trait RelationshipStartItem extends StartItem {
 case class RelationshipByIds(variable: Variable, ids: Seq[UnsignedIntegerLiteral])(val position: InputPosition) extends RelationshipStartItem
 case class RelationshipByParameter(variable: Variable, parameter: Parameter)(val position: InputPosition) extends RelationshipStartItem
 case class AllRelationships(variable: Variable)(val position: InputPosition) extends RelationshipStartItem
-case class RelationshipByIdentifiedIndex(variable: Variable, index: String, key: String, value: Expression)(val position: InputPosition) extends RelationshipStartItem with ExplicitIndexHint with RelationshipHint
-case class RelationshipByIndexQuery(variable: Variable, index: String, query: Expression)(val position: InputPosition) extends RelationshipStartItem with ExplicitIndexHint with RelationshipHint
 
 // no longer supported non-hint legacy start items
 

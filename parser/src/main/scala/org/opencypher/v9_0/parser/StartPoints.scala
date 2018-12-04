@@ -16,8 +16,8 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.InputPosition
 import org.parboiled.scala.{Parser, ReductionRule2, Rule1, _}
 
 trait StartPoints extends Parser
@@ -33,7 +33,7 @@ trait StartPoints extends Parser
   }
 
   private def NodeLookup: ReductionRule2[Variable, InputPosition, ast.StartItem] = {
-    keyword("NODE") ~~ (NodeIndexLookup | NodeIndexQuery | NodeIdLookup)
+    keyword("NODE") ~~ NodeIdLookup
   }
 
   private def NodeIdLookup: ReductionRule2[Variable, InputPosition, ast.StartItem] = rule {
@@ -44,16 +44,8 @@ trait StartPoints extends Parser
     ) ~~ ")"
   }
 
-  private def NodeIndexLookup: ReductionRule2[Variable, InputPosition, ast.NodeByIdentifiedIndex] = {
-    IdentifiedIndexLookup ~~> ((i, p, index, key, value) => ast.NodeByIdentifiedIndex(i, index, key, value)(p))
-  }
-
-  private def NodeIndexQuery: ReductionRule2[Variable, InputPosition, ast.NodeByIndexQuery] = rule {
-    IndexQuery ~~> ((i: Variable, p: InputPosition, index, query) => ast.NodeByIndexQuery(i, index, query)(p))
-  }
-
   private def RelationshipLookup: ReductionRule2[Variable, InputPosition, ast.StartItem] = {
-    (keyword("RELATIONSHIP") | keyword("REL")).label("RELATIONSHIP") ~~ (RelationshipIndexLookup | RelationshipIndexQuery | RelationshipIdLookup)
+    (keyword("RELATIONSHIP") | keyword("REL")).label("RELATIONSHIP") ~~ RelationshipIdLookup
   }
 
   private def RelationshipIdLookup: ReductionRule2[Variable, InputPosition, ast.StartItem] = rule {
@@ -62,16 +54,6 @@ trait StartPoints extends Parser
       | Parameter ~~> ((i: Variable, p: InputPosition, param) => ast.RelationshipByParameter(i, param)(p))
       | "*" ~~> ((i: Variable, p: InputPosition) => ast.AllRelationships(i)(p))
     ) ~~ ")"
-  }
-
-  private def RelationshipIndexLookup: ReductionRule2[Variable, InputPosition, ast.RelationshipByIdentifiedIndex]
-  = {
-    IdentifiedIndexLookup ~~> ((i, p, index, key, value) => ast.RelationshipByIdentifiedIndex(i, index, key, value)(p))
-  }
-
-  private def RelationshipIndexQuery: ReductionRule2[Variable, InputPosition, ast.RelationshipByIndexQuery] = rule {
-    IndexQuery ~~> ((i: Variable, p: InputPosition, index, query) => ast.RelationshipByIndexQuery(i, index, query)
-    (p))
   }
 
   private def IdentifiedIndexLookup: Rule3[String, String, org.opencypher.v9_0.expressions.Expression] = rule {
