@@ -50,3 +50,9 @@ abstract class FunctionTestBase(funcName: String) extends SemanticFunSuite {
     (SemanticExpressionCheck.check(context, invocation)(state), invocation)
   }
 }
+
+trait AggregationFunctionTestBase {
+  self: FunctionTestBase =>
+
+  override protected val context: SemanticContext = SemanticContext.Results
+}
