@@ -15,6 +15,14 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-case object Min extends AggregatingFunction {
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.expressions.TypeSignatures
+
+case object Min extends AggregatingFunction with TypeSignatures {
   override def name = "min"
+
+  override val signatures: Vector[TypeSignature] = Vector(
+    TypeSignature(Vector(CTAny), CTAny)
+  )
 }
