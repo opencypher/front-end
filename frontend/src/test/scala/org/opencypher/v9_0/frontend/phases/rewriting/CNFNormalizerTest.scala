@@ -18,11 +18,10 @@ package org.opencypher.v9_0.frontend.phases.rewriting
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
-import org.opencypher.v9_0.frontend.phases._
+import org.opencypher.v9_0.frontend.phases.{CNFNormalizer, CompilationPhaseTracer, InternalNotificationLogger, Monitors, _}
+import org.opencypher.v9_0.rewriting.{AstRewritingMonitor, PredicateTestSupport}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.{CypherException, InputPosition, Rewriter}
-import org.opencypher.v9_0.frontend.phases.{CNFNormalizer, CompilationPhaseTracer, InternalNotificationLogger, Monitors}
-import org.opencypher.v9_0.rewriting.{AstRewritingMonitor, PredicateTestSupport}
 import org.scalatest.mock.MockitoSugar
 
 class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {
@@ -109,7 +108,7 @@ class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {
     bigPredicate.rewrite(rewriter)
 
     // Then the rewriting was aborted
-    verify(astRewritingMonitor, times(1)).abortedRewriting(any())
+    verify(astRewritingMonitor).abortedRewriting(any())
   }
 
   override protected def beforeEach(): Unit = {
