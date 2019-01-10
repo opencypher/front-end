@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Keys extends Function with TypeSignatures {
   def name = "keys"
@@ -27,4 +26,8 @@ case object Keys extends Function with TypeSignatures {
     TypeSignature(argumentTypes = Vector(CTRelationship), outputType = CTList(CTString)),
     TypeSignature(argumentTypes = Vector(CTMap), outputType = CTList(CTString))
   )
+
+  override def getSignatureAsString: String = name + "(input :: ANY?) :: (LIST? OF STRING)"
+
+  override def getDescription: String = "Returns a list containing the string representations for all the property names of a node, relationship, or map."
 }

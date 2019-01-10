@@ -17,4 +17,8 @@ package org.opencypher.v9_0.expressions.functions
 
 case object Last extends Function {
   def name = "last"
+
+  override def getSignatureAsString: String = name + "(list :: LIST? OF ANY?) :: (ANY?)"
+
+  override def getDescription: String = "Returns the last element in a list."
 }

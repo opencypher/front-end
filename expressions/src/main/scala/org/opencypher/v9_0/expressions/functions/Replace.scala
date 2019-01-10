@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Replace extends Function with TypeSignatures {
   def name = "replace"
@@ -25,4 +24,9 @@ case object Replace extends Function with TypeSignatures {
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(CTString, CTString, CTString), outputType = CTString)
   )
+
+  override def getSignatureAsString: String = name + "(original :: STRING?, search :: STRING?, replace :: STRING?) :: (STRING?)"
+
+  override def getDescription: String =
+    "Returns a string in which all occurrences of a specified string in the original string have been replaced by another (specified) string."
 }

@@ -16,5 +16,10 @@
 package org.opencypher.v9_0.expressions.functions
 
 case object Exists extends Function {
-  def name = "EXISTS"
+  def name = "exists"
+
+  override def getSignatureAsString: String = name + "(input :: ANY?) :: (BOOLEAN?)"
+
+  override def getDescription: String =
+    "Returns true if a match for the pattern exists in the graph, or if the specified property exists in the node, relationship or map."
 }

@@ -17,4 +17,8 @@ package org.opencypher.v9_0.expressions.functions
 
 case object Tail extends Function {
   def name = "tail"
+
+  override def getSignatureAsString: String = name + "(input :: LIST? OF ANY?) :: (LIST? OF ANY?)"
+
+  override def getDescription: String = "Returns all but the first element in a list."
 }

@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object ToInteger extends Function with TypeSignatures {
   override def name = "toInteger"
@@ -26,4 +25,8 @@ case object ToInteger extends Function with TypeSignatures {
     TypeSignature(argumentTypes = Vector(CTString), outputType = CTInteger),
     TypeSignature(argumentTypes = Vector(CTNumber), outputType = CTInteger)
   )
+
+  override def getSignatureAsString: String = name + "(input :: ANY?) :: (INTEGER?)"
+
+  override def getDescription: String = "Converts a floating point or string value to an integer value."
 }

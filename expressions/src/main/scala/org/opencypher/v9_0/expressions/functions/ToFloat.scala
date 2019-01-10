@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object ToFloat extends Function with TypeSignatures {
   override def name = "toFloat"
@@ -26,4 +25,8 @@ case object ToFloat extends Function with TypeSignatures {
     TypeSignature(argumentTypes = Vector(CTString), outputType = CTFloat),
     TypeSignature(argumentTypes = Vector(CTNumber), outputType = CTFloat)
   )
+
+  override def getSignatureAsString: String = name + "(input :: ANY?) :: (FLOAT?)"
+
+  override def getDescription: String = "Converts an integer or string value to a floating point number."
 }

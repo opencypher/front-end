@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Relationships extends Function with TypeSignatures {
   def name = "relationships"
@@ -25,4 +24,8 @@ case object Relationships extends Function with TypeSignatures {
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(CTPath), outputType = CTList(CTRelationship))
   )
+
+  override def getSignatureAsString: String = name + "(path :: PATH?) :: (LIST? OF RELATIONSHIP?)"
+
+  override def getDescription: String = "Returns a list containing all the relationships in a path."
 }

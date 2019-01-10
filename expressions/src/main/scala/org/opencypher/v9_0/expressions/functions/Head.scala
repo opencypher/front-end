@@ -17,4 +17,8 @@ package org.opencypher.v9_0.expressions.functions
 
 case object Head extends Function {
   def name = "head"
+
+  override def getSignatureAsString: String = name + "(list :: LIST? OF ANY?) :: (ANY?)"
+
+  override def getDescription: String = "Returns the first element in a list."
 }

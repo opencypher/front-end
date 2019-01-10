@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Length extends Function with TypeSignatures {
   def name = "length"
@@ -28,4 +27,8 @@ case object Length extends Function with TypeSignatures {
     TypeSignature(Vector(CTList(CTAny)), CTInteger),
     TypeSignature(Vector(CTPath), CTInteger)
   )
+
+  override def getSignatureAsString: String = name + "(path :: PATH?) :: (INTEGER?)"
+
+  override def getDescription: String = "Returns the length of a path."
 }

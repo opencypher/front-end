@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Range extends Function with TypeSignatures {
   def name = "range"
@@ -26,4 +25,8 @@ case object Range extends Function with TypeSignatures {
     TypeSignature(argumentTypes = Vector(CTInteger, CTInteger), outputType = CTList(CTInteger)),
     TypeSignature(argumentTypes = Vector(CTInteger, CTInteger, CTInteger), outputType = CTList(CTInteger))
   )
+
+  override def getSignatureAsString: String = name + "(start :: INTEGER, end :: INTEGER, step = null :: INTEGER) :: (FLOAT?)"
+
+  override def getDescription: String = "Returns a list comprising all integer values within a specified range created with optional step length."
 }

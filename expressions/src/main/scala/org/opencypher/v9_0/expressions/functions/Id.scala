@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Id extends Function with TypeSignatures {
   def name = "id"
@@ -26,4 +25,8 @@ case object Id extends Function with TypeSignatures {
     TypeSignature(argumentTypes = Vector(CTNode), outputType = CTInteger),
     TypeSignature(argumentTypes = Vector(CTRelationship), outputType = CTInteger)
   )
+
+  override def getSignatureAsString: String = name + "(input :: ANY?) :: (INTEGER?)"
+
+  override def getDescription: String = "Returns the id of a relationship or node."
 }

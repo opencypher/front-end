@@ -15,18 +15,16 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Linenumber extends Function with TypeSignatures {
   def name = "linenumber"
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(), outputType = CTInteger)
   )
-}
-case object Filename extends Function with TypeSignatures {
-  def name = "filename"
-  override val signatures = Vector(
-    TypeSignature(argumentTypes = Vector(), outputType = CTString)
-  )
+
+  override def getSignatureAsString: String = name + "() :: (INTEGER?)"
+
+  override def getDescription: String = "Returns the line number that LOAD CSV is currently using"
 }

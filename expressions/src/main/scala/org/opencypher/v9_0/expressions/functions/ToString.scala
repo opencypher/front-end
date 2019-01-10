@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object ToString extends Function with TypeSignatures {
   override def name = "toString"
@@ -35,4 +34,9 @@ case object ToString extends Function with TypeSignatures {
     TypeSignature(argumentTypes = Vector(CTLocalDateTime), outputType = CTString),
     TypeSignature(argumentTypes = Vector(CTPoint), outputType = CTString)
   )
+
+  override def getSignatureAsString: String = name + "(input :: ANY?) :: (STRING?)"
+
+  override def getDescription: String =
+    "Converts an integer, float, boolean or temporal type (i.e. Date, Time, LocalTime, DateTime, LocalDateTime or Duration) value to a string."
 }

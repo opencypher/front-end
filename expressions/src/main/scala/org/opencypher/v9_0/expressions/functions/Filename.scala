@@ -16,16 +16,15 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTString
 
-case object Nodes extends Function with TypeSignatures {
-  def name = "nodes"
-
+case object Filename extends Function with TypeSignatures {
+  def name = "filename"
   override val signatures = Vector(
-    TypeSignature(argumentTypes = Vector(CTPath), outputType = CTList(CTNode))
+    TypeSignature(argumentTypes = Vector(), outputType = CTString)
   )
 
-  override def getSignatureAsString: String = name + "(path :: PATH?) :: (LIST? OF NODE)"
+  override def getSignatureAsString: String = name + "() :: (STRING?)"
 
-  override def getDescription: String = "Returns a list containing all the nodes in a path."
+  override def getDescription: String = "Returns the name of the file that LOAD CSV is using."
 }

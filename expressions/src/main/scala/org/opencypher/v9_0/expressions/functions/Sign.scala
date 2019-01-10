@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.TypeSignatures
-import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.util.symbols._
 
 case object Sign extends Function with TypeSignatures {
   def name = "sign"
@@ -26,4 +25,8 @@ case object Sign extends Function with TypeSignatures {
     TypeSignature(argumentTypes = Vector(CTInteger), outputType = CTInteger),
     TypeSignature(argumentTypes = Vector(CTFloat), outputType = CTInteger)
   )
+
+  override def getSignatureAsString: String = name + "(input :: NUMBER?) :: (INTEGER?)"
+
+  override def getDescription: String = "Returns the signum of a number: 0 if the number is 0, -1 for any negative number, and 1 for any positive number."
 }
