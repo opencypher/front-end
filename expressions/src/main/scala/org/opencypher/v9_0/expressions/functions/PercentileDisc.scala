@@ -15,18 +15,16 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
+import org.opencypher.v9_0.expressions.{FunctionTypeSignature, TypeSignatures}
 import org.opencypher.v9_0.util.symbols._
 
 case object PercentileDisc extends AggregatingFunction with TypeSignatures {
   def name = "percentileDisc"
 
   override val signatures = Vector(
-    TypeSignature(argumentTypes = Vector(CTInteger, CTFloat), outputType = CTInteger),
-    TypeSignature(argumentTypes = Vector(CTFloat, CTFloat), outputType = CTFloat)
+    FunctionTypeSignature(names = Vector("input", "percentile"), argumentTypes = Vector(CTInteger, CTFloat), outputType = CTInteger,
+      description = "Returns the nearest value to the given percentile over a group using a rounding method."),
+    FunctionTypeSignature(names = Vector("input", "percentile"), argumentTypes = Vector(CTFloat, CTFloat), outputType = CTFloat,
+      description = "Returns the nearest value to the given percentile over a group using a rounding method.")
   )
-
-  override def getSignatureAsString: String = name + "(input :: NUMBER?, percentile :: FLOAT) :: (NUMBER?)"
-
-  override def getDescription: String = "Returns the nearest value to the given percentile over a group using a rounding method."
 }

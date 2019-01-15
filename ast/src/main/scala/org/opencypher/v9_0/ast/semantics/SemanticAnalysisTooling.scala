@@ -15,9 +15,7 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.Expression.DefaultTypeMismatchMessageGenerator
-import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.expressions.Expression.{DefaultTypeMismatchMessageGenerator, SemanticContext}
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
@@ -108,7 +106,7 @@ trait SemanticAnalysisTooling {
           val remainingPossibilities = possibilities.filter {
             sig => actualTypes containsAny sig.argumentTypes.head.covariant
           } map {
-            sig => sig.copy(argumentTypes = sig.argumentTypes.tail)
+            sig => sig.removeFirstArgumentType
           }
           (remainingPossibilities, SemanticCheckResult(r2.state, r1.errors ++ r2.errors))
       }

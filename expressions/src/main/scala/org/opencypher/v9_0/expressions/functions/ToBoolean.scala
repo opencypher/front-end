@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-case object ToBoolean extends Function {
+case object ToBoolean extends Function with FunctionWithInfo {
   def name = "toBoolean"
 
   override def getSignatureAsString: String = name + "(input :: ANY?) :: (BOOLEAN?)"

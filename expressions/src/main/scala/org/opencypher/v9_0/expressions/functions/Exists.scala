@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-case object Exists extends Function {
+case object Exists extends Function with FunctionWithInfo {
   def name = "exists"
 
   override def getSignatureAsString: String = name + "(input :: ANY?) :: (BOOLEAN?)"

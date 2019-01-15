@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-case object Coalesce extends Function {
+case object Coalesce extends Function with FunctionWithInfo {
   def name = "coalesce"
 
   override def getSignatureAsString: String = name + "(input :: ANY?) :: (ANY?)"
