@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.functions.{Avg, Collect, Count, Max, Min, Sum}
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 import org.opencypher.v9_0.util.{DummyPosition, InputPosition, symbols}
@@ -45,6 +46,18 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def propLessThan(variable: String, propKey: String, intValue: Int): LessThan =
     LessThan(prop(variable, propKey), literalInt(intValue))(pos)
+
+  def count(expression: Expression): FunctionInvocation = FunctionInvocation(expression, FunctionName(Count.name)(pos))
+
+  def avg(expression: Expression): FunctionInvocation = FunctionInvocation(expression, FunctionName(Avg.name)(pos))
+
+  def collect(expression: Expression): FunctionInvocation = FunctionInvocation(expression, FunctionName(Collect.name)(pos))
+
+  def max(expression: Expression): FunctionInvocation = FunctionInvocation(expression, FunctionName(Max.name)(pos))
+
+  def min(expression: Expression): FunctionInvocation = FunctionInvocation(expression, FunctionName(Min.name)(pos))
+
+  def sum(expression: Expression): FunctionInvocation = FunctionInvocation(expression, FunctionName(Sum.name)(pos))
 
   def literalInt(intValue: Int): SignedDecimalIntegerLiteral =
     SignedDecimalIntegerLiteral(intValue.toString)(pos)
