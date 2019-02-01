@@ -15,15 +15,14 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.ast.semantics.SemanticState
 
 class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("should forbid aliased projections collisions, e.g., projecting more than one value to the same id") {
-    val item1 = AliasedReturnItem(StringLiteral("a")_, varFor("n"))_
-    val item2 = AliasedReturnItem(StringLiteral("b")_, varFor("n"))_
+    val item1 = AliasedReturnItem(literalString("a"), varFor("n"))_
+    val item2 = AliasedReturnItem(literalString("b"), varFor("n"))_
 
     val items = ReturnItems(includeExisting = false, Seq(item1, item2))_
 
@@ -34,8 +33,8 @@ class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
   }
 
   test("should forbid unaliased projections collisions, e.g., projecting more than one value to the same id") {
-    val item1 = UnaliasedReturnItem(StringLiteral("a")_, "a")_
-    val item2 = UnaliasedReturnItem(StringLiteral("a")_, "a")_
+    val item1 = UnaliasedReturnItem(literalString("a"), "a")_
+    val item2 = UnaliasedReturnItem(literalString("a"), "a")_
 
     val items = ReturnItems(includeExisting = false, Seq(item1, item2))_
 
@@ -46,8 +45,8 @@ class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
   }
 
   test("should not forbid aliased projections of the same expression with different names") {
-    val item1 = AliasedReturnItem(StringLiteral("a")_, varFor("n"))_
-    val item2 = AliasedReturnItem(StringLiteral("a")_, varFor("m"))_
+    val item1 = AliasedReturnItem(literalString("a"), varFor("n"))_
+    val item2 = AliasedReturnItem(literalString("a"), varFor("m"))_
 
     val items = ReturnItems(includeExisting = false, Seq(item1, item2))_
 

@@ -22,7 +22,7 @@ import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.expressions.TypeSignature
 
-class ExpressionCallTypeCheckerTest extends CypherFunSuite with AstConstructionTestSupport {
+class ExpressionCallTypeCheckerTest extends CypherFunSuite {
 
   test("should accept a specified type") {
     typeCheckSuccess(Seq(TypeSignature(Vector(CTInteger), CTInteger)), Seq(CTInteger), CTInteger)
@@ -101,18 +101,18 @@ class ExpressionCallTypeCheckerTest extends CypherFunSuite with AstConstructionT
     (expr, check)
   }
 
-  private def typeCheckSuccess(ExpressionSignatures: Seq[TypeSignature], arguments: Seq[TypeSpec], spec: TypeSpec) = {
+  private def typeCheckSuccess(ExpressionSignatures: Seq[TypeSignature], arguments: Seq[TypeSpec], spec: TypeSpec): Unit = {
     val (expr, check) = typeCheck(ExpressionSignatures, arguments)
     check.errors shouldBe empty
     check.state.typeTable.get(expr).map(_.specified) should equal(Some(spec))
   }
 
-  private def typeCheckFail(ExpressionSignatures: Seq[TypeSignature], arguments: Seq[TypeSpec])(checkError: Seq[String] => Unit) = {
+  private def typeCheckFail(ExpressionSignatures: Seq[TypeSignature], arguments: Seq[TypeSpec])(checkError: Seq[String] => Unit): Unit = {
     val (_, check) = typeCheck(ExpressionSignatures, arguments)
     checkError(check.errors.map(_.msg.replaceAll("\\s+", " ")))
   }
 
-  case class TypeExpr(override val arguments: Seq[Expression]) extends Expression {
+  case class TypeExpr(override val arguments: Seq[Expression]) extends Expression with AstConstructionTestSupport {
     override def position: InputPosition = pos
   }
 }
