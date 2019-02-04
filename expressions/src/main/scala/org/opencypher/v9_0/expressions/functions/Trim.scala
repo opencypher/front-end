@@ -22,6 +22,6 @@ case object Trim extends Function with TypeSignatures {
   def name = "trim"
 
   override val signatures = Vector(
-    TypeSignature(CTString, CTString, "Returns the original string with leading and trailing whitespace removed.")
+    TypeSignature(name, CTString, CTString, "Returns the original string with leading and trailing whitespace removed.")
   )
 }

@@ -22,6 +22,6 @@ case object Max extends AggregatingFunction with TypeSignatures {
   override def name = "max"
 
   override val signatures: Vector[TypeSignature] = Vector(
-    TypeSignature(CTAny, CTAny, "Returns the maximum value in a set of values.")
+    TypeSignature(name, CTAny, CTAny, "Returns the maximum value in a set of values.")
   )
 }

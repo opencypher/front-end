@@ -22,6 +22,6 @@ case object Point extends Function with TypeSignatures {
   override def name = "point"
 
   override val signatures = Vector(
-    TypeSignature(CTMap, CTPoint, "Returns a 2D or 3D point object, given two or respectively three coordinate values in the Cartesian coordinate system or WGS 84 geographic coordinate system.")
+    TypeSignature(name, CTMap, CTPoint, "Returns a 2D or 3D point object, given two or respectively three coordinate values in the Cartesian coordinate system or WGS 84 geographic coordinate system.")
   )
 }

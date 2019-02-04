@@ -16,12 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
-import org.opencypher.v9_0.util.symbols.{CTAny, CTList}
+import org.opencypher.v9_0.util.symbols.CTAny
 
 case object Collect extends AggregatingFunction with TypeSignatures {
   def name = "collect"
 
   override val signatures: Vector[TypeSignature] = Vector(
-    TypeSignature(CTAny, CTAny, "Returns a list containing the values returned by an expression.")
+    TypeSignature(name, CTAny, CTAny, "Returns a list containing the values returned by an expression.")
   )
 }

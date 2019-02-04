@@ -22,6 +22,6 @@ case object Type extends Function with TypeSignatures {
   override def name = "type"
 
   override val signatures = Vector(
-    TypeSignature(CTRelationship, CTString, "Returns the string representation of the relationship type.")
+    TypeSignature(name, CTRelationship, CTString, "Returns the string representation of the relationship type.")
   )
 }

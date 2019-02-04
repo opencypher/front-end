@@ -22,6 +22,6 @@ case object Round extends Function with TypeSignatures {
   def name = "round"
 
   override val signatures = Vector(
-    TypeSignature(CTFloat, CTFloat, "Returns the value of a number rounded to the nearest integer.")
+    TypeSignature(name, CTFloat, CTFloat, "Returns the value of a number rounded to the nearest integer.")
   )
 }

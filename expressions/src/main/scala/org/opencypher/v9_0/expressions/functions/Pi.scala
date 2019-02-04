@@ -22,6 +22,6 @@ case object Pi extends Function with TypeSignatures {
   def name = "pi"
 
   override val signatures = Vector(
-    TypeSignature.noArg(CTFloat, "Returns the mathematical constant pi.")
+    TypeSignature.noArg(name, CTFloat, "Returns the mathematical constant pi.")
   )
 }
