@@ -34,7 +34,7 @@ class ExpressionParserTest
   }
 
   test("[] ~ []") {
-    yields(exp.Equivalent(exp.ListLiteral(Seq.empty)(pos), exp.ListLiteral(Seq.empty)(pos)))
+    yields(exp.Equivalent(listOf(), listOf()))
   }
 
 }
