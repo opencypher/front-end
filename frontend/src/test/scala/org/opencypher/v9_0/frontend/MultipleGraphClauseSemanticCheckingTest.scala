@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState}
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Query, Statement}
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
 import org.opencypher.v9_0.frontend.phases._
 import org.opencypher.v9_0.parser.ParserTest
@@ -25,9 +25,7 @@ import org.opencypher.v9_0.{ast, parser}
 import org.parboiled.scala.Rule1
 
 class MultipleGraphClauseSemanticCheckingTest
-  extends ParserTest[ast.Statement, SemanticCheckResult]
-    with parser.Statement
-    with AstConstructionTestSupport {
+  extends ParserTest[ast.Statement, SemanticCheckResult] with parser.Statement {
 
   // INFO: Use result.dumpAndExit to debug these tests
 

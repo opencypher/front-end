@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.frontend
 
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.frontend.phases._
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -25,10 +24,10 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
   * something actually passes semantic analysis or not, but rather on helpful
   * error messages.
   */
-class SemanticAnalysisErrorMessagesTest extends CypherFunSuite with AstConstructionTestSupport {
+class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
 
   // This test invokes SemanticAnalysis twice because that's what the production pipeline does
-  val pipeline = Parsing andThen SemanticAnalysis(warn = true) andThen SemanticAnalysis(warn = false)
+  private val pipeline = Parsing andThen SemanticAnalysis(warn = true) andThen SemanticAnalysis(warn = false)
 
   // positive tests that we get the error message
   // "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN"
