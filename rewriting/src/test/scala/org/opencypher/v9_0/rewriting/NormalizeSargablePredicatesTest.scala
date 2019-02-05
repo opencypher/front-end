@@ -76,6 +76,4 @@ class NormalizeSargablePredicatesTest extends CypherFunSuite with AstConstructio
 
     normalizeSargablePredicates(input) should equal(output)
   }
-
-  private def not(expression: Expression) = Not(expression)(pos)
 }
