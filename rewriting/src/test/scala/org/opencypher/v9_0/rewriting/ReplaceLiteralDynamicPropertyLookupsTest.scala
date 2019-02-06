@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
@@ -24,14 +23,14 @@ import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLook
 class ReplaceLiteralDynamicPropertyLookupsTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("Replaces literal dynamic property lookups") {
-    val input: ASTNode = ContainerIndex(varFor("a"), literalString("name"))_
+    val input: ASTNode = containerIndex(varFor("a"), literalString("name"))
     val output: ASTNode = prop("a", "name")
 
     replaceLiteralDynamicPropertyLookups(input) should equal(output)
   }
 
   test("Does not replaces non-literal dynamic property lookups") {
-    val input: ASTNode = ContainerIndex(varFor("a"), varFor("b"))_
+    val input: ASTNode = containerIndex(varFor("a"), varFor("b"))
 
     replaceLiteralDynamicPropertyLookups(input) should equal(input)
   }

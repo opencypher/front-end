@@ -18,14 +18,14 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.rewriting.rewriters.normalizeComparisons
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.InvalidNotEquals
 
 class NormalizeComparisonsTest extends CypherFunSuite with AstConstructionTestSupport {
 
   private val expression = varFor("foo")
   private val comparisons = List(
     equals(expression, expression),
-    NotEquals(expression, expression)(pos),
+    notEquals(expression, expression),
     lessThan(expression, expression),
     lessThanOrEqual(expression, expression),
     greaterThan(expression, expression),
@@ -45,9 +45,7 @@ class NormalizeComparisonsTest extends CypherFunSuite with AstConstructionTestSu
     val original = hasLabels(varFor("a"), "X", "Y")
 
     original.endoRewrite(normalizeComparisons) should equal(
-      Ands(Set(
-        hasLabels("a", "X"),
-        hasLabels("a", "Y")))(pos))
+      ands(hasLabels("a", "X"), hasLabels("a", "Y")))
   }
 
   test("does not extract single hasLabels") {

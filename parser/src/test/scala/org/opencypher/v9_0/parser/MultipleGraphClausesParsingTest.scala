@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Clause}
-import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.{ast, expressions => exp}
 import org.parboiled.scala._
 
@@ -130,7 +129,7 @@ class MultipleGraphClausesParsingTest
   }
 
   test("CONSTRUCT CREATE ()-[r2 COPY OF r:REL]->()") {
-    val relChain = RelationshipChain(
+    val relChain = exp.RelationshipChain(
       exp.NodePattern(None, List.empty, None, None)(pos),
       exp.RelationshipPattern(Some(varFor("r2")), Seq(exp.RelTypeName("REL")(pos)), None, None,
         exp.SemanticDirection.OUTGOING, legacyTypeSeparator = false, Some(varFor("r")))(pos),
@@ -143,7 +142,7 @@ class MultipleGraphClausesParsingTest
   }
 
   test("CONSTRUCT CREATE ()-[COPY OF r:REL]->()") {
-    val relChain = RelationshipChain(
+    val relChain = exp.RelationshipChain(
       exp.NodePattern(None, List.empty, None, None)(pos),
       exp.RelationshipPattern(None, Seq(exp.RelTypeName("REL")(pos)), None, None,
         exp.SemanticDirection.OUTGOING, legacyTypeSeparator = false, Some(varFor("r")))(pos),

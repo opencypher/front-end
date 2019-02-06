@@ -21,13 +21,13 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 class ContainsAggregateTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("finds nested aggregate expressions") {
-    val expr: Expression = Add(literalInt(1), CountStar()_)_
+    val expr = add(literalInt(1), CountStar()_)
 
     containsAggregate(expr) should equal(true)
   }
 
   test("does not match non-aggregate expressions") {
-    val expr: Expression = Add(literalInt(1), literalInt(2))_
+    val expr = add(literalInt(1), literalInt(2))
 
     containsAggregate(expr) should equal(false)
   }

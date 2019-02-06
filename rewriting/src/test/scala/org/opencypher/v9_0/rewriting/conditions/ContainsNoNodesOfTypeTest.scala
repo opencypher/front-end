@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Pattern
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

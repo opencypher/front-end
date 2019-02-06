@@ -15,37 +15,37 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions.{CountStar, Expression, IsAggregate, Null}
+import org.opencypher.v9_0.expressions.{CountStar, IsAggregate}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class IsAggregateTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("count(*) is an aggregate expression") {
-    val expr: Expression = CountStar()_
+    val expr = CountStar()(pos)
 
     IsAggregate.unapply(expr) should equal(Some(expr))
   }
 
   test("max(null) is an aggregate expression") {
-    val expr: Expression = function("max", Null()_)
+    val expr = max(nullLiteral)
 
     IsAggregate.unapply(expr) should equal(Some(expr))
   }
 
   test("distinct id(null) an aggregate expression") {
-    val expr: Expression = distinctFunction("id", Null()_)
+    val expr = distinctFunction("id", nullLiteral)
 
     IsAggregate.unapply(expr) should equal(Some(expr))
   }
 
   test("id(null) is not an aggregate expression") {
-    val expr: Expression = function("id", Null()_)
+    val expr = function("id", nullLiteral)
 
     IsAggregate.unapply(expr) should equal(None)
   }
 
   test("1 is not an aggregate expression") {
-    val expr: Expression = literalInt(1)
+    val expr = literalInt(1)
 
     IsAggregate.unapply(expr) should equal(None)
   }
