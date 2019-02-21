@@ -26,14 +26,12 @@ Apache Software License, Version 2.0
   openCypher Utils
   parboiled-core
   parboiled-scala
-  scalatest
 
 BSD - Scala License
   Scala Library
 
 BSD License
   Scala Compiler
-  scala-xml
   scalacheck
   test-interface
 
