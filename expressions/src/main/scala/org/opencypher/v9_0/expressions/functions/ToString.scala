@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
+import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
 import org.opencypher.v9_0.util.symbols._
 
 case object ToString extends Function with FunctionWithInfo {
