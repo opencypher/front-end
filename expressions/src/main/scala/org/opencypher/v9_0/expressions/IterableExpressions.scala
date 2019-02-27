@@ -34,7 +34,7 @@ case class FilterExpression(scope: FilterScope, expression: Expression)(val posi
 }
 
 object FilterExpression {
-  def apply(variable: Variable, expression: Expression, innerPredicate: Option[Expression])(position: InputPosition): FilterExpression =
+  def apply(variable: LogicalVariable, expression: Expression, innerPredicate: Option[Expression])(position: InputPosition): FilterExpression =
     FilterExpression(FilterScope(variable, innerPredicate)(position), expression)(position)
 }
 
@@ -48,7 +48,7 @@ case class ExtractExpression(scope: ExtractScope, expression: Expression)(val po
 }
 
 object ExtractExpression {
-  def apply(variable: Variable,
+  def apply(variable: LogicalVariable,
             expression: Expression,
             innerPredicate: Option[Expression],
             extractExpression: Option[Expression])(position: InputPosition): ExtractExpression =
@@ -66,7 +66,7 @@ case class ListComprehension(scope: ExtractScope, expression: Expression)(val po
 }
 
 object ListComprehension {
-  def apply(variable: Variable,
+  def apply(variable: LogicalVariable,
             expression: Expression,
             innerPredicate: Option[Expression],
             extractExpression: Option[Expression])(position: InputPosition): ListComprehension =
