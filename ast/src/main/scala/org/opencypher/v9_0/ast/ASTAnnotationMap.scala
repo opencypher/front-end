@@ -17,7 +17,6 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.util.{ASTNode, Eagerly, InputPosition}
 
-
 object ASTAnnotationMap {
   def empty[K <: ASTNode, V]: ASTAnnotationMap[K, V] = new ASTAnnotationMap(Map.empty[(K, InputPosition), V])
   def apply[K <: ASTNode, V](elems: (K, V)*): ASTAnnotationMap[K, V] =
