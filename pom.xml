@@ -35,8 +35,8 @@
 
   <properties>
     <licensing.prepend.text>ASL-2-header.txt</licensing.prepend.text>
-    <scala.version>2.11.12</scala.version>
-    <scala.binary.version>2.11</scala.binary.version>
+    <scala.version>2.12.7</scala.version>
+    <scala.binary.version>2.12</scala.binary.version>
     <scala.target.vm>1.8</scala.target.vm>
     <scala.java9.arg/>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -90,7 +90,7 @@
     </dependency>
     <dependency>
       <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.11</artifactId>
+      <artifactId>scalatest_${scala.binary.version}</artifactId>
       <version>3.0.5</version>
       <scope>test</scope>
     </dependency>
