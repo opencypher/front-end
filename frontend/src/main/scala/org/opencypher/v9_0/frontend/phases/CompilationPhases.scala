@@ -17,7 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.rewriting.rewriters.{IfNoParameter, LiteralExtraction}
+import org.opencypher.v9_0.rewriting.rewriters.{IfNoParameter, LiteralExtraction, SameNameNamer}
 import org.opencypher.v9_0.rewriting.{Deprecations, RewriterStepSequencer}
 
 object CompilationPhases {
@@ -30,7 +30,7 @@ object CompilationPhases {
       SyntaxDeprecationWarnings(deprecations) andThen
       PreparatoryRewriting(deprecations) andThen
       SemanticAnalysis(warn = true).adds(BaseContains[SemanticState]) andThen
-      AstRewriting(sequencer, literalExtraction)
+      AstRewriting(sequencer, literalExtraction, innerVariableNamer = SameNameNamer)
 
   def lateAstRewriting: Transformer[BaseContext, BaseState, BaseState] =
     isolateAggregation andThen
