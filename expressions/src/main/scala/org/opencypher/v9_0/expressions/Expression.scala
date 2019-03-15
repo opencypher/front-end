@@ -84,7 +84,7 @@ abstract class Expression extends ASTNode {
       case scope: ScopeExpression =>
         acc =>
           val newAcc = acc.pushScope(scope.introducedVariables)
-          (newAcc, Some((x) => x.popScope))
+          (newAcc, Some(x => x.popScope))
       case id: LogicalVariable => acc => {
         val newAcc = if (acc.inScope(id)) acc else acc.mapData(_ + id)
         (newAcc, Some(identity))
@@ -98,8 +98,7 @@ abstract class Expression extends ASTNode {
       case scope: ScopeExpression => {
         case acc =>
           val newAcc = acc.pushScope(scope.introducedVariables)
-          (newAcc, Some((x) => x.popScope))
-      }
+          (newAcc, Some(x => x.popScope))
       case occurrence: Variable if occurrence.name == variable.name => acc => {
         val newAcc = if (acc.inScope(occurrence)) acc else acc.mapData(_ + Ref(occurrence))
         (newAcc, Some(identity))
@@ -123,7 +122,7 @@ abstract class Expression extends ASTNode {
         acc =>
           val newAcc = acc.pushScope(scope.introducedVariables)
             .mapData(pairs => pairs :+ (scope -> acc.variablesInScope))
-          (newAcc, Some((x) => x.popScope))
+          (newAcc, Some(x => x.popScope))
 
       case expr: Expression =>
         acc =>

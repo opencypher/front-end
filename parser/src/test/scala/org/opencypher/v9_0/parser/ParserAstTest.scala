@@ -23,13 +23,13 @@ import org.parboiled.scala._
 trait ParserAstTest[AST] extends ParserTest[AST, AST] with TestName {
   final override def convert(ast: AST): AST = ast
 
-  final def yields(expr: (InputPosition) => AST)(implicit parser: Rule1[AST]): Unit = parsing(testName) shouldGive expr
+  final def yields(expr: InputPosition => AST)(implicit parser: Rule1[AST]): Unit = parsing(testName) shouldGive expr
 
   final def failsToParse(implicit parser: Rule1[AST]): Unit = assertFails(testName)
 
-  private type Expression = (InputPosition) => org.opencypher.v9_0.expressions.Expression
+  private type Expression = InputPosition => org.opencypher.v9_0.expressions.Expression
 
-  final def id(id: String): (InputPosition) => org.opencypher.v9_0.expressions.Variable = exp.Variable(id)(_)
+  final def id(id: String): InputPosition => org.opencypher.v9_0.expressions.Variable = exp.Variable(id)(_)
 
   final def lt(lhs: Expression, rhs: Expression): Expression = { pos => exp.LessThan(lhs(pos), rhs(pos))(pos) }
 

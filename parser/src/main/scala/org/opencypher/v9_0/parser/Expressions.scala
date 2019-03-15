@@ -60,7 +60,7 @@ trait Expressions extends Parser
     Expression7 ~ zeroOrMore(WS ~ PartialComparisonExpression) ~~>> produceComparisons
   }
 
-  private case class PartialComparison(op: (org.opencypher.v9_0.expressions.Expression, org.opencypher.v9_0.expressions.Expression) => (InputPosition) => org.opencypher.v9_0.expressions.Expression,
+  private case class PartialComparison(op: (org.opencypher.v9_0.expressions.Expression, org.opencypher.v9_0.expressions.Expression) => InputPosition => org.opencypher.v9_0.expressions.Expression,
                                        expr: org.opencypher.v9_0.expressions.Expression, pos: InputPosition) {
     def apply(lhs: org.opencypher.v9_0.expressions.Expression) = op(lhs, expr)(pos)
   }

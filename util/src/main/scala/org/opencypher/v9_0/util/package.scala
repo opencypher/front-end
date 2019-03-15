@@ -16,6 +16,6 @@
 package org.opencypher.v9_0
 
 package object util {
-  type Rewriter = (AnyRef => AnyRef)
-  type RewriterWithArgs = (((AnyRef, Seq[AnyRef])) => AnyRef)
+  type Rewriter = AnyRef => AnyRef
+  type RewriterWithArgs = ((AnyRef, Seq[AnyRef])) => AnyRef
 }
