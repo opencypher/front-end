@@ -19,7 +19,9 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class AttributeTest extends CypherFunSuite {
 
-  class TestAttribute extends Attribute[Int]
+  case class TestKey(override val id: Id) extends Identifiable
+
+  class TestAttribute extends Attribute[TestKey, Int]
 
   test("test set") {
     val attr = new TestAttribute
