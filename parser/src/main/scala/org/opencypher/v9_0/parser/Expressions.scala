@@ -15,10 +15,9 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.{expressions => ast}
-import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.{expressions, expressions => ast}
 import org.parboiled.scala._
 
 import scala.collection.mutable.ListBuffer
@@ -168,6 +167,7 @@ trait Expressions extends Parser
     | group(keyword("ANY") ~~ "(" ~~ FilterExpression ~~ ")") ~~>> (ast.AnyIterablePredicate(_, _, _))
     | group(keyword("NONE") ~~ "(" ~~ FilterExpression ~~ ")") ~~>> (ast.NoneIterablePredicate(_, _, _))
     | group(keyword("SINGLE") ~~ "(" ~~ FilterExpression ~~ ")") ~~>> (ast.SingleIterablePredicate(_, _, _))
+    | group(keyword("EXISTS") ~~ "{" ~~ ExistsSubClauseExpression ~~ "}") ~~>> (ast.ExistsSubClause(_, _))  //TODO: This should NOT be a mere expression!
     | ShortestPathPattern ~~> expressions.ShortestPathExpression
     | RelationshipsPattern ~~> PatternExpression
     | parenthesizedExpression
@@ -184,6 +184,9 @@ trait Expressions extends Parser
   def PropertyLookup: ReductionRule1[org.opencypher.v9_0.expressions.Expression, org.opencypher.v9_0.expressions.Property] = rule("'.'") {
     operator(".") ~~ (PropertyKeyName ~~>> (ast.Property(_: org.opencypher.v9_0.expressions.Expression, _)))
   }
+
+  private def ExistsSubClauseExpression: Rule2[Pattern, Option[Expression]] =
+    WS ~ optional(keyword("MATCH")) ~~ Pattern ~ optional(WS ~ keyword("WHERE") ~~ Expression) //TODO: Support more stuff here
 
   private def FilterExpression: Rule3[Variable, org.opencypher.v9_0.expressions.Expression, Option[org.opencypher.v9_0.expressions.Expression]] =
     IdInColl ~ optional(WS ~ keyword("WHERE") ~~ Expression)
