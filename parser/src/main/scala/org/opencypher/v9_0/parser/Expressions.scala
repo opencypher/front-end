@@ -186,7 +186,7 @@ trait Expressions extends Parser
   }
 
   private def ExistsSubClauseExpression: Rule2[Pattern, Option[Expression]] =
-    WS ~ optional(keyword("MATCH")) ~~ Pattern ~ optional(WS ~ keyword("WHERE") ~~ Expression) //TODO: Support more stuff here
+    WS ~ optional(keyword("MATCH")) ~~ Pattern ~ optional(WS ~ keyword("WHERE") ~~ Expression) //TODO: Support more stuff here, notably multiple patterns
 
   private def FilterExpression: Rule3[Variable, org.opencypher.v9_0.expressions.Expression, Option[org.opencypher.v9_0.expressions.Expression]] =
     IdInColl ~ optional(WS ~ keyword("WHERE") ~~ Expression)
