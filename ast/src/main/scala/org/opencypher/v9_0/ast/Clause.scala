@@ -18,8 +18,8 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.{error, success}
 import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState, _}
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions.{functions, _}
 import org.opencypher.v9_0.expressions.functions.{Distance, Exists}
+import org.opencypher.v9_0.expressions.{functions, _}
 import org.opencypher.v9_0.util.Foldable._
 import org.opencypher.v9_0.util._
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
@@ -71,7 +71,7 @@ case class LoadCSV(
 sealed trait MultipleGraphClause extends Clause with SemanticAnalysisTooling {
 
   override def semanticCheck: SemanticCheck =
-    requireMultigraphSupport(s"The `$name` clause", position)
+    requireFeatureSupport(s"The `$name` clause", SemanticFeature.MultipleGraphs, position)
 }
 
 trait FromGraph extends MultipleGraphClause {

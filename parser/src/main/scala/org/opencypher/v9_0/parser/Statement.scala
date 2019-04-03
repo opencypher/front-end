@@ -17,7 +17,6 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.CatalogDDL
-
 import org.parboiled.scala._
 
 trait Statement extends Parser
@@ -32,7 +31,23 @@ trait Statement extends Parser
   )
 
   def CatalogCommand: Rule1[CatalogDDL] = rule("Catalog DDL statement") {
-    CreateGraph | DropGraph | CreateView | DropView
+    ShowDatabase | ShowDatabases | CreateDatabase | DropDatabase | CreateGraph | DropGraph | CreateView | DropView
+  }
+
+  def ShowDatabase = rule("CATALOG SHOW DATABASE") {
+    group(optional(keyword("CATALOG")) ~~ keyword("SHOW DATABASE") ~~ DatabaseNameString) ~~>> (ast.ShowDatabase(_))
+  }
+
+  def ShowDatabases = rule("CATALOG SHOW DATABASES") {
+    group(optional(keyword("CATALOG")) ~~ keyword("SHOW DATABASES")) ~>>> (_=> ast.ShowDatabases())
+  }
+
+  def CreateDatabase = rule("CATALOG CREATE DATABASE") {
+    group(optional(keyword("CATALOG")) ~~ keyword("CREATE DATABASE") ~~ DatabaseNameString) ~~>> (ast.CreateDatabase(_))
+  }
+
+  def DropDatabase = rule("CATALOG DROP DATABASE") {
+    group(optional(keyword("CATALOG")) ~~ keyword("DROP DATABASE") ~~ DatabaseNameString) ~~>> (ast.DropDatabase(_))
   }
 
   def CreateGraph = rule("CATALOG CREATE GRAPH") {
