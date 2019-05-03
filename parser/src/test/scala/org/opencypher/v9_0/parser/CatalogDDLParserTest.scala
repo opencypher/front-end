@@ -115,6 +115,8 @@ class CatalogDDLParserTest
     yields(ast.DropUser("foo"))
   }
 
+  // TODO ALTER USER tests
+
   test("SHOW ROLES") {
     yields(ast.ShowRoles(withUsers = false, showAll = true))
   }
