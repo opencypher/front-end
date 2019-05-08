@@ -15,12 +15,10 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Clause, Match, Merge}
-import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.{Clause, Match, Merge, Where}
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.{Expression, _}
+import org.opencypher.v9_0.util._
 
 case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = SameNameNamer) extends Rewriter {
 
@@ -63,6 +61,9 @@ case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = Same
 
   def collectUniqueRels(pattern: ASTNode): Seq[UniqueRel] =
     pattern.treeFold(Seq.empty[UniqueRel]) {
+      case _:ScopeExpression =>
+        acc => (acc, None)
+
       case _: ShortestPaths =>
         acc => (acc, None)
 
