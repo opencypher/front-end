@@ -67,7 +67,7 @@ final case class CreateUser(userName: String,
 
 final case class DropUser(userName: String)(val position: InputPosition) extends MultiDatabaseDDL {
 
-  override def name = "CATALOG CREATE USER"
+  override def name = "CATALOG DROP USER"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
