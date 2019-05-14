@@ -43,11 +43,15 @@ class CatalogDDLParserTest
   }
 
   test("CREATE USER \"foo\" SET PASSwORD 'password'") {
-    yields(ast.CreateUser("\"foo\"", Some("password"), None, requirePasswordChange = true, suspended = false))
+    failsToParse
+  }
+
+  test("CREATE USER `foo` SET PASSwORD 'password'") {
+    yields(ast.CreateUser("foo", Some("password"), None, requirePasswordChange = true, suspended = false))
   }
 
   test("CREATE USER !#\"~ SeT PASSWORD 'password'") {
-    yields(ast.CreateUser("!#\"~", Some("password"), None, requirePasswordChange = true, suspended = false))
+    failsToParse
   }
 
   test("CREATE USER foo SeT PASSWORD 'pasS5Wor%d'") {
@@ -227,6 +231,10 @@ class CatalogDDLParserTest
   }
 
   test("CATALOG CREATE ROLE \"foo\"") {
+    failsToParse
+  }
+
+  test("CATALOG CREATE ROLE `foo`") {
     yields(ast.CreateRole("foo", None))
   }
 
@@ -247,6 +255,10 @@ class CatalogDDLParserTest
   }
 
   test("SHOW DATABASE foo.bar") {
+    failsToParse
+  }
+
+  test("SHOW DATABASE `foo.bar`") {
     yields(ast.ShowDatabase("foo.bar"))
   }
 
@@ -255,14 +267,22 @@ class CatalogDDLParserTest
   }
 
   test("CREATE DATABASE foo.bar") {
+    failsToParse
+  }
+
+  test("CREATE DATABASE `foo.bar`") {
     yields(ast.CreateDatabase("foo.bar"))
   }
 
   test("CREATE DATABASE \"foo.bar\"") {
-    yields(ast.CreateDatabase("foo.bar"))
+    failsToParse
   }
 
   test("CATALOG CREATE DATABASE foo.bar") {
+    failsToParse
+  }
+
+  test("CATALOG CREATE DATABASE `foo.bar`") {
     yields(ast.CreateDatabase("foo.bar"))
   }
 
@@ -279,6 +299,10 @@ class CatalogDDLParserTest
   }
 
   test("CATALOG DROP DATABASE foo.bar") {
+    failsToParse
+  }
+
+  test("CATALOG DROP DATABASE `foo.bar`") {
     yields(ast.DropDatabase("foo.bar"))
   }
 
