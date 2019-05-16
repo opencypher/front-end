@@ -42,6 +42,10 @@ class SecurityDDLParserTest
     failsToParse
   }
 
+  test("CREATE USER foo SET PASSwORD 'passwordString'+$passwordParam") {
+    failsToParse
+  }
+
   test("CREATE USER `foo` SET PASSwORD 'password'") {
     yields(ast.CreateUser("foo", Some("password"), None, requirePasswordChange = true, suspended = false))
   }
@@ -102,6 +106,10 @@ class SecurityDDLParserTest
     failsToParse
   }
 
+  test("CREATE USER foo SET PASSWORD") {
+    failsToParse
+  }
+
   test("CREATE USER foo SET PASSWORD null CHANGE REQUIRED") {
     failsToParse
   }
@@ -119,6 +127,10 @@ class SecurityDDLParserTest
   }
 
   test("CREATE USER foo SET PASSWORD 'password' WITH STAUS ACTIVE") {
+    failsToParse
+  }
+
+  test("CREATE USER foo SET PASSWORD 'password' WITH STATUS IMAGINARY") {
     failsToParse
   }
 
