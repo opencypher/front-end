@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions.{Pattern => ASTPattern}
