@@ -73,6 +73,10 @@ class CatalogDDLParserTest
     failsToParse
   }
 
+  test("CATALOG CREATE DATABASE ``") {
+    failsToParse
+  }
+
   test("CATALOG DROP DATABASE foo.bar") {
     failsToParse
   }
