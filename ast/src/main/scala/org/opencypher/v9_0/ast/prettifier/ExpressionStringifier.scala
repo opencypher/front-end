@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier.backtick
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.InternalException
 
-case class ExpressionStringifier(extender: Expression => String = e => throw new InternalException(s"failed to pretty print $e")) {
+case class ExpressionStringifier(extender: Expression => String = e => throw new InternalException(s"failed to pretty print $e"), alwaysParens: Boolean = false) {
   def apply(ast: Expression): String = {
     ast match {
       case StringLiteral(txt) =>
@@ -116,7 +116,30 @@ case class ExpressionStringifier(extender: Expression => String = e => throw new
         }).mkString(" ", " ", "")
         s"case$e$items${d}end"
       case e@Ands(expressions) =>
-        expressions.map(x => parens(e, x)).mkString(" AND ")
+
+        def findChain: Option[List[Expression with BinaryOperatorExpression]] = {
+          val ops = expressions.collect {
+            case e: BinaryOperatorExpression => e.lhs -> e
+          }.toMap
+
+          def expand(lhs: Expression): List[Expression with BinaryOperatorExpression] = ops.get(lhs) match {
+            case Some(op) => op :: expand(op.rhs)
+            case None => List.empty
+          }
+
+          val chains = ops.keys.map(expand)
+          chains.find(ch => expressions.forall(ch.contains))
+        }
+
+        findChain match {
+          case Some(chain) =>
+            val head = this.apply(chain.head)
+            val tail = chain.tail.flatMap(o => List(o.canonicalOperatorSymbol, parens(e, o.rhs)))
+            (head :: tail).mkString(" ")
+          case None =>
+            expressions.map(x => parens(e, x)).mkString(" AND ")
+        }
+
       case e@Ors(expressions) =>
         expressions.map(x => parens(e, x)).mkString(" OR ")
       case ShortestPathExpression(s@ShortestPaths(r:RelationshipChain, _)) =>
@@ -146,7 +169,7 @@ case class ExpressionStringifier(extender: Expression => String = e => throw new
   private def parens(caller: Expression, argument: Expression) = {
     val thisPrecedence = precedenceLevel(caller)
     val argumentPrecedence = precedenceLevel(argument)
-    if (argumentPrecedence >= thisPrecedence)
+    if (argumentPrecedence >= thisPrecedence || alwaysParens)
       s"(${this.apply(argument)})"
     else
       this.apply(argument)
