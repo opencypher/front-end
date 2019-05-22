@@ -356,6 +356,9 @@ class PrettifierIT extends CypherFunSuite {
       "grant traverse on graph `#%¤` nodes `()/&` (*) to role" ->
         "CATALOG GRANT TRAVERSE ON GRAPH `#%¤` NODES `()/&` (*) TO role",
 
+      "grant traverse on graph foo nodes A,B,C (*) to x,y,z" ->
+        "CATALOG GRANT TRAVERSE ON GRAPH foo NODES A, B, C (*) TO x, y, z",
+
       "grant read (*) on graph * to role" ->
         "CATALOG GRANT READ (*) ON GRAPH * NODES * (*) TO role",
 
@@ -377,6 +380,9 @@ class PrettifierIT extends CypherFunSuite {
       "grant read ( `&bar` ) on graph `#%¤` nodes `()/&` (*) to role" ->
         "CATALOG GRANT READ (`&bar`) ON GRAPH `#%¤` NODES `()/&` (*) TO role",
 
+      "grant read (foo,bar) on graph foo nodes A,B,C (*) to x,y,z" ->
+        "CATALOG GRANT READ (foo, bar) ON GRAPH foo NODES A, B, C (*) TO x, y, z",
+
       "revoke traverse on graph * from role" ->
         "CATALOG REVOKE TRAVERSE ON GRAPH * NODES * (*) FROM role",
 
@@ -394,6 +400,9 @@ class PrettifierIT extends CypherFunSuite {
 
       "revoke traverse on graph `#%¤` nodes `()/&` (*) from role" ->
         "CATALOG REVOKE TRAVERSE ON GRAPH `#%¤` NODES `()/&` (*) FROM role",
+
+      "revoke traverse on graph foo nodes A,B,C (*) from x,y,z" ->
+        "CATALOG REVOKE TRAVERSE ON GRAPH foo NODES A, B, C (*) FROM x, y, z",
 
       "revoke read (*) on graph * from role" ->
         "CATALOG REVOKE READ (*) ON GRAPH * NODES * (*) FROM role",
@@ -415,6 +424,9 @@ class PrettifierIT extends CypherFunSuite {
 
       "revoke read ( `&bar` ) on graph `#%¤` nodes `()/&` (*) from role" ->
         "CATALOG REVOKE READ (`&bar`) ON GRAPH `#%¤` NODES `()/&` (*) FROM role",
+
+      "revoke read (foo,bar) on graph foo nodes A,B,C (*) from x,y,z" ->
+        "CATALOG REVOKE READ (foo, bar) ON GRAPH foo NODES A, B, C (*) FROM x, y, z",
 
       "catalog show database foO_Bar_42" ->
         "CATALOG SHOW DATABASE foO_Bar_42",
