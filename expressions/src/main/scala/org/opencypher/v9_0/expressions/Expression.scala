@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.expressions
 
+import org.opencypher.v9_0.expressions.functions.Rand
 import org.opencypher.v9_0.util.{ASTNode, Ref, Rewriter, bottomUp}
 
 import scala.collection.immutable.Stack
@@ -142,5 +143,10 @@ abstract class Expression extends ASTNode {
     */
   def findAggregate:Option[Expression] = this.treeFind[Expression] {
     case IsAggregate(_) => true
+  }
+
+  def isDeterministic: Boolean = !this.treeExists {
+    case f: FunctionInvocation if f.function == Rand => true
+    case _ => false
   }
 }
