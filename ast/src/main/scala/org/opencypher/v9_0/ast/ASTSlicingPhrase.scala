@@ -15,11 +15,10 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics._
+import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, _}
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.symbols.CTInteger
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck}
 
 // Skip/Limit
 trait ASTSlicingPhrase extends SemanticCheckable with SemanticAnalysisTooling {
@@ -30,6 +29,7 @@ trait ASTSlicingPhrase extends SemanticCheckable with SemanticAnalysisTooling {
 
   def semanticCheck: SemanticCheck =
     containsNoVariables chain
+      doesNotTouchTheGraph chain
       literalShouldBeUnsignedInteger chain
       SemanticExpressionCheck.simple(expression) chain
       expectType(CTInteger.covariant, expression)
@@ -41,6 +41,15 @@ trait ASTSlicingPhrase extends SemanticCheckable with SemanticAnalysisTooling {
       error(s"It is not allowed to refer to variables in $name", id.position)
     }
     else SemanticCheckResult.success
+  }
+
+  private def doesNotTouchTheGraph: SemanticCheck = {
+    val badExpressionFound = expression.treeExists {
+      case _: PatternComprehension | PathExpression => true
+    }
+    when(badExpressionFound) {
+      error(s"It is not allowed to refer to variables in $name", expression.position)
+    }
   }
 
   private def literalShouldBeUnsignedInteger: SemanticCheck = {
