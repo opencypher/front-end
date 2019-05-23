@@ -811,6 +811,14 @@ class SecurityDDLParserTest
     failsToParse
   }
 
+  test("GRANT READ (*) GRAPH * NODES A TO role") {
+    failsToParse
+  }
+
+  test("GRANT READ (bar) ON GRAPH * NODES A TO role") {
+    failsToParse
+  }
+
   test("GRANT READ (*) ON GRAPH * NODES * (*)") {
     failsToParse
   }
