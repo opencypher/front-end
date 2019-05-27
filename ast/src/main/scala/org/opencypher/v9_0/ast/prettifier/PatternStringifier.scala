@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.prettifier
 
-import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier.backtick
 import org.opencypher.v9_0.expressions.{EveryPath, Expression, NamedPatternPart, NodePattern, Pattern, PatternElement, PatternPart, Range, RelationshipChain, RelationshipPattern, SemanticDirection, ShortestPaths}
 
 case class PatternStringifier(expr: ExpressionStringifier) {
@@ -38,7 +37,7 @@ case class PatternStringifier(expr: ExpressionStringifier) {
     val name = nodePattern.variable.map(expr).getOrElse("")
     val base = nodePattern.baseNode.map(expr).map(" COPY OF " + _).getOrElse("")
     val labels = if (nodePattern.labels.isEmpty) "" else
-      nodePattern.labels.map(l => backtick(l.name)).mkString(":", ":", "")
+      nodePattern.labels.map(expr(_)).mkString(":", ":", "")
     val e = props(s"$name$base$labels", nodePattern.properties)
     s"($e)"
   }
@@ -57,7 +56,7 @@ case class PatternStringifier(expr: ExpressionStringifier) {
     val types = if (relationship.types.isEmpty)
       ""
     else
-      relationship.types.map(l => backtick(l.name)).mkString(":", "|", "")
+      relationship.types.map(expr(_)).mkString(":", "|", "")
     val name = relationship.variable.map(expr).getOrElse("")
     val base = relationship.baseRel.map(expr).map(" COPY OF " + _).getOrElse("")
     val length = relationship.length match {
