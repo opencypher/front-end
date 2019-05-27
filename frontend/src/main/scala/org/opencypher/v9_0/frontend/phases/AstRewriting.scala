@@ -21,7 +21,8 @@ import org.opencypher.v9_0.rewriting.RewriterStepSequencer
 import org.opencypher.v9_0.rewriting.conditions._
 import org.opencypher.v9_0.rewriting.rewriters.{InnerVariableNamer, LiteralExtraction}
 
-case class AstRewriting(sequencer: String => RewriterStepSequencer, literalExtraction: LiteralExtraction,
+case class AstRewriting(sequencer: String => RewriterStepSequencer,
+                        literalExtraction: LiteralExtraction,
                         getDegreeRewriting: Boolean = true, // This does not really belong in the front end. Should move to a planner rewriter,
                         innerVariableNamer: InnerVariableNamer
 ) extends Phase[BaseContext, BaseState, BaseState] {
