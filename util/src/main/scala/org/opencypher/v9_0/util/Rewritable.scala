@@ -97,7 +97,7 @@ object Rewritable {
       }
     } catch {
       case e: IllegalArgumentException =>
-        throw new InternalException(s"Failed rewriting $that\nTried using children: $children", e)
+        throw new InternalException(s"Failed rewriting $that\nTried using children: ${children.mkString(",")}", e)
     }
 
   def dupProduct(product: Product, children: Seq[AnyRef]): Product = product match {
