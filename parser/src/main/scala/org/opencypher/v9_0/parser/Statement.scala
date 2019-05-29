@@ -17,7 +17,6 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.util.InvalidArgumentException
 import org.parboiled.scala._
 
 trait Statement extends Parser
@@ -52,29 +51,22 @@ trait Statement extends Parser
 
   def CreateUser: Rule1[CreateUser] = rule("CATALOG CREATE USER") {
     // CREATE USER username SET PASSWORD stringLiteralPassword optionalStatus
-    group(keyword("CREATE USER") ~~ validUsername ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
+    group(keyword("CREATE USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
     optionalStatus) ~~>> ((userName, initialPassword, suspended) =>
       ast.CreateUser(userName, Some(initialPassword.value), None, requirePasswordChange = true, suspended.getOrElse(false))) |
     // CREATE USER username SET PASSWORD stringLiteralPassword optionalRequirePasswordChange optionalStatus
-    group(keyword("CREATE USER") ~~ validUsername ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
+    group(keyword("CREATE USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
     optionalRequirePasswordChange ~~ optionalStatus) ~~>> ((userName, initialPassword, requirePasswordChange, suspended) =>
       ast.CreateUser(userName, Some(initialPassword.value), None, requirePasswordChange.getOrElse(true), suspended.getOrElse(false))) |
     //
     // CREATE USER username SET PASSWORD parameterPassword optionalStatus
-    group(keyword("CREATE USER") ~~ validUsername ~~ keyword("SET PASSWORD") ~~ Parameter ~~
+    group(keyword("CREATE USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ Parameter ~~
     optionalStatus) ~~>> ((userName, initialPassword, suspended) =>
       ast.CreateUser(userName, None, Some(initialPassword), requirePasswordChange = true, suspended.getOrElse(false))) |
     // CREATE USER username SET PASSWORD parameterPassword optionalRequirePasswordChange optionalStatus
-    group(keyword("CREATE USER") ~~ validUsername ~~ keyword("SET PASSWORD") ~~ Parameter ~~
+    group(keyword("CREATE USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ Parameter ~~
     optionalRequirePasswordChange ~~ optionalStatus) ~~>> ((userName, initialPassword, requirePasswordChange, suspended) =>
       ast.CreateUser(userName, None, Some(initialPassword), requirePasswordChange.getOrElse(true), suspended.getOrElse(false)))
-  }
-
-  def validUsername: Rule1[String] = {
-    SymbolicNameString ~~> { userName =>
-      UserNameValidator.assertValidUsername(userName)
-      userName
-    }
   }
 
   def DropUser: Rule1[DropUser] = rule("CATALOG DROP USER") {
@@ -145,15 +137,8 @@ trait Statement extends Parser
   }
 
   def CreateRole: Rule1[CreateRole] = rule("CATALOG CREATE ROLE") {
-    group(keyword("CREATE ROLE") ~~ validRoleName ~~
+    group(keyword("CREATE ROLE") ~~ SymbolicNameString ~~
       optional(keyword("AS COPY OF") ~~ SymbolicNameString)) ~~>> (ast.CreateRole(_, _))
-  }
-
-  def validRoleName: Rule1[String] = {
-    SymbolicNameString ~~> { roleName =>
-      if (roleName.equals("")) throw new InvalidArgumentException("The provided role name is empty.")
-      roleName
-    }
   }
 
   def DropRole: Rule1[DropRole] = rule("CATALOG DROP ROLE") {
@@ -240,14 +225,7 @@ trait Statement extends Parser
   }
 
   def CreateDatabase: Rule1[CreateDatabase] = rule("CATALOG CREATE DATABASE") {
-    group(keyword("CREATE DATABASE") ~~ validDatabaseName) ~~>> (ast.CreateDatabase(_))
-  }
-
-  def validDatabaseName: Rule1[String] = {
-    SymbolicNameString ~~> { name =>
-      if (name.equals("")) throw new InvalidArgumentException("The provided database name is empty.")
-      name
-    }
+    group(keyword("CREATE DATABASE") ~~ SymbolicNameString) ~~>> (ast.CreateDatabase(_))
   }
 
   def DropDatabase: Rule1[DropDatabase] = rule("CATALOG DROP DATABASE") {
