@@ -53,7 +53,6 @@ case class ExpressionStringifier(
       case StringLiteral(txt) =>
         quote(txt)
 
-
       case l: Literal =>
         l.asCanonicalStringVal
 
@@ -76,12 +75,10 @@ case class ExpressionStringifier(
       case Property(m, k) =>
         s"${inner(ast)(m)}.${apply(k)}"
 
-
       case MapExpression(items) =>
-        val is = items.map({
+        items.map({
           case (k, i) => s"${apply(k)}: ${apply(i)}"
-        }).mkString(", ")
-        s"{$is}"
+        }).mkString("{", ", ", "}")
 
       case Parameter(name, _) =>
         s"$$${backtick(name)}"
