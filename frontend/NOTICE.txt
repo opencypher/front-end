@@ -32,6 +32,4 @@ BSD - Scala License
 
 BSD License
   Scala Compiler
-  scalacheck
-  test-interface
 

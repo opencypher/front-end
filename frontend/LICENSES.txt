@@ -264,8 +264,6 @@ SUCH DAMAGE.
 ------------------------------------------------------------------------------
 BSD License
   Scala Compiler
-  scalacheck
-  test-interface
 ------------------------------------------------------------------------------
 
 Copyright (c) <year>, <copyright holder>

@@ -137,6 +137,14 @@
       <groupId>org.scalacheck</groupId>
       <artifactId>scalacheck_${scala.binary.version}</artifactId>
       <version>1.14.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.lihaoyi</groupId>
+      <artifactId>pprint_${scala.binary.version}</artifactId>
+      <version>0.5.3</version>
+      <scope>test</scope>
     </dependency>
 
     <!-- other -->
