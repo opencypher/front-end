@@ -20,10 +20,11 @@ import org.opencypher.v9_0.ast
 class WritePrivilegeManagementDDLParserTest extends DDLParserTestBase {
 
   Seq(
-    ("GRANT", "TO", grant: grantOrRevokeFunc),
-    ("REVOKE", "FROM", revoke: grantOrRevokeFunc)
+    ("GRANT", "TO", grant: privilegeFunc),
+    ("REVOKE", "FROM", revoke: privilegeFunc),
+    ("DENY", "TO", deny: privilegeFunc)
   ).foreach {
-    case (command: String, preposition: String, func: grantOrRevokeFunc) =>
+    case (command: String, preposition: String, func: privilegeFunc) =>
 
       Seq("GRAPH", "GRAPHS").foreach {
         graphKeyword =>
