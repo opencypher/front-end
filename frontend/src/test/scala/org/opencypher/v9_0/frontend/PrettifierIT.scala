@@ -208,6 +208,9 @@ class PrettifierIT extends CypherFunSuite {
       "create user abc set password 'foo'" ->
         "CREATE USER abc SET PASSWORD '******' CHANGE REQUIRED",
 
+      "create user abc set password $password" ->
+        "CREATE USER abc SET PASSWORD $password CHANGE REQUIRED",
+
       "create user abc set password 'foo' change required" ->
         "CREATE USER abc SET PASSWORD '******' CHANGE REQUIRED",
 
@@ -222,6 +225,9 @@ class PrettifierIT extends CypherFunSuite {
 
       "create user abc set password 'foo' change not required set status active" ->
         "CREATE USER abc SET PASSWORD '******' CHANGE NOT REQUIRED SET STATUS ACTIVE",
+
+      "create user abc set password $password change not required set status active" ->
+        "CREATE USER abc SET PASSWORD $password CHANGE NOT REQUIRED SET STATUS ACTIVE",
 
       "create user abc set password 'foo' set status suspended" ->
         "CREATE USER abc SET PASSWORD '******' CHANGE REQUIRED SET STATUS SUSPENDED",
@@ -238,6 +244,9 @@ class PrettifierIT extends CypherFunSuite {
       "alter user abc set password 'foo'" ->
         "ALTER USER abc SET PASSWORD '******'",
 
+      "alter user abc set password $password" ->
+        "ALTER USER abc SET PASSWORD $password",
+
       "alter user `ab%$c` set password 'foo'" ->
         "ALTER USER `ab%$c` SET PASSWORD '******'",
 
@@ -249,6 +258,9 @@ class PrettifierIT extends CypherFunSuite {
 
       "alter user abc set password 'foo' change required set status suspended" ->
         "ALTER USER abc SET PASSWORD '******' CHANGE REQUIRED SET STATUS SUSPENDED",
+
+      "alter user abc set password $password change not required set status suspended" ->
+        "ALTER USER abc SET PASSWORD $password CHANGE NOT REQUIRED SET STATUS SUSPENDED",
 
       "alter user abc set password change not required set status suspended" ->
         "ALTER USER abc SET PASSWORD CHANGE NOT REQUIRED SET STATUS SUSPENDED",
