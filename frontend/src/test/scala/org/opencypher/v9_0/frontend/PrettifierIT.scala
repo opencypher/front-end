@@ -456,7 +456,8 @@ class PrettifierIT extends CypherFunSuite {
       ("GRANT", "TO"),
       ("DENY", "TO"),
       ("REVOKE GRANT", "FROM"),
-      ("REVOKE DENY", "FROM")
+      ("REVOKE DENY", "FROM"),
+      ("REVOKE", "FROM")
     ) flatMap {
       case (action, preposition) =>
         Seq(
