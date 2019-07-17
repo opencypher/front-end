@@ -81,6 +81,8 @@ trait MapToPublicExceptions[T <: Throwable] {
 
   def shortestPathCommonEndNodesForbiddenException(message: String, cause: Throwable): T
 
+  def transactionOutOfMemoryException(message: String, cause: Throwable): T
+
   def databaseManagementException(message: String): T
 
   def securityManagementException(message: String): T
