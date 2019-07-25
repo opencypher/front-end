@@ -25,6 +25,8 @@ trait ParserAstTest[AST] extends ParserTest[AST, AST] with TestName {
 
   final def yields(expr: InputPosition => AST)(implicit parser: Rule1[AST]): Unit = parsing(testName) shouldGive expr
 
+  final def gives(ast: AST)(implicit parser: Rule1[AST]): Unit = parsing(testName) shouldGive ast
+
   final def failsToParse(implicit parser: Rule1[AST]): Unit = assertFails(testName)
 
   private type Expression = InputPosition => org.opencypher.v9_0.expressions.Expression
