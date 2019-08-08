@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions.{Variable, _}
 import org.opencypher.v9_0.rewriting.conditions.{aggregationsAreIsolated, hasAggregateButIsNotAggregate}
 import org.opencypher.v9_0.util.helpers.fixedPoint
-import org.opencypher.v9_0.util.{AggregationNameGenerator, InternalException, Rewriter, bottomUp, _}
+import org.opencypher.v9_0.util.{AggregationNameGenerator, Rewriter, bottomUp, _}
 
 /**
   * This rewriter makes sure that aggregations are on their own in RETURN/WITH clauses, so
@@ -107,7 +107,7 @@ case object isolateAggregation extends StatementRewriter {
           items.map(_.exp) :+ variable
 
         case e: IterablePredicateExpression  if hasAggregateButIsNotAggregate(e) =>
-          val predicate: Expression = e.innerPredicate.getOrElse(throw new InternalException("Should never be empty"))
+          val predicate: Expression = e.innerPredicate.getOrElse(throw new IllegalStateException("Should never be empty"))
           // Weird way of doing it to make scalac happy
           Set(e.expression) ++ predicate.dependencies - e.variable
 

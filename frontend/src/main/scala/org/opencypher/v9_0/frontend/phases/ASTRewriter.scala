@@ -22,13 +22,17 @@ import org.opencypher.v9_0.rewriting.RewriterStep._
 import org.opencypher.v9_0.rewriting.conditions._
 import org.opencypher.v9_0.rewriting.rewriters.{replaceLiteralDynamicPropertyLookups, _}
 import org.opencypher.v9_0.rewriting.{RewriterCondition, RewriterStepSequencer}
+import org.opencypher.v9_0.util.CypherExceptionFactory
 
 class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
                   literalExtraction: LiteralExtraction,
                   getDegreeRewriting: Boolean,
                   innerVariableNamer: InnerVariableNamer) {
 
-  def rewrite(queryText: String, statement: Statement, semanticState: SemanticState): (Statement, Map[String, Any], Set[RewriterCondition]) = {
+  def rewrite(queryText: String,
+              statement: Statement,
+              semanticState: SemanticState,
+              cypherExceptionFactory: CypherExceptionFactory): (Statement, Map[String, Any], Set[RewriterCondition]) = {
 
     val contract = rewriterSequencer("ASTRewriter")(
       recordScopes(semanticState),
@@ -39,7 +43,7 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
       enableCondition(noDuplicatesInReturnItems),
       expandStar(semanticState),
       enableCondition(containsNoReturnAll),
-      foldConstants,
+      foldConstants(cypherExceptionFactory),
       nameMatchPatternElements,
       nameUpdatingClauses,
       enableCondition(noUnnamedPatternElementsInMatch),

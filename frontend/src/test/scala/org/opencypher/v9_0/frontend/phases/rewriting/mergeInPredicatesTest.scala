@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.frontend.phases.CNFNormalizer
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class mergeInPredicatesTest extends CypherFunSuite with AstRewritingTestSupport {
@@ -128,8 +129,9 @@ class mergeInPredicatesTest extends CypherFunSuite with AstRewritingTestSupport 
   }
 
   private def shouldRewrite(from: String, to: String): Unit = {
-    val original = parser.parse(from).asInstanceOf[Query]
-    val expected = parser.parse(to).asInstanceOf[Query]
+    val exceptionFactory = OpenCypherExceptionFactory(None)
+    val original = parser.parse(from, exceptionFactory).asInstanceOf[Query]
+    val expected = parser.parse(to, exceptionFactory).asInstanceOf[Query]
     val common = CNFNormalizer.instance(TestContext())
     val result = mergeInPredicates(original)
 

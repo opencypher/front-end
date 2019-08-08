@@ -18,7 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.rewriting.rewriters.{Forced, IfNoParameter, LiteralExtraction, literalReplacement}
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, Rewriter, bottomUp}
 import org.opencypher.v9_0.expressions.Parameter
 
 class LiteralReplacementTest extends CypherFunSuite  {
@@ -129,8 +129,9 @@ class LiteralReplacementTest extends CypherFunSuite  {
   }
 
   private def assertRewrite(originalQuery: String, expectedQuery: String, replacements: Map[String, Any], extractLiterals: LiteralExtraction = IfNoParameter) {
-    val original = parser.parse(originalQuery)
-    val expected = parser.parse(expectedQuery).endoRewrite(fixParameterTypeExpectations)
+    val exceptionFactory = OpenCypherExceptionFactory(None)
+    val original = parser.parse(originalQuery, exceptionFactory)
+    val expected = parser.parse(expectedQuery, exceptionFactory).endoRewrite(fixParameterTypeExpectations)
 
     val (rewriter, replacedLiterals) = literalReplacement(original, extractLiterals)
 

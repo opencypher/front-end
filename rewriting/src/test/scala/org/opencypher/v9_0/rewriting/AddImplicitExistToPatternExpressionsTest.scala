@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.rewriting.rewriters.addImplicitExistToPatternExpressions
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class AddImplicitExistToPatternExpressionsTest extends CypherFunSuite with AstConstructionTestSupport {
@@ -51,8 +52,9 @@ class AddImplicitExistToPatternExpressionsTest extends CypherFunSuite with AstCo
   }
 
   private def assertRewrite(originalQuery: String, expectedQuery: String) = {
-    val original = parser.parse(originalQuery)
-    val expected = parser.parse(expectedQuery)
+    val exceptionFactory = OpenCypherExceptionFactory(None)
+    val original = parser.parse(originalQuery, exceptionFactory)
+    val expected = parser.parse(expectedQuery, exceptionFactory)
 
     val checkResult = original.semanticCheck(SemanticState.clean)
     val rewriter = addImplicitExistToPatternExpressions(checkResult.state)

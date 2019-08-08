@@ -16,11 +16,12 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.scalatest.mock.MockitoSugar
 
 object ParserFixture extends MockitoSugar {
 
-  def parse(a: String): ast.Statement = parser.parse(a)
+  def parse(a: String): ast.Statement = parser.parse(a, OpenCypherExceptionFactory(None))
 
   val parser = new CypherParser
 }

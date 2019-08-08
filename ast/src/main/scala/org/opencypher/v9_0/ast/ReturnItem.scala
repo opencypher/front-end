@@ -28,7 +28,6 @@ import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapProjection
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.InternalException
 
 sealed trait ReturnItemsDef extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
   /**
@@ -116,7 +115,7 @@ case class UnaliasedReturnItem(expression: Expression, inputText: String)(val po
   val name: String = alias.map(_.name) getOrElse { inputText.trim }
 
   def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult =
-    throw new InternalException("Should have been aliased before this step")
+    throw new IllegalStateException("Should have been aliased before this step")
 }
 
 object AliasedReturnItem {

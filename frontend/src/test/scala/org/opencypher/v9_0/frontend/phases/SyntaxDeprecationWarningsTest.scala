@@ -21,7 +21,7 @@ import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.Deprecations.{V1, V2}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, InputPosition}
+import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, InputPosition, OpenCypherExceptionFactory}
 
 class SyntaxDeprecationWarningsTest extends CypherFunSuite {
 
@@ -45,6 +45,6 @@ class SyntaxDeprecationWarningsTest extends CypherFunSuite {
     logger.notifications
   }
 
-  private def parse(queryText: String): Statement = parser.parse(queryText.replace("\r\n", "\n"))
+  private def parse(queryText: String): Statement = parser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None))
 
 }

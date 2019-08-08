@@ -16,11 +16,11 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.rewriting.rewriters.{expandStar, inlineProjections, normalizeWithAndReturnClauses}
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{InternalException, inSequence}
+import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, inSequence}
 
 class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport {
 
@@ -104,7 +104,7 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
         |RETURN a
       """.stripMargin)
 
-    result should equal(parser.parse(
+    result should equal(ast(
       """MATCH (a)
         |WITH a AS a WHERE true
         |RETURN a AS a
@@ -285,8 +285,8 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
       """.stripMargin))
   }
 
-  test("should refuse to inline queries containing update clauses by throwing CantHandleQueryException") {
-    an[InternalException] shouldBe thrownBy {
+  test("should refuse to inline queries containing update clauses") {
+    an[IllegalStateException] shouldBe thrownBy {
       projectionInlinedAst(
         """CREATE (n)
           |RETURN n
@@ -336,7 +336,7 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
       """.stripMargin
     val result = projectionInlinedAst(query)
 
-    result should equal(parser.parse(
+    result should equal(ast(
       """MATCH (owner)
         |WITH owner AS `owner`, COUNT(*) AS xyz
         |WITH owner AS `owner`, xyz AS `xyz`
@@ -397,10 +397,10 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
 
   private def projectionInlinedAst(queryText: String) = ast(queryText).endoRewrite(inlineProjections)
 
-  private def ast(queryText: String) = {
-    val parsed = parser.parse(queryText)
-    val mkException = new SyntaxExceptionCreator(queryText, Some(pos))
-    val normalized = parsed.endoRewrite(inSequence(normalizeWithAndReturnClauses(mkException)))
+  private def ast(queryText: String): Statement = {
+    val parsed = parser.parse(queryText, OpenCypherExceptionFactory(None))
+    val exceptionFactory = OpenCypherExceptionFactory(Some(pos))
+    val normalized = parsed.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory)))
     val checkResult = normalized.semanticCheck(SemanticState.clean)
     normalized.endoRewrite(inSequence(expandStar(checkResult.state)))
   }

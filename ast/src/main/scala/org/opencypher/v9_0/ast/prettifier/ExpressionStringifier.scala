@@ -17,7 +17,6 @@ package org.opencypher.v9_0.ast.prettifier
 
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier._
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.InternalException
 
 case class ExpressionStringifier(
   extender: Expression => String = failingExtender,
@@ -334,5 +333,5 @@ case class ExpressionStringifier(
 object ExpressionStringifier {
 
   val failingExtender: Expression => String =
-    e => throw new InternalException(s"failed to pretty print $e")
+    e => throw new IllegalStateException(s"failed to pretty print $e")
 }

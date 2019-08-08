@@ -16,9 +16,9 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.rewriting.rewriters.{expandStar, normalizeWithAndReturnClauses}
-import org.opencypher.v9_0.util.inSequence
+import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, inSequence}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
@@ -110,11 +110,11 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
   }
 
   private def prepRewrite(q: String, multipleGraphs: Boolean = false) = {
-    val mkException = new SyntaxExceptionCreator(q, Some(pos))
+    val exceptionFactory = OpenCypherExceptionFactory(None)
     val rewriter = if (multipleGraphs)
-      inSequence(normalizeWithAndReturnClauses(mkException))
+      inSequence(normalizeWithAndReturnClauses(exceptionFactory))
     else
-      inSequence(normalizeWithAndReturnClauses(mkException))
-    parser.parse(q).endoRewrite(rewriter)
+      inSequence(normalizeWithAndReturnClauses(exceptionFactory))
+    parser.parse(q, exceptionFactory).endoRewrite(rewriter)
   }
 }

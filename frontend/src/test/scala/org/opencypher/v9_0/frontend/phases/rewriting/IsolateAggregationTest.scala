@@ -15,12 +15,11 @@
  */
 package org.opencypher.v9_0.frontend.phases.rewriting
 
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.ast.semantics.SyntaxExceptionCreator
+import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Statement}
 import org.opencypher.v9_0.frontend.phases.{Monitors, isolateAggregation}
 import org.opencypher.v9_0.rewriting.RewriteTest
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
-import org.opencypher.v9_0.util.inSequence
+import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, inSequence}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {
@@ -220,8 +219,8 @@ class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstCon
     )
   }
 
-  override protected def parseForRewriting(queryText: String) = {
-    val mkException = new SyntaxExceptionCreator(queryText, Some(pos))
-    super.parseForRewriting(queryText).endoRewrite(inSequence(normalizeWithAndReturnClauses(mkException)))
+  override protected def parseForRewriting(queryText: String): Statement = {
+    val exceptionFactory = OpenCypherExceptionFactory(Some(pos))
+    super.parseForRewriting(queryText).endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory)))
   }
 }

@@ -15,10 +15,9 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{InputPosition, InternalException, Rewriter, topDown}
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.{PropertyKeyName, Variable}
+import org.opencypher.v9_0.expressions.{PropertyKeyName, Variable, _}
+import org.opencypher.v9_0.util.{InputPosition, Rewriter, topDown}
 
 /*
 Handles rewriting map projection elements to literal entries when possible. If the user
@@ -37,7 +36,7 @@ case class desugarMapProjection(state: SemanticState) extends Rewriter {
 
       def propertySelect(propertyPosition: InputPosition, name: String): LiteralEntry = {
         val key = PropertyKeyName(name)(propertyPosition)
-        val idPos = e.definitionPos.getOrElse(throw new InternalException("MapProjection definition pos is not known"))
+        val idPos = e.definitionPos.getOrElse(throw new IllegalStateException("MapProjection definition pos is not known"))
         val newIdentifier = Variable(id.name)(idPos)
         val value = Property(newIdentifier, key)(propertyPosition)
         LiteralEntry(key, value)(propertyPosition)

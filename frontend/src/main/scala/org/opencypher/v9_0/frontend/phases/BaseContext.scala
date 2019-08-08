@@ -16,12 +16,12 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
-import org.opencypher.v9_0.util.{CypherException, InputPosition}
+import org.opencypher.v9_0.util.CypherExceptionFactory
 
 trait BaseContext {
   def tracer: CompilationPhaseTracer
   def notificationLogger: InternalNotificationLogger
-  def exceptionCreator: (String, InputPosition) => CypherException
+  def cypherExceptionFactory: CypherExceptionFactory
   def monitors: Monitors
   def errorHandler: Seq[SemanticErrorDef] => Unit
 }

@@ -13,17 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.ast.semantics
+package org.opencypher.v9_0.util
 
-import org.opencypher.v9_0.ast.Statement
-
-object SemanticChecker {
-  def check(statement: Statement, state: SemanticState = SemanticState.clean): SemanticCheckResult = {
-    val result = statement.semanticCheck(state)
-    val scopeTreeIssues = ScopeTreeVerifier.verify(result.state.scopeTree)
-    if (scopeTreeIssues.nonEmpty)
-      throw new IllegalStateException(scopeTreeIssues.mkString(s"\n"))
-
-    result
-  }
+trait CypherExceptionFactory {
+  def arithmeticException(message: String, cause: Exception = null): CypherException
+  def syntaxException(message: String, pos: InputPosition): CypherException
 }

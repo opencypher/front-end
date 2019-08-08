@@ -18,7 +18,7 @@ package org.opencypher.v9_0.frontend
 import org.opencypher.v9_0.frontend.ErrorCollectingContext.failWith
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases._
-import org.opencypher.v9_0.util.{CypherException, InputPosition}
+import org.opencypher.v9_0.util.{CypherException, CypherExceptionFactory, InputPosition}
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.scalatest.matchers.MatchResult
@@ -102,7 +102,7 @@ class ErrorCollectingContext extends BaseContext {
 
   override def tracer: CompilationPhaseTracer = CompilationPhaseTracer.NO_TRACING
   override def notificationLogger: devNullLogger.type = devNullLogger
-  override def exceptionCreator: (String, InputPosition) => CypherException = ???
+  override def cypherExceptionFactory: CypherExceptionFactory = ???
   override def monitors: Monitors = ???
   override def errorHandler: Seq[SemanticErrorDef] => Unit = (errs: Seq[SemanticErrorDef]) =>
     errors = errs

@@ -16,11 +16,11 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.semantics.{SemanticState, SyntaxExceptionCreator}
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.{desugarMapProjection, normalizeWithAndReturnClauses, recordScopes}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{Rewriter, inSequence}
+import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, Rewriter, inSequence}
 
 class DesugarDesugaredMapProjectionTest extends CypherFunSuite {
 
@@ -69,9 +69,9 @@ class DesugarDesugaredMapProjectionTest extends CypherFunSuite {
   def assertRewrite(originalQuery: String, expectedQuery: String) {
     test(originalQuery + " is rewritten to " + expectedQuery) {
       def rewrite(q: String): Statement = {
-        val mkException = new SyntaxExceptionCreator(originalQuery, None)
-        val sequence: Rewriter = inSequence(normalizeWithAndReturnClauses(mkException))
-        val originalAst = parser.parse(q).endoRewrite(sequence)
+        val exceptionFactory = OpenCypherExceptionFactory(None)
+        val sequence: Rewriter = inSequence(normalizeWithAndReturnClauses(exceptionFactory))
+        val originalAst = parser.parse(q, OpenCypherExceptionFactory(None)).endoRewrite(sequence)
         val semanticCheckResult = originalAst.semanticCheck(SemanticState.clean)
         val withScopes = originalAst.endoRewrite(recordScopes(semanticCheckResult.state))
 
