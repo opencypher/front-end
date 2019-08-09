@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.parser
+package org.opencypher.v9_0.parser.privilege
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
 
 class PrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
