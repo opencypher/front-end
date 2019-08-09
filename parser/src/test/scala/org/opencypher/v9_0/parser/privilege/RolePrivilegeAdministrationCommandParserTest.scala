@@ -16,9 +16,9 @@
 package org.opencypher.v9_0.parser.privilege
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.parser.DDLParserTestBase
+import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
 
-class RolePrivilegeDDLParserTest extends DDLParserTestBase {
+class RolePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
   Seq(
     ("GRANT", "TO", grant: privilegeFunc),

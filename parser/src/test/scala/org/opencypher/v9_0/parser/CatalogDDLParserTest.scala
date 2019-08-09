@@ -18,7 +18,7 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.symbols._
 
-class CatalogDDLParserTest extends DDLParserTestBase {
+class CatalogDDLParserTest extends AdministrationCommandParserTestBase {
 
   private val singleQuery = ast.SingleQuery(Seq(ast.ConstructGraph()(pos)))(pos)
   private val returnGraph: ast.ReturnGraph = ast.ReturnGraph(None)(pos)

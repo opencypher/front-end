@@ -18,7 +18,7 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.InputPosition
 
-class RoleManagementDDLParserTest extends DDLParserTestBase {
+class RoleAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
   //  Showing roles
 

@@ -15,6 +15,6 @@
  */
 package org.opencypher.v9_0.parser.privilege
 
-class RevokeTests extends WritePrivilegeManagementDDLParserTest {
+class RevokeTests extends WritePrivilegeAdministrationCommandParserTest {
   privilegeTests("REVOKE", "FROM", revokeBoth)
 }

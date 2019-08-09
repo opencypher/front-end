@@ -17,7 +17,7 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
 
-class PrivilegeManagementDDLParserTest extends DDLParserTestBase {
+class PrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
   //  Showing privileges
 

@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions.{Parameter => Param}
 import org.opencypher.v9_0.util.symbols.CTAny
 
-class UserManagementDDLParserTest extends DDLParserTestBase {
+class UserAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
   //  Showing user
 

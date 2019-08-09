@@ -20,7 +20,7 @@ import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.util.InputPosition
 import org.parboiled.scala.Rule1
 
-class DDLParserTestBase
+class AdministrationCommandParserTestBase
   extends ParserAstTest[ast.Statement] with Statement with AstConstructionTestSupport {
 
   implicit val parser: Rule1[ast.Statement] = Statement
