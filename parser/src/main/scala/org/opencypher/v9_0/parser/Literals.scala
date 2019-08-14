@@ -108,15 +108,7 @@ trait Literals extends Parser
   }
 
   def Parameter: Rule1[org.opencypher.v9_0.expressions.Parameter] = rule("a parameter") {
-    NewParameter | OldParameter
-  }
-
-  def NewParameter: Rule1[org.opencypher.v9_0.expressions.Parameter] = rule("a parameter (new syntax") {
     ((ch('$') ~~ (UnescapedSymbolicNameString | EscapedSymbolicNameString | UnsignedDecimalInteger ~> (_.toString))) memoMismatches) ~~>> (ast.Parameter(_, CTAny))
-  }
-
-  def OldParameter: Rule1[org.opencypher.v9_0.expressions.Parameter] = rule("a parameter (old syntax)") {
-    ((ch('{') ~~ (UnescapedSymbolicNameString | EscapedSymbolicNameString | UnsignedDecimalInteger ~> (_.toString)) ~~ ch('}')) memoMismatches) ~~>> (ast.Parameter(_, CTAny))
   }
 
   def NumberLiteral: Rule1[org.opencypher.v9_0.expressions.Literal] = rule("a number") (
