@@ -21,6 +21,8 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SubQueryTest extends CypherFunSuite with AstConstructionHelp {
 
+  private val clean = SemanticState.clean.withFeature(SemanticFeature.SubQueries)
+
   test("subqueries require semantic feature") {
 
     val q =
@@ -52,7 +54,7 @@ class SubQueryTest extends CypherFunSuite with AstConstructionHelp {
           v("a"), v("b"), v("c"))
       )
 
-    val result = SemanticChecker.check(q, SemanticState.clean.withFeature(SemanticFeature.SubQueries))
+    val result = SemanticChecker.check(q, clean)
 
     result.errors.size shouldEqual 0
   }
@@ -65,20 +67,18 @@ class SubQueryTest extends CypherFunSuite with AstConstructionHelp {
       query(
         with_(i("1") -> v("a")),
         subQuery(
-          return_(
-            v("a")(marker))
+          return_(v("a")(marker) -> v("b"))
         ),
-        return_(
-          v("a"))
+        return_(v("a"))
       )
 
-    val result = SemanticChecker.check(q, SemanticState.clean.withFeature(SemanticFeature.SubQueries))
+    val result = SemanticChecker.check(q, clean)
 
     result.errors.size shouldEqual 1
     result.errors.head.position shouldEqual marker
   }
 
-  test("sub-query scoping works with order by") {
+  test("subquery scoping works with order by") {
 
     val q =
       query(
@@ -94,9 +94,28 @@ class SubQueryTest extends CypherFunSuite with AstConstructionHelp {
           v("a"), v("b"), v("b") -> v("c"))
       )
 
-    val result = SemanticChecker.check(q, SemanticState.clean.withFeature(SemanticFeature.SubQueries))
+    val result = SemanticChecker.check(q, clean)
 
     result.errors.size shouldEqual 0
+  }
+
+  test("fails on variable name collision") {
+
+    val marker = InputPosition(-100, -100, -100)
+
+    val sq = singleQuery(
+      with_(i("1") -> v("x")),
+      subQuery(
+        return_(i("2") -> v("x")(marker))
+      ),
+      return_(i("1") -> v("y"))
+    )
+
+    val result = sq.semanticCheck(clean)
+
+    result.errors.size shouldEqual 1
+    result.errors.head.position shouldEqual marker
+    result.errors.head.msg should include ("Variable `x` already declared")
   }
 
 }
