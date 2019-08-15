@@ -98,11 +98,15 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   // DROP DATABASE
 
   test("DROP DATABASE foo") {
-    yields(ast.DropDatabase("foo"))
+    yields(ast.DropDatabase("foo", ifExists = false))
   }
 
   test("CATALOG DROP DATABASE `foo.bar`") {
-    yields(ast.DropDatabase("foo.bar"))
+    yields(ast.DropDatabase("foo.bar", ifExists = false))
+  }
+
+  test("DROP DATABASE IF EXISTS foo") {
+    yields(ast.DropDatabase("foo", ifExists = true))
   }
 
   test("CATALOG DROP DATABASE foo.bar") {
@@ -110,6 +114,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   }
 
   test("DROP DATABASE") {
+    failsToParse
+  }
+
+  test("DROP DATABASE IF EXISTS") {
     failsToParse
   }
 
