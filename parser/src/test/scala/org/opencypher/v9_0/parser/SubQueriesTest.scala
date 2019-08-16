@@ -16,19 +16,19 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.{AstConstructionHelp, SubQuery}
+import org.opencypher.v9_0.ast.{AstConstructionTestSupport, SubQuery}
 import org.parboiled.scala.Rule1
 
 class SubQueriesTest
   extends ParserAstTest[ast.SubQuery]
     with Query
     with Clauses
-    with AstConstructionHelp {
+    with AstConstructionTestSupport {
 
   implicit val parser: Rule1[SubQuery] = SubQuery
 
   test("CALL { RETURN 1 }") {
-    gives(subQuery(return_(i("1"))))
+    gives(subQuery(return_(literalInt(1).unaliased)))
   }
 
   test("CALL { }") {
