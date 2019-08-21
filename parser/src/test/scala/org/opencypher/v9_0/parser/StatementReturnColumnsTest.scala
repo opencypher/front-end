@@ -20,7 +20,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class StatementReturnColumnsTest extends CypherFunSuite with ParserTest[ast.Statement, List[String]] {
 
-  override def convert(statement: ast.Statement): List[String] = statement.returnColumns
+  override def convert(statement: ast.Statement): List[String] = statement.returnColumns.map(_.name)
 
   implicit val parserToTest = CypherParser.Statement
 

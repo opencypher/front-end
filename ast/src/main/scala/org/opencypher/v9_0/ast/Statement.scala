@@ -16,11 +16,11 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.util.ASTNode
 
 trait Statement extends ASTNode {
   def semanticCheck: SemanticCheck
 
-  def returnColumns: List[String]
+  def returnColumns: List[LogicalVariable]
 }
-

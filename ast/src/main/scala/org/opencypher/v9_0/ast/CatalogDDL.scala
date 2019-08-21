@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult._
 import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticCheckResult, SemanticFeature, SemanticState}
-import org.opencypher.v9_0.expressions.{Parameter, Variable}
+import org.opencypher.v9_0.expressions.{LogicalVariable, Parameter, Variable}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
 
@@ -26,7 +26,7 @@ sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
 
   def name: String
 
-  override def returnColumns: List[String] = List.empty
+  override def returnColumns: List[LogicalVariable] = List.empty
 }
 
 sealed trait MultiDatabaseAdministrationCommand extends CatalogDDL {
