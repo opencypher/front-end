@@ -22,7 +22,9 @@ import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, Semant
 case class Query(periodicCommitHint: Option[PeriodicCommitHint], part: QueryPart)(val position: InputPosition)
   extends Statement with SemanticAnalysisTooling {
 
-  override def returnColumns = part.returnColumns
+  override def returnColumns: List[LogicalVariable] = part.returnColumns
+
+  def finalScope(scope: Scope): Scope = part.finalScope(scope)
 
   override def semanticCheck =
     part.semanticCheck chain
@@ -53,7 +55,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
       case _               => false
     }
 
-  override def returnColumns = clauses.last.returnColumns
+  override def returnColumns: List[LogicalVariable] = clauses.last.returnColumns
 
   override def semanticCheck =
     checkStandaloneCall chain
@@ -132,7 +134,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
           SemanticCheckResult(result.state, lastResult.errors ++ result.errors)
       }
     }
-    SemanticCheckResult(result.state.popScope, result.errors)
+    SemanticCheckResult(result.state.popScope.recordCurrentScope(this), result.errors)
   }
 
   private def checkHorizon(clause: HorizonClause, state: SemanticState, prevErrors: Seq[SemanticErrorDef]) = {
