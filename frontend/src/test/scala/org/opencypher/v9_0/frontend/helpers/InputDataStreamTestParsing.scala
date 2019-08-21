@@ -50,7 +50,8 @@ case class InputDataStreamTestInitialState(idsQueryText: String,
                                            maybeSemantics: Option[SemanticState] = None,
                                            maybeExtractedParams: Option[Map[String, Any]] = None,
                                            maybeSemanticTable: Option[SemanticTable] = None,
-                                           accumulatedConditions: Set[Condition] = Set.empty) extends BaseState {
+                                           accumulatedConditions: Set[Condition] = Set.empty,
+                                           maybeReturnColumns: Option[Seq[String]] = None) extends BaseState {
 
 
   override def withStatement(s: ast.Statement): InputDataStreamTestInitialState = {
@@ -68,6 +69,8 @@ case class InputDataStreamTestInitialState(idsQueryText: String,
   override def withSemanticState(s: SemanticState): InputDataStreamTestInitialState = copy(maybeSemantics = Some(s))
 
   override def withParams(p: Map[String, Any]): InputDataStreamTestInitialState = copy(maybeExtractedParams = Some(p))
+
+  override def withReturnColumns(cols: Seq[String]): InputDataStreamTestInitialState = copy(maybeReturnColumns = Some(cols))
 }
 
 class InputDataStreamTestCypherParser extends Parser
