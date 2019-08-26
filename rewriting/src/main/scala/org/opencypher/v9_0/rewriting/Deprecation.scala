@@ -29,12 +29,10 @@ object Deprecations {
     f => f.copy(functionName = FunctionName(newName)(f.functionName.position))(f.position)
 
   case object V1 extends Deprecations {
-    private val functionRenames: Map[String, String] =
+    val functionRenames: Map[String, String] =
       TreeMap(
-        "toInt" -> "toInteger",
-        "upper" -> "toUpper",
-        "lower" -> "toLower",
-        "rels" -> "relationships"
+        // put any V1 deprecation here as
+        // "old name" -> "new name"
       )(CaseInsensitiveOrdered)
 
     override val find: PartialFunction[Any, Deprecation] = {
@@ -72,10 +70,8 @@ object Deprecations {
   case object V2 extends Deprecations {
     private val functionRenames: Map[String, String] =
       TreeMap(
-        "toInt" -> "toInteger",
-        "upper" -> "toUpper",
-        "lower" -> "toLower",
-        "rels" -> "relationships"
+        // put any V2 deprecation here as
+        // "old name" -> "new name"
       )(CaseInsensitiveOrdered)
 
     override val find: PartialFunction[Any, Deprecation] = {
