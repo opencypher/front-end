@@ -65,7 +65,6 @@ final case class CreateUser(userName: String,
 
   override def name: String = ifExistsDo match {
     case _: IfExistsReplace => "CREATE OR REPLACE USER"
-    case _: IfExistsDoNothing => "CREATE USER IF NOT EXISTS"
     case _ => "CREATE USER"
   }
 
@@ -76,7 +75,7 @@ final case class CreateUser(userName: String,
 
 final case class DropUser(userName: String, ifExists: Boolean)(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
 
-  override def name: String = if (ifExists) "DROP USER IF EXISTS" else "DROP USER"
+  override def name = "DROP USER"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -127,7 +126,6 @@ final case class CreateRole(roleName: String, from: Option[String], ifExistsDo: 
 
   override def name: String = ifExistsDo match {
     case _: IfExistsReplace => "CREATE OR REPLACE ROLE"
-    case _: IfExistsDoNothing => "CREATE ROLE IF NOT EXISTS"
     case _ => "CREATE ROLE"
   }
 
@@ -138,7 +136,7 @@ final case class CreateRole(roleName: String, from: Option[String], ifExistsDo: 
 
 final case class DropRole(roleName: String, ifExists: Boolean)(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
 
-  override def name: String = if (ifExists) "DROP ROLE IF EXISTS" else "DROP ROLE"
+  override def name = "DROP ROLE"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -375,7 +373,6 @@ final case class CreateDatabase(dbName: String, ifExistsDo: IfExistsDo)(val posi
 
   override def name: String = ifExistsDo match {
     case _: IfExistsReplace => "CREATE OR REPLACE DATABASE"
-    case _: IfExistsDoNothing => "CREATE DATABASE IF NOT EXISTS"
     case _ => "CREATE DATABASE"
   }
 
@@ -386,7 +383,7 @@ final case class CreateDatabase(dbName: String, ifExistsDo: IfExistsDo)(val posi
 
 final case class DropDatabase(dbName: String, ifExists: Boolean)(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
 
-  override def name: String = if (ifExists) "DROP DATABASE IF EXISTS" else "DROP DATABASE"
+  override def name = "DROP DATABASE"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
