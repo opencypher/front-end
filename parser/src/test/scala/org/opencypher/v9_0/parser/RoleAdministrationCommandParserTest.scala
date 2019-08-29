@@ -168,6 +168,9 @@ class RoleAdministrationCommandParserTest extends AdministrationCommandParserTes
     failsToParse
   }
 
+  test("CREATE OR REPLACE ROLE foo IF NOT EXISTS AS COPY OF bar") {
+    failsToParse
+  }
 
   //  Dropping role
 
