@@ -88,8 +88,7 @@ final case class FromGraph(expression: Expression)(val position: InputPosition) 
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
-      checkGraphReference chain
-      SemanticState.recordCurrentScope(this)
+      checkGraphReference
 
   private def checkGraphReference: SemanticCheck =
     unless(graphReference.isDefined)(error("Invalid graph reference", position))
@@ -220,7 +219,6 @@ final case class ConstructGraph(
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
-      SemanticState.recordCurrentScope(this) chain
       clones.semanticCheck chain
       checkDuplicatedRelationships chain
       checkModificationOfClonedEntities chain
@@ -299,9 +297,8 @@ final case class ReturnGraph(graphName: Option[CatalogName])(val position: Input
 
   override def name = "RETURN GRAPH"
 
-  override def semanticCheck: SemanticCheck =
-    super.semanticCheck chain
-      SemanticState.recordCurrentScope(this)
+  override def semanticCheck: SemanticCheck = 
+    super.semanticCheck
 }
 
 case class Start(items: Seq[StartItem], where: Option[Where])(val position: InputPosition) extends Clause {
@@ -349,8 +346,7 @@ case class Match(
       uniqueHints chain
       where.semanticCheck chain
       checkHints chain
-      checkForCartesianProducts chain
-      SemanticState.recordCurrentScope(this)
+      checkForCartesianProducts
 
   private def uniqueHints: SemanticCheck = {
     val errors = hints.groupBy(_.variables.toIndexedSeq).collect {
@@ -610,8 +606,6 @@ case class UnresolvedCall(procedureNamespace: Namespace,
 }
 
 sealed trait HorizonClause extends Clause with SemanticAnalysisTooling {
-  override def semanticCheck: SemanticCheck = SemanticState.recordCurrentScope(this)
-
   def semanticCheckContinuation(previousScope: Scope): SemanticCheck
 }
 
@@ -659,9 +653,8 @@ sealed trait ProjectionClause extends HorizonClause {
     */
   def withReturnItems(items: Seq[ReturnItem]): ProjectionClause
 
-  override def semanticCheck: SemanticCheck =
-    super.semanticCheck chain
-      returnItems.semanticCheck
+  override def semanticCheck: SemanticCheck = 
+    returnItems.semanticCheck
 
   override def semanticCheckContinuation(previousScope: Scope): SemanticCheck = {
     val declareAllTheThings = (s: SemanticState) => {
