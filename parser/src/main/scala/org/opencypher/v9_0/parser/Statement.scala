@@ -90,6 +90,7 @@ trait Statement extends Parser
 
   def createUserStart: Rule1[(String, IfExistsDo)] = {
     // returns (userName, IfExistsDo)
+    group(keyword("CREATE OR REPLACE USER") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS")) ~~> ((_, IfExistsInvalidSyntax())) |
     group(keyword("CREATE OR REPLACE USER") ~~ SymbolicNameString) ~~> ((_, IfExistsReplace())) |
     group(keyword("CREATE USER") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS")) ~~> ((_, IfExistsDoNothing())) |
     group(keyword("CREATE USER") ~~ SymbolicNameString) ~~> ((_, IfExistsThrowError()))
@@ -179,6 +180,8 @@ trait Statement extends Parser
   }
 
   def CreateRole: Rule1[CreateRole] = rule("CATALOG CREATE ROLE") {
+    group(keyword("CREATE OR REPLACE ROLE") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS") ~~
+      optional(keyword("AS COPY OF") ~~ SymbolicNameString)) ~~>> (ast.CreateRole(_, _, IfExistsInvalidSyntax())) |
     group(keyword("CREATE OR REPLACE ROLE") ~~ SymbolicNameString ~~
       optional(keyword("AS COPY OF") ~~ SymbolicNameString)) ~~>> (ast.CreateRole(_, _, IfExistsReplace())) |
     group(keyword("CREATE ROLE") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS") ~~
@@ -381,6 +384,7 @@ trait Statement extends Parser
   }
 
   def CreateDatabase: Rule1[CreateDatabase] = rule("CATALOG CREATE DATABASE") {
+    group(keyword("CREATE OR REPLACE DATABASE") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS")) ~~>> (ast.CreateDatabase(_, IfExistsInvalidSyntax())) |
     group(keyword("CREATE OR REPLACE DATABASE") ~~ SymbolicNameString) ~~>> (ast.CreateDatabase(_, IfExistsReplace())) |
     group(keyword("CREATE DATABASE") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS")) ~~>> (ast.CreateDatabase(_, IfExistsDoNothing())) |
     group(keyword("CREATE DATABASE") ~~ SymbolicNameString) ~~>> (ast.CreateDatabase(_, IfExistsThrowError()))

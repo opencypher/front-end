@@ -87,6 +87,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
     yields(ast.CreateDatabase("_foo-bar42", ast.IfExistsReplace()))
   }
 
+  test("CREATE OR REPLACE DATABASE foo IF NOT EXISTS") {
+    yields(ast.CreateDatabase("foo", ast.IfExistsInvalidSyntax()))
+  }
+
   test("CREATE DATABASE foo.bar") {
     failsToParse
   }
@@ -128,10 +132,6 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   }
 
   test("CREATE OR REPLACE DATABASE") {
-    failsToParse
-  }
-
-  test("CREATE OR REPLACE DATABASE foo IF NOT EXISTS") {
     failsToParse
   }
 
