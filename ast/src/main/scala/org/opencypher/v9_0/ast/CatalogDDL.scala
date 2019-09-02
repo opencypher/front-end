@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult._
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticCheckResult, SemanticFeature, SemanticState}
+import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticCheckResult, SemanticError, SemanticFeature, SemanticState}
 import org.opencypher.v9_0.expressions.{LogicalVariable, Parameter, Variable}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
@@ -308,9 +308,17 @@ final case class RevokePrivilege(privilege: PrivilegeType, resource: ActionResou
     }
   }
 
-  override def semanticCheck: SemanticCheck =
-    super.semanticCheck chain
-      SemanticState.recordCurrentScope(this)
+  override def semanticCheck: SemanticCheck = privilege match {
+    case _: MatchPrivilege =>
+      if (revokeType.name.nonEmpty) {
+        SemanticError(s"$name is not a valid command, use REVOKE ${revokeType.name} READ and REVOKE ${revokeType.name} TRAVERSE instead.", position)
+      } else {
+        SemanticError(s"$name is not a valid command, use REVOKE READ and REVOKE TRAVERSE instead.", position)
+      }
+    case _ =>
+      super.semanticCheck chain
+        SemanticState.recordCurrentScope(this)
+  }
 }
 
 final case class ShowPrivileges(scope: ShowPrivilegeScope)(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
