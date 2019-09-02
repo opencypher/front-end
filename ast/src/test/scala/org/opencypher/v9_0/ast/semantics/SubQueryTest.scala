@@ -24,6 +24,7 @@ class SubQueryTest extends CypherFunSuite with AstConstructionTestSupport {
   private val clean =
     SemanticState.clean
       .withFeature(SemanticFeature.CorrelatedSubQueries)
+        .withFeature(SemanticFeature.MultipleGraphs)
 
   test("returned variables are added to scope after subquery") {
 
@@ -163,6 +164,21 @@ class SubQueryTest extends CypherFunSuite with AstConstructionTestSupport {
       .errors.size.shouldEqual(0)
   }
 
+  test("correlated subquery may only reference imported variables") {
+
+    singleQuery(
+      with_(literal(1).as("x"), literal(1).as("y")),
+      subQuery(
+        with_(varFor("x").aliased),
+        return_(varFor("y").as("z"))
+      ),
+      return_(varFor("x").aliased)
+    )
+      .semanticCheck(clean)
+      .tap(_.errors.size.shouldEqual(1))
+      .tap(_.errors.head.msg.should(include("Variable `y` not defined")))
+  }
+
   test("correlated subqueries require semantic feature") {
 
       query(
@@ -222,7 +238,7 @@ class SubQueryTest extends CypherFunSuite with AstConstructionTestSupport {
       .tap(_.errors.size.shouldEqual(0))
   }
 
-  test("importing WITH must be first clause") {
+  test("importing WITH without FROM must be first clause") {
 
     singleQuery(
       with_(literal(1).as("x")),
@@ -236,6 +252,21 @@ class SubQueryTest extends CypherFunSuite with AstConstructionTestSupport {
       .semanticCheck(clean)
       .tap(_.errors.size.shouldEqual(1))
       .tap(_.errors.head.msg.should(include("Variable `x` not defined")))
+  }
+
+  test("importing WITH may appear after FROM") {
+
+    singleQuery(
+      with_(literal(1).as("x")),
+      subQuery(
+        from(varFor("g")),
+        with_(varFor("x").aliased),
+        return_(varFor("x").as("y"))
+      ),
+      return_(varFor("x").aliased, varFor("y").aliased)
+    )
+      .semanticCheck(clean)
+      .tap(_.errors.size.shouldEqual(0))
   }
 
   test("importing WITH must be clean pass-through") {
@@ -266,6 +297,37 @@ class SubQueryTest extends CypherFunSuite with AstConstructionTestSupport {
     )
       .semanticCheck(clean)
       .errors.size.shouldEqual(0)
+  }
+
+  test("subquery leading FROM may reference outer variables") {
+
+    singleQuery(
+      with_(literal(1).as("x"), literal(2).as("y")),
+      subQuery(
+        from(function("g", varFor("x"), varFor("y"))),
+        with_(varFor("x").aliased),
+        return_(literal(1).as("z"))
+      ),
+      return_(varFor("x").aliased, varFor("y").aliased)
+    )
+      .semanticCheck(clean)
+      .tap(_.errors.size.shouldEqual(0))
+  }
+
+  test("subquery FROM after imports may only reference imported variables") {
+
+    singleQuery(
+      with_(literal(1).as("x"), literal(2).as("y")),
+      subQuery(
+        with_(varFor("x").aliased),
+        from(function("g", varFor("x"), varFor("y"))),
+        return_(literal(3).as("z"))
+      ),
+      return_(varFor("x").aliased, varFor("y").aliased)
+    )
+      .semanticCheck(clean)
+      .tap(_.errors.size.shouldEqual(1))
+      .tap(_.errors.head.msg.should(include("Variable `y` not defined")))
   }
 
   test("nested uncorrelated subquery") {
@@ -393,7 +455,7 @@ class SubQueryTest extends CypherFunSuite with AstConstructionTestSupport {
       with_(varFor("x").aliased),
       return_(varFor("x").as("y"))
     ).importColumns
-      .shouldEqual(Seq())
+      .shouldEqual(Seq("x"))
   }
 
   /** https://github.com/scala/scala/blob/v2.13.0/src/library/scala/util/ChainingOps.scala#L37 */
