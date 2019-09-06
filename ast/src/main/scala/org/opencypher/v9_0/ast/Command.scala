@@ -15,12 +15,10 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticExpressionCheck}
+import org.opencypher.v9_0.expressions.{LabelName, PropertyKeyName, RelTypeName, Variable, _}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.{CypherType, _}
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticExpressionCheck}
-import org.opencypher.v9_0.expressions.{LabelName, PropertyKeyName, RelTypeName, Variable}
 
 
 sealed trait Command extends Statement {
@@ -111,18 +109,22 @@ trait RelationshipPropertyConstraintCommand extends PropertyConstraintCommand {
   def relType: RelTypeName
 }
 
-case class CreateNodeKeyConstraint(variable: Variable, label: LabelName, properties: Seq[Property])(val position: InputPosition) extends NodeKeyConstraintCommand
+case class CreateNodeKeyConstraint(variable: Variable, label: LabelName, properties: Seq[Property], name: Option[String])(val position: InputPosition) extends NodeKeyConstraintCommand
 
 case class DropNodeKeyConstraint(variable: Variable, label: LabelName, properties: Seq[Property])(val position: InputPosition) extends NodeKeyConstraintCommand
 
-case class CreateUniquePropertyConstraint(variable: Variable, label: LabelName, properties: Seq[Property])(val position: InputPosition) extends UniquePropertyConstraintCommand
+case class CreateUniquePropertyConstraint(variable: Variable, label: LabelName, properties: Seq[Property], name: Option[String])(val position: InputPosition) extends UniquePropertyConstraintCommand
 
 case class DropUniquePropertyConstraint(variable: Variable, label: LabelName, properties: Seq[Property])(val position: InputPosition) extends UniquePropertyConstraintCommand
 
-case class CreateNodePropertyExistenceConstraint(variable: Variable, label: LabelName, property: Property)(val position: InputPosition) extends NodePropertyConstraintCommand
+case class CreateNodePropertyExistenceConstraint(variable: Variable, label: LabelName, property: Property, name: Option[String])(val position: InputPosition) extends NodePropertyConstraintCommand
 
 case class DropNodePropertyExistenceConstraint(variable: Variable, label: LabelName, property: Property)(val position: InputPosition) extends NodePropertyConstraintCommand
 
-case class CreateRelationshipPropertyExistenceConstraint(variable: Variable, relType: RelTypeName, property: Property)(val position: InputPosition) extends RelationshipPropertyConstraintCommand
+case class CreateRelationshipPropertyExistenceConstraint(variable: Variable, relType: RelTypeName, property: Property, name: Option[String])(val position: InputPosition) extends RelationshipPropertyConstraintCommand
 
 case class DropRelationshipPropertyExistenceConstraint(variable: Variable, relType: RelTypeName, property: Property)(val position: InputPosition) extends RelationshipPropertyConstraintCommand
+
+case class DropConstraintOnName(name: String)(val position: InputPosition) extends Command {
+  def semanticCheck = Seq()
+}
