@@ -170,6 +170,8 @@ final case class RevokeRolesFromUsers(roleNames: Seq[String], userNames: Seq[Str
 
 abstract class PrivilegeType(val name: String)
 
+final case class AccessPrivilege()(val position: InputPosition) extends PrivilegeType("ACCESS")
+
 final case class TraversePrivilege()(val position: InputPosition) extends PrivilegeType("TRAVERSE")
 
 final case class ReadPrivilege()(val position: InputPosition) extends PrivilegeType("READ")
@@ -195,6 +197,8 @@ final case class PropertyResource(property: String)(val position: InputPosition)
 final case class PropertiesResource(properties: Seq[String])(val position: InputPosition) extends ActionResource {
   override def simplify: Seq[ActionResource] = properties.map(PropertyResource(_)(position))
 }
+
+final case class DatabaseResource()(val position: InputPosition) extends ActionResource
 
 final case class AllResource()(val position: InputPosition) extends ActionResource
 
@@ -243,6 +247,8 @@ final case class ShowUserPrivileges(user: String)(val position: InputPosition) e
 final case class ShowAllPrivileges()(val position: InputPosition) extends ShowPrivilegeScope
 
 object GrantPrivilege {
+  def access(scope: GraphScope, roleNames: Seq[String]): InputPosition => GrantPrivilege =
+    GrantPrivilege(AccessPrivilege()(InputPosition.NONE), DatabaseResource()(InputPosition.NONE), scope, AllQualifier()(InputPosition.NONE), roleNames)
   def traverse(scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => GrantPrivilege =
     GrantPrivilege(TraversePrivilege()(InputPosition.NONE), AllResource()(InputPosition.NONE), scope, qualifier, roleNames)
   def read(resource: ActionResource, scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => GrantPrivilege =
@@ -254,6 +260,8 @@ object GrantPrivilege {
 }
 
 object DenyPrivilege {
+  def access(scope: GraphScope, roleNames: Seq[String]): InputPosition => DenyPrivilege =
+    DenyPrivilege(AccessPrivilege()(InputPosition.NONE), DatabaseResource()(InputPosition.NONE), scope, AllQualifier()(InputPosition.NONE), roleNames)
   def traverse(scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => DenyPrivilege =
     DenyPrivilege(TraversePrivilege()(InputPosition.NONE), AllResource()(InputPosition.NONE), scope, qualifier, roleNames)
   def read(resource: ActionResource, scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => DenyPrivilege =
@@ -266,6 +274,8 @@ object DenyPrivilege {
 
 object RevokePrivilege {
   // Revoke of grant
+  def grantedAccess(scope: GraphScope, roleNames: Seq[String]): InputPosition => RevokePrivilege  =
+    RevokePrivilege(AccessPrivilege()(InputPosition.NONE), DatabaseResource()(InputPosition.NONE), scope, AllQualifier()(InputPosition.NONE), roleNames, RevokeGrantType()(InputPosition.NONE))
   def grantedTraverse(scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => RevokePrivilege =
     RevokePrivilege(TraversePrivilege()(InputPosition.NONE), AllResource()(InputPosition.NONE), scope, qualifier, roleNames, RevokeGrantType()(InputPosition.NONE))
   def grantedRead(resource: ActionResource, scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => RevokePrivilege =
@@ -276,6 +286,8 @@ object RevokePrivilege {
     RevokePrivilege(WritePrivilege()(InputPosition.NONE), resource, scope, qualifier, roleNames, RevokeGrantType()(InputPosition.NONE))
 
   // Revoke of deny
+  def deniedAccess(scope: GraphScope, roleNames: Seq[String]): InputPosition => RevokePrivilege =
+    RevokePrivilege(AccessPrivilege()(InputPosition.NONE), DatabaseResource()(InputPosition.NONE), scope, AllQualifier()(InputPosition.NONE), roleNames, RevokeDenyType()(InputPosition.NONE))
   def deniedTraverse(scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => RevokePrivilege =
     RevokePrivilege(TraversePrivilege()(InputPosition.NONE), AllResource()(InputPosition.NONE), scope, qualifier, roleNames, RevokeDenyType()(InputPosition.NONE))
   def deniedRead(resource: ActionResource, scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => RevokePrivilege =
@@ -286,6 +298,8 @@ object RevokePrivilege {
     RevokePrivilege(WritePrivilege()(InputPosition.NONE), resource, scope, qualifier, roleNames, RevokeDenyType()(InputPosition.NONE))
 
   // Revoke
+  def access(scope: GraphScope, roleNames: Seq[String]): InputPosition => RevokePrivilege =
+    RevokePrivilege(AccessPrivilege()(InputPosition.NONE), DatabaseResource()(InputPosition.NONE), scope, AllQualifier()(InputPosition.NONE), roleNames, RevokeBothType()(InputPosition.NONE))
   def traverse(scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => RevokePrivilege =
     RevokePrivilege(TraversePrivilege()(InputPosition.NONE), AllResource()(InputPosition.NONE), scope, qualifier, roleNames, RevokeBothType()(InputPosition.NONE))
   def read(resource: ActionResource, scope: GraphScope, qualifier: PrivilegeQualifier, roleNames: Seq[String]): InputPosition => RevokePrivilege =
