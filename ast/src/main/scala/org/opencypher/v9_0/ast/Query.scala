@@ -97,7 +97,6 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
       .filterNot(leadingFrom.contains)
 
   def semanticCheckAbstract(clauses: Seq[Clause]): SemanticCheck =
-    checkCorrelatedSubQueriesFeature chain
     checkStandaloneCall(clauses) chain
     checkOrder(clauses) chain
     checkClauses(clauses) chain
@@ -117,6 +116,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
           SemanticCheckResult.success
       }
 
+    checkCorrelatedSubQueriesFeature chain
     checkLeadingFrom(outer) chain
     importVariables chain
     semanticCheckAbstract(clausesExceptLeadingFromAndImportWith)
