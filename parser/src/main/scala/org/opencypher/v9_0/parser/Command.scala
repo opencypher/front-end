@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.expressions.{LabelName, Variable}
+import org.opencypher.v9_0.expressions.{LabelName, Property, Variable}
 import org.parboiled.scala._
 
 trait Command extends Parser
@@ -32,6 +32,7 @@ trait Command extends Parser
       | CreateNodePropertyExistenceConstraint
       | CreateRelationshipPropertyExistenceConstraint
       | CreateIndex
+      | CreateIndexNewSyntax
       | DropUniqueConstraint
       | DropUniqueCompositeConstraint
       | DropNodeKeyConstraint
@@ -42,14 +43,23 @@ trait Command extends Parser
       | DropIndexOnName
   )
 
-  def PropertyExpressions: Rule1[Seq[org.opencypher.v9_0.expressions.Property]] = rule("multiple property expressions") {
+  def PropertyExpressions: Rule1[Seq[Property]] = rule("multiple property expressions") {
     oneOrMore(WS ~ Variable ~ PropertyLookup, separator = CommaSep)
   }
 
   def CreateIndex: Rule1[ast.CreateIndex] = rule {
-    group(keyword("CREATE INDEX ON") ~~ NodeLabel ~~ "(" ~~ PropertyKeyNames ~~ ")") ~~>> (ast.CreateIndex(_, _, None)) |
-    group(keyword("CREATE INDEX") ~~ SymbolicNameString ~~ keyword("ON") ~~ NodeLabel ~~ "(" ~~ PropertyKeyNames ~~ ")") ~~>>
-      ((name, label, properties) => ast.CreateIndex(label, properties, Some(name)))
+    group(keyword("CREATE INDEX ON") ~~ NodeLabel ~~ "(" ~~ PropertyKeyNames ~~ ")") ~~>> (ast.CreateIndex(_, _))
+  }
+
+  def CreateIndexNewSyntax: Rule1[ast.CreateIndexNewSyntax] = rule {
+    group(keyword("CREATE INDEX FOR") ~~ IndexPatternSyntax) ~~>>
+      ((variable, label, properties) => ast.CreateIndexNewSyntax(variable, label, properties.toList, None)) |
+    group(keyword("CREATE INDEX") ~~ SymbolicNameString ~~ keyword("FOR") ~~ IndexPatternSyntax) ~~>>
+      ((name, variable, label, properties) => ast.CreateIndexNewSyntax(variable, label, properties.toList, Some(name)))
+  }
+
+  def IndexPatternSyntax: Rule3[Variable, LabelName, Seq[Property]] = rule {
+    group("(" ~~ Variable ~~ NodeLabel ~~ ")" ~~ keyword("ON") ~~ "(" ~~ PropertyExpressions ~~ ")")
   }
 
   def DropIndex: Rule1[ast.DropIndex] = rule {
@@ -116,13 +126,13 @@ trait Command extends Parser
     group(keyword("DROP CONSTRAINT") ~~ SymbolicNameString) ~~>> (ast.DropConstraintOnName(_))
   }
 
-  private def NodeKeyConstraintSyntax: Rule3[Variable, LabelName, Seq[org.opencypher.v9_0.expressions.Property]] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
+  private def NodeKeyConstraintSyntax: Rule3[Variable, LabelName, Seq[Property]] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
     keyword("ASSERT") ~~ "(" ~~ PropertyExpressions ~~ ")" ~~ keyword("IS NODE KEY")
 
-  private def UniqueConstraintSyntax: Rule3[Variable, LabelName, org.opencypher.v9_0.expressions.Property] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
+  private def UniqueConstraintSyntax: Rule3[Variable, LabelName, Property] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
     keyword("ASSERT") ~~ PropertyExpression ~~ keyword("IS UNIQUE")
 
-  private def UniqueCompositeConstraintSyntax: Rule3[Variable, LabelName, Seq[org.opencypher.v9_0.expressions.Property]] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
+  private def UniqueCompositeConstraintSyntax: Rule3[Variable, LabelName, Seq[Property]] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
     keyword("ASSERT") ~~ "(" ~~ PropertyExpressions ~~ ")" ~~ keyword("IS UNIQUE")
 
   private def NodePropertyExistenceConstraintSyntax = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~

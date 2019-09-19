@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.{CreateIndex, DropIndex}
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util._
 
@@ -63,6 +64,18 @@ object Deprecations {
         Deprecation(
           () => p,
           () => Some(DeprecatedRelTypeSeparatorNotification(p.position))
+        )
+
+      case i: CreateIndex =>
+        Deprecation(
+          () => i,
+          () => Some(DeprecatedCreateIndexSyntax(i.position))
+        )
+
+      case i: DropIndex =>
+        Deprecation(
+          () => i,
+          () => Some(DeprecatedDropIndexSyntax(i.position))
         )
     }
   }
