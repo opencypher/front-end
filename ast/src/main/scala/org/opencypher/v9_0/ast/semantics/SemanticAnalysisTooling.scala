@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.Expression.{DefaultTypeMismatchMessageGenerator, SemanticContext}
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.{ASTNode, InputPosition}
 import org.opencypher.v9_0.util.symbols._
 
 /**
@@ -202,6 +202,10 @@ trait SemanticAnalysisTooling {
 
   def declareVariables(symbols: Iterable[Symbol]): SemanticCheck =
     symbols.foldSemanticCheck(symbol => declareVariable(symbol.definition.asVariable, symbol.types))
+
+  def recordCurrentScope(astNode: ASTNode): SemanticCheck = { state =>
+    SemanticCheckResult.success(state.recordCurrentScope(astNode))
+  }
 
   def requireFeatureSupport(msg: String, feature: SemanticFeature, position: InputPosition): SemanticCheck =
     s => {
