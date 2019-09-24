@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast.{CreateIndex, DropIndex}
+import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util._
 
@@ -66,16 +66,40 @@ object Deprecations {
           () => Some(DeprecatedRelTypeSeparatorNotification(p.position))
         )
 
-      case i: CreateIndex =>
+      case i: ast.CreateIndex =>
         Deprecation(
           () => i,
           () => Some(DeprecatedCreateIndexSyntax(i.position))
         )
 
-      case i: DropIndex =>
+      case i: ast.DropIndex =>
         Deprecation(
           () => i,
           () => Some(DeprecatedDropIndexSyntax(i.position))
+        )
+
+      case c: ast.DropNodeKeyConstraint =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDropConstraintSyntax(c.position))
+        )
+
+      case c: ast.DropUniquePropertyConstraint =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDropConstraintSyntax(c.position))
+        )
+
+      case c: ast.DropNodePropertyExistenceConstraint =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDropConstraintSyntax(c.position))
+        )
+
+      case c: ast.DropRelationshipPropertyExistenceConstraint =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDropConstraintSyntax(c.position))
         )
     }
   }
