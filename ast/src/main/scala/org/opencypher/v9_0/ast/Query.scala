@@ -81,12 +81,12 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
 
     clauses
-      .filterNot(leadingGraphSelection.contains)
+      .filterNot(leadingFrom.contains)
       .headOption.collect { case w: With if hasImportFormat(w) => w }
   }
 
-  def leadingGraphSelection: Option[GraphSelection] =
-    clauses.headOption.collect { case s: GraphSelection => s }
+  def leadingFrom: Option[FromGraph] =
+    clauses.headOption.collect { case f: FromGraph => f }
 
   def clausesExceptImportWith: Seq[Clause] =
     clauses.filterNot(importWith.contains)
@@ -94,7 +94,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
   def clausesExceptLeadingFromAndImportWith: Seq[Clause] =
     clauses
       .filterNot(importWith.contains)
-      .filterNot(leadingGraphSelection.contains)
+      .filterNot(leadingFrom.contains)
 
   def semanticCheckAbstract(clauses: Seq[Clause]): SemanticCheck =
     checkStandaloneCall(clauses) chain
@@ -127,7 +127,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
 
   private def checkLeadingFrom(outer: SemanticState): SemanticCheck =
-    leadingGraphSelection match {
+    leadingFrom match {
       case Some(from) => withState(outer)(from.semanticCheck)
       case None       => success
     }
