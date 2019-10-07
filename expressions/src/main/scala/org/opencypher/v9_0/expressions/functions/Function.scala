@@ -39,7 +39,7 @@ object Function {
     EndNode,
     Exists,
     Exp,
-    Filename,
+    File,
     Floor,
     Haversin,
     Head,
