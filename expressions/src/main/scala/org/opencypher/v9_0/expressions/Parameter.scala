@@ -18,16 +18,29 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols._
 
+sealed trait Param {
+
+  self: Expression =>
+
+  def parameterName: String
+
+  override def asCanonicalStringVal: String
+}
+
 case class Parameter(name: String,
                      parameterType: CypherType)(val position: InputPosition)
-  extends Expression {
+  extends Expression with Param {
 
   override def asCanonicalStringVal: String = "$" + name
+
+  override def parameterName: String = name
 }
 
 case class ParameterWithOldSyntax(name: String,
-                     parameterType: CypherType)(val position: InputPosition)
-  extends Expression {
+                                  parameterType: CypherType)(val position: InputPosition)
+  extends Expression with Param {
 
   override def asCanonicalStringVal: String = "$" + name
+
+  override def parameterName: String = name
 }
