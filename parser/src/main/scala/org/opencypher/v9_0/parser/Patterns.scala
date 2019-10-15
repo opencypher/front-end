@@ -126,7 +126,7 @@ trait Patterns extends Parser
   )
 
   private def MaybeProperties: Rule1[Option[org.opencypher.v9_0.expressions.Expression]] = rule("a property map") (
-    optional(WS ~ (MapLiteral | Parameter))
+    optional(WS ~ (MapLiteral | Parameter | OldParameter))
   )
 }
 
