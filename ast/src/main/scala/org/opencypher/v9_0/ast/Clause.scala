@@ -821,7 +821,8 @@ case class With(distinct: Boolean,
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
-      checkAliasedReturnItems
+      checkAliasedReturnItems chain
+      SemanticPatternCheck.checkValidPropertyKeyNamesInReturnItems(returnItems, this.position)
 
   override def withReturnItems(items: Seq[ReturnItem]): With =
     this.copy(returnItems = ReturnItems(returnItems.includeExisting, items)(returnItems.position))(this.position)
@@ -852,7 +853,10 @@ case class Return(distinct: Boolean,
 
   override def returnColumns: List[LogicalVariable] = returnItems.items.flatMap(_.alias).toList
 
-  override def semanticCheck: SemanticCheck = super.semanticCheck chain checkVariableScope
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      checkVariableScope chain
+      SemanticPatternCheck.checkValidPropertyKeyNamesInReturnItems(returnItems, this.position)
 
   override def withReturnItems(items: Seq[ReturnItem]): Return =
     this.copy(returnItems = ReturnItems(returnItems.includeExisting, items)(returnItems.position))(this.position)

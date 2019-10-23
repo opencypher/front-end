@@ -15,10 +15,10 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.{Expression, Property}
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck}
+import org.opencypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck}
 
 case class Where(expression: Expression)(val position: InputPosition)
   extends ASTNode with SemanticCheckable {
@@ -27,5 +27,6 @@ case class Where(expression: Expression)(val position: InputPosition)
 
   def semanticCheck =
     SemanticExpressionCheck.simple(expression) chain
+    SemanticPatternCheck.checkValidPropertyKeyNames(expression.findByAllClass[Property].map(prop => prop.propertyKey), expression.position) chain
     SemanticExpressionCheck.expectType(CTBoolean.covariant, expression)
 }
