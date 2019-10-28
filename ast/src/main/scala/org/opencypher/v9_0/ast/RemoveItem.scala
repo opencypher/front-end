@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck}
+import org.opencypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck}
 import org.opencypher.v9_0.expressions.{LabelName, LogicalProperty, LogicalVariable}
 import org.opencypher.v9_0.util.symbols._
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
@@ -25,11 +25,13 @@ sealed trait RemoveItem extends ASTNode with SemanticCheckable
 case class RemoveLabelItem(variable: LogicalVariable, labels: Seq[LabelName])(val position: InputPosition) extends RemoveItem {
   def semanticCheck =
     SemanticExpressionCheck.simple(variable) chain
-    SemanticExpressionCheck.expectType(CTNode.covariant, variable)
+      SemanticPatternCheck.checkValidLabels(labels, position) chain
+      SemanticExpressionCheck.expectType(CTNode.covariant, variable)
 }
 
 case class RemovePropertyItem(property: LogicalProperty) extends RemoveItem {
   def position = property.position
 
-  def semanticCheck = SemanticExpressionCheck.simple(property)
+  def semanticCheck = SemanticExpressionCheck.simple(property) chain
+    SemanticPatternCheck.checkValidPropertyKeyNames(Seq(property.propertyKey), property.position)
 }
