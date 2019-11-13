@@ -180,7 +180,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in MERGE clause") {
-    val query = "MERGE (n {``: 1}) RETURN n"
+    val query = "MERGE (n {``: 1})"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -191,7 +191,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in ON CREATE SET") {
-    val query = "MERGE (n :Label) ON CREATE SET n.`` = 1 RETURN n"
+    val query = "MERGE (n :Label) ON CREATE SET n.`` = 1"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -202,7 +202,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in ON MATCH SET") {
-    val query = "MERGE (n :Label) ON MATCH SET n.`` = 1 RETURN n"
+    val query = "MERGE (n :Label) ON MATCH SET n.`` = 1"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -213,7 +213,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in MATCH clause") {
-    val query = "MATCH (n {``: 1}) RETURN n"
+    val query = "MATCH (n {``: 1}) RETURN n AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -224,7 +224,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in SET clause") {
-    val query = "MATCH (n) SET n.``= 1 RETURN n"
+    val query = "MATCH (n) SET n.``= 1"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -235,7 +235,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in REMOVE clause") {
-    val query = "MATCH (n) REMOVE n.`` RETURN n"
+    val query = "MATCH (n) REMOVE n.``"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -246,7 +246,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in WHERE clause") {
-    val query = "MATCH (n) WHERE n.``= 1 RETURN n"
+    val query = "MATCH (n) WHERE n.``= 1 RETURN n AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -257,7 +257,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in WITH clause") {
-    val query = "MATCH (n) WITH n.`` AS prop RETURN prop"
+    val query = "MATCH (n) WITH n.`` AS prop RETURN prop AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -268,7 +268,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in ORDER BY in WITH") {
-    val query = "MATCH (n) WITH n ORDER BY n.`` RETURN n"
+    val query = "MATCH (n) WITH n AS invalid ORDER BY n.`` RETURN count(*) AS count"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -279,7 +279,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in RETURN clause") {
-    val query = "MATCH (n) RETURN n.``"
+    val query = "MATCH (n) RETURN n.`` AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -290,7 +290,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in DISTINCT RETURN clause") {
-    val query = "MATCH (n) RETURN DISTINCT n.``"
+    val query = "MATCH (n) RETURN DISTINCT n.`` AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -301,7 +301,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in aggregation in RETURN clause") {
-    val query = "MATCH (n) RETURN count(n.``)"
+    val query = "MATCH (n) RETURN count(n.``) AS count"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -312,7 +312,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty node property key name in ORDER BY in RETURN") {
-    val query = "MATCH (n) RETURN n ORDER BY n.`` DESC LIMIT 2"
+    val query = "MATCH (n) RETURN n AS invalid ORDER BY n.`` DESC LIMIT 2"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -413,7 +413,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in MERGE clause") {
-    val query = "MERGE ()-[r :REL {``: 1, prop: 42}]->() RETURN r"
+    val query = "MERGE ()-[r :REL {``: 1, prop: 42}]->()"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -424,7 +424,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in ON CREATE SET") {
-    val query = "MERGE ()-[r:REL]->() ON CREATE SET r.`` = 1 RETURN r"
+    val query = "MERGE ()-[r:REL]->() ON CREATE SET r.`` = 1"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -435,7 +435,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in ON MATCH SET") {
-    val query = "MERGE ()-[r:REL]->() ON MATCH SET r.`` = 1 RETURN r"
+    val query = "MERGE ()-[r:REL]->() ON MATCH SET r.`` = 1"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -446,7 +446,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in MATCH clause") {
-    val query = "MATCH ()-[r {prop:1337, ``: 1}]->() RETURN r"
+    val query = "MATCH ()-[r {prop:1337, ``: 1}]->() RETURN r AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -457,7 +457,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in SET clause") {
-    val query = "MATCH ()-[r]->() SET r.``= 1 RETURN r"
+    val query = "MATCH ()-[r]->() SET r.``= 1 RETURN r AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -468,7 +468,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in REMOVE clause") {
-    val query = "MATCH ()-[r]->() REMOVE r.`` RETURN r"
+    val query = "MATCH ()-[r]->() REMOVE r.``"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -479,7 +479,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in WHERE clause") {
-    val query = "MATCH (n)-[r]->() WHERE n.prop > r.`` RETURN n"
+    val query = "MATCH (n)-[r]->() WHERE n.prop > r.`` RETURN n AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -490,7 +490,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in WITH clause") {
-    val query = "MATCH ()-[r]->() WITH r.`` AS prop, r.prop as prop2 RETURN prop, prop2"
+    val query = "MATCH ()-[r]->() WITH r.`` AS prop, r.prop as prop2 RETURN count(*) AS count"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -501,7 +501,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in ORDER BY in WITH") {
-    val query = "MATCH ()-[r]->()WITH r ORDER BY r.`` RETURN r.prop"
+    val query = "MATCH ()-[r]->() WITH r AS invalid ORDER BY r.`` RETURN count(*) AS count"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -534,7 +534,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship property key name in aggregation in RETURN clause") {
-    val query = "MATCH ()-[r]->() RETURN max(r.``)"
+    val query = "MATCH ()-[r]->() RETURN max(r.``) AS max"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -645,7 +645,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty label in MERGE clause") {
-    val query = "MERGE (n:``) RETURN n"
+    val query = "MERGE (n:``)"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -656,7 +656,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty label in MATCH clause") {
-    val query = "MATCH (n:``:Valid) RETURN n"
+    val query = "MATCH (n:``:Valid) RETURN n AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -667,7 +667,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty label in SET clause") {
-    val query = "MATCH (n) SET n:`` RETURN n"
+    val query = "MATCH (n) SET n:``"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -678,7 +678,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty label in REMOVE clause") {
-    val query = "MATCH (n) REMOVE n:`` RETURN n"
+    val query = "MATCH (n) REMOVE n:``"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -702,7 +702,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship type in MERGE clause") {
-    val query = "MERGE ()-[r :``]->() RETURN r"
+    val query = "MERGE ()-[r :``]->()"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -713,7 +713,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship type in MATCH clause") {
-    val query = "MATCH ()-[r :``]->() RETURN r"
+    val query = "MATCH ()-[r :``]->() RETURN r AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -724,7 +724,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should not allow empty relationship type in variable length pattern") {
-    val query = "MATCH ()-[r :``*1..5]->() RETURN r"
+    val query = "MATCH ()-[r :``*1..5]->() RETURN r AS invalid"
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
