@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.parser.privilege
 
-class GrantTests extends WritePrivilegeAdministrationCommandParserTest {
+class WritePrivilegeGrantTests extends WritePrivilegeAdministrationCommandParserTest {
   privilegeTests("GRANT", "TO", grant)
 }
 

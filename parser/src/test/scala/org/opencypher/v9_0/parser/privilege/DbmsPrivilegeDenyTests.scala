@@ -15,6 +15,6 @@
  */
 package org.opencypher.v9_0.parser.privilege
 
-class DenyTests extends WritePrivilegeAdministrationCommandParserTest {
-  privilegeTests("DENY", "TO", deny)
+class DbmsPrivilegeDenyTests extends DbmsPrivilegeAdministrationCommandParserTest {
+  privilegeTests("DENY", "TO", denyDbmsPrivilege)
 }
