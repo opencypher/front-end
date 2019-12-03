@@ -192,5 +192,19 @@ class RolePrivilegeAdministrationCommandParserTest extends AdministrationCommand
               }
           }
       }
+
+      // Database instead of graph keyword
+
+      test(s"$command TRAVERSE ON DATABASES * $preposition role") {
+        failsToParse
+      }
+
+      test(s"$command TRAVERSE ON DATABASE foo $preposition role") {
+        failsToParse
+      }
+
+      test(s"$command TRAVERSE ON DEFAULT DATABASE $preposition role") {
+        failsToParse
+      }
   }
 }
