@@ -17,7 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.NO_TRACING
-import org.opencypher.v9_0.util.{CypherException, CypherExceptionFactory, InputPosition, OpenCypherExceptionFactory}
+import org.opencypher.v9_0.util.{CypherExceptionFactory, OpenCypherExceptionFactory}
 import org.scalatest.mock.MockitoSugar
 
 object ContextHelper extends MockitoSugar {

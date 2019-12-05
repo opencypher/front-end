@@ -19,7 +19,7 @@ import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.{expressions => exp}
 
 class FunctionInvocationParserTest
-  extends ParserAstTest[org.opencypher.v9_0.expressions.FunctionInvocation]
+  extends ParserAstTest[exp.FunctionInvocation]
     with Expressions
     with Literals
     with Base

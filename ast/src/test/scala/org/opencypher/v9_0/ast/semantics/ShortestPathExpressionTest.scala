@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions._

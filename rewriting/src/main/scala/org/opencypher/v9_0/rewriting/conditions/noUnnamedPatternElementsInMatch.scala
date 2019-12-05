@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting.conditions
 
 import org.opencypher.v9_0.ast.Match
-import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.{NodePattern, RelationshipPattern}
 import org.opencypher.v9_0.rewriting.Condition
 

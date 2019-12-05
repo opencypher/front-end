@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util
 import org.opencypher.v9_0.util.{CypherExceptionFactory, Rewriter, bottomUp}
 
 case class foldConstants(cypherExceptionFactory: CypherExceptionFactory) extends Rewriter {

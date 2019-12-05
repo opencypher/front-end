@@ -34,39 +34,39 @@ trait Patterns extends Parser
   with Literals
   with Base {
 
-  def Pattern: Rule1[org.opencypher.v9_0.expressions.Pattern] = rule("a pattern") {
+  def Pattern: Rule1[ast.Pattern] = rule("a pattern") {
     oneOrMore(PatternPart, separator = CommaSep) ~~>> (ast.Pattern(_))
   }
 
-  def PatternPart: Rule1[org.opencypher.v9_0.expressions.PatternPart] = rule("a pattern") (
+  def PatternPart: Rule1[ast.PatternPart] = rule("a pattern") (
       group(Variable ~~ operator("=") ~~ AnonymousPatternPart) ~~>> (ast.NamedPatternPart(_, _))
     | AnonymousPatternPart
   )
 
-  private def AnonymousPatternPart: Rule1[org.opencypher.v9_0.expressions.AnonymousPatternPart] = rule (
+  private def AnonymousPatternPart: Rule1[ast.AnonymousPatternPart] = rule (
       ShortestPathPattern
     | PatternElement ~~> ast.EveryPath
   )
 
-  def ShortestPathPattern: Rule1[org.opencypher.v9_0.expressions.ShortestPaths] = rule (
+  def ShortestPathPattern: Rule1[ast.ShortestPaths] = rule (
       (group(keyword("shortestPath") ~~ "(" ~~ PatternElement ~~ ")") memoMismatches) ~~>> (ast.ShortestPaths(_, single = true))
     | (group(keyword("allShortestPaths") ~~ "(" ~~ PatternElement ~~ ")") memoMismatches) ~~>> (ast.ShortestPaths(_, single = false))
   ).memoMismatches
 
-  def RelationshipsPattern: Rule1[org.opencypher.v9_0.expressions.RelationshipsPattern] = rule {
+  def RelationshipsPattern: Rule1[ast.RelationshipsPattern] = rule {
     group(NodePattern ~ oneOrMore(WS ~ PatternElementChain)) ~~>> (ast.RelationshipsPattern(_))
   }.memoMismatches
 
-  private def PatternElement: Rule1[org.opencypher.v9_0.expressions.PatternElement] = rule (
+  private def PatternElement: Rule1[ast.PatternElement] = rule (
       NodePattern ~ zeroOrMore(WS ~ PatternElementChain)
     | "(" ~~ PatternElement ~~ ")"
   )
 
-  private def PatternElementChain: ReductionRule1[org.opencypher.v9_0.expressions.PatternElement, org.opencypher.v9_0.expressions.RelationshipChain] = rule("a relationship pattern") {
+  private def PatternElementChain: ReductionRule1[ast.PatternElement, ast.RelationshipChain] = rule("a relationship pattern") {
     group(RelationshipPattern ~~ NodePattern) ~~>> (ast.RelationshipChain(_, _, _))
   }
 
-  private def RelationshipPattern: Rule1[org.opencypher.v9_0.expressions.RelationshipPattern] = rule {
+  private def RelationshipPattern: Rule1[ast.RelationshipPattern] = rule {
     (
         LeftArrowHead ~~ Dash ~~ RelationshipDetail ~~ Dash ~~ RightArrowHead ~ push(SemanticDirection.BOTH)
       | LeftArrowHead ~~ Dash ~~ RelationshipDetail ~~ Dash ~ push(SemanticDirection.INCOMING)
@@ -78,10 +78,10 @@ trait Patterns extends Parser
 
   private def RelationshipDetail: Rule5[
       Option[ast.Variable],
-      Option[org.opencypher.v9_0.expressions.Variable],
+      Option[ast.Variable],
       MaybeLegacyRelTypes,
-      Option[Option[org.opencypher.v9_0.expressions.Range]],
-      Option[org.opencypher.v9_0.expressions.Expression]] = rule("[") {
+      Option[Option[ast.Range]],
+      Option[ast.Expression]] = rule("[") {
     (
         "[" ~~
           MaybeVariableWithBase ~~
@@ -94,17 +94,17 @@ trait Patterns extends Parser
 
   private def RelationshipTypes: Rule1[MaybeLegacyRelTypes] = rule("relationship types") (
     (":" ~~ RelTypeName ~~ zeroOrMore(WS ~ "|" ~~ LegacyCompatibleRelTypeName)) ~~>> (
-      (first: org.opencypher.v9_0.expressions.RelTypeName, more: List[(Boolean, org.opencypher.v9_0.expressions.RelTypeName)]) => (pos: InputPosition) => {
+      (first: ast.RelTypeName, more: List[(Boolean, ast.RelTypeName)]) => (pos: InputPosition) => {
         MaybeLegacyRelTypes(first +: more.map(_._2), more.exists(_._1))
       })
     | EMPTY ~ push(MaybeLegacyRelTypes())
   )
 
-  private def LegacyCompatibleRelTypeName: Rule1[(Boolean, org.opencypher.v9_0.expressions.RelTypeName)] =
+  private def LegacyCompatibleRelTypeName: Rule1[(Boolean, ast.RelTypeName)] =
     ((":" ~ push(true)) | EMPTY ~ push(false)) ~~ RelTypeName ~~>> (
-      (legacy: Boolean, name: org.opencypher.v9_0.expressions.RelTypeName) => (pos: InputPosition) => (legacy,name))
+      (legacy: Boolean, name: ast.RelTypeName) => (pos: InputPosition) => (legacy,name))
 
-  private def MaybeVariableLength: Rule1[Option[Option[org.opencypher.v9_0.expressions.Range]]] = rule("a length specification") (
+  private def MaybeVariableLength: Rule1[Option[Option[ast.Range]]] = rule("a length specification") (
       "*" ~~ (
           RangeLiteral ~~> (r => Some(Some(r)))
         | EMPTY ~ push(Some(None))
@@ -112,7 +112,7 @@ trait Patterns extends Parser
     | EMPTY ~ push(None)
   )
 
-  private def NodePattern: Rule1[org.opencypher.v9_0.expressions.NodePattern] = rule("a node pattern") (
+  private def NodePattern: Rule1[ast.NodePattern] = rule("a node pattern") (
     group("(" ~~ MaybeVariableWithBase ~ MaybeNodeLabels ~ MaybeProperties ~~ ")") ~~>> { (v, base, labels, props) => ast.NodePattern(v, labels, props, base)}
     | group(Variable ~ MaybeNodeLabels ~ MaybeProperties)  ~~>> (ast.InvalidNodePattern(_, _, _)) // Here to give nice error messages
   )
@@ -121,13 +121,13 @@ trait Patterns extends Parser
     optional(!keyword("COPY OF") ~ Variable) ~~ optional(keyword("COPY OF") ~~ Variable)
   }
 
-  private def MaybeNodeLabels: Rule1[Seq[org.opencypher.v9_0.expressions.LabelName]] = rule("node labels") (
+  private def MaybeNodeLabels: Rule1[Seq[ast.LabelName]] = rule("node labels") (
     WS ~ NodeLabels | EMPTY ~ push(Seq())
   )
 
-  private def MaybeProperties: Rule1[Option[org.opencypher.v9_0.expressions.Expression]] = rule("a property map") (
+  private def MaybeProperties: Rule1[Option[ast.Expression]] = rule("a property map") (
     optional(WS ~ (MapLiteral | Parameter | OldParameter))
   )
 }
 
-case class MaybeLegacyRelTypes(types: Seq[org.opencypher.v9_0.expressions.RelTypeName] = Seq.empty, legacySeparator: Boolean = false)
+case class MaybeLegacyRelTypes(types: Seq[ast.RelTypeName] = Seq.empty, legacySeparator: Boolean = false)

@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.frontend.helpers
 
 import org.opencypher.v9_0.frontend.phases.{BaseContext, CompilationPhaseTracer, InternalNotificationLogger, Monitors}
-import org.opencypher.v9_0.util.{CypherException, CypherExceptionFactory, InputPosition, OpenCypherExceptionFactory}
+import org.opencypher.v9_0.util.{CypherExceptionFactory, OpenCypherExceptionFactory}
 import org.scalatest.mock.MockitoSugar.mock
 
 //noinspection TypeAnnotation

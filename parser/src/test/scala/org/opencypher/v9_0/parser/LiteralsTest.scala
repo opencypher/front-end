@@ -22,7 +22,7 @@ import org.parboiled.scala._
 
 class LiteralsTest extends ParserTest[Any, Any] with Literals {
 
-  def Expression: Rule1[org.opencypher.v9_0.expressions.Expression] = ???
+  def Expression: Rule1[ast.Expression] = ???
   val t = DummyPosition(0)
 
   test("test variable can contain ascii") {

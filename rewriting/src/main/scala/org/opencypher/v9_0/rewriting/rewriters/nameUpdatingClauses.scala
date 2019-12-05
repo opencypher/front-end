@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Create, CreateUnique, Merge}
+import org.opencypher.v9_0.ast.{Create, Merge}
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 

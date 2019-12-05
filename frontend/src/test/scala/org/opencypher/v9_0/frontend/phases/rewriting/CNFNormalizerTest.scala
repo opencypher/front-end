@@ -21,7 +21,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases.{CNFNormalizer, CompilationPhaseTracer, InternalNotificationLogger, Monitors, _}
 import org.opencypher.v9_0.rewriting.{AstRewritingMonitor, PredicateTestSupport}
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{CypherException, CypherExceptionFactory, InputPosition, Rewriter}
+import org.opencypher.v9_0.util.{CypherExceptionFactory, Rewriter}
 import org.scalatest.mock.MockitoSugar
 
 class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {

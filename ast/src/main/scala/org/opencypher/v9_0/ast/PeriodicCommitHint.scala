@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticCheck, SemanticCheckable, SemanticError}
+import org.opencypher.v9_0.ast.semantics.{SemanticCheck, SemanticError}
 import org.opencypher.v9_0.expressions.IntegerLiteral
 import org.opencypher.v9_0.util.{ASTNode, InputPosition}
 import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticCheckable}

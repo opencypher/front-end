@@ -19,9 +19,9 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.Deprecations
-import org.opencypher.v9_0.rewriting.Deprecations.{V1, V2}
+import org.opencypher.v9_0.rewriting.Deprecations.V1
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{DeprecatedFunctionNotification, InputPosition, OpenCypherExceptionFactory}
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 
 class SyntaxDeprecationWarningsTest extends CypherFunSuite {
 

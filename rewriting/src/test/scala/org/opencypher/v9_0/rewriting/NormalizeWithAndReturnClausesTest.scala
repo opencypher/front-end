@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Statement}
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
