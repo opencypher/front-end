@@ -58,6 +58,10 @@ class RoleAdministrationCommandParserTest extends AdministrationCommandParserTes
     failsToParse
   }
 
+  test("SHOW ROLE role") {
+    failsToParse
+  }
+
   test("SHOW ROLE WITH USERS") {
     failsToParse
   }
@@ -91,6 +95,10 @@ class RoleAdministrationCommandParserTest extends AdministrationCommandParserTes
   }
 
   test("CATALOG SHOW POPULATED ROLE WITH USER") {
+    failsToParse
+  }
+
+  test("CATALOG SHOW ROLES WITH USER user") {
     failsToParse
   }
 
