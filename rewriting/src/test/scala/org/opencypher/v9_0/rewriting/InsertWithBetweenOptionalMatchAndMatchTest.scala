@@ -18,7 +18,6 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAndMatch
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.scalatest.FunSuite
 
 class InsertWithBetweenOptionalMatchAndMatchTest extends CypherFunSuite with RewriteTest {
   val rewriterUnderTest: Rewriter = insertWithBetweenOptionalMatchAndMatch

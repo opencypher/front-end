@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.ast.{Query, Statement}
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SemanticTable}
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.util.symbols.CypherType
