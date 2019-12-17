@@ -62,6 +62,10 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         check(ctx, x.arguments) chain
           checkTypes(x, x.signatures)
 
+      case x:UnaryAdd =>
+        check(ctx, x.arguments) chain
+          checkTypes(x, x.signatures)
+
       case x:Multiply =>
         check(ctx, x.arguments) chain
           checkTypes(x, x.signatures) chain
