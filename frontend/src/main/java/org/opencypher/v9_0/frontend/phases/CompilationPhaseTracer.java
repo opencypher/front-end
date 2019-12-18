@@ -27,6 +27,7 @@ public interface CompilationPhaseTracer
         LOGICAL_PLANNING,
         CODE_GENERATION,
         PIPE_BUILDING,
+        METADATA_COLLECTION,
     }
 
     CompilationPhaseEvent beginPhase( CompilationPhase phase );

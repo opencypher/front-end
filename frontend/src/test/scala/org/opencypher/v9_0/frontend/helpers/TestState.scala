@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SemanticTable}
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.phases._
+import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.symbols.CypherType
 
 //noinspection TypeAnnotation
@@ -43,6 +44,8 @@ case class TestState(override val maybeStatement: Option[ast.Statement]) extends
 
   override def maybeSemanticTable = None
 
+  override def maybeObfuscationMetadata: Option[ObfuscationMetadata] = None
+
   override def accumulatedConditions = Set.empty
 
   override def withStatement(s: ast.Statement) = copy(Some(s))
@@ -54,6 +57,8 @@ case class TestState(override val maybeStatement: Option[ast.Statement]) extends
   override def withSemanticState(s: SemanticState) = fail("not implemented")
 
   override def withParams(p: Map[String, Any]) = fail("not implemented")
+
+  override def withObfuscationMetadata(o: ObfuscationMetadata) = fail("not implemented")
 
   override def initialFields: Map[String, CypherType] = Map.empty
 }

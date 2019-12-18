@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.{SemanticState, SemanticTable}
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.util.symbols.CypherType
-import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.{InputPosition, ObfuscationMetadata}
 
 trait BaseState {
   def queryText: String
@@ -31,6 +31,7 @@ trait BaseState {
   def maybeSemantics: Option[SemanticState]
   def maybeExtractedParams: Option[Map[String, Any]]
   def maybeSemanticTable: Option[SemanticTable]
+  def maybeObfuscationMetadata: Option[ObfuscationMetadata]
 
   def accumulatedConditions: Set[Condition]
 
@@ -40,6 +41,7 @@ trait BaseState {
   def semantics(): SemanticState = maybeSemantics getOrElse fail("Semantics")
   def extractedParams(): Map[String, Any] = maybeExtractedParams getOrElse fail("Extracted parameters")
   def semanticTable(): SemanticTable = maybeSemanticTable getOrElse fail("Semantic table")
+  def obfuscationMetadata(): ObfuscationMetadata = maybeObfuscationMetadata getOrElse fail("Obfuscation metadata")
 
   protected def fail(what: String) = {
     throw new IllegalStateException(s"$what not yet initialised")
@@ -50,6 +52,7 @@ trait BaseState {
   def withSemanticTable(s: SemanticTable): BaseState
   def withSemanticState(s: SemanticState): BaseState
   def withParams(p: Map[String, Any]): BaseState
+  def withObfuscationMetadata(o: ObfuscationMetadata): BaseState
 }
 
 case class InitialState(queryText: String,
@@ -61,7 +64,8 @@ case class InitialState(queryText: String,
   maybeExtractedParams: Option[Map[String, Any]] = None,
   maybeSemanticTable: Option[SemanticTable] = None,
   accumulatedConditions: Set[Condition] = Set.empty,
-  maybeReturnColumns: Option[Seq[String]] = None) extends BaseState {
+  maybeReturnColumns: Option[Seq[String]] = None,
+  maybeObfuscationMetadata: Option[ObfuscationMetadata] = None) extends BaseState {
 
   override def withStatement(s: Statement): InitialState = copy(maybeStatement = Some(s))
 
@@ -72,4 +76,6 @@ case class InitialState(queryText: String,
   override def withSemanticState(s: SemanticState): InitialState = copy(maybeSemantics = Some(s))
 
   override def withParams(p: Map[String, Any]): InitialState = copy(maybeExtractedParams = Some(p))
+
+  override def withObfuscationMetadata(o: ObfuscationMetadata): InitialState = copy(maybeObfuscationMetadata = Some(o))
 }
