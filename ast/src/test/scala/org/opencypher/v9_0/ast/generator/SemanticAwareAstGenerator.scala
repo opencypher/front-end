@@ -13,13 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.v4_0.ast.generator
+package org.opencypher.v9_0.ast.generator
 
-import org.opencypher.v9_0.v4_0.ast.generator.AstGenerator.boolean
-import org.opencypher.v9_0.v4_0.expressions.{FunctionInvocation, Namespace}
-import org.opencypher.v9_0.v4_0.expressions.functions.{Avg, Collect, Count, Max, Min, PercentileCont, PercentileDisc, StdDev, StdDevP, Sum}
+import org.opencypher.v9_0.ast.generator.AstGenerator.boolean
+import org.opencypher.v9_0.expressions.functions.Avg
+import org.opencypher.v9_0.expressions.functions.Collect
+import org.opencypher.v9_0.expressions.functions.Count
+import org.opencypher.v9_0.expressions.functions.Max
+import org.opencypher.v9_0.expressions.functions.Min
+import org.opencypher.v9_0.expressions.functions.PercentileCont
+import org.opencypher.v9_0.expressions.functions.PercentileDisc
+import org.opencypher.v9_0.expressions.functions.StdDev
+import org.opencypher.v9_0.expressions.functions.StdDevP
+import org.opencypher.v9_0.expressions.functions.Sum
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.Namespace
 import org.scalacheck.Gen
-import org.scalacheck.Gen.{listOfN, oneOf}
+import org.scalacheck.Gen.listOfN
+import org.scalacheck.Gen.oneOf
 
 /**
  * Prototype of a generator that generates semantically valid expressions/ASTs.
