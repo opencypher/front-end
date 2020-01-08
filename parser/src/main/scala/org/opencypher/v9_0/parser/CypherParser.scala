@@ -19,6 +19,9 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.{CypherException, CypherExceptionFactory, InputPosition}
 import org.parboiled.scala._
 
+/**
+  * Parser for Cypher queries.
+  */
 class CypherParser extends Parser
   with Statement
   with Expressions {
