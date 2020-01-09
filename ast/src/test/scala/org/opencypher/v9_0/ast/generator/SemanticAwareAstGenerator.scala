@@ -35,7 +35,7 @@ import org.scalacheck.Gen.oneOf
 /**
  * Prototype of a generator that generates semantically valid expressions/ASTs.
  */
-class SemanticAwareAstGenerator(override val simpleStrings: Boolean = true, override val allowedVarNames: Option[Seq[String]] = None)
+class SemanticAwareAstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[String]] = None)
   extends AstGenerator(simpleStrings, allowedVarNames) {
   // FIXME this generates too many invalid combinations
   def aggregationFunctionInvocation: Gen[FunctionInvocation] = {

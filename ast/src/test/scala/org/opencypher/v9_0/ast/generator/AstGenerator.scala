@@ -18,25 +18,27 @@ package org.opencypher.v9_0.ast.generator
 import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.ast.generator.AstGenerator._
 import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.expressions.functions.{Avg, Collect, Count, Max, Min, PercentileCont, PercentileDisc, StdDev, StdDevP, Sum}
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.AnyType
 import org.scalacheck.Gen._
 import org.scalacheck.util.Buildable
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 
 object AstGenerator {
+  val OR_MORE_UPPER_BOUND = 3
+
   def zeroOrMore[T](gen: Gen[T]): Gen[List[T]] =
-    choose(0, 3).flatMap(listOfN(_, gen))
+    choose(0, OR_MORE_UPPER_BOUND).flatMap(listOfN(_, gen))
 
   def zeroOrMore[T](seq: Seq[T]): Gen[Seq[T]] =
-    choose(0, Math.min(3, seq.size)).flatMap(pick(_, seq))
+    choose(0, Math.min(OR_MORE_UPPER_BOUND, seq.size)).flatMap(pick(_, seq))
 
   def oneOrMore[T](gen: Gen[T]): Gen[List[T]] =
-    choose(1, 3).flatMap(listOfN(_, gen))
+    choose(1, OR_MORE_UPPER_BOUND).flatMap(listOfN(_, gen))
 
   def oneOrMore[T](seq: Seq[T]): Gen[Seq[T]] =
-    choose(1, Math.min(3, seq.size)).flatMap(pick(_, seq))
+    choose(1, Math.min(OR_MORE_UPPER_BOUND, seq.size)).flatMap(pick(_, seq))
 
   def tuple[A, B](ga: Gen[A], gb: Gen[B]): Gen[(A, B)] = for {
     a <- ga
@@ -77,7 +79,7 @@ object AstGenerator {
   * Implements instances of Gen[T] for all query ast nodes
   * Generated queries are syntactically (but not semantically) valid
   */
-case class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[String]] = None) {
+class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[String]] = None) {
 
   // HELPERS
   // ==========================================================================

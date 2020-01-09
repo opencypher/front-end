@@ -30,7 +30,7 @@ class PrettifierPropertyTest extends CypherFunSuite
 
   val parser = new CypherParser
 
-  val gen = AstGenerator(simpleStrings = false)
+  val gen = new AstGenerator(simpleStrings = false)
 
   implicit val config: PropertyCheckConfiguration = PropertyCheckConfiguration(minSuccessful = 500)
 
