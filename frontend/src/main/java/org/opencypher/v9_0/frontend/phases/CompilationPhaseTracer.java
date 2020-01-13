@@ -21,6 +21,7 @@ public interface CompilationPhaseTracer
     {
         PARSING,
         DEPRECATION_WARNINGS,
+        ADDITION_ERRORS,
         SEMANTIC_CHECK,
         AST_REWRITE,
         LOGICAL_PLANNING,
