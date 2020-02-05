@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.{CreateIndexNewSyntax, CreateNodeKeyConstraint, CreateNodePropertyExistenceConstraint, CreateRelationshipPropertyExistenceConstraint, CreateUniquePropertyConstraint, DbmsPrivilege, DefaultDatabaseScope, DenyPrivilege, DropConstraintOnName, DropIndexOnName, GrantPrivilege, RevokePrivilege, Statement, UserManagementAction}
+import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.util._
 
 object Additions {
@@ -52,6 +53,9 @@ object Additions {
       // DROP CONSTRAINT name
       case d: DropConstraintOnName =>
         throw cypherExceptionFactory.syntaxException("Dropping constraint by name is not supported in this Cypher version.", d.position)
+
+      case e: ExistsSubClause =>
+        throw cypherExceptionFactory.syntaxException("Existential subquery is not supported in this Cypher version.", e.position)
 
       // Administration commands against system database are checked in CompilerFactory to cover all of them at once
     }
