@@ -19,7 +19,7 @@ import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 
-case class replaceAliasedFunctionInvocations(deprecations: Deprecations) extends Rewriter {
+case class replaceDeprecatedCypherSyntax(deprecations: Deprecations) extends Rewriter {
 
   override def apply(that: AnyRef): AnyRef = instance(that)
   val instance: Rewriter = bottomUp(Rewriter.lift(deprecations.find.andThen(d => d.generateReplacement())))

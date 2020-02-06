@@ -17,12 +17,12 @@ package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.FunctionName
-import org.opencypher.v9_0.rewriting.rewriters.replaceAliasedFunctionInvocations
+import org.opencypher.v9_0.rewriting.rewriters.replaceDeprecatedCypherSyntax
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class ReplaceAliasedFunctionInvocationsTest extends CypherFunSuite with AstConstructionTestSupport {
+class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstructionTestSupport {
 
-  private val rewriter = replaceAliasedFunctionInvocations(Deprecations.V1)
+  private val rewriter = replaceDeprecatedCypherSyntax(Deprecations.V1)
   private val deprecatedNameMap = Deprecations.V1.functionRenames
 
   test("should rewrite deprecated names regardless of casing") {

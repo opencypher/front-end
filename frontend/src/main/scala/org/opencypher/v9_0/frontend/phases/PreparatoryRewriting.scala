@@ -21,7 +21,7 @@ import org.opencypher.v9_0.rewriting.rewriters.expandCallWhere
 import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAndMatch
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
-import org.opencypher.v9_0.rewriting.rewriters.replaceAliasedFunctionInvocations
+import org.opencypher.v9_0.rewriting.rewriters.replaceDeprecatedCypherSyntax
 import org.opencypher.v9_0.util.inSequence
 
 case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
@@ -32,7 +32,7 @@ case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseCo
       normalizeWithAndReturnClauses(context.cypherExceptionFactory),
       insertWithBetweenOptionalMatchAndMatch,
       expandCallWhere,
-      replaceAliasedFunctionInvocations(deprecations),
+      replaceDeprecatedCypherSyntax(deprecations),
       mergeInPredicates))
 
     from.withStatement(rewrittenStatement)
