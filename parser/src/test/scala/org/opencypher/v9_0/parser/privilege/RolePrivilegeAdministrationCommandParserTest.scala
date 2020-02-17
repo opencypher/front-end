@@ -32,11 +32,11 @@ class RolePrivilegeAdministrationCommandParserTest extends AdministrationCommand
       Seq("GRAPH", "GRAPHS").foreach {
         graphKeyword =>
           test(s"$command TRAVERSE ON $graphKeyword * $preposition role") {
-            yields(func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.AllGraphsScope() _, ast.AllQualifier() _, Seq("role")))
+            yields(func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.AllGraphsScope() _, ast.ElementsAllQualifier() _, Seq("role")))
           }
 
           test(s"$command TRAVERSE ON $graphKeyword foo $preposition role") {
-            yields(func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("foo") _, ast.AllQualifier() _, Seq("role")))
+            yields(func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("foo") _, ast.ElementsAllQualifier() _, Seq("role")))
           }
 
           Seq("NODE", "NODES").foreach {
@@ -146,9 +146,9 @@ class RolePrivilegeAdministrationCommandParserTest extends AdministrationCommand
 
               test( s"validExpressions $command $graphKeyword $elementKeyword $preposition") {
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.AllGraphsScope() _, ast.AllQualifier() _, Seq("role"))
+                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.AllGraphsScope() _, ast.ElementsAllQualifier() _, Seq("role"))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.AllGraphsScope() _, ast.AllQualifier() _, Seq("role"))
+                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.AllGraphsScope() _, ast.ElementsAllQualifier() _, Seq("role"))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword A $preposition role") shouldGive
                   func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.AllGraphsScope() _, ast.ElementsQualifier(Seq("A")) _, Seq("role"))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword A (*) $preposition role") shouldGive
@@ -156,9 +156,9 @@ class RolePrivilegeAdministrationCommandParserTest extends AdministrationCommand
                 parsing(s"$command TRAVERSE ON $graphKeyword `*` $elementKeyword A $preposition role") shouldGive
                   func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("*") _, ast.ElementsQualifier(Seq("A")) _, Seq("role"))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("foo") _, ast.AllQualifier() _, Seq("role"))
+                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("foo") _, ast.ElementsAllQualifier() _, Seq("role"))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("foo") _, ast.AllQualifier() _, Seq("role"))
+                  func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("foo") _, ast.ElementsAllQualifier() _, Seq("role"))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A $preposition role") shouldGive
                   func(ast.TraversePrivilege()(pos), ast.AllResource()(pos), ast.NamedGraphScope("foo") _, ast.ElementsQualifier(Seq("A")) _, Seq("role"))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A (*) $preposition role") shouldGive

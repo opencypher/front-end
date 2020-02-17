@@ -34,15 +34,15 @@ abstract class WritePrivilegeAdministrationCommandParserTest extends Administrat
               case (dbName: String, graphScope: ast.GraphScope) =>
 
                 test(s"$command WRITE ON $graphKeyword $dbName $elementKeyword * $preposition role") {
-                  yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.AllQualifier() _, Seq("role")))
+                  yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.ElementsAllQualifier() _, Seq("role")))
                 }
 
                 test(s"$command WRITE ON $graphKeyword $dbName $elementKeyword * (*) $preposition role") {
-                  yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.AllQualifier() _, Seq("role")))
+                  yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.ElementsAllQualifier() _, Seq("role")))
                 }
 
                 test(s"$command WRITE ON $graphKeyword $dbName $elementKeyword * $preposition `r:ole`") {
-                  yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.AllQualifier() _, Seq("r:ole")))
+                  yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.ElementsAllQualifier() _, Seq("r:ole")))
                 }
 
                 test(s"$command WRITE ON $graphKeyword $dbName $elementKeyword A $preposition role") {
@@ -70,7 +70,7 @@ abstract class WritePrivilegeAdministrationCommandParserTest extends Administrat
             }
 
             test(s"$command WRITE ON $graphKeyword `f:oo` $elementKeyword * $preposition role") {
-              yields(func(ast.WritePrivilege()(pos), ast.AllResource() _, ast.NamedGraphScope("f:oo") _, ast.AllQualifier() _, Seq("role")))
+              yields(func(ast.WritePrivilege()(pos), ast.AllResource() _, ast.NamedGraphScope("f:oo") _, ast.ElementsAllQualifier() _, Seq("role")))
             }
 
 
@@ -91,7 +91,7 @@ abstract class WritePrivilegeAdministrationCommandParserTest extends Administrat
           case (dbName: String, graphScope: ast.GraphScope) =>
 
             test(s"$command WRITE ON $graphKeyword $dbName $preposition role") {
-              yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.AllQualifier() _, Seq("role")))
+              yields(func(ast.WritePrivilege()(pos), ast.AllResource()(pos), graphScope, ast.ElementsAllQualifier() _, Seq("role")))
             }
         }
     }
