@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_0.expressions
 
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
-
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
 
 object Pattern {
   sealed trait SemanticContext

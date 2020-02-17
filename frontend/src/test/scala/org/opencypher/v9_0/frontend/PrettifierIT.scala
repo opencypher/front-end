@@ -16,10 +16,12 @@
 package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
+import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.parser.CypherParser
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
-import org.opencypher.v9_0.util.test_helpers.{CypherFunSuite, WindowsStringSafe}
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.util.test_helpers.WindowsStringSafe
 
 class PrettifierIT extends CypherFunSuite {
   private implicit val windowsSafe: WindowsStringSafe.type = WindowsStringSafe

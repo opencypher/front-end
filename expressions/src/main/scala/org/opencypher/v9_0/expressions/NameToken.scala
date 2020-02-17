@@ -15,7 +15,9 @@
  */
 package org.opencypher.v9_0.expressions
 
-import org.opencypher.v9_0.util.{LabelId, NameId, PropertyKeyId}
+import org.opencypher.v9_0.util.LabelId
+import org.opencypher.v9_0.util.NameId
+import org.opencypher.v9_0.util.PropertyKeyId
 
 sealed abstract class NameToken[I <: NameId] {
   def name: String

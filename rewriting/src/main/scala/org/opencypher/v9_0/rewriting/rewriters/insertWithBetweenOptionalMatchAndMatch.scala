@@ -15,8 +15,12 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Match, ReturnItems, SingleQuery, With}
-import org.opencypher.v9_0.util.{Rewriter, topDown}
+import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 case object insertWithBetweenOptionalMatchAndMatch extends Rewriter {
 

@@ -15,8 +15,12 @@
  */
 package org.opencypher.v9_0.expressions
 
+import org.opencypher.v9_0.expressions.Expression.TreeAcc
 import org.opencypher.v9_0.expressions.functions.Rand
-import org.opencypher.v9_0.util.{ASTNode, Ref, Rewriter, bottomUp}
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Ref
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 import scala.collection.immutable.Stack
 
@@ -65,8 +69,6 @@ abstract class Expression extends ASTNode {
 
   self =>
 
-  import Expression.TreeAcc
-
   def arguments: Seq[Expression] = this.treeFold(List.empty[Expression]) {
     case e: Expression if e != this =>
       acc => (acc :+ e, None)
@@ -81,7 +83,7 @@ abstract class Expression extends ASTNode {
   // All variables referenced from this expression or any of its children
   // that are not introduced inside this expression
   def dependencies: Set[LogicalVariable] =
-    this.treeFold(TreeAcc[Set[LogicalVariable]](Set.empty)) {
+    this.treeFold(Expression.TreeAcc[Set[LogicalVariable]](Set.empty)) {
       case scope: ScopeExpression =>
         acc =>
           val newAcc = acc.pushScope(scope.introducedVariables)
@@ -95,7 +97,7 @@ abstract class Expression extends ASTNode {
   // All (free) occurrences of variable in this expression or any of its children
   // (i.e. excluding occurrences referring to shadowing redefinitions of variable)
   def occurrences(variable: LogicalVariable): Set[Ref[Variable]] =
-    this.treeFold(TreeAcc[Set[Ref[Variable]]](Set.empty)) {
+    this.treeFold(Expression.TreeAcc[Set[Ref[Variable]]](Set.empty)) {
       case scope: ScopeExpression =>
         acc =>
           val newAcc = acc.pushScope(scope.introducedVariables)

@@ -15,9 +15,14 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.{DecimalDoubleLiteral, DummyExpression, ListSlice, SignedDecimalIntegerLiteral}
+import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
+import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.ListSlice
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTString
 
 class ListSliceTest extends SemanticFunSuite {
   val dummyList = DummyExpression(

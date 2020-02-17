@@ -16,8 +16,12 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.util.{CypherException, CypherExceptionFactory, InputPosition}
-import org.parboiled.scala._
+import org.opencypher.v9_0.util.CypherException
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InputPosition
+import org.parboiled.scala.EOI
+import org.parboiled.scala.Parser
+import org.parboiled.scala.Rule1
 
 /**
   * Parser for Cypher queries.

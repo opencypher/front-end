@@ -16,8 +16,15 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 /**
   * Anonymizer which renames tokens and cypher parts using some scheme. All renames have to be reproducible and

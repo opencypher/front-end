@@ -16,10 +16,22 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ASTAnnotationMap
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.expressions.{LabelName, PropertyKeyName, RelTypeName, Variable}
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.LabelId
+import org.opencypher.v9_0.util.PropertyKeyId
+import org.opencypher.v9_0.util.RelTypeId
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.TypeSpec
 
 import scala.collection.mutable
 
@@ -112,4 +124,3 @@ class SemanticTable(
   ) =
     new SemanticTable(types, recordedScopes, resolvedLabelIds.clone(), resolvedPropertyKeyNames.clone(), resolvedRelTypeNames.clone())
 }
-

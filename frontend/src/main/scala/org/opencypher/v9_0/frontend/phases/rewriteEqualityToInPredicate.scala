@@ -15,9 +15,15 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
-import org.opencypher.v9_0.expressions.{In, Variable}
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.expressions.functions
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 /*
 TODO: This should implement Rewriter instead

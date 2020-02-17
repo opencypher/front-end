@@ -15,7 +15,10 @@
  */
 package org.opencypher.v9_0.ast.semantics.functions
 
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTString
 
 class ReverseTest extends FunctionTestBase("reverse") {
 

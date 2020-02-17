@@ -16,7 +16,8 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.rewriting.Deprecations
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 case class replaceAliasedFunctionInvocations(deprecations: Deprecations) extends Rewriter {
 

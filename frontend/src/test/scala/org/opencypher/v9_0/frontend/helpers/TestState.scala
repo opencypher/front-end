@@ -16,9 +16,10 @@
 package org.opencypher.v9_0.frontend.helpers
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.semantics.{SemanticState, SemanticTable}
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.PlannerName
-import org.opencypher.v9_0.frontend.phases._
+import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.symbols.CypherType
 
@@ -62,6 +63,3 @@ case class TestState(override val maybeStatement: Option[ast.Statement]) extends
 
   override def initialFields: Map[String, CypherType] = Map.empty
 }
-
-
-

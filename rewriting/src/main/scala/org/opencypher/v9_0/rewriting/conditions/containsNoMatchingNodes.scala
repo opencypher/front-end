@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_0.rewriting.conditions
 
-import org.opencypher.v9_0.util.Foldable._
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Foldable.FoldableAny
+import org.opencypher.v9_0.util.InputPosition
 
 case class containsNoMatchingNodes(matcher: PartialFunction[ASTNode, String]) extends (Any => Seq[String]) {
 

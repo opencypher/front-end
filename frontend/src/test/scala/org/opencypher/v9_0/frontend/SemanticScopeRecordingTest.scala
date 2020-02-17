@@ -16,8 +16,12 @@
 package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.Unwind
-import org.opencypher.v9_0.frontend.helpers.{ErrorCollectingContext, NoPlannerName}
-import org.opencypher.v9_0.frontend.phases.{InitialState, Parsing, PreparatoryRewriting, SemanticAnalysis}
+import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
+import org.opencypher.v9_0.frontend.helpers.NoPlannerName
+import org.opencypher.v9_0.frontend.phases.InitialState
+import org.opencypher.v9_0.frontend.phases.Parsing
+import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
+import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

@@ -16,11 +16,40 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ReturnItemsDef
-import org.opencypher.v9_0.expressions.Pattern.SemanticContext.{Construct, Match, name}
-import org.opencypher.v9_0.expressions.Pattern.{SemanticContext, findDuplicateRelationships}
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{InputPosition, UnboundedShortestPathNotification}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.InvalidNodePattern
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.MapExpression
+import org.opencypher.v9_0.expressions.NamedPatternPart
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.Pattern.SemanticContext
+import org.opencypher.v9_0.expressions.Pattern.SemanticContext.Construct
+import org.opencypher.v9_0.expressions.Pattern.SemanticContext.Match
+import org.opencypher.v9_0.expressions.Pattern.SemanticContext.name
+import org.opencypher.v9_0.expressions.Pattern.findDuplicateRelationships
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.PatternPart
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.Range
+import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.ShortestPaths
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.UnboundedShortestPathNotification
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTPath
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.CypherType
 
 object SemanticPatternCheck extends SemanticAnalysisTooling {
 

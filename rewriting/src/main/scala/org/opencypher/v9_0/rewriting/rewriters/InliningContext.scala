@@ -15,10 +15,17 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.PathExpression
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.expressions.containsAggregate
 import org.opencypher.v9_0.rewriting.rewriters.InliningContext.INLINING_THRESHOLD
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.expressions.{PathExpression, Variable}
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.TypedRewriter
+import org.opencypher.v9_0.util.bottomUp
 
 case class InliningContext(projections: Map[LogicalVariable, Expression] = Map.empty,
                            seenVariables: Set[LogicalVariable] = Set.empty,

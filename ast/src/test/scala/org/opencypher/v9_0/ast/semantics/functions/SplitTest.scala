@@ -15,9 +15,10 @@
  */
 package org.opencypher.v9_0.ast.semantics.functions
 
-import org.opencypher.v9_0.util.symbols._
-
-import scala.languageFeature.existentials
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTString
 
 class SplitTest extends FunctionTestBase("split")  {
 

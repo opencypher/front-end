@@ -15,8 +15,20 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.NodePatternExpression
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.IdentityMap
+import org.opencypher.v9_0.util.NodeNameGenerator
+import org.opencypher.v9_0.util.RelNameGenerator
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 object PatternExpressionPatternElementNamer {
 

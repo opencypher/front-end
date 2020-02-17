@@ -15,12 +15,21 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions.{GetDegree, GreaterThan}
+import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.expressions.GetDegree
+import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.parser.ParserFixture.parser
-import org.opencypher.v9_0.rewriting.rewriters.{LabelPredicateNormalizer, MatchPredicateNormalization, PropertyPredicateNormalizer}
+import org.opencypher.v9_0.rewriting.rewriters.LabelPredicateNormalizer
+import org.opencypher.v9_0.rewriting.rewriters.MatchPredicateNormalization
+import org.opencypher.v9_0.rewriting.rewriters.PropertyPredicateNormalizer
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, Rewriter, inSequence}
 
 class MatchPredicateNormalizerTest extends CypherFunSuite with RewriteTest {
 

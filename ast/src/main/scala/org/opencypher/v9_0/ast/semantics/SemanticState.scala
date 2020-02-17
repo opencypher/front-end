@@ -17,10 +17,17 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ASTAnnotationMap
 import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
-import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.util.helpers.{TreeElem, TreeZipper}
-import org.opencypher.v9_0.util.symbols.{TypeSpec, _}
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.InternalNotification
+import org.opencypher.v9_0.util.Ref
+import org.opencypher.v9_0.util.helpers.TreeElem
+import org.opencypher.v9_0.util.helpers.TreeZipper
+import org.opencypher.v9_0.util.symbols.CypherType
+import org.opencypher.v9_0.util.symbols.TypeSpec
 
 import scala.collection.immutable.HashMap
 import scala.language.postfixOps

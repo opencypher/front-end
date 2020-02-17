@@ -15,13 +15,22 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util._
-import org.opencypher.v9_0.util.helpers.fixedPoint
+import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UpdateClause
+import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Pattern
-
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.TypedRewriter
+import org.opencypher.v9_0.util.helpers.fixedPoint
+import org.opencypher.v9_0.util.topDown
 
 case object inlineProjections extends Rewriter {
 

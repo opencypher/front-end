@@ -21,7 +21,8 @@ import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.parser.ParserTest
 import org.opencypher.v9_0.parser.Query
 import org.opencypher.v9_0.util.DummyPosition
-import org.parboiled.scala._
+import org.parboiled.scala.Rule1
+import org.parboiled.scala.EOI
 
 class PeriodicCommitHintIT extends ParserTest[ast.PeriodicCommitHint, Any] with Query {
 

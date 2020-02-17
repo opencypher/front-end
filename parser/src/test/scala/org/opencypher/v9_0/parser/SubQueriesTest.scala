@@ -16,7 +16,8 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, SubQuery}
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.SubQuery
 import org.parboiled.scala.Rule1
 
 class SubQueriesTest

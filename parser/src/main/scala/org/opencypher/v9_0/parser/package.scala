@@ -15,7 +15,9 @@
  */
 package org.opencypher.v9_0
 
-import org.opencypher.v9_0.parser.matchers._
+import org.opencypher.v9_0.parser.matchers.IdentifierPartMatcher
+import org.opencypher.v9_0.parser.matchers.IdentifierStartMatcher
+import org.opencypher.v9_0.parser.matchers.WhitespaceCharMatcher
 import org.parboiled.scala.Rule0
 
 package object parser {

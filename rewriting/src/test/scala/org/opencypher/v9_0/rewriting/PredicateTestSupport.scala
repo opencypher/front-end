@@ -15,9 +15,20 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.util.test_helpers.{CypherFunSuite, CypherTestSupport}
-import org.opencypher.v9_0.util.{DummyPosition, Rewriter}
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.Ands
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.False
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.Ors
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.expressions.True
+import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 
 trait PredicateTestSupport extends CypherTestSupport {
   self: CypherFunSuite =>

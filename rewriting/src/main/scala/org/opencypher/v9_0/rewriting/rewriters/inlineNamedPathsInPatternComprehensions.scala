@@ -15,9 +15,13 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
-import org.opencypher.v9_0.expressions.{PathExpression, PatternElement}
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.PathExpression
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 case object inlineNamedPathsInPatternComprehensions extends Rewriter {
 

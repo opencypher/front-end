@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.frontend.FoldableTest.Add
+import org.opencypher.v9_0.frontend.FoldableTest.Val
 import org.opencypher.v9_0.util.Foldable
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -26,7 +28,6 @@ object FoldableTest {
 }
 
 class FoldableTest extends CypherFunSuite {
-  import FoldableTest._
 
   test("should fold value depth first over object tree") {
     val ast = Add(Val(55), Add(Val(43), Val(52)))

@@ -15,12 +15,13 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
-import org.opencypher.v9_0.ast.semantics._
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheck
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Expression

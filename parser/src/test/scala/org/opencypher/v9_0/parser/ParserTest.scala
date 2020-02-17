@@ -17,8 +17,12 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.parboiled.errors.{InvalidInputError, ParserRuntimeException}
-import org.parboiled.scala._
+import org.parboiled.errors.InvalidInputError
+import org.parboiled.errors.ParserRuntimeException
+import org.parboiled.scala.EOI
+import org.parboiled.scala.ParsingResult
+import org.parboiled.scala.ReportingParseRunner
+import org.parboiled.scala.Rule1
 
 trait ParserTest[T, J] extends CypherFunSuite {
 

@@ -16,7 +16,11 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticChecker, SemanticFeature, SemanticState, SemanticTable}
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticChecker
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 

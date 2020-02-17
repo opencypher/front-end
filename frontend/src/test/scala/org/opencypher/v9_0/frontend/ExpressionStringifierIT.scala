@@ -19,7 +19,8 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.parser.Expressions
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.parboiled.scala.{Parser, ReportingParseRunner}
+import org.parboiled.scala.Parser
+import org.parboiled.scala.ReportingParseRunner
 
 class ExpressionStringifierIT extends CypherFunSuite with Parser with Expressions {
   val stringifier = ExpressionStringifier()

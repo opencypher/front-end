@@ -15,10 +15,14 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.rewriting.rewriters._
-import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.rewriters.expandCallWhere
+import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAndMatch
+import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
+import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
+import org.opencypher.v9_0.rewriting.rewriters.replaceAliasedFunctionInvocations
+import org.opencypher.v9_0.util.inSequence
 
 case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
 

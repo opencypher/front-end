@@ -16,9 +16,13 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.functions.Exists
-import org.opencypher.v9_0.util.{Rewriter, bottomUp, symbols}
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.symbols
 
 /**
   * Adds an exist around any pattern expression that is expected to produce a boolean e.g.

@@ -15,14 +15,92 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.expressions.Add
+import org.opencypher.v9_0.expressions.AllIterablePredicate
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.Ands
+import org.opencypher.v9_0.expressions.AnyIterablePredicate
+import org.opencypher.v9_0.expressions.CachedProperty
+import org.opencypher.v9_0.expressions.CoerceTo
+import org.opencypher.v9_0.expressions.ContainerIndex
+import org.opencypher.v9_0.expressions.Contains
+import org.opencypher.v9_0.expressions.CountStar
+import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
+import org.opencypher.v9_0.expressions.Divide
+import org.opencypher.v9_0.expressions.EndsWith
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.False
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.GetDegree
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.GreaterThanOrEqual
+import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.IsNotNull
+import org.opencypher.v9_0.expressions.IsNull
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LessThan
+import org.opencypher.v9_0.expressions.LessThanOrEqual
+import org.opencypher.v9_0.expressions.ListComprehension
+import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.ListSlice
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.MapExpression
+import org.opencypher.v9_0.expressions.Modulo
+import org.opencypher.v9_0.expressions.Multiply
+import org.opencypher.v9_0.expressions.NODE_TYPE
+import org.opencypher.v9_0.expressions.Namespace
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.NoneIterablePredicate
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.NotEquals
+import org.opencypher.v9_0.expressions.Null
+import org.opencypher.v9_0.expressions.NumberLiteral
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.Ors
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.Pow
+import org.opencypher.v9_0.expressions.ProcedureName
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
+import org.opencypher.v9_0.expressions.ReduceExpression
+import org.opencypher.v9_0.expressions.ReduceScope
+import org.opencypher.v9_0.expressions.RegexMatch
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.SemanticDirection.BOTH
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.expressions.functions._
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.expressions.SingleIterablePredicate
+import org.opencypher.v9_0.expressions.StartsWith
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.expressions.Subtract
+import org.opencypher.v9_0.expressions.True
+import org.opencypher.v9_0.expressions.UnaryAdd
+import org.opencypher.v9_0.expressions.UnarySubtract
+import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.expressions.functions.Avg
+import org.opencypher.v9_0.expressions.functions.Collect
+import org.opencypher.v9_0.expressions.functions.Count
+import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.expressions.functions.Id
+import org.opencypher.v9_0.expressions.functions.Max
+import org.opencypher.v9_0.expressions.functions.Min
+import org.opencypher.v9_0.expressions.functions.Sum
+import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
-import org.opencypher.v9_0.util.{DummyPosition, InputPosition}
-
-import scala.language.implicitConversions
 
 trait AstConstructionTestSupport extends CypherTestSupport {
   protected val pos = DummyPosition(0)
@@ -342,6 +420,5 @@ trait AstConstructionTestSupport extends CypherTestSupport {
   implicit class UnionLiteralOps(u: UnionDistinct) {
     def all: UnionAll = UnionAll(u.part, u.query)(pos)
   }
-
 
 }

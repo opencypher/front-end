@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

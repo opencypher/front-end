@@ -15,13 +15,39 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.ast.{Statement, UnaliasedReturnItem}
 import org.opencypher.v9_0.expressions.NotEquals
-import org.opencypher.v9_0.rewriting.RewriterStep._
-import org.opencypher.v9_0.rewriting.conditions._
-import org.opencypher.v9_0.rewriting.rewriters.{replaceLiteralDynamicPropertyLookups, _}
-import org.opencypher.v9_0.rewriting.{RewriterCondition, RewriterStepSequencer}
+import org.opencypher.v9_0.rewriting.RewriterCondition
+import org.opencypher.v9_0.rewriting.RewriterStep.enableCondition
+import org.opencypher.v9_0.rewriting.RewriterStepSequencer
+import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
+import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
+import org.opencypher.v9_0.rewriting.conditions.noDuplicatesInReturnItems
+import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
+import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
+import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
+import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
+import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
+import org.opencypher.v9_0.rewriting.rewriters.addImplicitExistToPatternExpressions
+import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
+import org.opencypher.v9_0.rewriting.rewriters.expandStar
+import org.opencypher.v9_0.rewriting.rewriters.foldConstants
+import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
+import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
+import org.opencypher.v9_0.rewriting.rewriters.nameMatchPatternElements
+import org.opencypher.v9_0.rewriting.rewriters.namePatternComprehensionPatternElements
+import org.opencypher.v9_0.rewriting.rewriters.nameUpdatingClauses
+import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
+import org.opencypher.v9_0.rewriting.rewriters.normalizeComparisons
+import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
+import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
+import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
+import org.opencypher.v9_0.rewriting.rewriters.recordScopes
+import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 import org.opencypher.v9_0.util.CypherExceptionFactory
 
 class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,

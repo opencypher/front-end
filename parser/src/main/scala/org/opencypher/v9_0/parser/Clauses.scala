@@ -16,8 +16,11 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.expressions.{Pattern => ASTPattern}
-import org.parboiled.scala._
+import org.opencypher.v9_0.expressions
+import org.parboiled.scala.Parser
+import org.parboiled.scala.Rule1
+import org.parboiled.scala.Rule4
+import org.parboiled.scala.group
 
 trait Clauses extends Parser
   with StartPoints
@@ -82,7 +85,7 @@ trait Clauses extends Parser
 
   def Merge: Rule1[ast.Merge] = rule("MERGE") {
     group(
-      group(keyword("MERGE") ~~ PatternPart) ~~>> (p => ASTPattern(Seq(p))) ~~ zeroOrMore(MergeAction,
+      group(keyword("MERGE") ~~ PatternPart) ~~>> (p => expressions.Pattern(Seq(p))) ~~ zeroOrMore(MergeAction,
         separator = WS)
     ) ~~>> (ast.Merge(_, _))
   }
@@ -206,4 +209,3 @@ trait Clauses extends Parser
     group(keyword("CALL") ~~ group("{" ~~ QueryPart ~~ "}")) ~~>> (part => ast.SubQuery(part))
   }
 }
-

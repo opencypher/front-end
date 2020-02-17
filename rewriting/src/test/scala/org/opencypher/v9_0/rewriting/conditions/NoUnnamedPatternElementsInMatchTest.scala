@@ -15,8 +15,23 @@
  */
 package org.opencypher.v9_0.rewriting.conditions
 
-import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

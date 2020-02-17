@@ -15,37 +15,36 @@
  */
 package org.opencypher.v9_0.parser
 
-
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_0.expressions
 import org.parboiled.scala.Rule1
 
 import scala.language.implicitConversions
 
 class ExpressionParserTest
-  extends ParserAstTest[exp.Expression]
+  extends ParserAstTest[expressions.Expression]
     with Expressions
     with AstConstructionTestSupport {
 
-  implicit val parser: Rule1[exp.Expression] = Expression
+  implicit val parser: Rule1[expressions.Expression] = Expression
 
   test("a ~ b") {
-    yields(exp.Equivalent(varFor("a"), varFor("b")))
+    yields(expressions.Equivalent(varFor("a"), varFor("b")))
   }
 
   test("[] ~ []") {
-    yields(exp.Equivalent(listOf(), listOf()))
+    yields(expressions.Equivalent(listOf(), listOf()))
   }
 
   test("thing CONTAINS 'a' + 'b'") {
-    yields(exp.Contains(varFor("thing"), add(literalString("a"), literalString("b"))))
+    yields(expressions.Contains(varFor("thing"), add(literalString("a"), literalString("b"))))
   }
 
   test("thing STARTS WITH 'a' + 'b'") {
-    yields(exp.StartsWith(varFor("thing"), add(literalString("a"), literalString("b"))))
+    yields(expressions.StartsWith(varFor("thing"), add(literalString("a"), literalString("b"))))
   }
 
   test("thing ENDS WITH 'a' + 'b'") {
-    yields(exp.EndsWith(varFor("thing"), add(literalString("a"), literalString("b"))))
+    yields(expressions.EndsWith(varFor("thing"), add(literalString("a"), literalString("b"))))
   }
 }

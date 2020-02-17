@@ -16,8 +16,14 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
-import org.opencypher.v9_0.rewriting.rewriters._
-import org.opencypher.v9_0.util.{Rewriter, inSequence}
+import org.opencypher.v9_0.rewriting.rewriters.deMorganRewriter
+import org.opencypher.v9_0.rewriting.rewriters.distributeLawsRewriter
+import org.opencypher.v9_0.rewriting.rewriters.flattenBooleanOperators
+import org.opencypher.v9_0.rewriting.rewriters.normalizeInequalities
+import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
+import org.opencypher.v9_0.rewriting.rewriters.simplifyPredicates
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.inSequence
 
 case object CNFNormalizer extends StatementRewriter {
 

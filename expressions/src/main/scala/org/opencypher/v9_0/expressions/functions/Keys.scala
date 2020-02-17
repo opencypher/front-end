@@ -15,8 +15,13 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.expressions.TypeSignatures
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.CTString
 
 case object Keys extends Function with TypeSignatures {
   def name = "keys"

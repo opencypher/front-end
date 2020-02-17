@@ -16,11 +16,22 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.Match
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{InputPosition, Rewriter, topDown}
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.{And, GreaterThan, Not, Or}
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer, getDegreeRewriting: Boolean) extends Rewriter {
 

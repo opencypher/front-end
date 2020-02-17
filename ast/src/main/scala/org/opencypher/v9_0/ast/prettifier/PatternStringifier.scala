@@ -15,7 +15,18 @@
  */
 package org.opencypher.v9_0.ast.prettifier
 
-import org.opencypher.v9_0.expressions.{EveryPath, Expression, NamedPatternPart, NodePattern, Pattern, PatternElement, PatternPart, Range, RelationshipChain, RelationshipPattern, SemanticDirection, ShortestPaths}
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.NamedPatternPart
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.PatternPart
+import org.opencypher.v9_0.expressions.Range
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.ShortestPaths
 
 case class PatternStringifier(expr: ExpressionStringifier) {
 

@@ -15,7 +15,11 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{Scope, SemanticCheckResult, SemanticFeature, SemanticState}
+import org.opencypher.v9_0.ast.StatementHelper.fail
+import org.opencypher.v9_0.ast.semantics.Scope
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.scalatest.Assertions
 
 object StatementHelper extends Assertions {

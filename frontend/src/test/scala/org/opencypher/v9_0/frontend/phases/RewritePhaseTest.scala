@@ -17,7 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.StatementHelper._
+import org.opencypher.v9_0.ast.StatementHelper.RichStatement
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
@@ -25,8 +25,11 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.RewriterStepSequencer
-import org.opencypher.v9_0.rewriting.rewriters.{Never, SameNameNamer, normalizeWithAndReturnClauses}
-import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, inSequence}
+import org.opencypher.v9_0.rewriting.rewriters.Never
+import org.opencypher.v9_0.rewriting.rewriters.SameNameNamer
+import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 trait RewritePhaseTest {

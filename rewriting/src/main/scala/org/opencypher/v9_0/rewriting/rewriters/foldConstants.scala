@@ -15,8 +15,29 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{CypherExceptionFactory, Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions.Add
+import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
+import org.opencypher.v9_0.expressions.Divide
+import org.opencypher.v9_0.expressions.DoubleLiteral
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.False
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.IntegerLiteral
+import org.opencypher.v9_0.expressions.LessThan
+import org.opencypher.v9_0.expressions.Modulo
+import org.opencypher.v9_0.expressions.Multiply
+import org.opencypher.v9_0.expressions.NumberLiteral
+import org.opencypher.v9_0.expressions.Pow
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.expressions.SignedIntegerLiteral
+import org.opencypher.v9_0.expressions.Subtract
+import org.opencypher.v9_0.expressions.True
+import org.opencypher.v9_0.expressions.UnaryAdd
+import org.opencypher.v9_0.expressions.UnarySubtract
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 case class foldConstants(cypherExceptionFactory: CypherExceptionFactory) extends Rewriter {
   def apply(that: AnyRef): AnyRef =

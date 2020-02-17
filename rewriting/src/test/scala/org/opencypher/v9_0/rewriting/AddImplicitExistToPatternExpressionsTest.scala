@@ -15,15 +15,14 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.addImplicitExistToPatternExpressions
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class AddImplicitExistToPatternExpressionsTest extends CypherFunSuite with AstConstructionTestSupport {
-
-  import org.opencypher.v9_0.parser.ParserFixture.parser
 
   testRewrite(
     "MATCH (n) WHERE (n)--(m) RETURN n",

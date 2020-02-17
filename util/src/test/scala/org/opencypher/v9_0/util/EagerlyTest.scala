@@ -17,7 +17,8 @@ package org.opencypher.v9_0.util
 
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-import scala.collection.{immutable, mutable}
+import scala.collection.immutable
+import scala.collection.mutable
 
 class EagerlyTest extends CypherFunSuite {
   test("maps values of immutable maps to immutable maps") {

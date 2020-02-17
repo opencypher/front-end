@@ -16,8 +16,8 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.{expressions => exp}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.util.symbols.CTAny
 
 class CatalogDDLParserTest extends AdministrationCommandParserTestBase {
 
@@ -44,8 +44,8 @@ class CatalogDDLParserTest extends AdministrationCommandParserTestBase {
   }
 
   test("CATALOG CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION ALL FROM GRAPH bar RETURN GRAPH }") {
-    val useGraph1 = ast.FromGraph(exp.Variable("foo")(pos))(pos)
-    val useGraph2 = ast.FromGraph(exp.Variable("bar")(pos))(pos)
+    val useGraph1 = ast.FromGraph(expressions.Variable("foo")(pos))(pos)
+    val useGraph2 = ast.FromGraph(expressions.Variable("bar")(pos))(pos)
     val lhs = ast.SingleQuery(Seq(useGraph1, returnGraph))(pos)
     val rhs = ast.SingleQuery(Seq(useGraph2, returnGraph))(pos)
     val union = ast.UnionAll(lhs, rhs)(pos)
@@ -55,8 +55,8 @@ class CatalogDDLParserTest extends AdministrationCommandParserTestBase {
   }
 
   test("CATALOG CREATE GRAPH foo.bar { FROM GRAPH foo RETURN GRAPH UNION FROM GRAPH bar RETURN GRAPH }") {
-    val useGraph1 = ast.FromGraph(exp.Variable("foo")(pos))(pos)
-    val useGraph2 = ast.FromGraph(exp.Variable("bar")(pos))(pos)
+    val useGraph1 = ast.FromGraph(expressions.Variable("foo")(pos))(pos)
+    val useGraph2 = ast.FromGraph(expressions.Variable("bar")(pos))(pos)
     val lhs = ast.SingleQuery(Seq(useGraph1, returnGraph))(pos)
     val rhs = ast.SingleQuery(Seq(useGraph2, returnGraph))(pos)
     val union = ast.UnionDistinct(lhs, rhs)(pos)
@@ -129,7 +129,7 @@ class CatalogDDLParserTest extends AdministrationCommandParserTestBase {
   }
 
   test("CATALOG CREATE VIEW foo.bar($graph1, $graph2) { FROM $graph1 RETURN GRAPH }") {
-    val from = ast.FromGraph(exp.Parameter("graph1", CTAny)(pos))(pos)
+    val from = ast.FromGraph(expressions.Parameter("graph1", CTAny)(pos))(pos)
     val query = ast.SingleQuery(Seq(from,  returnGraph))(pos)
     val graphName = ast.CatalogName("foo", List("bar"))
     val params = Seq(parameter("graph1", CTAny), parameter("graph2", CTAny))

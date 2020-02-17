@@ -15,10 +15,20 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheckable, _}
-import org.opencypher.v9_0.expressions.{LabelName, PropertyKeyName, Variable, _}
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.{ASTNode, InputPosition, NonEmptyList}
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.Param
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.UnsignedIntegerLiteral
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.NonEmptyList
+import org.opencypher.v9_0.util.NonEmptyList.IterableConverter
+import org.opencypher.v9_0.util.NonEmptyList.canBuildFrom
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTRelationship
 
 sealed trait Hint extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
   def variables: NonEmptyList[Variable]
@@ -72,8 +82,6 @@ case class UsingScanHint(variable: Variable, label: LabelName)(val position: Inp
 }
 
 object UsingJoinHint {
-  import NonEmptyList._
-
   def apply(elts: Seq[Variable])(pos: InputPosition): UsingJoinHint =
     UsingJoinHint(elts.toNonEmptyListOption.getOrElse(throw new IllegalStateException("Expected non-empty sequence of variables")))(pos)
 }
@@ -110,4 +118,3 @@ case class AllRelationships(variable: Variable)(val position: InputPosition) ext
 // no longer supported non-hint legacy start items
 
 case class NodeByIds(variable: Variable, ids: Seq[UnsignedIntegerLiteral])(val position: InputPosition) extends NodeStartItem
-

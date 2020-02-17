@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_0.expressions
 
+import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.TypeSpec
-import org.opencypher.v9_0.util.{DummyPosition, InputPosition}
 
 case class DummyExpression(possibleTypes: TypeSpec,
                            position: InputPosition = DummyPosition(0)) extends Expression

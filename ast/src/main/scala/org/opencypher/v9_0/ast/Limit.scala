@@ -16,7 +16,8 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
 
 case class Limit(expression: Expression)(val position: InputPosition) extends ASTNode with ASTSlicingPhrase {
   override def name = "LIMIT" // ASTSlicingPhrase name

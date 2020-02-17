@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.DummyPosition
 
 class ProcedureCallParserTest
@@ -29,57 +29,57 @@ class ProcedureCallParserTest
   implicit val parser = Call
 
   test("CALL foo") {
-    yields(ast.UnresolvedCall(exp.Namespace()(pos), exp.ProcedureName("foo")(pos)))
+    yields(ast.UnresolvedCall(expressions.Namespace()(pos), expressions.ProcedureName("foo")(pos)))
   }
 
   test("CALL foo()") {
-    yields(ast.UnresolvedCall(exp.Namespace()(pos), exp.ProcedureName("foo")(pos), Some(Seq.empty)))
+    yields(ast.UnresolvedCall(expressions.Namespace()(pos), expressions.ProcedureName("foo")(pos), Some(Seq.empty)))
   }
 
   test("CALL foo('Test', 1+2)") {
-    yields(ast.UnresolvedCall(exp.Namespace()(pos), exp.ProcedureName("foo")(pos),
+    yields(ast.UnresolvedCall(expressions.Namespace()(pos), expressions.ProcedureName("foo")(pos),
                               Some(Vector(
-        exp.StringLiteral("Test")(pos),
-        exp.Add(
-          exp.SignedDecimalIntegerLiteral("1")(pos),
-          exp.SignedDecimalIntegerLiteral("2")(pos))(pos)
+        expressions.StringLiteral("Test")(pos),
+        expressions.Add(
+          expressions.SignedDecimalIntegerLiteral("1")(pos),
+          expressions.SignedDecimalIntegerLiteral("2")(pos))(pos)
       )))
     )
   }
 
   test("CALL foo.bar.baz('Test', 1+2)") {
-    yields(ast.UnresolvedCall(exp.Namespace(List("foo", "bar"))(pos), exp.ProcedureName("baz")(pos),
+    yields(ast.UnresolvedCall(expressions.Namespace(List("foo", "bar"))(pos), expressions.ProcedureName("baz")(pos),
                               Some(Vector(
-        exp.StringLiteral("Test")(pos),
-        exp.Add(
-          exp.SignedDecimalIntegerLiteral("1")(pos),
-          exp.SignedDecimalIntegerLiteral("2")(pos))(pos)
+        expressions.StringLiteral("Test")(pos),
+        expressions.Add(
+          expressions.SignedDecimalIntegerLiteral("1")(pos),
+          expressions.SignedDecimalIntegerLiteral("2")(pos))(pos)
       )))
     )
   }
 
   test("CALL foo YIELD bar") {
-    yields(ast.UnresolvedCall(exp.Namespace()(pos), exp.ProcedureName("foo")(pos), None, Some(ast.ProcedureResult.from
+    yields(ast.UnresolvedCall(expressions.Namespace()(pos), expressions.ProcedureName("foo")(pos), None, Some(ast.ProcedureResult.from
     (result("bar"))(pos))))
   }
 
   test("CALL foo YIELD bar, baz") {
-    yields(ast.UnresolvedCall(exp.Namespace()(pos), exp.ProcedureName("foo")(pos), None, Some(ast.ProcedureResult.from
+    yields(ast.UnresolvedCall(expressions.Namespace()(pos), expressions.ProcedureName("foo")(pos), None, Some(ast.ProcedureResult.from
     (result("bar"), result("baz"))(pos))))
   }
 
   test("CALL foo() YIELD bar") {
-    yields(ast.UnresolvedCall(exp.Namespace()(pos), exp.ProcedureName("foo")(pos), Some(Seq.empty), Some
+    yields(ast.UnresolvedCall(expressions.Namespace()(pos), expressions.ProcedureName("foo")(pos), Some(Seq.empty), Some
     (ast.ProcedureResult.from(result("bar"))(pos))))
   }
 
   test("CALL foo() YIELD bar, baz") {
-    yields(ast.UnresolvedCall(exp.Namespace()(pos), exp.ProcedureName("foo")(pos), Some(Seq.empty), Some
+    yields(ast.UnresolvedCall(expressions.Namespace()(pos), expressions.ProcedureName("foo")(pos), Some(Seq.empty), Some
     (ast.ProcedureResult.from(result("bar"), result("baz"))(pos))))
   }
 
   private def result(name: String): ast.ProcedureResultItem =
-    ast.ProcedureResultItem(exp.Variable(name)(pos))(pos)
+    ast.ProcedureResultItem(expressions.Variable(name)(pos))(pos)
 
   private implicit val pos = DummyPosition(-1)
 

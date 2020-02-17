@@ -15,14 +15,14 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.rewriting.rewriters.{nameMatchPatternElements, nameUpdatingClauses}
+import org.opencypher.v9_0
+import org.opencypher.v9_0.parser.ParserFixture.parser
+import org.opencypher.v9_0.rewriting.rewriters.nameMatchPatternElements
+import org.opencypher.v9_0.rewriting.rewriters.nameUpdatingClauses
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-
 class NameMatchPatternElementTest extends CypherFunSuite {
-
-  import org.opencypher.v9_0.parser.ParserFixture._
 
   private val exceptionFactory = OpenCypherExceptionFactory(None)
 

@@ -16,14 +16,35 @@
 package org.opencypher.v9_0.frontend.helpers
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.semantics.{SemanticState, SemanticTable}
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.PlannerName
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.CommaSep
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.FromGraph
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.Variable
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.WS
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.ch
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.keyword
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.oneOrMore
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.optional
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.rule
+import org.opencypher.v9_0.frontend.phases.BaseContains
+import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
-import org.opencypher.v9_0.frontend.phases._
-import org.opencypher.v9_0.parser.{Expressions, Statement}
+import org.opencypher.v9_0.frontend.phases.Condition
+import org.opencypher.v9_0.frontend.phases.Phase
+import org.opencypher.v9_0.parser.Expressions
+import org.opencypher.v9_0.parser.Statement
+import org.opencypher.v9_0.util.CypherException
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.symbols.CypherType
-import org.opencypher.v9_0.util.{CypherException, CypherExceptionFactory, InputPosition, ObfuscationMetadata}
-import org.parboiled.scala.{EOI, Parser, Rule1, group}
+import org.parboiled.scala.EOI
+import org.parboiled.scala.Parser
+import org.parboiled.scala.Rule1
+import org.parboiled.scala.group
 
 case object InputDataStreamTestParsing extends Phase[BaseContext, BaseState, BaseState] {
   private val parser = new InputDataStreamTestCypherParser

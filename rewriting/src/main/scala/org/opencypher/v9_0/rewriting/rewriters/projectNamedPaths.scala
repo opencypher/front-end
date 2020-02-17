@@ -15,11 +15,30 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{AliasedReturnItem, ProjectionClause}
+import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.ProjectionClause
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.AnonymousPatternPart
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.MultiRelationshipPathStep
+import org.opencypher.v9_0.expressions.NamedPatternPart
+import org.opencypher.v9_0.expressions.NilPathStep
+import org.opencypher.v9_0.expressions.NodePathStep
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.PathExpression
+import org.opencypher.v9_0.expressions.PathStep
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.ShortestPaths
+import org.opencypher.v9_0.expressions.SingleRelationshipPathStep
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.Foldable.FoldableAny
-import org.opencypher.v9_0.util.{Ref, Rewriter, topDown}
+import org.opencypher.v9_0.util.Ref
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 import scala.annotation.tailrec
 

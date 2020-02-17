@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 case object copyVariables extends  Rewriter {
   private val instance = bottomUp(Rewriter.lift { case variable: Variable => variable.copyId })

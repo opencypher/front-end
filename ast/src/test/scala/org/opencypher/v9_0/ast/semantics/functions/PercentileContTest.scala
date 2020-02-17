@@ -16,7 +16,9 @@
 package org.opencypher.v9_0.ast.semantics.functions
 
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
 
 class PercentileContTest extends FunctionTestBase("percentileCont") {
 

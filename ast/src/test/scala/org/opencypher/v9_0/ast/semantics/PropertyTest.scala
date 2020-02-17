@@ -15,8 +15,15 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.expressions.{PropertyKeyName, Variable}
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTDate
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTPoint
+import org.opencypher.v9_0.util.symbols.CTRelationship
 
 class PropertyTest extends SemanticFunSuite {
 

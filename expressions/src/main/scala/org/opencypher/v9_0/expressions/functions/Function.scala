@@ -15,7 +15,11 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.FunctionTypeSignature
+import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.InputPosition
 
 object Function {

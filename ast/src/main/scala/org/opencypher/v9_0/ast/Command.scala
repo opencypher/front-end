@@ -15,11 +15,17 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticExpressionCheck}
-import org.opencypher.v9_0.expressions.{LabelName, PropertyKeyName, RelTypeName, Variable, _}
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.symbols.{CypherType, _}
-
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.CypherType
 
 sealed trait Command extends Statement {
   override def returnColumns = List.empty

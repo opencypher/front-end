@@ -16,8 +16,11 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.{CountStar, Property, PropertyKeyName}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.CountStar
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSupport {

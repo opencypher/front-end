@@ -16,7 +16,12 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.DummyExpression
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTNumber
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.TypeSpec
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SemanticAnalysisToolingTest extends CypherFunSuite {

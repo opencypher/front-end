@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.util
 
-import scala.collection.{immutable, mutable}
+import scala.collection.immutable
+import scala.collection.mutable
 
 object Eagerly {
 

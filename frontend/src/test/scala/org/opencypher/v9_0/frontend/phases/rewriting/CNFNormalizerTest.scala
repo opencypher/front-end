@@ -15,13 +15,21 @@
  */
 package org.opencypher.v9_0.frontend.phases.rewriting
 
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.when
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
-import org.opencypher.v9_0.frontend.phases.{CNFNormalizer, CompilationPhaseTracer, InternalNotificationLogger, Monitors, _}
-import org.opencypher.v9_0.rewriting.{AstRewritingMonitor, PredicateTestSupport}
+import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.CNFNormalizer
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
+import org.opencypher.v9_0.frontend.phases.InternalNotificationLogger
+import org.opencypher.v9_0.frontend.phases.Monitors
+import org.opencypher.v9_0.frontend.phases.rewriting.TestContext.mock
+import org.opencypher.v9_0.rewriting.AstRewritingMonitor
+import org.opencypher.v9_0.rewriting.PredicateTestSupport
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{CypherExceptionFactory, Rewriter}
 import org.scalatest.mock.MockitoSugar
 
 class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {

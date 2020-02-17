@@ -15,9 +15,14 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.symbols.{CTInteger, CTList, CTNode, CTPath, CTString, TypeSpec}
 import org.opencypher.v9_0.ast.semantics
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTPath
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.TypeSpec
 
 object ScopeTestHelper {
 

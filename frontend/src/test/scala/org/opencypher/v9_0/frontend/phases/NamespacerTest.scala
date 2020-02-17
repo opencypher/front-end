@@ -15,9 +15,16 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.ProjectingUnionDistinct
+import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.Union.UnionMapping
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, ProjectingUnionDistinct, Query, Statement, Where}
-import org.opencypher.v9_0.expressions.{Expression, HasLabels, LabelName, NodePattern}
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with RewritePhaseTest {
@@ -179,5 +186,3 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
       }
   }
 }
-
-

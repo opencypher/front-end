@@ -15,12 +15,14 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.NotEquals
+import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.expressions.{Equals, Not, NotEquals}
-
 
 class NormalizeNotEqualsTest extends CypherFunSuite {
 

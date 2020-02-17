@@ -15,10 +15,14 @@
  */
 package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext.failWith
-import org.opencypher.v9_0.frontend.helpers.{ErrorCollectingContext, InputDataStreamTestInitialState, InputDataStreamTestParsing, NoPlannerName}
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestInitialState
+import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestParsing
+import org.opencypher.v9_0.frontend.helpers.NoPlannerName
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {

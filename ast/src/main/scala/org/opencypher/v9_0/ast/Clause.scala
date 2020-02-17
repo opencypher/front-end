@@ -15,15 +15,71 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.{error, success}
-import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck, SemanticState, _}
+import org.opencypher.v9_0.ast.connectedComponents.RichConnectedComponent
+import org.opencypher.v9_0.ast.semantics.Scope
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.error
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
+import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticError
+import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.ast.semantics.TypeGenerator
+import org.opencypher.v9_0.ast.semantics.traversableOnceSemanticChecking
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.Ands
+import org.opencypher.v9_0.expressions.Contains
+import org.opencypher.v9_0.expressions.EndsWith
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions.functions.{Distance, Exists}
-import org.opencypher.v9_0.expressions.{functions, _}
-import org.opencypher.v9_0.util.Foldable._
-import org.opencypher.v9_0.util._
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.InequalityExpression
+import org.opencypher.v9_0.expressions.IsNotNull
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.MapExpression
+import org.opencypher.v9_0.expressions.Namespace
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.Ors
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.ProcedureName
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.StartsWith
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.expressions.containsAggregate
+import org.opencypher.v9_0.expressions.functions
+import org.opencypher.v9_0.expressions.functions.Distance
+import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.CartesianProductNotification
+import org.opencypher.v9_0.util.DeprecatedStartNotification
+import org.opencypher.v9_0.util.Foldable.FoldableAny
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTPath
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.CTString
 
 sealed trait Clause extends ASTNode with SemanticCheckable {
   def name: String
@@ -412,7 +468,6 @@ case class Match(
   }
 
   private def checkForCartesianProducts: SemanticCheck = (state: SemanticState) => {
-    import connectedComponents._
     val cc = connectedComponents(pattern.patternParts)
     //if we have multiple connected components we will have
     //a cartesian product

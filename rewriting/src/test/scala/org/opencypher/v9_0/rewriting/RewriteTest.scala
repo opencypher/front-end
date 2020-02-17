@@ -16,10 +16,12 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
+import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticChecker
 import org.opencypher.v9_0.parser.ParserFixture.parser
-import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, Rewriter}
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 trait RewriteTest {

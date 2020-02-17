@@ -16,8 +16,31 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util._
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.ExtractExpression
+import org.opencypher.v9_0.expressions.ExtractScope
+import org.opencypher.v9_0.expressions.FilterExpression
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.ListComprehension
+import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
+import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
+import org.opencypher.v9_0.util.DeprecatedDropConstraintSyntax
+import org.opencypher.v9_0.util.DeprecatedDropIndexSyntax
+import org.opencypher.v9_0.util.DeprecatedFunctionNotification
+import org.opencypher.v9_0.util.DeprecatedParameterSyntax
+import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
+import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
+import org.opencypher.v9_0.util.InternalNotification
+import org.opencypher.v9_0.util.LengthOnNonPathNotification
 
 import scala.collection.immutable.TreeMap
 

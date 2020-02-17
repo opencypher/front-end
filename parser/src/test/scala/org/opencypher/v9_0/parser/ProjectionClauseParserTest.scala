@@ -16,9 +16,10 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Clause}
-import org.parboiled.scala._
+import org.parboiled.scala.Rule1
 
 class ProjectionClauseParserTest
   extends ParserAstTest[ast.Clause]

@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.expressions.TypeSignatures
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTPath
 
 case object Length extends Function with TypeSignatures {
   def name = "length"

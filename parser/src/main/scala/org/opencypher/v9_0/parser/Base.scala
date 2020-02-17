@@ -15,11 +15,27 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.expressions.{Namespace => ASTNamespace}
-import org.opencypher.v9_0.util.{CypherExceptionFactory, InputPosition}
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InputPosition
 import org.parboiled.Context
-import org.parboiled.errors.{InvalidInputError, ParseError}
-import org.parboiled.scala.{Parser, _}
+import org.parboiled.errors.InvalidInputError
+import org.parboiled.errors.ParseError
+import org.parboiled.scala.ANY
+import org.parboiled.scala.EOI
+import org.parboiled.scala.Parser
+import org.parboiled.scala.ReductionRule1
+import org.parboiled.scala.ReductionRule2
+import org.parboiled.scala.ReportingParseRunner
+import org.parboiled.scala.Rule0
+import org.parboiled.scala.Rule1
+import org.parboiled.scala.Rule2
+import org.parboiled.scala.Rule3
+import org.parboiled.scala.Rule4
+import org.parboiled.scala.Rule5
+import org.parboiled.scala.Rule6
+import org.parboiled.scala.Rule7
+import org.parboiled.scala.group
 import org.parboiled.support.IndexRange
 
 trait Base extends Parser {
@@ -113,8 +129,8 @@ trait Base extends Parser {
       (oneOrMore(WS ~~ SymbolicNameString ~~ WS, separator = ",") memoMismatches).suppressSubnodes
     }
 
-  def Namespace: Rule1[ASTNamespace] = rule("namespace of a procedure") {
-    zeroOrMore(SymbolicNameString ~ ".") ~~>> (ASTNamespace(_))
+  def Namespace: Rule1[expressions.Namespace] = rule("namespace of a procedure") {
+    zeroOrMore(SymbolicNameString ~ ".") ~~>> (expressions.Namespace(_))
   }
 
   def parseOrThrow[T](input: String, cypherExceptionFactory: CypherExceptionFactory, initialOffset: Option[InputPosition], rule: Rule1[Seq[T]]): T = {

@@ -15,7 +15,11 @@
  */
 package org.opencypher.v9_0.ast.semantics.functions
 
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTPoint
+import org.opencypher.v9_0.util.symbols.CTString
 
 class PointTest extends FunctionTestBase("point")  {
 

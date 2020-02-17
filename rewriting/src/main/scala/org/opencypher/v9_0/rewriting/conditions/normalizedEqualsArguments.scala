@@ -15,8 +15,11 @@
  */
 package org.opencypher.v9_0.rewriting.conditions
 
-import org.opencypher.v9_0.expressions._
 import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.rewriting.Condition
 
 case object normalizedEqualsArguments extends Condition {

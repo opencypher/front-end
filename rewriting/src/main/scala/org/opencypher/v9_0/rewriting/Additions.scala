@@ -15,9 +15,22 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast.{CreateIndexNewSyntax, CreateNodeKeyConstraint, CreateNodePropertyExistenceConstraint, CreateRelationshipPropertyExistenceConstraint, CreateUniquePropertyConstraint, DbmsPrivilege, DefaultDatabaseScope, DenyPrivilege, DropConstraintOnName, DropIndexOnName, GrantPrivilege, RevokePrivilege, Statement, UserManagementAction}
+import org.opencypher.v9_0.ast.CreateIndexNewSyntax
+import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
+import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
+import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
+import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
+import org.opencypher.v9_0.ast.DbmsPrivilege
+import org.opencypher.v9_0.ast.DefaultDatabaseScope
+import org.opencypher.v9_0.ast.DenyPrivilege
+import org.opencypher.v9_0.ast.DropConstraintOnName
+import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.GrantPrivilege
+import org.opencypher.v9_0.ast.RevokePrivilege
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UserManagementAction
 import org.opencypher.v9_0.expressions.ExistsSubClause
-import org.opencypher.v9_0.util._
+import org.opencypher.v9_0.util.CypherExceptionFactory
 
 object Additions {
 

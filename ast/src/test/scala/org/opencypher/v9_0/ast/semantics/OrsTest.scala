@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.{Ors, DummyExpression}
+import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols.CTBoolean
 

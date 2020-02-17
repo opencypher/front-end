@@ -16,8 +16,11 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.expressions.{Variable, _}
-import org.opencypher.v9_0.util.Foldable._
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.Variable
 
 object inliningContextCreator extends (ast.Statement => InliningContext) {
 

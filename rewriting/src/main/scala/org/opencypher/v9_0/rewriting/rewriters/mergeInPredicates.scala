@@ -15,9 +15,16 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.Foldable._
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.BinaryOperatorExpression
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.False
+import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 /**
   * Merges multiple IN predicates into one.

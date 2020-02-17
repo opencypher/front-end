@@ -16,8 +16,13 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.expressions.{LabelName, Property, Variable}
-import org.parboiled.scala._
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.Variable
+import org.parboiled.scala.Parser
+import org.parboiled.scala.Rule1
+import org.parboiled.scala.Rule3
+import org.parboiled.scala.group
 
 trait Command extends Parser
   with Expressions

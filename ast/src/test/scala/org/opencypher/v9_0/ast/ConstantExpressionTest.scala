@@ -15,10 +15,13 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.expressions.ConstantExpression
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ConstantExpressionTest extends CypherFunSuite {
   test("tests") {

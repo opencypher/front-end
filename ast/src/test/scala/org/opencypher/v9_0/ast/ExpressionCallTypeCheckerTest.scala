@@ -15,12 +15,24 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticExpressionCheck, SemanticState}
-import org.opencypher.v9_0.expressions.{DummyExpression, Expression}
-import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTNumber
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.TypeSpec
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ExpressionCallTypeCheckerTest extends CypherFunSuite {
 

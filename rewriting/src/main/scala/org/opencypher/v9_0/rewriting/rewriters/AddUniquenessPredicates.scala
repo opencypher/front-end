@@ -15,10 +15,29 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Clause, Match, Merge, Where}
+import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.Merge
+import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.{Expression, _}
-import org.opencypher.v9_0.util._
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.AnyIterablePredicate
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.NoneIterablePredicate
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.ScopeExpression
+import org.opencypher.v9_0.expressions.ShortestPaths
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = SameNameNamer) extends Rewriter {
 

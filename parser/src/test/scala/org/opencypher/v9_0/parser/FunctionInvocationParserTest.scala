@@ -15,11 +15,11 @@
  */
 package org.opencypher.v9_0.parser
 
+import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.{expressions => exp}
 
 class FunctionInvocationParserTest
-  extends ParserAstTest[exp.FunctionInvocation]
+  extends ParserAstTest[expressions.FunctionInvocation]
     with Expressions
     with Literals
     with Base
@@ -28,27 +28,27 @@ class FunctionInvocationParserTest
   implicit val parser = FunctionInvocation
 
   test("foo()") {
-    yields(exp.FunctionInvocation(exp.Namespace()(pos), exp.FunctionName("foo")(pos), distinct = false, Vector.empty))
+    yields(expressions.FunctionInvocation(expressions.Namespace()(pos), expressions.FunctionName("foo")(pos), distinct = false, Vector.empty))
   }
 
   test("foo('test', 1 + 2)") {
-    yields(exp.FunctionInvocation(exp.Namespace()(pos), exp.FunctionName("foo")(pos), distinct = false, Vector(
-      exp.StringLiteral("test")(pos),
-      exp.Add(
-        exp.SignedDecimalIntegerLiteral("1")(pos),
-        exp.SignedDecimalIntegerLiteral("2")(pos))(pos)
+    yields(expressions.FunctionInvocation(expressions.Namespace()(pos), expressions.FunctionName("foo")(pos), distinct = false, Vector(
+      expressions.StringLiteral("test")(pos),
+      expressions.Add(
+        expressions.SignedDecimalIntegerLiteral("1")(pos),
+        expressions.SignedDecimalIntegerLiteral("2")(pos))(pos)
     )))
   }
   test("my.namespace.foo()") {
-    yields(exp.FunctionInvocation(exp.Namespace(List("my", "namespace"))(pos), exp.FunctionName("foo")(pos), distinct = false, Vector.empty))
+    yields(expressions.FunctionInvocation(expressions.Namespace(List("my", "namespace"))(pos), expressions.FunctionName("foo")(pos), distinct = false, Vector.empty))
   }
 
   test("my.namespace.foo('test', 1 + 2)") {
-    yields(exp.FunctionInvocation(exp.Namespace(List("my", "namespace"))(pos), exp.FunctionName("foo")(pos), distinct = false, Vector(
-      exp.StringLiteral("test")(pos),
-      exp.Add(
-        exp.SignedDecimalIntegerLiteral("1")(pos),
-        exp.SignedDecimalIntegerLiteral("2")(pos))(pos)
+    yields(expressions.FunctionInvocation(expressions.Namespace(List("my", "namespace"))(pos), expressions.FunctionName("foo")(pos), distinct = false, Vector(
+      expressions.StringLiteral("test")(pos),
+      expressions.Add(
+        expressions.SignedDecimalIntegerLiteral("1")(pos),
+        expressions.SignedDecimalIntegerLiteral("2")(pos))(pos)
     )))
   }
 

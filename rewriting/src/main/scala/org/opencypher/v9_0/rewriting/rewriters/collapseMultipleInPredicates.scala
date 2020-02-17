@@ -15,10 +15,13 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.{Expression, In, ListLiteral}
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.{In, Ors}
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.Ors
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 import scala.collection.immutable.Iterable
 

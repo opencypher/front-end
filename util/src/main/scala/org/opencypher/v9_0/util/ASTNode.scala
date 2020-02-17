@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.util
 
-import org.opencypher.v9_0.util.Rewritable._
+import org.opencypher.v9_0.util.Rewritable.IteratorEq
 
 trait ASTNode extends Product with Foldable with Rewritable {
 

@@ -15,7 +15,9 @@
  */
 package org.opencypher.v9_0.ast.semantics.functions
 
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTNode
 
 class AbsTest extends FunctionTestBase("abs") {
 

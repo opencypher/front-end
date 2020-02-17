@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
+import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.util.AssertionUtils.ifAssertionsEnabled
 
 trait Transformer[-C <: BaseContext, -FROM, TO] {

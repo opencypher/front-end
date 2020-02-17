@@ -16,8 +16,9 @@
 package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.generator.AstGenerator
-import org.opencypher.v9_0.ast.generator.AstShrinker
-import org.opencypher.v9_0.ast.prettifier.{ExpressionStringifier, Prettifier}
+import org.opencypher.v9_0.ast.generator.AstShrinker.shrinkQuery
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
+import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.parser.CypherParser
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
@@ -33,8 +34,6 @@ class PrettifierPropertyTest extends CypherFunSuite
   val gen = new AstGenerator(simpleStrings = false)
 
   implicit val config: PropertyCheckConfiguration = PropertyCheckConfiguration(minSuccessful = 500)
-
-  import AstShrinker.shrinkQuery
 
   test("Prettifier output should parse to the same ast") {
     forAll(gen._query) { query =>

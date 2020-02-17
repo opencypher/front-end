@@ -16,8 +16,19 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTString
 
 class PatternComprehensionTest extends SemanticFunSuite {
 

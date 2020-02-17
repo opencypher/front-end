@@ -15,11 +15,14 @@
  */
 package org.opencypher.v9_0.frontend.phases.rewriting
 
-import org.opencypher.v9_0.ast.{AstConstructionTestSupport, Statement}
-import org.opencypher.v9_0.frontend.phases.{Monitors, isolateAggregation}
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.frontend.phases.Monitors
+import org.opencypher.v9_0.frontend.phases.isolateAggregation
 import org.opencypher.v9_0.rewriting.RewriteTest
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
-import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, inSequence}
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {

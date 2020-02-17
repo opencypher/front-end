@@ -16,7 +16,16 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.ast.ActionResource
+import org.opencypher.v9_0.ast.AdminAction
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.DatabaseAction
+import org.opencypher.v9_0.ast.GraphScope
+import org.opencypher.v9_0.ast.PrivilegeQualifier
+import org.opencypher.v9_0.ast.PrivilegeType
+import org.opencypher.v9_0.ast.RevokeBothType
+import org.opencypher.v9_0.ast.RevokeDenyType
+import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.util.InputPosition
 import org.parboiled.scala.Rule1
 

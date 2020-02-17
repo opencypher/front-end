@@ -15,11 +15,16 @@
  */
 package org.opencypher.v9_0.frontend
 
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.parser.CypherParser
-import org.opencypher.v9_0.util.{ASTNode, OpenCypherExceptionFactory, Rewriter, bottomUp}
-import org.scalatest.{Assertion, Matchers}
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
+import org.scalatest.Assertion
+import org.scalatest.Matchers
 
 trait PrettifierTestUtils extends Matchers {
 

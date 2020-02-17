@@ -15,9 +15,19 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{FreshIdNameGenerator, InputPosition}
-import org.opencypher.v9_0.expressions.{And, Equals, Parameter, Variable}
+import org.opencypher.v9_0.expressions.AllIterablePredicate
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.MapExpression
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.FreshIdNameGenerator
+import org.opencypher.v9_0.util.InputPosition
 
 object PropertyPredicateNormalizer extends MatchPredicateNormalizer {
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {

@@ -16,7 +16,9 @@
 package org.opencypher.v9_0.parser
 
 import org.parboiled.Context
-import org.parboiled.scala._
+import org.parboiled.scala.ANY
+import org.parboiled.scala.Rule1
+import org.parboiled.scala.group
 
 trait Strings extends Base {
 

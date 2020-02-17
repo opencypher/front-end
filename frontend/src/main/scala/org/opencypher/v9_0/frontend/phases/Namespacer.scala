@@ -15,11 +15,15 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.ProcedureResultItem
+import org.opencypher.v9_0.ast.ProjectingUnionAll
+import org.opencypher.v9_0.ast.ProjectingUnionDistinct
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UnionAll
+import org.opencypher.v9_0.ast.UnionDistinct
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.ast.semantics.SymbolUse
-import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast._
 import org.opencypher.v9_0.expressions.ProcedureOutput
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase

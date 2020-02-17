@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.{FunctionTypeSignature, TypeSignatures}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.FunctionTypeSignature
+import org.opencypher.v9_0.expressions.TypeSignatures
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
 
 case object PercentileDisc extends AggregatingFunction with TypeSignatures {
   def name = "percentileDisc"

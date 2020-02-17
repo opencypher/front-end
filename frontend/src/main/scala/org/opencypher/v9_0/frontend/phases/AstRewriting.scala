@@ -18,8 +18,15 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.RewriterStepSequencer
-import org.opencypher.v9_0.rewriting.conditions._
-import org.opencypher.v9_0.rewriting.rewriters.{InnerVariableNamer, LiteralExtraction}
+import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
+import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
+import org.opencypher.v9_0.rewriting.conditions.noDuplicatesInReturnItems
+import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
+import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
+import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
+import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
 
 case class AstRewriting(sequencer: String => RewriterStepSequencer,
                         literalExtraction: LiteralExtraction,

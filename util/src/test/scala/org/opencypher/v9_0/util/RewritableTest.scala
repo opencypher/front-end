@@ -15,6 +15,12 @@
  */
 package org.opencypher.v9_0.util
 
+import org.opencypher.v9_0.util.Foldable.TreeAny
+import org.opencypher.v9_0.util.Rewritable.IteratorEq
+import org.opencypher.v9_0.util.RewritableTest.Add
+import org.opencypher.v9_0.util.RewritableTest.Options
+import org.opencypher.v9_0.util.RewritableTest.Pos
+import org.opencypher.v9_0.util.RewritableTest.Val
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 import scala.collection.mutable.ListBuffer
@@ -44,7 +50,6 @@ object RewritableTest {
 }
 
 class RewritableTest extends CypherFunSuite {
-  import RewritableTest._
 
   test("topDown should be identical when no rule matches") {
     val ast = Add(Val(1), Add(Val(2), Val(3)))
@@ -101,7 +106,7 @@ class RewritableTest extends CypherFunSuite {
   }
 
   test("topDown should duplicate terms with pair parameters") {
-    val ast = Add(Val(1), Pos((Val(2), Val(3))))
+    val ast = Add(Val(1), RewritableTest.Pos((Val(2), Val(3))))
 
     val result = ast.rewrite(topDown(Rewriter.lift {
       case Val(_) => Val(99)
@@ -199,9 +204,6 @@ class RewritableTest extends CypherFunSuite {
   }
 
   test("should not create unnecessary copies of objects that have Seq's as Children (when using ListBuffer)") {
-    import Foldable._
-    import Rewritable._
-
     case class Thing(texts: Seq[String]) extends Rewritable {
       def dup(children: Seq[AnyRef]): this.type =
         if (children.iterator eqElements this.children)

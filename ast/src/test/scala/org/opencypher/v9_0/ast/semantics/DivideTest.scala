@@ -17,7 +17,10 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTDuration
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
 
 class DivideTest extends InfixExpressionTestBase(Divide(_, _)(DummyPosition(0))) {
 

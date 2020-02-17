@@ -15,12 +15,19 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult._
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheck, SemanticCheckResult, SemanticError, SemanticFeature, SemanticState}
-import org.opencypher.v9_0.expressions.{LogicalVariable, Parameter, SensitiveStringLiteral, Variable}
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
+import org.opencypher.v9_0.ast.semantics.SemanticError
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.SensitiveStringLiteral
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.symbols._
-
+import org.opencypher.v9_0.util.symbols.CTGraphRef
 
 sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
 

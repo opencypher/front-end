@@ -15,11 +15,20 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.{DummyExpression, Property, Variable}
+import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.util.symbols.{CTAny, CTInteger, CTMap, CTNode, CTNumber, CTRelationship, CTString, TypeSpec}
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTNumber
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.TypeSpec
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.expressions.{PropertyKeyName, Variable}
 
 class SemanticStateTest extends CypherFunSuite {
 

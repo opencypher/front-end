@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions.{CountStar, containsAggregate}
+import org.opencypher.v9_0.expressions.CountStar
+import org.opencypher.v9_0.expressions.containsAggregate
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ContainsAggregateTest extends CypherFunSuite with AstConstructionTestSupport {

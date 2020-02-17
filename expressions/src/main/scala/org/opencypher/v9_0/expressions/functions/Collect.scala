@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.{TypeSignature, TypeSignatures}
-import org.opencypher.v9_0.util.symbols.{CTAny, CTList}
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.expressions.TypeSignatures
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTList
 
 case object Collect extends AggregatingFunction with TypeSignatures {
   def name = "collect"

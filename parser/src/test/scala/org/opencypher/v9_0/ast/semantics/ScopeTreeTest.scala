@@ -15,11 +15,16 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.ast.StatementHelper._
-import org.opencypher.v9_0.ast.semantics.ScopeTestHelper._
+import org.opencypher.v9_0.ast.StatementHelper.RichStatement
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.allSymbol
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intCollectionCollectionSymbol
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intCollectionSymbol
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intSymbol
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.nodeSymbol
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.pathCollectionSymbol
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.scope
 import org.opencypher.v9_0.parser.ParserFixture.parse
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-
 
 /*
 ScopeTree is tested here because we want to be able to use the parser for the testing
@@ -233,4 +238,3 @@ class ScopeTreeTest extends CypherFunSuite {
     actual should equal(expected)
   }
 }
-

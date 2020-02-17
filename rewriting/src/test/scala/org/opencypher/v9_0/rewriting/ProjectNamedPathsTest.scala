@@ -15,11 +15,35 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AscSortItem
+import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.OrderBy
+import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.ast.{Where, _}
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.rewriting.rewriters.{expandStar, normalizeWithAndReturnClauses, projectNamedPaths}
-import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, inSequence}
+import org.opencypher.v9_0.expressions.CountStar
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.MultiRelationshipPathStep
+import org.opencypher.v9_0.expressions.NilPathStep
+import org.opencypher.v9_0.expressions.NodePathStep
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.PathExpression
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.SingleRelationshipPathStep
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.rewriters.expandStar
+import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
+import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport {

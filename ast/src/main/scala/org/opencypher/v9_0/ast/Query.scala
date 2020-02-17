@@ -16,10 +16,20 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.Union.UnionMapping
+import org.opencypher.v9_0.ast.semantics.Scope
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
-import org.opencypher.v9_0.ast.semantics.{Scope, SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticState, _}
-import org.opencypher.v9_0.expressions.{LogicalVariable, Variable}
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticError
+import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
 
 import scala.annotation.tailrec
 

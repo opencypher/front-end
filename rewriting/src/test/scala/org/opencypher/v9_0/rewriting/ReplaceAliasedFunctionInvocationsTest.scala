@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.rewriting.rewriters.replaceAliasedFunctionInvocations
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

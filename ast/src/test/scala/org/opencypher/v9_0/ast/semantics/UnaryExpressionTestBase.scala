@@ -15,8 +15,9 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.{DummyExpression, Expression}
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.util.symbols.TypeSpec
 import org.scalatest.Assertion
 
 abstract class UnaryExpressionTestBase(ctr: Expression => Expression) extends SemanticFunSuite {

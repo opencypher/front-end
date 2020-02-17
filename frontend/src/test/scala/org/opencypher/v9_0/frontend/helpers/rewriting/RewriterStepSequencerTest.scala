@@ -15,7 +15,13 @@
  */
 package org.opencypher.v9_0.frontend.helpers.rewriting
 
-import org.opencypher.v9_0.rewriting._
+import org.opencypher.v9_0.rewriting.ApplyRewriter
+import org.opencypher.v9_0.rewriting.DisableRewriterCondition
+import org.opencypher.v9_0.rewriting.EnableRewriterCondition
+import org.opencypher.v9_0.rewriting.RewriterCondition
+import org.opencypher.v9_0.rewriting.RewriterContract
+import org.opencypher.v9_0.rewriting.RewriterStepSequencer
+import org.opencypher.v9_0.rewriting.RunConditionRewriter
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

@@ -15,7 +15,15 @@
  */
 package org.opencypher.v9_0.frontend.symbols
 
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTNumber
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.TypeRange
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class TypeRangeTest extends CypherFunSuite {

@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.util
 
-import org.opencypher.v9_0.util.OpenCypherExceptionFactory._
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory.ArithmeticException
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 
 object OpenCypherExceptionFactory {
 

@@ -17,9 +17,11 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.Where
-import org.opencypher.v9_0.{expressions => exp}
+import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.InputPosition
-import org.parboiled.scala._
+import org.parboiled.scala.Parser
+import org.parboiled.scala.Rule1
+import org.parboiled.scala.group
 
 trait ProcedureCalls {
   self: Parser with Base with Expressions with Literals =>
@@ -28,7 +30,7 @@ trait ProcedureCalls {
     group(keyword("CALL") ~~ Namespace ~ ProcedureName ~ ProcedureArguments ~~ ProcedureResult) ~~>> (ast.UnresolvedCall(_, _, _, _))
   }
 
-  private def ProcedureArguments: Rule1[Option[Seq[exp.Expression]]] = rule("arguments to a procedure") {
+  private def ProcedureArguments: Rule1[Option[Seq[expressions.Expression]]] = rule("arguments to a procedure") {
     optional(group("(" ~~
       zeroOrMore(Expression, separator = CommaSep) ~~ ")"
     ) ~~> (_.toIndexedSeq))
@@ -63,8 +65,8 @@ trait ProcedureCalls {
       Variable ~~>> (ast.ProcedureResultItem(_))
     }
 
-  private def ProcedureOutput: Rule1[exp.ProcedureOutput] =
+  private def ProcedureOutput: Rule1[expressions.ProcedureOutput] =
     rule("procedure output") {
-      SymbolicNameString ~~>> (exp.ProcedureOutput(_))
+      SymbolicNameString ~~>> (expressions.ProcedureOutput(_))
     }
 }

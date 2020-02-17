@@ -15,9 +15,13 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{Rewriter, topDown}
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.InequalityExpression
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.functions
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 case object normalizeArgumentOrder extends Rewriter {
 

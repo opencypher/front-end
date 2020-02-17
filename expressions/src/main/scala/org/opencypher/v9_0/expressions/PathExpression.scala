@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.expressions
 
-import org.opencypher.v9_0.util.Rewritable._
-import org.opencypher.v9_0.util.{Foldable, InputPosition, Rewritable}
+import org.opencypher.v9_0.util.Foldable
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.Rewritable
+import org.opencypher.v9_0.util.Rewritable.IteratorEq
 
 sealed trait PathStep extends Product with Foldable with Rewritable {
 

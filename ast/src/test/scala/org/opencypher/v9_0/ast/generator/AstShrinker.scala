@@ -16,7 +16,9 @@
 package org.opencypher.v9_0.ast.generator
 
 import org.opencypher.v9_0.ast.Query
-import org.opencypher.v9_0.util.{ASTNode, Rewriter, bottomUp}
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 import org.scalacheck.Shrink
 
 import scala.util.Random
@@ -90,6 +92,5 @@ object AstShrinker {
         case o: Option[_] if o.isDefined => optCase(o)
       }))
   }
-
 
 }

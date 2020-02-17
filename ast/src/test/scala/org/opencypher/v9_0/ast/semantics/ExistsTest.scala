@@ -16,7 +16,15 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.util.symbols.CTBoolean
 
 class ExistsTest extends SemanticFunSuite {

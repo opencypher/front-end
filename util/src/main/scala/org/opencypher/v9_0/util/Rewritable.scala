@@ -17,12 +17,11 @@ package org.opencypher.v9_0.util
 
 import java.lang.reflect.Method
 
-import org.opencypher.v9_0.util.Foldable._
-import org.opencypher.v9_0.util.Rewritable._
+import org.opencypher.v9_0.util.Foldable.TreeAny
+import org.opencypher.v9_0.util.Rewritable.RewritableAny
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.{HashMap => MutableHashMap}
 
 object Rewriter {
   def lift(f: PartialFunction[AnyRef, AnyRef]): Rewriter =
@@ -52,9 +51,9 @@ object Rewritable {
     }
   }
 
-  private val productCopyConstructors = new ThreadLocal[MutableHashMap[Class[_], Method]]() {
-    override def initialValue: MutableHashMap[Class[_], Method] =
-      new MutableHashMap[Class[_], Method]
+  private val productCopyConstructors = new ThreadLocal[mutable.HashMap[Class[_], Method]]() {
+    override def initialValue: mutable.HashMap[Class[_], Method] =
+      new mutable.HashMap[Class[_], Method]
   }
 
   def copyConstructor(product: Product): Method = {

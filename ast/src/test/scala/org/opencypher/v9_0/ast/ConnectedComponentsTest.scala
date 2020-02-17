@@ -15,12 +15,13 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.connectedComponents.ComponentPart
+import org.opencypher.v9_0.ast.connectedComponents.ConnectedComponent
 import org.opencypher.v9_0.expressions.LogicalVariable
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ConnectedComponentsTest extends CypherFunSuite {
-  import connectedComponents._
 
   test("(a)->(b), (c)->(d) has two connected components") {
     val disconnected = connectedComponents(Vector(

@@ -15,12 +15,14 @@
  */
 package org.opencypher.v9_0.frontend.helpers
 
+import org.opencypher.v9_0.util.Fby
+import org.opencypher.v9_0.util.Last
+import org.opencypher.v9_0.util.NonEmptyList
+import org.opencypher.v9_0.util.NonEmptyList.IterableConverter
+import org.opencypher.v9_0.util.NonEmptyList.canBuildFrom
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.util.{Fby, Last, NonEmptyList}
 
 class NonEmptyListTest extends CypherFunSuite {
-
-  import NonEmptyList._
 
   test("Should construct NonEmptyLists") {
     NonEmptyList(1) should equal(Last(1))

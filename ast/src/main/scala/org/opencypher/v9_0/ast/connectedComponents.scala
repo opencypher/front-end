@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.expressions.{LogicalVariable, NodePattern}
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.PatternPart
 
 import scala.annotation.tailrec

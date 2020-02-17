@@ -15,10 +15,17 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions._
 
 class FindDuplicateRelationshipsTest extends CypherFunSuite {
 

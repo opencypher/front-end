@@ -15,7 +15,10 @@
  */
 package org.opencypher.v9_0.rewriting.conditions
 
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

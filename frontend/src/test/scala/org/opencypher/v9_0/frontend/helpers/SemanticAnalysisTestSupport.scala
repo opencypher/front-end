@@ -17,9 +17,14 @@ package org.opencypher.v9_0.frontend.helpers
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.PlannerName
-import org.opencypher.v9_0.frontend.phases.{BaseContext, CompilationPhaseTracer, Monitors, devNullLogger}
-import org.opencypher.v9_0.util.{CypherExceptionFactory, OpenCypherExceptionFactory}
-import org.scalatest.matchers.{MatchResult, Matcher}
+import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
+import org.opencypher.v9_0.frontend.phases.Monitors
+import org.opencypher.v9_0.frontend.phases.devNullLogger
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.scalatest.matchers.MatchResult
+import org.scalatest.matchers.Matcher
 
 class ErrorCollectingContext extends BaseContext {
 

@@ -15,11 +15,28 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions.{Variable, _}
-import org.opencypher.v9_0.rewriting.conditions.{aggregationsAreIsolated, hasAggregateButIsNotAggregate}
+import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.ProjectionClause
+import org.opencypher.v9_0.ast.ReturnItem
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
+import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.expressions.DesugaredMapProjection
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.IsAggregate
+import org.opencypher.v9_0.expressions.IterablePredicateExpression
+import org.opencypher.v9_0.expressions.ListComprehension
+import org.opencypher.v9_0.expressions.ReduceExpression
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.conditions.aggregationsAreIsolated
+import org.opencypher.v9_0.rewriting.conditions.hasAggregateButIsNotAggregate
+import org.opencypher.v9_0.util.AggregationNameGenerator
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
-import org.opencypher.v9_0.util.{AggregationNameGenerator, Rewriter, bottomUp, _}
+import org.opencypher.v9_0.util.topDown
 
 /**
   * This rewriter makes sure that aggregations are on their own in RETURN/WITH clauses, so

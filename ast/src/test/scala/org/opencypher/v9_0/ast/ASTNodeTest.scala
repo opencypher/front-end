@@ -15,8 +15,13 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.util._
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.util.topDown
 
 class ASTNodeTest extends CypherFunSuite {
 

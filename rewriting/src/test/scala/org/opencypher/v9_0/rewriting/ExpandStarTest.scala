@@ -15,15 +15,16 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.rewriting.rewriters.{expandStar, normalizeWithAndReturnClauses}
-import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, inSequence}
+import org.opencypher.v9_0.parser.ParserFixture.parser
+import org.opencypher.v9_0.rewriting.rewriters.expandStar
+import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
-
-  import org.opencypher.v9_0.parser.ParserFixture.parser
 
   test("rewrites * in return") {
     assertRewrite(

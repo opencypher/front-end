@@ -15,11 +15,36 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast._
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.{ASTNode, IdentityMap, Rewriter, bottomUp}
-import org.opencypher.v9_0.expressions.{NodePattern, Parameter, RelationshipPattern}
+import org.opencypher.v9_0.ast.CallClause
+import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.Create
+import org.opencypher.v9_0.ast.Limit
+import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.Merge
+import org.opencypher.v9_0.ast.PeriodicCommitHint
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.SetClause
+import org.opencypher.v9_0.ast.Unwind
+import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.expressions.ContainerIndex
+import org.opencypher.v9_0.expressions.DoubleLiteral
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.IntegerLiteral
+import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.Literal
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.IdentityMap
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTString
 
 object literalReplacement {
 

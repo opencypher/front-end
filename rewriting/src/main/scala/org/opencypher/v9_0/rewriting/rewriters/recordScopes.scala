@@ -15,9 +15,12 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.{ExistsSubClause, MapProjection, PatternComprehension}
-import org.opencypher.v9_0.util.{Rewriter, topDown}
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.MapProjection
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 case class recordScopes(semanticState: SemanticState) extends Rewriter {
 

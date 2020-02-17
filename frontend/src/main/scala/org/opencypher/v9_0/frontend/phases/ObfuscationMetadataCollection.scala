@@ -16,7 +16,9 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.expressions.{Parameter, SensitiveParameter, SensitiveStringLiteral}
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.SensitiveParameter
+import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.METADATA_COLLECTION
 import org.opencypher.v9_0.util.ObfuscationMetadata
 

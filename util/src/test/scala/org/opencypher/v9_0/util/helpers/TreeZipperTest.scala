@@ -15,10 +15,11 @@
  */
 package org.opencypher.v9_0.util.helpers
 
+import org.opencypher.v9_0.util.helpers.Tapper.Tapped
+import org.opencypher.v9_0.util.helpers.Tapper.TappedOption
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class TreeZipperTest extends CypherFunSuite {
-  import Tapper._
 
   case class TestElem(name: String, children: Seq[TestElem]) extends TreeElem[TestElem] {
     def updateChildren(newChildren: Seq[TestElem]): TestElem = copy(children = newChildren.toVector)

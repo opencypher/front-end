@@ -16,7 +16,8 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
-import org.opencypher.v9_0.util.{OpenCypherExceptionFactory, Rewriter}
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

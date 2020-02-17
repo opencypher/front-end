@@ -16,7 +16,8 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.rewriting.rewriters.{Anonymizer, anonymizeQuery}
+import org.opencypher.v9_0.rewriting.rewriters.Anonymizer
+import org.opencypher.v9_0.rewriting.rewriters.anonymizeQuery
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

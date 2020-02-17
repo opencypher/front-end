@@ -15,43 +15,48 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions.ExtractScope
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.ListComprehension
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.{expressions => ast}
-import org.parboiled.scala._
+import org.parboiled.scala.EOI
+import org.parboiled.scala.Rule1
 
-class ListComprehensionTest extends ParserTest[ast.ListComprehension, Any] with Expressions {
+class ListComprehensionTest extends ParserTest[expressions.ListComprehension, Any] with Expressions {
   implicit val parserToTest: Rule1[ListComprehension] = ListComprehension ~ EOI
   val t = DummyPosition(0)
 
   test("tests") {
 
     parsing("[ a in p WHERE a.foo > 123 ]") shouldGive
-      ast.ListComprehension(ExtractScope(ast.Variable("a")(t),
+      expressions.ListComprehension(ExtractScope(expressions.Variable("a")(t),
                                          Some(GreaterThan(
-                                           Property(ast.Variable("a")(t),
-                                                    ast.PropertyKeyName("foo")(t))(t),
+                                           Property(expressions.Variable("a")(t),
+                                                    expressions.PropertyKeyName("foo")(t))(t),
                                            SignedDecimalIntegerLiteral("123")(t))(t)),
                                          None)(t),
-                            ast.Variable("p")(t))(t)
+                            expressions.Variable("p")(t))(t)
 
     parsing("[ a in p | a.foo ]") shouldGive
-      ast.ListComprehension(ExtractScope(ast.Variable("a")(t),
+      expressions.ListComprehension(ExtractScope(expressions.Variable("a")(t),
                                          None,
-                                         Some(Property(ast.Variable("a")(t),ast.PropertyKeyName("foo")(t))(t))
+                                         Some(Property(expressions.Variable("a")(t),expressions.PropertyKeyName("foo")(t))(t))
                                         )(t),
-                            ast.Variable("p")(t))(t)
+                            expressions.Variable("p")(t))(t)
 
     parsing("[ a in p WHERE a.foo > 123 | a.foo ]") shouldGive
-      ast.ListComprehension(ExtractScope(ast.Variable("a")(t),
+      expressions.ListComprehension(ExtractScope(expressions.Variable("a")(t),
                                          Some(GreaterThan(
-                                           Property(ast.Variable("a")(t),
-                                                    ast.PropertyKeyName("foo")(t))(t),
+                                           Property(expressions.Variable("a")(t),
+                                                    expressions.PropertyKeyName("foo")(t))(t),
                                            SignedDecimalIntegerLiteral("123")(t))(t)),
-                                         Some(Property(ast.Variable("a")(t),ast.PropertyKeyName("foo")(t))(t))
+                                         Some(Property(expressions.Variable("a")(t),expressions.PropertyKeyName("foo")(t))(t))
                                         )(t),
-                            ast.Variable("p")(t))(t)
+                            expressions.Variable("p")(t))(t)
   }
 
-  def convert(result: ast.ListComprehension): Any = result
+  def convert(result: expressions.ListComprehension): Any = result
 }

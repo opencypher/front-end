@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.rewriting.conditions
 
-import org.opencypher.v9_0.ast._
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Pattern

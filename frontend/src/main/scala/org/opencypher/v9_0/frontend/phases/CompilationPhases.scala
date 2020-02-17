@@ -17,8 +17,11 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.rewriting.rewriters.{IfNoParameter, LiteralExtraction, SameNameNamer}
-import org.opencypher.v9_0.rewriting.{Deprecations, RewriterStepSequencer}
+import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.RewriterStepSequencer
+import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
+import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
+import org.opencypher.v9_0.rewriting.rewriters.SameNameNamer
 
 object CompilationPhases {
 

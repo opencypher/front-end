@@ -15,7 +15,21 @@
  */
 package org.opencypher.v9_0.ast.semantics.functions
 
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTDate
+import org.opencypher.v9_0.util.symbols.CTDateTime
+import org.opencypher.v9_0.util.symbols.CTDuration
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTLocalDateTime
+import org.opencypher.v9_0.util.symbols.CTLocalTime
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTNumber
+import org.opencypher.v9_0.util.symbols.CTPoint
+import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.CTTime
 
 class ToStringTest extends FunctionTestBase("toString")  {
 

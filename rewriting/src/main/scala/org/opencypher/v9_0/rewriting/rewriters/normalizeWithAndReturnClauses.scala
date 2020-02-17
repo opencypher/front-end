@@ -15,9 +15,26 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Where, _}
-import org.opencypher.v9_0.expressions.{Expression, LogicalVariable, Variable}
-import org.opencypher.v9_0.util._
+import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AscSortItem
+import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.DescSortItem
+import org.opencypher.v9_0.ast.OrderBy
+import org.opencypher.v9_0.ast.ProjectionClause
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.ReturnItem
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.SortItem
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.topDown
 
 /**
   * This rewriter normalizes the scoping structure of a query, ensuring it is able to

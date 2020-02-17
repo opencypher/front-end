@@ -15,8 +15,19 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticAnalysisTooling, SemanticCheckResult, SemanticCheckable, SemanticExpressionCheck, _}
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticError
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.Literal
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.PathExpression
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.symbols.CTInteger
 

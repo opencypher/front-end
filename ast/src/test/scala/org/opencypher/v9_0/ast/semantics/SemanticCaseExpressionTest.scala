@@ -15,9 +15,14 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.{CaseExpression, DummyExpression}
+import org.opencypher.v9_0.expressions.CaseExpression
+import org.opencypher.v9_0.expressions.DummyExpression
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTString
 
 class SemanticCaseExpressionTest extends SemanticFunSuite {
 

@@ -15,10 +15,15 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckable, SemanticExpressionCheck, SemanticPatternCheck}
-import org.opencypher.v9_0.expressions.{LabelName, LogicalProperty, LogicalVariable}
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
+import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LogicalProperty
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.symbols.CTNode
 
 sealed trait RemoveItem extends ASTNode with SemanticCheckable
 

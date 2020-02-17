@@ -16,8 +16,18 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.{PropertyKeyName, Variable, _}
-import org.opencypher.v9_0.util.{InputPosition, Rewriter, topDown}
+import org.opencypher.v9_0.expressions.AllPropertiesSelector
+import org.opencypher.v9_0.expressions.DesugaredMapProjection
+import org.opencypher.v9_0.expressions.LiteralEntry
+import org.opencypher.v9_0.expressions.MapProjection
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.PropertySelector
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.expressions.VariableSelector
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 /*
 Handles rewriting map projection elements to literal entries when possible. If the user

@@ -15,12 +15,15 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
 import org.opencypher.v9_0.expressions.LogicalVariable
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.{ASTNode, InputPosition}
-import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
-import org.opencypher.v9_0.expressions.{ProcedureOutput, Variable}
+import org.opencypher.v9_0.expressions.ProcedureOutput
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.symbols.CypherType
+import org.opencypher.v9_0.util.symbols.TypeSpec
 
 object ProcedureResultItem {
   def apply(output: ProcedureOutput, variable: Variable)(position: InputPosition): ProcedureResultItem =

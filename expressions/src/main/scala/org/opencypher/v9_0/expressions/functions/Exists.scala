@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-import org.opencypher.v9_0.expressions.{Expression, FunctionInvocation}
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.util.InputPosition
 
 case object Exists extends Function with FunctionWithInfo {

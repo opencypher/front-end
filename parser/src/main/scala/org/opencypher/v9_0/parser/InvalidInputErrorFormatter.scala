@@ -16,11 +16,16 @@
 package org.opencypher.v9_0.parser
 
 import org.parboiled.common.StringUtils
-import org.parboiled.errors.{DefaultInvalidInputErrorFormatter, InvalidInputError}
-import org.parboiled.matchers.{Matcher, TestNotMatcher}
-import org.parboiled.support.{Chars, MatcherPath}
+import org.parboiled.errors.DefaultInvalidInputErrorFormatter
+import org.parboiled.errors.InvalidInputError
+import org.parboiled.matchers.Matcher
+import org.parboiled.matchers.TestNotMatcher
+import org.parboiled.support.Chars
+import org.parboiled.support.MatcherPath
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConversions.`deprecated asScalaBuffer`
+import scala.collection.JavaConversions.`deprecated seqAsJavaList`
+
 
 class InvalidInputErrorFormatter extends DefaultInvalidInputErrorFormatter {
 

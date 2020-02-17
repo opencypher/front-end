@@ -16,7 +16,12 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.rewriting.rewriters.namePatternComprehensionPatternElements
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite

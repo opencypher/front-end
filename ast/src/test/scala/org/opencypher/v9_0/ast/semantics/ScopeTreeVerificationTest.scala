@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.ast.semantics.ScopeTestHelper._
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intSymbol
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

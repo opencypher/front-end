@@ -15,13 +15,18 @@
  */
 package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.semantics.{SemanticCheckResult, SemanticErrorDef, SemanticFeature, SemanticState}
-import org.opencypher.v9_0.frontend.helpers.{TestContext, TestState}
-import org.opencypher.v9_0.frontend.phases._
+import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.frontend.helpers.TestContext
+import org.opencypher.v9_0.frontend.helpers.TestState
+import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
+import org.opencypher.v9_0.parser
 import org.opencypher.v9_0.parser.ParserTest
 import org.opencypher.v9_0.rewriting.Deprecations
-import org.opencypher.v9_0.{ast, parser}
 import org.parboiled.scala.Rule1
 
 class MultipleGraphClauseSemanticCheckingTest

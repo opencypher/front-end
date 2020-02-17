@@ -16,12 +16,14 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticError
-import org.opencypher.v9_0.expressions.StringLiteral
-import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.util.symbols._
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class LoadCSVTest extends CypherFunSuite {
 

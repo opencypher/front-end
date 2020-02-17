@@ -15,8 +15,14 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{Rewriter, topDown}
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.GreaterThanOrEqual
+import org.opencypher.v9_0.expressions.LessThan
+import org.opencypher.v9_0.expressions.LessThanOrEqual
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.topDown
 
 case object normalizeInequalities extends Rewriter {
 

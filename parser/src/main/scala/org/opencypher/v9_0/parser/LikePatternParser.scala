@@ -15,7 +15,11 @@
  */
 package org.opencypher.v9_0.parser
 
-import org.parboiled.scala._
+import org.parboiled.scala.ANY
+import org.parboiled.scala.EOI
+import org.parboiled.scala.Parser
+import org.parboiled.scala.ReportingParseRunner
+import org.parboiled.scala.Rule1
 
 /**
  * Parser that parses a Like pattern into [[ParsedLikePattern]] which contains tokens of [[LikePatternOp]].

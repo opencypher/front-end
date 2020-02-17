@@ -15,11 +15,10 @@
  */
 package org.opencypher.v9_0.parser
 
+import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.{ast, expressions => exp}
+import org.opencypher.v9_0.expressions
 import org.parboiled.scala.Rule1
-
-import scala.language.implicitConversions
 
 class CommandParserTest
   extends ParserAstTest[ast.Command]
@@ -256,10 +255,10 @@ class CommandParserTest
   // help method
 
   private def propertyKeyName(name: String) = {
-    exp.PropertyKeyName(name)(pos)
+    expressions.PropertyKeyName(name)(pos)
   }
 
   private def relTypeName(name: String) = {
-    exp.RelTypeName(name)(pos)
+    expressions.RelTypeName(name)(pos)
   }
 }

@@ -16,7 +16,13 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.InequalityExpression
+import org.opencypher.v9_0.expressions.LessThan
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.rewriters.normalizeInequalities
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

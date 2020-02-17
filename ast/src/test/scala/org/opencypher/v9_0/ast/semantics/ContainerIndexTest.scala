@@ -15,9 +15,18 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.expressions.{ContainerIndex, DecimalDoubleLiteral, DummyExpression, SignedDecimalIntegerLiteral}
+import org.opencypher.v9_0.expressions.ContainerIndex
+import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
+import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.DummyPosition
-import org.opencypher.v9_0.util.symbols._
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.TypeSpec
 
 class ContainerIndexTest extends SemanticFunSuite {
 

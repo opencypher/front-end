@@ -17,7 +17,7 @@ package org.opencypher.v9_0.util
 
 import java.util
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
 
 object IdentityMap {

@@ -15,9 +15,13 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.ast.{Return, ReturnItem, With}
-import org.opencypher.v9_0.expressions._
-import org.opencypher.v9_0.util.{Rewriter, bottomUp}
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.ReturnItem
+import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.bottomUp
 
 case object reattachAliasedExpressions extends Rewriter {
   override def apply(in: AnyRef): AnyRef = findingRewriter.apply(in)
