@@ -27,18 +27,20 @@ import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatter
 import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
+import org.opencypher.v9_0.util.symbols.CypherType
 
 case class AstRewriting(sequencer: String => RewriterStepSequencer,
                         literalExtraction: LiteralExtraction,
                         getDegreeRewriting: Boolean = true, // This does not really belong in the front end. Should move to a planner rewriter,
-                        innerVariableNamer: InnerVariableNamer
+                        innerVariableNamer: InnerVariableNamer,
+                        parameterTypeMapping : Map[String, CypherType] = Map.empty
 ) extends Phase[BaseContext, BaseState, BaseState] {
 
   private val astRewriter = new ASTRewriter(sequencer, literalExtraction, getDegreeRewriting, innerVariableNamer)
 
   override def process(in: BaseState, context: BaseContext): BaseState = {
 
-    val (rewrittenStatement, extractedParams, _) = astRewriter.rewrite(in.queryText, in.statement(), in.semantics(), context.cypherExceptionFactory)
+    val (rewrittenStatement, extractedParams, _) = astRewriter.rewrite(in.queryText, in.statement(), in.semantics(), parameterTypeMapping, context.cypherExceptionFactory)
 
     in.withStatement(rewrittenStatement).withParams(extractedParams)
   }

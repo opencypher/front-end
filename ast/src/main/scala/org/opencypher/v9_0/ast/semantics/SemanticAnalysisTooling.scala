@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.Expression.DefaultTypeMismatchMessageGene
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.expressions.IntegerLiteral
 import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.TypeSignature
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
@@ -96,8 +97,14 @@ trait SemanticAnalysisTooling {
       case (ss, TypeSpec.none) =>
         val existingTypesString = ss.expressionType(expression).specified.mkString(", ", " or ")
         val expectedTypesString = possibleTypes.mkString(", ", " or ")
-        SemanticCheckResult.error(ss,
-          SemanticError("Type mismatch: " + messageGen(expectedTypesString, existingTypesString), expression.position))
+        expression match {
+          case p:Parameter if !p.name.matches("""\s\sAUTO(INT|STRING|DOUBLE|LIST)\d+""") => // See literalReplacement for list of all AUTOs
+            SemanticCheckResult.error(ss,
+              SemanticError("Type mismatch for parameter '" + p.name + "': " + messageGen(expectedTypesString, existingTypesString), expression.position))
+          case _ =>
+            SemanticCheckResult.error(ss,
+              SemanticError("Type mismatch: " + messageGen(expectedTypesString, existingTypesString), expression.position))
+        }
       case (ss, _)             =>
         SemanticCheckResult.success(ss)
     }
