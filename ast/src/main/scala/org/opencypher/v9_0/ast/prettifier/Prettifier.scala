@@ -76,6 +76,7 @@ import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
+import org.opencypher.v9_0.ast.PasswordString
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
@@ -226,7 +227,7 @@ case class Prettifier(expr: ExpressionStringifier) {
       }
       val password = initialPassword match {
         case Left(_) => "'******'"
-        case Right(name) => s"$$$name"
+        case Right(param) => s"$$${param.name}"
       }
       val passwordString = s"SET PASSWORD $password CHANGE ${if (!requirePasswordChange) "NOT " else ""}REQUIRED"
       val statusString = if (suspended.isDefined) s" SET STATUS ${if (suspended.get) "SUSPENDED" else "ACTIVE"}"
@@ -255,7 +256,7 @@ case class Prettifier(expr: ExpressionStringifier) {
     case x @ SetOwnPassword(newPassword, currentPassword) =>
       def evalPassword(pw: Either[PasswordString, Parameter]): String = pw match {
         case Right(param) => s"$$${param.name}"
-        case _ => s" '******'"
+        case _ => s"'******'"
       }
       s"${x.name} FROM ${evalPassword(currentPassword)} TO ${evalPassword(newPassword)}"
 
