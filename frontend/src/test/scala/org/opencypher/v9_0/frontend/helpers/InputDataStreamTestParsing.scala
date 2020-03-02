@@ -19,15 +19,6 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.PlannerName
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.CommaSep
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.FromGraph
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.Variable
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.WS
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.ch
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.keyword
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.oneOrMore
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.optional
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestCypherParser.rule
 import org.opencypher.v9_0.frontend.phases.BaseContains
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState

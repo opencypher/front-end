@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.nameMatchPatternElements
 import org.opencypher.v9_0.rewriting.rewriters.nameUpdatingClauses
