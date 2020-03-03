@@ -20,6 +20,7 @@ import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
+import org.opencypher.v9_0.ast.DatabasePrivilege
 import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DenyPrivilege
@@ -28,6 +29,7 @@ import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.TransactionManagementAction
 import org.opencypher.v9_0.ast.UserManagementAction
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.util.CypherExceptionFactory
@@ -102,6 +104,18 @@ object Additions {
       // revoke user administration
       case p@RevokePrivilege(DbmsPrivilege(_: UserManagementAction), _, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("User administration privileges are not supported in this Cypher version.", p.position)
+
+      // grant transaction administration
+      case p@GrantPrivilege(DatabasePrivilege(_: TransactionManagementAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("Transaction administration privileges are not supported in this Cypher version.", p.position)
+
+      // deny transaction administration
+      case p@DenyPrivilege(DatabasePrivilege(_: TransactionManagementAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("Transaction administration privileges are not supported in this Cypher version.", p.position)
+
+      // revoke transaction administration
+      case p@RevokePrivilege(DatabasePrivilege(_: TransactionManagementAction), _, _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("Transaction administration privileges are not supported in this Cypher version.", p.position)
     }
   }
 
