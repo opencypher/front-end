@@ -24,6 +24,7 @@ import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.Foreach
+import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.Match
@@ -61,12 +62,14 @@ import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.SortItem
 import org.opencypher.v9_0.ast.Start
 import org.opencypher.v9_0.ast.StartItem
+import org.opencypher.v9_0.ast.SubQuery
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Union
 import org.opencypher.v9_0.ast.UnionAll
 import org.opencypher.v9_0.ast.UnionDistinct
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
+import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
@@ -876,7 +879,21 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     _usingScanHint
   )
 
+  def _use: Gen[UseGraph] = for {
+    expression <- _expression
+  } yield UseGraph(expression)(pos)
+
+  def _from: Gen[FromGraph] = for {
+    expression <- _expression
+  } yield FromGraph(expression)(pos)
+
+  def _subQuery: Gen[SubQuery] = for {
+    part <- _queryPart
+  } yield SubQuery(part)(pos)
+
   def _clause: Gen[Clause] = oneOf(
+    lzy(_use),
+    lzy(_from),
     lzy(_with),
     lzy(_return),
     lzy(_match),
@@ -889,7 +906,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     lzy(_call),
     lzy(_foreach),
     lzy(_loadCsv),
-    lzy(_start)
+    lzy(_start),
+    lzy(_subQuery),
   )
 
   def _singleQuery: Gen[SingleQuery] = for {
