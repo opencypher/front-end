@@ -15,6 +15,9 @@
  */
 package org.opencypher.v9_0.util.test_helpers
 
+import org.neo4j.internal.utils.DumpUtils
+import org.scalatest.Failed
+import org.scalatest.Outcome
 import org.scalatest.concurrent.Signaler
 import org.scalatest.concurrent.ThreadSignaler
 import org.scalatest.concurrent.TimeLimitedTests
@@ -27,6 +30,14 @@ import org.scalatest.time.Span
 trait TimeLimitedCypherTest extends TimeLimitedTests {
   self: CypherFunSuite =>
 
-  override val timeLimit = Span(5, Minutes)
+  override val timeLimit: Span = Span(5, Minutes)
   override val defaultTestSignaler: Signaler = ThreadSignaler
+
+  abstract override def withFixture(test: NoArgTest): Outcome = {
+    super.withFixture(test) match {
+      case Failed(e: org.scalatest.exceptions.ModifiableMessage[_]) =>
+        Failed(e.modifyMessage(opts => Some(opts.fold("")(_ + System.lineSeparator()) + DumpUtils.threadDump())))
+      case outcome => outcome
+    }
+  }
 }
