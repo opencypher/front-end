@@ -147,6 +147,7 @@ import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Variable
 
 //noinspection DuplicatedCode
@@ -717,6 +718,11 @@ object Prettifier {
       else
         s"`$name`"
     }
+  }
+
+  def escapeName(name: Either[String, Parameter]): String = name match {
+    case Left(s) => escapeName(s)
+    case Right(p) => s"$$${p.name}"
   }
 
   def escapeNames(names: Seq[String]): String = names.map(escapeName).mkString(", ")

@@ -54,6 +54,7 @@ import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.StopDatabase
+import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.StringLiteral
@@ -130,44 +131,44 @@ trait Statement extends Parser
       ast.CreateUser(userNameAndIfExistsDo._1, password(initialPassword), requirePasswordChange.getOrElse(true), suspended, userNameAndIfExistsDo._2))
   }
 
-  def createUserStart: Rule1[(String, IfExistsDo)] = {
+  def createUserStart: Rule1[(Either[String, Parameter], IfExistsDo)] = {
     // returns (userName, IfExistsDo)
-    group(keyword("CREATE OR REPLACE USER") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS")) ~~> ((_, IfExistsInvalidSyntax())) |
-    group(keyword("CREATE OR REPLACE USER") ~~ SymbolicNameString) ~~> ((_, IfExistsReplace())) |
-    group(keyword("CREATE USER") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS")) ~~> ((_, IfExistsDoNothing())) |
-    group(keyword("CREATE USER") ~~ SymbolicNameString) ~~> ((_, IfExistsThrowError()))
+    group(keyword("CREATE OR REPLACE USER") ~~ SymbolicNameOrStringParameter ~~ keyword("IF NOT EXISTS")) ~~> ((_, IfExistsInvalidSyntax())) |
+    group(keyword("CREATE OR REPLACE USER") ~~ SymbolicNameOrStringParameter) ~~> ((_, IfExistsReplace())) |
+    group(keyword("CREATE USER") ~~ SymbolicNameOrStringParameter ~~ keyword("IF NOT EXISTS")) ~~> ((_, IfExistsDoNothing())) |
+    group(keyword("CREATE USER") ~~ SymbolicNameOrStringParameter) ~~> ((_, IfExistsThrowError()))
   }
 
   def DropUser: Rule1[DropUser] = rule("CATALOG DROP USER") {
-    group(keyword("DROP USER") ~~ SymbolicNameString ~~ keyword("IF EXISTS")) ~~>> (ast.DropUser(_, ifExists = true)) |
-    group(keyword("DROP USER") ~~ SymbolicNameString) ~~>> (ast.DropUser(_, ifExists = false))
+    group(keyword("DROP USER") ~~ SymbolicNameOrStringParameter ~~ keyword("IF EXISTS")) ~~>> (ast.DropUser(_, ifExists = true)) |
+    group(keyword("DROP USER") ~~ SymbolicNameOrStringParameter) ~~>> (ast.DropUser(_, ifExists = false))
   }
 
   def AlterUser: Rule1[AlterUser] = rule("CATALOG ALTER USER") {
     // ALTER USER username SET PASSWORD stringLiteralPassword optionalStatus
-    group(keyword("ALTER USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
+    group(keyword("ALTER USER") ~~ SymbolicNameOrStringParameter ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
     optionalStatus) ~~>> ((userName, initialPassword, suspended) =>
       ast.AlterUser(userName, Some(password(initialPassword)), None, suspended)) |
     // ALTER USER username SET PASSWORD stringLiteralPassword optionalRequirePasswordChange optionalStatus
-    group(keyword("ALTER USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
+    group(keyword("ALTER USER") ~~ SymbolicNameOrStringParameter ~~ keyword("SET PASSWORD") ~~ StringLiteral ~~
     optionalRequirePasswordChange ~~ optionalStatus) ~~>> ((userName, initialPassword, requirePasswordChange, suspended) =>
       ast.AlterUser(userName, Some(password(initialPassword)), requirePasswordChange, suspended)) |
     //
     // ALTER USER username SET PASSWORD parameterPassword optionalStatus
-    group(keyword("ALTER USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ SensitiveStringParameter ~~
+    group(keyword("ALTER USER") ~~ SymbolicNameOrStringParameter ~~ keyword("SET PASSWORD") ~~ SensitiveStringParameter ~~
     optionalStatus) ~~>> ((userName, initialPassword, suspended) =>
       ast.AlterUser(userName, Some(password(initialPassword)), None, suspended)) |
     // ALTER USER username SET PASSWORD parameterPassword optionalRequirePasswordChange optionalStatus
-    group(keyword("ALTER USER") ~~ SymbolicNameString ~~ keyword("SET PASSWORD") ~~ SensitiveStringParameter ~~
+    group(keyword("ALTER USER") ~~ SymbolicNameOrStringParameter ~~ keyword("SET PASSWORD") ~~ SensitiveStringParameter ~~
     optionalRequirePasswordChange ~~ optionalStatus) ~~>> ((userName, initialPassword, requirePasswordChange, suspended) =>
       ast.AlterUser(userName, Some(password(initialPassword)), requirePasswordChange, suspended)) |
     //
     // ALTER USER username setRequirePasswordChange optionalStatus
-    group(keyword("ALTER USER") ~~ SymbolicNameString ~~ setRequirePasswordChange ~~ optionalStatus) ~~>>
+    group(keyword("ALTER USER") ~~ SymbolicNameOrStringParameter ~~ setRequirePasswordChange ~~ optionalStatus) ~~>>
       ((userName, requirePasswordChange, suspended) => ast.AlterUser(userName, None, Some(requirePasswordChange), suspended)) |
     //
     // ALTER USER username setStatus
-    group(keyword("ALTER USER") ~~ SymbolicNameString ~~ setStatus) ~~>>
+    group(keyword("ALTER USER") ~~ SymbolicNameOrStringParameter ~~ setStatus) ~~>>
       ((userName, suspended) => ast.AlterUser(userName, None, None, Some(suspended)))
   }
 
@@ -594,4 +595,8 @@ trait Statement extends Parser
     case StringLiteral(value) => Left(PasswordString(value)(expr.position))
     case p: Parameter => Right(p)
   }
+
+  def SymbolicNameOrStringParameter: Rule1[Either[String, expressions.Parameter]] =
+    group(SymbolicNameString) ~~>> (s => _ => Left(s)) |
+      group(StringParameter) ~~>> (p => _ => Right(p))
 }
