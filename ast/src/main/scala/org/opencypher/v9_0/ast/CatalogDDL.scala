@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
@@ -37,8 +38,6 @@ sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
 }
 
 sealed trait MultiDatabaseAdministrationCommand extends CatalogDDL {
-  def reservedRoleName: String = "PUBLIC"
-
   override def semanticCheck: SemanticCheck =
     requireFeatureSupport(s"The `$name` clause", SemanticFeature.MultipleDatabases, position)
 }
@@ -134,39 +133,32 @@ final case class ShowRoles(withUsers: Boolean, showAll: Boolean)(val position: I
       SemanticState.recordCurrentScope(this)
 }
 
-final case class CreateRole(roleName: String, from: Option[String], ifExistsDo: IfExistsDo)(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
+final case class CreateRole(roleName: Either[String, Parameter], from: Option[Either[String, Parameter]], ifExistsDo: IfExistsDo)
+                           (val position: InputPosition) extends MultiDatabaseAdministrationCommand {
 
   override def name: String = ifExistsDo match {
     case _: IfExistsReplace => "CREATE OR REPLACE ROLE"
     case _ => "CREATE ROLE"
   }
 
-  override def semanticCheck: SemanticCheck = {
-    if (reservedRoleName.equals(roleName)) {
-      SemanticError(s"Failed to create the specified role '$roleName': '$roleName' is a reserved role name and cannot be created.", position)
-    } else {
-      ifExistsDo match {
-        case _: IfExistsInvalidSyntax => SemanticError(s"Failed to create the specified role '$roleName': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
-        case _ =>
-          super.semanticCheck chain
-            SemanticState.recordCurrentScope(this)
-      }
+  override def semanticCheck: SemanticCheck =
+    ifExistsDo match {
+      case _: IfExistsInvalidSyntax =>
+        val name = Prettifier.escapeName(roleName)
+        SemanticError(s"Failed to create the specified role '$name': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
+      case _ =>
+        super.semanticCheck chain
+          SemanticState.recordCurrentScope(this)
     }
-  }
 }
 
-final case class DropRole(roleName: String, ifExists: Boolean)(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
+final case class DropRole(roleName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
 
   override def name = "DROP ROLE"
 
-  override def semanticCheck: SemanticCheck = {
-    if (reservedRoleName.equals(roleName)) {
-      SemanticError(s"Failed to drop the specified role '$roleName': '$roleName' is a reserved role and cannot be dropped.", position)
-    } else {
-      super.semanticCheck chain
-        SemanticState.recordCurrentScope(this)
-    }
-  }
+  override def semanticCheck: SemanticCheck =
+    super.semanticCheck chain
+      SemanticState.recordCurrentScope(this)
 }
 
 final case class GrantRolesToUsers(roleNames: Seq[String], userNames: Seq[String])(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
@@ -184,12 +176,8 @@ final case class RevokeRolesFromUsers(roleNames: Seq[String], userNames: Seq[Str
   override def name = "REVOKE ROLE"
 
   override def semanticCheck: SemanticCheck =
-    if (roleNames.contains(reservedRoleName)) {
-      SemanticError(s"Failed to revoke the specified role '$reservedRoleName': '$reservedRoleName' is a reserved role and cannot be revoked.", position)
-    } else {
-      super.semanticCheck chain
-        SemanticState.recordCurrentScope(this)
-    }
+    super.semanticCheck chain
+      SemanticState.recordCurrentScope(this)
 }
 
 abstract class PrivilegeType(val name: String)
