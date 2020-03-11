@@ -161,7 +161,7 @@ final case class DropRole(roleName: Either[String, Parameter], ifExists: Boolean
       SemanticState.recordCurrentScope(this)
 }
 
-final case class GrantRolesToUsers(roleNames: Seq[String], userNames: Seq[String])(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
+final case class GrantRolesToUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
 
   override def name = "GRANT ROLE"
 
@@ -171,7 +171,7 @@ final case class GrantRolesToUsers(roleNames: Seq[String], userNames: Seq[String
   }
 }
 
-final case class RevokeRolesFromUsers(roleNames: Seq[String], userNames: Seq[String])(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
+final case class RevokeRolesFromUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])(val position: InputPosition) extends MultiDatabaseAdministrationCommand {
 
   override def name = "REVOKE ROLE"
 
