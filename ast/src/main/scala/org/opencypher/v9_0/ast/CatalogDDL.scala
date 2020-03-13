@@ -28,6 +28,7 @@ import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.Rewritable
 import org.opencypher.v9_0.util.symbols.CTGraphRef
 
 sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
@@ -264,13 +265,21 @@ final case class AllGraphsScope()(val position: InputPosition) extends GraphScop
 
 final case class DefaultDatabaseScope()(val position: InputPosition) extends GraphScope
 
-sealed trait ShowPrivilegeScope
+sealed trait ShowPrivilegeScope extends Rewritable
 
-final case class ShowRolePrivileges(role: String)(val position: InputPosition) extends ShowPrivilegeScope
+final case class ShowRolePrivileges(role: Either[String, Parameter])(val position: InputPosition) extends ShowPrivilegeScope {
+  override def dup(children: Seq[AnyRef]): ShowRolePrivileges.this.type =
+    this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
+}
 
-final case class ShowUserPrivileges(user: Option[String])(val position: InputPosition) extends ShowPrivilegeScope
+final case class ShowUserPrivileges(user: Option[Either[String, Parameter]])(val position: InputPosition) extends ShowPrivilegeScope {
+  override def dup(children: Seq[AnyRef]): ShowUserPrivileges.this.type =
+    this.copy(children.head.asInstanceOf[Option[Either[String, Parameter]]])(position).asInstanceOf[this.type]
+}
 
-final case class ShowAllPrivileges()(val position: InputPosition) extends ShowPrivilegeScope
+final case class ShowAllPrivileges()(val position: InputPosition) extends ShowPrivilegeScope {
+  override def dup(children: Seq[AnyRef]): ShowAllPrivileges.this.type = this
+}
 
 sealed trait AdminAction {
   def name: String = "<unknown>"
