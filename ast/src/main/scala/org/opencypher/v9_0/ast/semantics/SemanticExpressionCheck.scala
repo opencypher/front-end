@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck.when
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
 import org.opencypher.v9_0.expressions.And
@@ -578,16 +577,12 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         SemanticError(s"${e.name}(...) requires a WHERE predicate", e.position)
       }
 
-    def checkPredicateNotDefined(e: FilteringExpression): SemanticCheck =
-      when (e.innerPredicate.isDefined) {
-        SemanticError(s"${e.name}(...) should not contain a WHERE predicate", e.position)
-      }
-
     private def checkInnerPredicate(e: FilteringExpression): SemanticCheck =
       e.innerPredicate match {
       case Some(predicate) => withScopedState {
         declareVariable(e.variable, possibleInnerTypes(e)) chain
-        SemanticExpressionCheck.check(SemanticContext.Simple, predicate)
+          SemanticExpressionCheck.check(SemanticContext.Simple, predicate) chain
+          SemanticExpressionCheck.expectType(CTBoolean.covariant, predicate)
       }
       case None    => SemanticCheckResult.success
     }
