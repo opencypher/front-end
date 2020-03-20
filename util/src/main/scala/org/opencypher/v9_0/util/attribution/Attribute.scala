@@ -19,7 +19,7 @@ import org.opencypher.v9_0.util.Unchangeable
 
 import scala.collection.mutable.ArrayBuffer
 
-trait Attribute[KEY <: Identifiable, VALUE] {
+trait Attribute[KEY, VALUE] {
 
   private val array: ArrayBuffer[Unchangeable[VALUE]] = new ArrayBuffer[Unchangeable[VALUE]]()
 
