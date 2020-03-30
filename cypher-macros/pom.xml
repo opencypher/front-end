@@ -2,51 +2,48 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>org.neo4j</groupId>
-        <artifactId>neo4j-front-end-parent</artifactId>
-        <version>4.1.0-SNAPSHOT</version>
+        <groupId>org.opencypher</groupId>
+        <artifactId>front-end-parent-9.0</artifactId>
+        <version>9.0-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>neo4j-cypher-macros</artifactId>
+    <artifactId>cypher-macros-9.0</artifactId>
     <packaging>jar</packaging>
-    <version>4.1.0-SNAPSHOT</version>
-    <name>Neo4j - Cypher Macros</name>
+    <version>9.0-SNAPSHOT</version>
+    <name>openCypher Macros</name>
 
-    <description>Cypher runtime utilities</description>
-    <url>http://components.neo4j.org/${project.artifactId}/${project.version}</url>
-
+    <description>Cypher macros</description>
     <scm>
-        <connection>scm:git:git://github.com/neo4j/neo4j.git</connection>
-        <developerConnection>scm:git:git@github.com:neo4j/neo4j.git</developerConnection>
-        <url>https://github.com/neo4j/neo4j</url>
+        <connection>scm:git:git://github.com/openCypher/front-end.git</connection>
+        <developerConnection>scm:git:git@github.com:openCypher/front-end.git</developerConnection>
+        <url>https://github.com/openCypher/front-end</url>
     </scm>
-
-    <properties>
-        <moduleName>org.neo4j.cypher.internal.macros</moduleName>
-        <license-text.header>headers/GPL-3-header.txt</license-text.header>
-    </properties>
 
     <licenses>
         <license>
-            <name>GNU General Public License, Version 3</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
-            <comments>
-                The software ("Software") developed and owned by Neo4j Sweden AB (referred to in this notice as "Neo4j") is
-                licensed under the GNU GENERAL PUBLIC LICENSE Version 3 to all third
-                parties and that license is included below.
-
-                However, if you have executed an End User Software License and Services
-                Agreement or an OEM Software License and Support Services Agreement, or
-                another commercial license agreement with Neo4j or one of its
-                affiliates (each, a "Commercial Agreement"), the terms of the license in
-                such Commercial Agreement will supersede the GNU GENERAL PUBLIC LICENSE
-                Version 3 and you may use the Software solely pursuant to the terms of
-                the relevant Commercial Agreement.
-            </comments>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
 
@@ -54,8 +51,8 @@
 
         <!-- neo4j -->
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-util</artifactId>
+            <groupId>org.opencypher</groupId>
+            <artifactId>util-9.0</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -63,29 +60,22 @@
 
         <dependency>
             <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
             <artifactId>scala-reflect</artifactId>
+            <version>${scala.version}</version>
         </dependency>
 
         <!-- scala test dependencies -->
 
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.scalacheck</groupId>
             <artifactId>scalacheck_${scala.binary.version}</artifactId>
+            <version>1.14.0</version>
         </dependency>
 
 
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-util</artifactId>
+            <groupId>org.opencypher</groupId>
+            <artifactId>util-9.0</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

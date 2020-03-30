@@ -53,6 +53,7 @@
     <module>frontend</module>
     <module>util</module>
     <module>expressions</module>
+    <module>cypher-macros</module>
   </modules>
 
   <dependencies>

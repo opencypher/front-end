@@ -59,6 +59,12 @@
 
     <dependency>
       <groupId>org.opencypher</groupId>
+      <artifactId>cypher-macros-9.0</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opencypher</groupId>
       <artifactId>expressions-9.0</artifactId>
       <version>${project.version}</version>
     </dependency>
