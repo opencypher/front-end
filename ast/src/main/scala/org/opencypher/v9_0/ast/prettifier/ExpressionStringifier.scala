@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.prettifier
 
-import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier.failingExtender
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector

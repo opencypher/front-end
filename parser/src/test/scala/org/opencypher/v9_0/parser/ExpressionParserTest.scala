@@ -19,8 +19,6 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions
 import org.parboiled.scala.Rule1
 
-import scala.language.implicitConversions
-
 class ExpressionParserTest
   extends ParserAstTest[expressions.Expression]
     with Expressions

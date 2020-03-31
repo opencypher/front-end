@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.ast.StatementHelper.fail
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticFeature

@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.ast.semantics.SemanticFunctionCheck.possibleTypes
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.DoubleLiteral
 import org.opencypher.v9_0.expressions.Expression

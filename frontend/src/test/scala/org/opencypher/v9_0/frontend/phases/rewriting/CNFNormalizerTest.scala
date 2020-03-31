@@ -24,7 +24,6 @@ import org.opencypher.v9_0.frontend.phases.CNFNormalizer
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.InternalNotificationLogger
 import org.opencypher.v9_0.frontend.phases.Monitors
-import org.opencypher.v9_0.frontend.phases.rewriting.TestContext.mock
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
 import org.opencypher.v9_0.util.CypherExceptionFactory
