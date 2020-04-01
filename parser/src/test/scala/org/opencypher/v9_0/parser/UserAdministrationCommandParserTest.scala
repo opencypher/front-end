@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.parser
 
+import java.util
+
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions.SensitiveParameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
@@ -232,7 +234,12 @@ class UserAdministrationCommandParserTest extends AdministrationCommandParserTes
   test("CREATE command finds password literal at correct offset") {
     parsing("CREATE USER foo SET PASSWORD 'password'").shouldVerify { statement =>
       val passwords = statement.findByAllClass[SensitiveStringLiteral].map(l => (l.value, l.position.offset))
-      passwords should equal(Seq("password" -> 29))
+      passwords.foreach { case (pw, offset) =>
+        withClue("Expecting password = password, offset = 29") {
+          util.Arrays.equals(toUtf8Bytes("password"), pw) shouldBe true
+          offset shouldBe 29
+        }
+      }
     }
   }
 
@@ -378,7 +385,12 @@ class UserAdministrationCommandParserTest extends AdministrationCommandParserTes
   test("ALTER user command finds password literal at correct offset") {
     parsing("ALTER USER foo SET PASSWORD 'password'").shouldVerify { statement =>
       val passwords = statement.findByAllClass[SensitiveStringLiteral].map(l => (l.value, l.position.offset))
-      passwords should equal(Seq("password" -> 28))
+      passwords.foreach { case (pw, offset) =>
+        withClue("Expecting password = password, offset = 28") {
+          util.Arrays.equals(toUtf8Bytes("password"), pw) shouldBe true
+          offset shouldBe 28
+        }
+      }
     }
   }
 
@@ -461,7 +473,7 @@ class UserAdministrationCommandParserTest extends AdministrationCommandParserTes
 
   test("ALTER CURRENT USER command finds password literal at correct offset") {
     parsing("ALTER CURRENT USER SET PASSWORD FROM 'current' TO 'new'").shouldVerify { statement =>
-      val passwords = statement.findByAllClass[SensitiveStringLiteral].map(l => (l.value, l.position.offset))
+      val passwords = statement.findByAllClass[SensitiveStringLiteral].map(l => (new String(l.value, "utf-8"), l.position.offset))
       passwords.toSet should equal(Set("current" -> 37, "new" -> 50))
     }
   }

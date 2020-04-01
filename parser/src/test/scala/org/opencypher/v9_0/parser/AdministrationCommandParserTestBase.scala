@@ -15,13 +15,14 @@
  */
 package org.opencypher.v9_0.parser
 
+import java.nio.charset.StandardCharsets
+
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdminAction
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.GraphScope
-import org.opencypher.v9_0.ast.PasswordString
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.PrivilegeType
 import org.opencypher.v9_0.ast.RevokeBothType
@@ -29,6 +30,7 @@ import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTString
 import org.parboiled.scala.Rule1
@@ -42,9 +44,11 @@ class AdministrationCommandParserTestBase
 
   def param(name: String): Either[String, expressions.Parameter] = Right(expressions.Parameter(name, CTString)(_))
 
-  def pw(password: String): Either[PasswordString, expressions.Parameter] = Left(PasswordString(password)(_))
+  def toUtf8Bytes(pw: String): Array[Byte] = pw.getBytes(StandardCharsets.UTF_8)
 
-  def pwParam(name: String): Either[PasswordString, expressions.Parameter] = Right(expressions.Parameter(name, CTString)(_))
+  def pw(password: String): Either[SensitiveStringLiteral, expressions.Parameter] = Left(expressions.SensitiveStringLiteral(toUtf8Bytes(password))(_))
+
+  def pwParam(name: String): Either[SensitiveStringLiteral, expressions.Parameter] = Right(expressions.Parameter(name, CTString)(_))
 
   type resourcePrivilegeFunc = (PrivilegeType, ActionResource, List[GraphScope], PrivilegeQualifier, Seq[Either[String, Parameter]]) => InputPosition => ast.Statement
   type noResourcePrivilegeFunc = (PrivilegeType, List[GraphScope], PrivilegeQualifier, Seq[Either[String, Parameter]]) => InputPosition => ast.Statement

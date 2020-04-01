@@ -80,7 +80,6 @@ import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
-import org.opencypher.v9_0.ast.PasswordString
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
@@ -151,6 +150,7 @@ import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.Variable
 
 //noinspection DuplicatedCode
@@ -272,7 +272,7 @@ case class Prettifier(
       s"${x.name} $userNameString$passwordPrefix$passwordString$passwordModeString$statusString"
 
     case x @ SetOwnPassword(newPassword, currentPassword) =>
-      def evalPassword(pw: Either[PasswordString, Parameter]): String = pw match {
+      def evalPassword(pw: Either[SensitiveStringLiteral, Parameter]): String = pw match {
         case Right(param) => s"$$${param.name}"
         case _ => s"'******'"
       }

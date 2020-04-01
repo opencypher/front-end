@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.parser
 
+import java.nio.charset.StandardCharsets
+
 import org.parboiled.Context
 import org.parboiled.scala.ANY
 import org.parboiled.scala.Rule1
@@ -24,6 +26,10 @@ trait Strings extends Base {
 
   protected def StringCharacters(c: Char): Rule1[String] = {
     push(new java.lang.StringBuilder) ~ zeroOrMore(EscapedChar | NormalChar(c)) ~~> (_.toString())
+  }
+
+  protected def SensitiveStringCharacters(c: Char): Rule1[Array[Byte]] = {
+    push(new java.lang.StringBuilder) ~ zeroOrMore(EscapedChar | NormalChar(c)) ~~> (_.toString.getBytes(StandardCharsets.UTF_8))
   }
 
   protected def NormalChar(c: Char) = {
