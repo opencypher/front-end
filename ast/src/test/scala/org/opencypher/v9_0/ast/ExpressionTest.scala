@@ -28,6 +28,7 @@ import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -137,7 +138,7 @@ class ExpressionTest extends CypherFunSuite with AstConstructionTestSupport {
 
     val expr = ExistsSubClause(pattern, Some(where))(pos, Set.empty)
 
-    val outerVariables: Set[LogicalVariable] = Set(varFor("n"), varFor("r1"), varFor("p1"))
+    val outerVariables: Set[Variable] = Set(varFor("n"), varFor("r1"), varFor("p1"))
     expr.withOuterScope(outerVariables).dependencies should equal(Set(varFor("n"), varFor("r1")))
   }
 
