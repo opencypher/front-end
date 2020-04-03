@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.semantics.SemanticState
@@ -49,6 +50,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.recordScopes
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
+import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.symbols.CypherType
 
@@ -94,7 +96,10 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
 
     val replaceParameterValueTypes = parameterValueTypeReplacement(rewrittenStatement, parameterTypeMapping)
     val rewrittenStatementWithParameterTypes = rewrittenStatement.endoRewrite(replaceParameterValueTypes)
-    val (extractParameters, extractedParameters) = literalReplacement(rewrittenStatementWithParameterTypes, literalExtraction)
+    val (extractParameters, extractedParameters) = statement match {
+      case _ : AdministrationCommand => sensitiveLiteralReplacement(rewrittenStatementWithParameterTypes)
+      case _ => literalReplacement(rewrittenStatementWithParameterTypes, literalExtraction)
+    }
 
     (rewrittenStatementWithParameterTypes.endoRewrite(extractParameters), extractedParameters, contract.postConditions)
   }

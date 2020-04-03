@@ -23,9 +23,9 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewritable
@@ -92,7 +92,7 @@ trait EitherAsString {
 }
 
 final case class CreateUser(userName: Either[String, Parameter],
-                            initialPassword: Either[SensitiveStringLiteral, Parameter],
+                            initialPassword: Expression,
                             requirePasswordChange: Boolean,
                             suspended: Option[Boolean],
                             ifExistsDo: IfExistsDo)(val position: InputPosition) extends WriteAdministrationCommand with EitherAsString {
@@ -121,7 +121,7 @@ final case class DropUser(userName: Either[String, Parameter], ifExists: Boolean
 }
 
 final case class AlterUser(userName: Either[String, Parameter],
-                           initialPassword: Option[Either[SensitiveStringLiteral, Parameter]],
+                           initialPassword: Option[Expression],
                            requirePasswordChange: Option[Boolean],
                            suspended: Option[Boolean])(val position: InputPosition) extends WriteAdministrationCommand {
   assert(initialPassword.isDefined || requirePasswordChange.isDefined || suspended.isDefined)
@@ -133,7 +133,7 @@ final case class AlterUser(userName: Either[String, Parameter],
       SemanticState.recordCurrentScope(this)
 }
 
-final case class SetOwnPassword(newPassword: Either[SensitiveStringLiteral, Parameter], currentPassword: Either[PasswordString, Parameter])
+final case class SetOwnPassword(newPassword: Expression, currentPassword: Expression)
                                (val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "ALTER CURRENT USER SET PASSWORD"
