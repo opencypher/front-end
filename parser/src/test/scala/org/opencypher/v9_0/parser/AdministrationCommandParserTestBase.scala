@@ -30,7 +30,6 @@ import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTString
 import org.parboiled.scala.Rule1
