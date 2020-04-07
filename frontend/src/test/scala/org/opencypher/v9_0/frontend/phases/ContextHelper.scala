@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.NO_TRACING
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 
 object ContextHelper extends MockitoSugar {
   def create(): BaseContext = {
