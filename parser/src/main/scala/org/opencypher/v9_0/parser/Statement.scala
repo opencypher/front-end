@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdminAction
 import org.opencypher.v9_0.ast.AlterUser
-import org.opencypher.v9_0.ast.CatalogDDL
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateGraph
 import org.opencypher.v9_0.ast.CreateRole
@@ -70,10 +69,10 @@ trait Statement extends Parser
   with Base {
 
   def Statement: Rule1[ast.Statement] = rule(
-    AdministrationCommand | CatalogCommand | Command | Query
+    AdministrationCommand | MultiGraphCommand | Command | Query
   )
 
-  def CatalogCommand: Rule1[ast.MultiGraphDDL] = rule("Multi graph DDL statement") {
+  def MultiGraphCommand: Rule1[ast.MultiGraphDDL] = rule("Multi graph DDL statement") {
     CreateGraph | DropGraph | CreateView | DropView
   }
 

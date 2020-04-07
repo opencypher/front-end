@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.symbols.CTAny
 
-class CatalogDDLParserTest extends AdministrationCommandParserTestBase {
+class MultiGraphDDLParserTest extends AdministrationCommandParserTestBase {
 
   private val singleQuery = ast.SingleQuery(Seq(ast.ConstructGraph()(pos)))(pos)
   private val returnGraph: ast.ReturnGraph = ast.ReturnGraph(None)(pos)

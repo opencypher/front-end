@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.prettifier
 
 import org.opencypher.v9_0.ast.ActionResource
+import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllGraphsScope
 import org.opencypher.v9_0.ast.AllNodes
@@ -25,6 +26,7 @@ import org.opencypher.v9_0.ast.AllResource
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.Command
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateGraph
@@ -61,6 +63,7 @@ import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.GraphScope
+import org.opencypher.v9_0.ast.GraphSelection
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.LabelAllQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
@@ -70,6 +73,7 @@ import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAction
+import org.opencypher.v9_0.ast.MultiGraphDDL
 import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
@@ -160,222 +164,239 @@ case class Prettifier(
   private val base = IndentingQueryPrettifier()
 
   def asString(statement: Statement): String = statement match {
-    case q: Query =>
-      base.query(q)
+    case q: Query => base.query(q)
+    case c: Command => asString(c)
+    case c: AdministrationCommand => asString(c)
+    case c: MultiGraphDDL => asString(c)
+  }
 
-    case CreateIndex(LabelName(label), properties) =>
-      s"CREATE INDEX ON :$label${properties.map(_.name).mkString("(", ", ", ")")}"
+  def asString(command: Command): String = {
+    val useString = asString(command.useGraph)
+    val commandString = command match {
 
-    case CreateIndexNewSyntax(variable, LabelName(label), properties, None) =>
-      val propString = properties.map(p => s"${p.map.asInstanceOf[Variable].name}.${p.propertyKey.name}").mkString("(", ", ", ")")
-      s"CREATE INDEX FOR (${variable.name}:$label) ON $propString"
+      case CreateIndex(LabelName(label), properties, _) =>
+        s"CREATE INDEX ON :$label${properties.map(_.name).mkString("(", ", ", ")")}"
 
-    case CreateIndexNewSyntax(variable, LabelName(label), properties, Some(name)) =>
-      val propString = properties.map(p => s"${p.map.asInstanceOf[Variable].name}.${p.propertyKey.name}").mkString("(", ", ", ")")
-      s"CREATE INDEX ${Prettifier.escapeName(name)} FOR (${variable.name}:$label) ON $propString"
+      case CreateIndexNewSyntax(variable, LabelName(label), properties, None, _) =>
+        val propString = properties.map(p => s"${p.map.asInstanceOf[Variable].name}.${p.propertyKey.name}").mkString("(", ", ", ")")
+        s"CREATE INDEX FOR (${variable.name}:$label) ON $propString"
 
-    case DropIndex(LabelName(label), properties) =>
-      s"DROP INDEX ON :$label${properties.map(_.name).mkString("(", ", ", ")")}"
+      case CreateIndexNewSyntax(variable, LabelName(label), properties, Some(name), _) =>
+        val propString = properties.map(p => s"${p.map.asInstanceOf[Variable].name}.${p.propertyKey.name}").mkString("(", ", ", ")")
+        s"CREATE INDEX ${Prettifier.escapeName(name)} FOR (${variable.name}:$label) ON $propString"
 
-    case DropIndexOnName(name) =>
-      s"DROP INDEX ${Prettifier.escapeName(name)}"
+      case DropIndex(LabelName(label), properties, _) =>
+        s"DROP INDEX ON :$label${properties.map(_.name).mkString("(", ", ", ")")}"
 
-    case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, None) =>
-      s"CREATE CONSTRAINT ON ($variable:$label) ASSERT ${base.asString(properties)} IS NODE KEY"
+      case DropIndexOnName(name, _) =>
+        s"DROP INDEX ${Prettifier.escapeName(name)}"
 
-    case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, Some(name)) =>
-      s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ($variable:$label) ASSERT ${base.asString(properties)} IS NODE KEY"
+      case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, None, _) =>
+        s"CREATE CONSTRAINT ON ($variable:$label) ASSERT ${base.asString(properties)} IS NODE KEY"
 
-    case DropNodeKeyConstraint(Variable(variable), LabelName(label), properties) =>
-      s"DROP CONSTRAINT ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS NODE KEY"
+      case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, Some(name), _) =>
+        s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ($variable:$label) ASSERT ${base.asString(properties)} IS NODE KEY"
 
-    case CreateUniquePropertyConstraint(Variable(variable), LabelName(label), properties, None) =>
-      s"CREATE CONSTRAINT ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS UNIQUE"
+      case DropNodeKeyConstraint(Variable(variable), LabelName(label), properties, _) =>
+        s"DROP CONSTRAINT ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS NODE KEY"
 
-    case CreateUniquePropertyConstraint(Variable(variable), LabelName(label), properties, Some(name)) =>
-      s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS UNIQUE"
+      case CreateUniquePropertyConstraint(Variable(variable), LabelName(label), properties, None, _) =>
+        s"CREATE CONSTRAINT ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS UNIQUE"
 
-    case DropUniquePropertyConstraint(Variable(variable), LabelName(label), properties) =>
-      s"DROP CONSTRAINT ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS UNIQUE"
+      case CreateUniquePropertyConstraint(Variable(variable), LabelName(label), properties, Some(name), _) =>
+        s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS UNIQUE"
 
-    case CreateNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property, None) =>
-      s"CREATE CONSTRAINT ON ($variable:$label) ASSERT exists(${property.asCanonicalStringVal})"
+      case DropUniquePropertyConstraint(Variable(variable), LabelName(label), properties, _) =>
+        s"DROP CONSTRAINT ON ($variable:$label) ASSERT ${properties.map(_.asCanonicalStringVal).mkString("(", ", ", ")")} IS UNIQUE"
 
-    case CreateNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property, Some(name)) =>
-      s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ($variable:$label) ASSERT exists(${property.asCanonicalStringVal})"
+      case CreateNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property, None, _) =>
+        s"CREATE CONSTRAINT ON ($variable:$label) ASSERT exists(${property.asCanonicalStringVal})"
 
-    case DropNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property) =>
-      s"DROP CONSTRAINT ON ($variable:$label) ASSERT exists(${property.asCanonicalStringVal})"
+      case CreateNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property, Some(name), _) =>
+        s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ($variable:$label) ASSERT exists(${property.asCanonicalStringVal})"
 
-    case CreateRelationshipPropertyExistenceConstraint(Variable(variable), RelTypeName(relType), property, None) =>
-      s"CREATE CONSTRAINT ON ()-[$variable:$relType]-() ASSERT exists(${property.asCanonicalStringVal})"
+      case DropNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property, _) =>
+        s"DROP CONSTRAINT ON ($variable:$label) ASSERT exists(${property.asCanonicalStringVal})"
 
-    case CreateRelationshipPropertyExistenceConstraint(Variable(variable), RelTypeName(relType), property, Some(name)) =>
-      s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ()-[$variable:$relType]-() ASSERT exists(${property.asCanonicalStringVal})"
+      case CreateRelationshipPropertyExistenceConstraint(Variable(variable), RelTypeName(relType), property, None, _) =>
+        s"CREATE CONSTRAINT ON ()-[$variable:$relType]-() ASSERT exists(${property.asCanonicalStringVal})"
 
-    case DropRelationshipPropertyExistenceConstraint(Variable(variable), RelTypeName(relType), property) =>
-      s"DROP CONSTRAINT ON ()-[$variable:$relType]-() ASSERT exists(${property.asCanonicalStringVal})"
+      case CreateRelationshipPropertyExistenceConstraint(Variable(variable), RelTypeName(relType), property, Some(name), _) =>
+        s"CREATE CONSTRAINT ${Prettifier.escapeName(name)} ON ()-[$variable:$relType]-() ASSERT exists(${property.asCanonicalStringVal})"
 
-    case DropConstraintOnName(name) =>
-      s"DROP CONSTRAINT ${Prettifier.escapeName(name)}"
+      case DropRelationshipPropertyExistenceConstraint(Variable(variable), RelTypeName(relType), property, _) =>
+        s"DROP CONSTRAINT ON ()-[$variable:$relType]-() ASSERT exists(${property.asCanonicalStringVal})"
 
-    case x: ShowUsers =>
-      s"${x.name}"
+      case DropConstraintOnName(name, _) =>
+        s"DROP CONSTRAINT ${Prettifier.escapeName(name)}"
+    }
+    useString + commandString
+  }
 
-    case x @ CreateUser(userName, initialPassword, requirePasswordChange, suspended, ifExistsDo) =>
-      val userNameString = Prettifier.escapeName(userName)
-      val ifNotExists = ifExistsDo match {
-        case _: IfExistsDoNothing => " IF NOT EXISTS"
-        case _                    => ""
-      }
-      val password = initialPassword match {
-        case Left(_) => "'******'"
-        case Right(param) => s"$$${param.name}"
-      }
-      val passwordString = s"SET PASSWORD $password CHANGE ${if (!requirePasswordChange) "NOT " else ""}REQUIRED"
-      val statusString = if (suspended.isDefined) s" SET STATUS ${if (suspended.get) "SUSPENDED" else "ACTIVE"}"
-      else ""
-      s"${x.name} $userNameString$ifNotExists $passwordString$statusString"
+  def asString(adminCommand: AdministrationCommand): String = {
+    val useString = asString(adminCommand.useGraph)
+    val commandString = adminCommand match {
+      case x: ShowUsers =>
+        s"${x.name}"
 
-    case x @ DropUser(userName, ifExists) =>
-      if (ifExists) s"${x.name} ${Prettifier.escapeName(userName)} IF EXISTS"
-      else s"${x.name} ${Prettifier.escapeName(userName)}"
+      case x@CreateUser(userName, initialPassword, requirePasswordChange, suspended, ifExistsDo, _) =>
+        val userNameString = Prettifier.escapeName(userName)
+        val ifNotExists = ifExistsDo match {
+          case _: IfExistsDoNothing => " IF NOT EXISTS"
+          case _ => ""
+        }
+        val password = initialPassword match {
+          case Left(_) => "'******'"
+          case Right(param) => s"$$${param.name}"
+        }
+        val passwordString = s"SET PASSWORD $password CHANGE ${if (!requirePasswordChange) "NOT " else ""}REQUIRED"
+        val statusString = if (suspended.isDefined) s" SET STATUS ${if (suspended.get) "SUSPENDED" else "ACTIVE"}"
+        else ""
+        s"${x.name} $userNameString$ifNotExists $passwordString$statusString"
 
-    case x @ AlterUser(userName, initialPassword, requirePasswordChange, suspended) =>
-      val userNameString = Prettifier.escapeName(userName)
-      val passwordString = initialPassword match {
-        case None => ""
-        case Some(Left(_)) => s" '******'"
-        case Some(Right(param)) => s" $$${param.name}"
-      }
-      val passwordModeString = if (requirePasswordChange.isDefined)
-        s" CHANGE ${if (!requirePasswordChange.get) "NOT " else ""}REQUIRED"
-      else
-        ""
-      val passwordPrefix = if (passwordString.nonEmpty || passwordModeString.nonEmpty) " SET PASSWORD" else ""
-      val statusString = if (suspended.isDefined) s" SET STATUS ${if (suspended.get) "SUSPENDED" else "ACTIVE"}" else ""
-      s"${x.name} $userNameString$passwordPrefix$passwordString$passwordModeString$statusString"
+      case x@DropUser(userName, ifExists, _) =>
+        if (ifExists) s"${x.name} ${Prettifier.escapeName(userName)} IF EXISTS"
+        else s"${x.name} ${Prettifier.escapeName(userName)}"
 
-    case x @ SetOwnPassword(newPassword, currentPassword) =>
-      def evalPassword(pw: Either[PasswordString, Parameter]): String = pw match {
-        case Right(param) => s"$$${param.name}"
-        case _ => s"'******'"
-      }
-      s"${x.name} FROM ${evalPassword(currentPassword)} TO ${evalPassword(newPassword)}"
+      case x@AlterUser(userName, initialPassword, requirePasswordChange, suspended, _) =>
+        val userNameString = Prettifier.escapeName(userName)
+        val passwordString = initialPassword match {
+          case None => ""
+          case Some(Left(_)) => s" '******'"
+          case Some(Right(param)) => s" $$${param.name}"
+        }
+        val passwordModeString = if (requirePasswordChange.isDefined)
+          s" CHANGE ${if (!requirePasswordChange.get) "NOT " else ""}REQUIRED"
+        else
+          ""
+        val passwordPrefix = if (passwordString.nonEmpty || passwordModeString.nonEmpty) " SET PASSWORD" else ""
+        val statusString = if (suspended.isDefined) s" SET STATUS ${if (suspended.get) "SUSPENDED" else "ACTIVE"}" else ""
+        s"${x.name} $userNameString$passwordPrefix$passwordString$passwordModeString$statusString"
 
-    case x @ ShowRoles(withUsers, _) =>
-      s"${x.name}${if (withUsers) " WITH USERS" else ""}"
+      case x@SetOwnPassword(newPassword, currentPassword, _) =>
+        def evalPassword(pw: Either[PasswordString, Parameter]): String = pw match {
+          case Right(param) => s"$$${param.name}"
+          case _ => s"'******'"
+        }
+        s"${x.name} FROM ${evalPassword(currentPassword)} TO ${evalPassword(newPassword)}"
 
-    case x @ CreateRole(roleName, None, ifExistsDo) =>
-      ifExistsDo match {
-        case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS"
-        case _                    => s"${x.name} ${Prettifier.escapeName(roleName)}"
-      }
+      case x@ShowRoles(withUsers, _, _) =>
+        s"${x.name}${if (withUsers) " WITH USERS" else ""}"
 
-    case x @ CreateRole(roleName, Some(fromRole), ifExistsDo) =>
-      ifExistsDo match {
-        case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS AS COPY OF ${Prettifier.escapeName(fromRole)}"
-        case _                    => s"${x.name} ${Prettifier.escapeName(roleName)} AS COPY OF ${Prettifier.escapeName(fromRole)}"
-      }
+      case x@CreateRole(roleName, None, ifExistsDo, _) =>
+        ifExistsDo match {
+          case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS"
+          case _ => s"${x.name} ${Prettifier.escapeName(roleName)}"
+        }
 
-    case x @ DropRole(roleName, ifExists) =>
-      if (ifExists) s"${x.name} ${Prettifier.escapeName(roleName)} IF EXISTS"
-      else s"${x.name} ${Prettifier.escapeName(roleName)}"
+      case x@CreateRole(roleName, Some(fromRole), ifExistsDo, _) =>
+        ifExistsDo match {
+          case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS AS COPY OF ${Prettifier.escapeName(fromRole)}"
+          case _ => s"${x.name} ${Prettifier.escapeName(roleName)} AS COPY OF ${Prettifier.escapeName(fromRole)}"
+        }
 
-    case x @ GrantRolesToUsers(roleNames, userNames) if roleNames.length > 1 =>
-      s"${x.name}S ${roleNames.map(Prettifier.escapeName).mkString(", ")} TO ${userNames.map(Prettifier.escapeName).mkString(", ")}"
+      case x@DropRole(roleName, ifExists, _) =>
+        if (ifExists) s"${x.name} ${Prettifier.escapeName(roleName)} IF EXISTS"
+        else s"${x.name} ${Prettifier.escapeName(roleName)}"
 
-    case x @ GrantRolesToUsers(roleNames, userNames) =>
-      s"${x.name} ${roleNames.map(Prettifier.escapeName).mkString(", ")} TO ${userNames.map(Prettifier.escapeName).mkString(", ")}"
+      case x@GrantRolesToUsers(roleNames, userNames, _) if roleNames.length > 1 =>
+        s"${x.name}S ${roleNames.map(Prettifier.escapeName).mkString(", ")} TO ${userNames.map(Prettifier.escapeName).mkString(", ")}"
 
-    case x @ RevokeRolesFromUsers(roleNames, userNames) if roleNames.length > 1 =>
-      s"${x.name}S ${roleNames.map(Prettifier.escapeName).mkString(", ")} FROM ${userNames.map(Prettifier.escapeName).mkString(", ")}"
+      case x@GrantRolesToUsers(roleNames, userNames, _) =>
+        s"${x.name} ${roleNames.map(Prettifier.escapeName).mkString(", ")} TO ${userNames.map(Prettifier.escapeName).mkString(", ")}"
 
-    case x @ RevokeRolesFromUsers(roleNames, userNames) =>
-      s"${x.name} ${roleNames.map(Prettifier.escapeName).mkString(", ")} FROM ${userNames.map(Prettifier.escapeName).mkString(", ")}"
+      case x@RevokeRolesFromUsers(roleNames, userNames, _) if roleNames.length > 1 =>
+        s"${x.name}S ${roleNames.map(Prettifier.escapeName).mkString(", ")} FROM ${userNames.map(Prettifier.escapeName).mkString(", ")}"
 
-    case x @ GrantPrivilege(DbmsPrivilege(_), _, _, _, roleNames) =>
-      s"${x.name} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
+      case x@RevokeRolesFromUsers(roleNames, userNames, _) =>
+        s"${x.name} ${roleNames.map(Prettifier.escapeName).mkString(", ")} FROM ${userNames.map(Prettifier.escapeName).mkString(", ")}"
 
-    case x @ DenyPrivilege(DbmsPrivilege(_), _, _, _, roleNames) =>
-      s"${x.name} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
+      case x@GrantPrivilege(DbmsPrivilege(_), _, _, _, roleNames, _) =>
+        s"${x.name} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ RevokePrivilege(DbmsPrivilege(_), _, _, _, roleNames, _) =>
-      s"${x.name} ON DBMS FROM ${Prettifier.escapeNames(roleNames)}"
+      case x@DenyPrivilege(DbmsPrivilege(_), _, _, _, roleNames, _) =>
+        s"${x.name} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ GrantPrivilege(DatabasePrivilege(_), _, dbScope, qualifier, roleNames) =>
-      Prettifier.prettifyDatabasePrivilege(x.name, dbScope, qualifier, "TO", roleNames)
+      case x@RevokePrivilege(DbmsPrivilege(_), _, _, _, roleNames, _, _) =>
+        s"${x.name} ON DBMS FROM ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ DenyPrivilege(DatabasePrivilege(_), _, dbScope, qualifier, roleNames) =>
-      Prettifier.prettifyDatabasePrivilege(x.name, dbScope, qualifier, "TO", roleNames)
+      case x@GrantPrivilege(DatabasePrivilege(_), _, dbScope, qualifier, roleNames, _) =>
+        Prettifier.prettifyDatabasePrivilege(x.name, dbScope, qualifier, "TO", roleNames)
 
-    case x @ RevokePrivilege(DatabasePrivilege(_), _, dbScope, qualifier, roleNames, _) =>
-      Prettifier.prettifyDatabasePrivilege(x.name, dbScope, qualifier, "FROM", roleNames)
+      case x@DenyPrivilege(DatabasePrivilege(_), _, dbScope, qualifier, roleNames, _) =>
+        Prettifier.prettifyDatabasePrivilege(x.name, dbScope, qualifier, "TO", roleNames)
 
-    case x @ GrantPrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames) =>
-      val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
-      s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
+      case x@RevokePrivilege(DatabasePrivilege(_), _, dbScope, qualifier, roleNames, _, _) =>
+        Prettifier.prettifyDatabasePrivilege(x.name, dbScope, qualifier, "FROM", roleNames)
 
-    case x @ DenyPrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames) =>
-      val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
-      s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
+      case x@GrantPrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames, _) =>
+        val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
+        s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ RevokePrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames, _) =>
-      val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
-      s"${x.name} ON GRAPH $dbName $segment (*) FROM ${Prettifier.escapeNames(roleNames)}"
+      case x@DenyPrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames, _) =>
+        val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
+        s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ GrantPrivilege(WritePrivilege(), _, dbScope, qualifier, roleNames) =>
-      val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
-      s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
+      case x@RevokePrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames, _, _) =>
+        val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
+        s"${x.name} ON GRAPH $dbName $segment (*) FROM ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ DenyPrivilege(WritePrivilege(), _, dbScope, qualifier, roleNames) =>
-      val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
-      s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
+      case x@GrantPrivilege(WritePrivilege(), _, dbScope, qualifier, roleNames, _) =>
+        val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
+        s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ RevokePrivilege(WritePrivilege(), _, dbScope, qualifier, roleNames, _) =>
-      val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
-      s"${x.name} ON GRAPH $dbName $segment (*) FROM ${Prettifier.escapeNames(roleNames)}"
+      case x@DenyPrivilege(WritePrivilege(), _, dbScope, qualifier, roleNames, _) =>
+        val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
+        s"${x.name} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ GrantPrivilege(_, Some(resource), dbScope, qualifier, roleNames) =>
-      val (resourceName, dbName, segment) = Prettifier.extractScope(resource, dbScope, qualifier)
-      s"${x.name} {$resourceName} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
+      case x@RevokePrivilege(WritePrivilege(), _, dbScope, qualifier, roleNames, _, _) =>
+        val (dbName, segment) = Prettifier.extractScope(dbScope, qualifier)
+        s"${x.name} ON GRAPH $dbName $segment (*) FROM ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ DenyPrivilege(_, Some(resource), dbScope, qualifier, roleNames) =>
-      val (resourceName, dbName, segment) = Prettifier.extractScope(resource, dbScope, qualifier)
-      s"${x.name} {$resourceName} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
+      case x@GrantPrivilege(_, Some(resource), dbScope, qualifier, roleNames, _) =>
+        val (resourceName, dbName, segment) = Prettifier.extractScope(resource, dbScope, qualifier)
+        s"${x.name} {$resourceName} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x @ RevokePrivilege(_, Some(resource), dbScope, qualifier, roleNames, _) =>
-      val (resourceName, dbName, segment) = Prettifier.extractScope(resource, dbScope, qualifier)
-      s"${x.name} {$resourceName} ON GRAPH $dbName $segment (*) FROM ${Prettifier.escapeNames(roleNames)}"
+      case x@DenyPrivilege(_, Some(resource), dbScope, qualifier, roleNames, _) =>
+        val (resourceName, dbName, segment) = Prettifier.extractScope(resource, dbScope, qualifier)
+        s"${x.name} {$resourceName} ON GRAPH $dbName $segment (*) TO ${Prettifier.escapeNames(roleNames)}"
 
-    case ShowPrivileges(scope) =>
-      s"SHOW ${Prettifier.extractScope(scope)} PRIVILEGES"
+      case x@RevokePrivilege(_, Some(resource), dbScope, qualifier, roleNames, _, _) =>
+        val (resourceName, dbName, segment) = Prettifier.extractScope(resource, dbScope, qualifier)
+        s"${x.name} {$resourceName} ON GRAPH $dbName $segment (*) FROM ${Prettifier.escapeNames(roleNames)}"
 
-    case x: ShowDatabases =>
-      s"${x.name}"
+      case ShowPrivileges(scope, _) =>
+        s"SHOW ${Prettifier.extractScope(scope)} PRIVILEGES"
 
-    case x: ShowDefaultDatabase =>
-      s"${x.name}"
+      case x: ShowDatabases =>
+        s"${x.name}"
 
-    case x @ ShowDatabase(dbName) =>
-      s"${x.name} ${Prettifier.escapeName(dbName)}"
+      case x: ShowDefaultDatabase =>
+        s"${x.name}"
 
-    case x @ CreateDatabase(dbName, ifExistsDo) =>
-      ifExistsDo match {
-        case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(dbName)} IF NOT EXISTS"
-        case _                    => s"${x.name} ${Prettifier.escapeName(dbName)}"
-      }
+      case x@ShowDatabase(dbName, _) =>
+        s"${x.name} ${Prettifier.escapeName(dbName)}"
 
-    case x @ DropDatabase(dbName, ifExists) =>
-      if (ifExists) s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS"
-      else s"${x.name} ${Prettifier.escapeName(dbName)}"
+      case x@CreateDatabase(dbName, ifExistsDo, _) =>
+        ifExistsDo match {
+          case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(dbName)} IF NOT EXISTS"
+          case _ => s"${x.name} ${Prettifier.escapeName(dbName)}"
+        }
 
-    case x @ StartDatabase(dbName) =>
-      s"${x.name} ${Prettifier.escapeName(dbName)}"
+      case x@DropDatabase(dbName, ifExists, _) =>
+        if (ifExists) s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS"
+        else s"${x.name} ${Prettifier.escapeName(dbName)}"
 
-    case x @ StopDatabase(dbName) =>
-      s"${x.name} ${Prettifier.escapeName(dbName)}"
+      case x@StartDatabase(dbName, _) =>
+        s"${x.name} ${Prettifier.escapeName(dbName)}"
 
+      case x@StopDatabase(dbName, _) =>
+        s"${x.name} ${Prettifier.escapeName(dbName)}"
+    }
+    useString + commandString
+  }
+
+  def asString(multiGraph: MultiGraphDDL): String = multiGraph match {
     case x @ CreateGraph(catalogName, query) =>
       val graphName = catalogName.parts.mkString(".")
       s"${x.name} $graphName {$NL${base.indented().queryPart(query)}$NL}"
@@ -392,6 +413,10 @@ case class Prettifier(
     case DropView(catalogName) =>
       val graphName = catalogName.parts.mkString(".")
       s"CATALOG DROP VIEW $graphName"
+  }
+
+  private def asString(use: Option[GraphSelection]) = {
+    use.map(u => base.dispatch(u) + NL).getOrElse("")
   }
 
   private case class IndentingQueryPrettifier(indentLevel: Int = 0) extends Prettifier.QueryPrettifier {
@@ -433,7 +458,7 @@ case class Prettifier(
 
     def asString(clause: Clause): String = dispatch(clause)
 
-    private def dispatch(clause: Clause): String = clause match {
+    def dispatch(clause: Clause): String = clause match {
       case u: UseGraph       => asString(u)
       case f: FromGraph      => asString(f)
       case e: Return         => asString(e)
