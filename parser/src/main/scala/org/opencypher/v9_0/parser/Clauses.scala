@@ -27,7 +27,8 @@ trait Clauses extends Parser
   with Patterns
   with Expressions
   with Base
-  with ProcedureCalls {
+  with ProcedureCalls
+  with GraphSelection {
   self: Query =>
 
   def Clause: Rule1[ast.Clause]
@@ -39,14 +40,6 @@ trait Clauses extends Parser
       keyword("AS") ~~ Variable ~~
       optional(keyword("FIELDTERMINATOR") ~~ StringLiteral) ~~>>
       (ast.LoadCSV(_, _, _, _))
-  }
-
-  def FromGraph: Rule1[ast.FromGraph] = rule("FROM GRAPH") {
-    group(keyword("FROM") ~~ optional(keyword("GRAPH"))) ~~ Expression ~~>> (ast.FromGraph(_))
-  }
-
-  def UseGraph: Rule1[ast.UseGraph] = rule("USE GRAPH") {
-    group(keyword("USE") ~~ optional(keyword("GRAPH"))) ~~ Expression ~~>> (ast.UseGraph(_))
   }
 
   def ConstructGraph: Rule1[ast.ConstructGraph] = rule("CONSTRUCT") {

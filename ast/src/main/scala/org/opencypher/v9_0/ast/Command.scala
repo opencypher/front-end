@@ -18,6 +18,7 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelTypeName
@@ -28,7 +29,14 @@ import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CypherType
 
 sealed trait Command extends Statement {
-  override def returnColumns = List.empty
+  private var useGraph: Option[UseGraph] = None
+  def withGraph(useGraph: Option[UseGraph]): Command = {
+    this.useGraph = useGraph
+    this
+  }
+  def getGraph: Option[UseGraph] = useGraph
+
+  override def returnColumns: List[LogicalVariable] = List.empty
 }
 
 case class CreateIndex(label: LabelName, properties: List[PropertyKeyName])(val position: InputPosition) extends Command {

@@ -34,16 +34,33 @@ import org.opencypher.v9_0.util.symbols.CTGraphRef
 sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
 
   def name: String
-
-  override def returnColumns: List[LogicalVariable] = List.empty
 }
 
 sealed trait AdministrationCommand extends CatalogDDL {
+  private var useGraph: Option[UseGraph] = None
+  def withGraph(useGraph: Option[UseGraph]): AdministrationCommand = {
+    this.useGraph = useGraph
+    this
+  }
+  def isReadOnly: Boolean
+
   override def semanticCheck: SemanticCheck =
-    requireFeatureSupport(s"The `$name` clause", SemanticFeature.MultipleDatabases, position)
+      requireFeatureSupport(s"The `$name` clause", SemanticFeature.MultipleDatabases, position) chain
+      when(useGraph.isDefined)(SemanticError(s"The `USE` clause is not supported for Administration Commands.", position))
+}
+sealed trait ReadAdministrationCommand extends AdministrationCommand {
+  val isReadOnly: Boolean = true
+  def returnColumnNames: List[String]
+
+  override def returnColumns: List[LogicalVariable] = returnColumnNames.map(name => Variable(name)(position))
+}
+sealed trait WriteAdministrationCommand extends AdministrationCommand {
+  val isReadOnly: Boolean = false
+  override def returnColumns: List[LogicalVariable] = List.empty
 }
 
 sealed trait MultiGraphDDL extends CatalogDDL {
+  override def returnColumns: List[LogicalVariable] = List.empty
   //TODO Refine to split between multigraph and views
   override def semanticCheck: SemanticCheck =
     requireFeatureSupport(s"The `$name` clause", SemanticFeature.MultipleGraphs, position)
@@ -57,9 +74,12 @@ final case class IfExistsDoNothing() extends IfExistsDo
 final case class IfExistsThrowError() extends IfExistsDo
 final case class IfExistsInvalidSyntax() extends IfExistsDo
 
-final case class ShowUsers()(val position: InputPosition) extends AdministrationCommand {
+final case class ShowUsers()(val position: InputPosition) extends ReadAdministrationCommand {
 
   override def name: String = "SHOW USERS"
+
+  //TODO (fabric): roles and suspended is enterprise only
+  override def returnColumnNames: List[String] = List("user", "roles", "passwordChangeRequired", "suspended")
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -77,7 +97,7 @@ final case class CreateUser(userName: Either[String, Parameter],
                             initialPassword: Either[PasswordString, Parameter],
                             requirePasswordChange: Boolean,
                             suspended: Option[Boolean],
-                            ifExistsDo: IfExistsDo)(val position: InputPosition) extends AdministrationCommand with EitherAsString {
+                            ifExistsDo: IfExistsDo)(val position: InputPosition) extends WriteAdministrationCommand with EitherAsString {
   override def name: String = ifExistsDo match {
     case _: IfExistsReplace => "CREATE OR REPLACE USER"
     case _ => "CREATE USER"
@@ -93,7 +113,7 @@ final case class CreateUser(userName: Either[String, Parameter],
   private val userAsString: String = eitherAsString(userName)
 }
 
-final case class DropUser(userName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition) extends AdministrationCommand {
+final case class DropUser(userName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "DROP USER"
 
@@ -105,7 +125,7 @@ final case class DropUser(userName: Either[String, Parameter], ifExists: Boolean
 final case class AlterUser(userName: Either[String, Parameter],
                            initialPassword: Option[Either[PasswordString, Parameter]],
                            requirePasswordChange: Option[Boolean],
-                           suspended: Option[Boolean])(val position: InputPosition) extends AdministrationCommand {
+                           suspended: Option[Boolean])(val position: InputPosition) extends WriteAdministrationCommand {
   assert(initialPassword.isDefined || requirePasswordChange.isDefined || suspended.isDefined)
 
   override def name = "ALTER USER"
@@ -116,7 +136,7 @@ final case class AlterUser(userName: Either[String, Parameter],
 }
 
 final case class SetOwnPassword(newPassword: Either[PasswordString, Parameter], currentPassword: Either[PasswordString, Parameter])
-                               (val position: InputPosition) extends AdministrationCommand {
+                               (val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "ALTER CURRENT USER SET PASSWORD"
 
@@ -125,9 +145,11 @@ final case class SetOwnPassword(newPassword: Either[PasswordString, Parameter], 
       SemanticState.recordCurrentScope(this)
 }
 
-final case class ShowRoles(withUsers: Boolean, showAll: Boolean)(val position: InputPosition) extends AdministrationCommand {
+final case class ShowRoles(withUsers: Boolean, showAll: Boolean)(val position: InputPosition) extends ReadAdministrationCommand {
 
   override def name: String = if (showAll) "SHOW ALL ROLES" else "SHOW POPULATED ROLES"
+
+  override def returnColumnNames: List[String] = List("role", "isBuiltIn") ++ (if (withUsers) List("member") else List.empty)
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -135,7 +157,7 @@ final case class ShowRoles(withUsers: Boolean, showAll: Boolean)(val position: I
 }
 
 final case class CreateRole(roleName: Either[String, Parameter], from: Option[Either[String, Parameter]], ifExistsDo: IfExistsDo)
-                           (val position: InputPosition) extends AdministrationCommand {
+                           (val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name: String = ifExistsDo match {
     case _: IfExistsReplace => "CREATE OR REPLACE ROLE"
@@ -153,7 +175,7 @@ final case class CreateRole(roleName: Either[String, Parameter], from: Option[Ei
     }
 }
 
-final case class DropRole(roleName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition) extends AdministrationCommand {
+final case class DropRole(roleName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "DROP ROLE"
 
@@ -162,7 +184,7 @@ final case class DropRole(roleName: Either[String, Parameter], ifExists: Boolean
       SemanticState.recordCurrentScope(this)
 }
 
-final case class GrantRolesToUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])(val position: InputPosition) extends AdministrationCommand {
+final case class GrantRolesToUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "GRANT ROLE"
 
@@ -172,7 +194,7 @@ final case class GrantRolesToUsers(roleNames: Seq[Either[String, Parameter]], us
   }
 }
 
-final case class RevokeRolesFromUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])(val position: InputPosition) extends AdministrationCommand {
+final case class RevokeRolesFromUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "REVOKE ROLE"
 
@@ -435,7 +457,7 @@ object RevokePrivilege {
 }
 
 sealed abstract class PrivilegeCommand(privilege: PrivilegeType, qualifier: PrivilegeQualifier, position: InputPosition)
-  extends AdministrationCommand {
+  extends WriteAdministrationCommand {
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -473,43 +495,54 @@ final case class RevokePrivilege(privilege: PrivilegeType, resource: Option[Acti
   }
 }
 
-final case class ShowPrivileges(scope: ShowPrivilegeScope)(val position: InputPosition) extends AdministrationCommand {
+final case class ShowPrivileges(scope: ShowPrivilegeScope)(val position: InputPosition) extends ReadAdministrationCommand {
 
   override def name = "SHOW PRIVILEGE"
 
+  override def returnColumnNames: List[String] = List("access", "action", "resource", "graph", "segment", "role") ++ (scope match {
+    case _ : ShowUserPrivileges => List("user")
+    case _ => List.empty
+  })
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
 }
 
-final case class ShowDatabases()(val position: InputPosition) extends AdministrationCommand {
+final case class ShowDatabases()(val position: InputPosition) extends ReadAdministrationCommand {
 
   override def name = "SHOW DATABASES"
 
+  override def returnColumnNames: List[String] = List("name", "address", "role", "requestedStatus", "currentStatus", "error", "default")
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
 }
 
-final case class ShowDefaultDatabase()(val position: InputPosition) extends AdministrationCommand {
+final case class ShowDefaultDatabase()(val position: InputPosition) extends ReadAdministrationCommand {
 
   override def name = "SHOW DEFAULT DATABASE"
 
+  override def returnColumnNames: List[String] = List("name", "address", "role", "requestedStatus", "currentStatus", "error")
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
 }
 
-final case class ShowDatabase(dbName: Either[String, Parameter])(val position: InputPosition) extends AdministrationCommand {
+final case class ShowDatabase(dbName: Either[String, Parameter])(val position: InputPosition) extends ReadAdministrationCommand {
 
   override def name = "SHOW DATABASE"
 
+  override def returnColumnNames: List[String] = List("name", "address", "role", "requestedStatus", "currentStatus", "error", "default")
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
 }
 
-final case class CreateDatabase(dbName: Either[String, Parameter], ifExistsDo: IfExistsDo)(val position: InputPosition) extends AdministrationCommand {
+final case class CreateDatabase(dbName: Either[String, Parameter], ifExistsDo: IfExistsDo)(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name: String = ifExistsDo match {
     case _: IfExistsReplace => "CREATE OR REPLACE DATABASE"
@@ -526,7 +559,7 @@ final case class CreateDatabase(dbName: Either[String, Parameter], ifExistsDo: I
   }
 }
 
-final case class DropDatabase(dbName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition) extends AdministrationCommand {
+final case class DropDatabase(dbName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "DROP DATABASE"
 
@@ -535,7 +568,7 @@ final case class DropDatabase(dbName: Either[String, Parameter], ifExists: Boole
       SemanticState.recordCurrentScope(this)
 }
 
-final case class StartDatabase(dbName: Either[String, Parameter])(val position: InputPosition) extends AdministrationCommand {
+final case class StartDatabase(dbName: Either[String, Parameter])(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "START DATABASE"
 
@@ -544,7 +577,7 @@ final case class StartDatabase(dbName: Either[String, Parameter])(val position: 
       SemanticState.recordCurrentScope(this)
 }
 
-final case class StopDatabase(dbName: Either[String, Parameter])(val position: InputPosition) extends AdministrationCommand {
+final case class StopDatabase(dbName: Either[String, Parameter])(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "STOP DATABASE"
 
