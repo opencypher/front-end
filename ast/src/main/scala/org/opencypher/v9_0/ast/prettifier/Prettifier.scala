@@ -26,7 +26,7 @@ import org.opencypher.v9_0.ast.AllResource
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
-import org.opencypher.v9_0.ast.Command
+import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateGraph
@@ -164,13 +164,13 @@ case class Prettifier(
   private val base = IndentingQueryPrettifier()
 
   def asString(statement: Statement): String = statement match {
-    case q: Query => base.query(q)
-    case c: Command => asString(c)
+    case q: Query                 => base.query(q)
+    case c: SchemaCommand         => asString(c)
     case c: AdministrationCommand => asString(c)
-    case c: MultiGraphDDL => asString(c)
+    case c: MultiGraphDDL         => asString(c)
   }
 
-  def asString(command: Command): String = {
+  def asString(command: SchemaCommand): String = {
     val useString = asString(command.useGraph)
     val commandString = command match {
 

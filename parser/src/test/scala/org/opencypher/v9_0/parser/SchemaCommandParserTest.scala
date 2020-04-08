@@ -20,12 +20,12 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions
 import org.parboiled.scala.Rule1
 
-class CommandParserTest
-  extends ParserAstTest[ast.Command]
-    with Command
+class SchemaCommandParserTest
+  extends ParserAstTest[ast.SchemaCommand]
+    with SchemaCommand
     with AstConstructionTestSupport {
 
-  implicit val parser: Rule1[ast.Command] = Command
+  implicit val parser: Rule1[ast.SchemaCommand] = SchemaCommand
 
   // Create index
 
