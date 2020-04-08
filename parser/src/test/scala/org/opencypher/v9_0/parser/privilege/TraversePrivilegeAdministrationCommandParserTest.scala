@@ -32,15 +32,15 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
       Seq("GRAPH", "GRAPHS").foreach {
         graphKeyword =>
           test(s"$command TRAVERSE ON $graphKeyword * $preposition $$role") {
-            yields(func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.ElementsAllQualifier() _, Seq(param("role"))))
+            yields(func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.ElementsAllQualifier() _, Seq(param("role"))))
           }
 
           test(s"$command TRAVERSE ON $graphKeyword foo $preposition role") {
-            yields(func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsAllQualifier() _, Seq(literal("role"))))
+            yields(func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsAllQualifier() _, Seq(literal("role"))))
           }
 
           test(s"$command TRAVERSE ON $graphKeyword $$foo $preposition role") {
-            yields(func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(param("foo")) _, ast.ElementsAllQualifier() _, Seq(literal("role"))))
+            yields(func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(param("foo")) _), ast.ElementsAllQualifier() _, Seq(literal("role"))))
           }
 
           Seq("NODE", "NODES").foreach {
@@ -48,38 +48,40 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
 
               test( s"validExpressions $command $graphKeyword $nodeKeyword $preposition") {
                 parsing(s"$command TRAVERSE ON $graphKeyword * $nodeKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.LabelAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.LabelAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $nodeKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.LabelAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.LabelAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $nodeKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $nodeKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword `*` $nodeKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("*")) _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("*")) _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A (*) $preposition role1, $$role2") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("role1"), param("role2")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role1"), param("role2")))
                 parsing(s"$command TRAVERSE ON $graphKeyword `2foo` $nodeKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("2foo")) _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("2foo")) _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A (*) $preposition `r:ole`") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelsQualifier(Seq("A")) _, Seq(literal("r:ole")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("r:ole")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword `A B` (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelsQualifier(Seq("A B")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelsQualifier(Seq("A B")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A, B (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelsQualifier(Seq("A", "B")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelsQualifier(Seq("A", "B")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A, B (*) $preposition role1, role2") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.LabelsQualifier(Seq("A", "B")) _, Seq(literal("role1"), literal("role2")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.LabelsQualifier(Seq("A", "B")) _, Seq(literal("role1"), literal("role2")))
+                parsing(s"$command TRAVERSE ON $graphKeyword foo, baz $nodeKeyword A (*) $preposition role") shouldGive
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _, ast.NamedGraphScope(literal("baz")) _), ast.LabelsQualifier(Seq("A")) _, Seq(literal("role")))
               }
 
-              test( s"traverseParsingErrors$command $graphKeyword $nodeKeyword $preposition") {
+              test( s"traverseParsingErrors $command $graphKeyword $nodeKeyword $preposition") {
                 assertFails(s"$command TRAVERSE $graphKeyword * $nodeKeyword * (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A B (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A (foo) $preposition role")
@@ -89,7 +91,6 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
                 assertFails(s"$command TRAVERSE ON $graphKeyword $nodeKeyword A (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword foo $nodeKeyword A (*) $preposition r:ole")
                 assertFails(s"$command TRAVERSE ON $graphKeyword 2foo $nodeKeyword A (*) $preposition role")
-                assertFails(s"$command TRAVERSE ON $graphKeyword foo, baz $nodeKeyword A (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword * $nodeKeyword * (*)")
               }
           }
@@ -99,35 +100,37 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
 
               test( s"validExpressions $command $graphKeyword $relTypeKeyword $preposition") {
                 parsing(s"$command TRAVERSE ON $graphKeyword * $relTypeKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.RelationshipAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.RelationshipAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $relTypeKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.RelationshipAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.RelationshipAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $relTypeKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $relTypeKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword `*` $relTypeKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("*")) _, ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("*")) _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword A (*) $preposition $$role1, role2") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipsQualifier(Seq("A")) _, Seq(param("role1"), literal("role2")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipsQualifier(Seq("A")) _, Seq(param("role1"), literal("role2")))
                 parsing(s"$command TRAVERSE ON $graphKeyword `2foo` $relTypeKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("2foo")) _, ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("2foo")) _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword A (*) $preposition `r:ole`") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("r:ole")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("r:ole")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword `A B` (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipsQualifier(Seq("A B")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipsQualifier(Seq("A B")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword A, B (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipsQualifier(Seq("A", "B")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipsQualifier(Seq("A", "B")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword A, B (*) $preposition role1, role2") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.RelationshipsQualifier(Seq("A", "B")) _, Seq(literal("role1"), literal("role2")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.RelationshipsQualifier(Seq("A", "B")) _, Seq(literal("role1"), literal("role2")))
+                parsing(s"$command TRAVERSE ON $graphKeyword foo, baz $relTypeKeyword A (*) $preposition role") shouldGive
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _, ast.NamedGraphScope(literal("baz")) _), ast.RelationshipsQualifier(Seq("A")) _, Seq(literal("role")))
               }
 
               test( s"traverseParsingErrors$command $graphKeyword $relTypeKeyword $preposition") {
@@ -140,7 +143,6 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
                 assertFails(s"$command TRAVERSE ON $graphKeyword $relTypeKeyword A (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword foo $relTypeKeyword A (*) $preposition r:ole")
                 assertFails(s"$command TRAVERSE ON $graphKeyword 2foo $relTypeKeyword A (*) $preposition role")
-                assertFails(s"$command TRAVERSE ON $graphKeyword foo, baz $relTypeKeyword A (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword * $relTypeKeyword * (*)")
               }
           }
@@ -150,35 +152,37 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
 
               test( s"validExpressions $command $graphKeyword $elementKeyword $preposition") {
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.ElementsAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.ElementsAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.ElementsAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.ElementsAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword * $elementKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.AllGraphsScope() _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.AllGraphsScope() _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword `*` $elementKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("*")) _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("*")) _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword * $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword * (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsAllQualifier() _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsAllQualifier() _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A (*) $preposition role1, role2") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("role1"), literal("role2")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("role1"), literal("role2")))
                 parsing(s"$command TRAVERSE ON $graphKeyword `2foo` $elementKeyword A (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("2foo")) _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("2foo")) _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A (*) $preposition `r:ole`") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsQualifier(Seq("A")) _, Seq(literal("r:ole")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsQualifier(Seq("A")) _, Seq(literal("r:ole")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword `A B` (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsQualifier(Seq("A B")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsQualifier(Seq("A B")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A, B (*) $preposition role") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsQualifier(Seq("A", "B")) _, Seq(literal("role")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _) , ast.ElementsQualifier(Seq("A", "B")) _, Seq(literal("role")))
                 parsing(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A, B (*) $preposition $$role1, $$role2") shouldGive
-                  func(ast.TraversePrivilege()(pos), ast.NamedGraphScope(literal("foo")) _, ast.ElementsQualifier(Seq("A", "B")) _, Seq(param("role1"), param("role2")))
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _), ast.ElementsQualifier(Seq("A", "B")) _, Seq(param("role1"), param("role2")))
+                parsing(s"$command TRAVERSE ON $graphKeyword foo, baz $elementKeyword A (*) $preposition role")
+                  func(ast.TraversePrivilege()(pos), List(ast.NamedGraphScope(literal("foo")) _, ast.NamedGraphScope(literal("baz")) _), ast.ElementsQualifier(Seq("A")) _, Seq(param("role")))
               }
 
               test( s"traverseParsingErrors $command $graphKeyword $elementKeyword $preposition") {
@@ -191,7 +195,6 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
                 assertFails(s"$command TRAVERSE ON $graphKeyword $elementKeyword A (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword foo $elementKeyword A (*) $preposition r:ole")
                 assertFails(s"$command TRAVERSE ON $graphKeyword 2foo $elementKeyword A (*) $preposition role")
-                assertFails(s"$command TRAVERSE ON $graphKeyword foo, baz $elementKeyword A (*) $preposition role")
                 assertFails(s"$command TRAVERSE ON $graphKeyword * $elementKeyword * (*)")
               }
           }
