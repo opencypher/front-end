@@ -26,7 +26,6 @@ import org.opencypher.v9_0.ast.AllResource
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
-import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateGraph
@@ -102,6 +101,7 @@ import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItemsDef
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RevokeRolesFromUsers
+import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
@@ -145,7 +145,9 @@ import org.opencypher.v9_0.ast.UsingScanHint
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.WritePrivilege
+import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
@@ -578,9 +580,14 @@ case class Prettifier(
     def asString(u: UnresolvedCall): String = {
       val namespace = expr(u.procedureNamespace)
       val prefix = if (namespace.isEmpty) "" else namespace + "."
-      val arguments = u.declaredArguments.map(list => list.map(expr(_)).mkString("(", ", ", ")")).getOrElse("")
+      val args = u.declaredArguments.map(_.filter {
+        case CoerceTo(_: ImplicitProcedureArgument, _) => false
+        case _: ImplicitProcedureArgument              => false
+        case _                                         => true
+      })
+      val arguments = args.map(list => list.map(expr(_)).mkString("(", ", ", ")")).getOrElse("")
       val ind = indented()
-      val yields = u.declaredResult.map(ind.asString).map(asNewLine).getOrElse("")
+      val yields = u.declaredResult.filter(_.items.nonEmpty).map(ind.asString).map(asNewLine).getOrElse("")
       s"${INDENT}CALL $prefix${expr(u.procedureName)}$arguments$yields"
     }
 
