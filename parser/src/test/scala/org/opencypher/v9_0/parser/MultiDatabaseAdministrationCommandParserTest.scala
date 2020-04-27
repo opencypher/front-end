@@ -16,6 +16,8 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.DestroyData
+import org.opencypher.v9_0.ast.DumpData
 
 class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
@@ -151,19 +153,19 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   // DROP DATABASE
 
   test("DROP DATABASE foo") {
-    yields(ast.DropDatabase(literal("foo"), ifExists = false))
+    yields(ast.DropDatabase(literal("foo"), ifExists = false, DestroyData))
   }
 
   test("DROP DATABASE $foo") {
-    yields(ast.DropDatabase(param("foo"), ifExists = false))
+    yields(ast.DropDatabase(param("foo"), ifExists = false, DestroyData))
   }
 
   test("CATALOG DROP DATABASE `foo.bar`") {
-    yields(ast.DropDatabase(literal("foo.bar"), ifExists = false))
+    yields(ast.DropDatabase(literal("foo.bar"), ifExists = false, DestroyData))
   }
 
   test("DROP DATABASE foo IF EXISTS") {
-    yields(ast.DropDatabase(literal("foo"), ifExists = true))
+    yields(ast.DropDatabase(literal("foo"), ifExists = true, DestroyData))
   }
 
   test("CATALOG DROP DATABASE foo.bar") {
@@ -175,6 +177,26 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   }
 
   test("DROP DATABASE  IF EXISTS") {
+    failsToParse
+  }
+
+  test("DROP DATABASE foo DUMP DATA") {
+    yields(ast.DropDatabase(literal("foo"), ifExists = false, DumpData))
+  }
+
+  test("DROP DATABASE foo DESTROY DATA") {
+    yields(ast.DropDatabase(literal("foo"), ifExists = false, DestroyData))
+  }
+
+  test("DROP DATABASE foo IF EXISTS DUMP DATA") {
+    yields(ast.DropDatabase(literal("foo"), ifExists = true, DumpData))
+  }
+
+  test("DROP DATABASE foo IF EXISTS DESTROY DATA") {
+    yields(ast.DropDatabase(literal("foo"), ifExists = true, DestroyData))
+  }
+
+  test("DROP DATABASE  KEEP DATA") {
     failsToParse
   }
 

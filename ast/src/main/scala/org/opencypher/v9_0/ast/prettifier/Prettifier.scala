@@ -45,6 +45,7 @@ import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DescSortItem
+import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropGraph
@@ -57,6 +58,7 @@ import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropView
+import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementsAllQualifier
 import org.opencypher.v9_0.ast.ElementsQualifier
 import org.opencypher.v9_0.ast.Foreach
@@ -398,9 +400,13 @@ case class Prettifier(
           case _                                               => s"${x.name} ${Prettifier.escapeName(dbName)}"
         }
 
-      case x @ DropDatabase(dbName, ifExists) =>
-        if (ifExists) s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS"
-        else s"${x.name} ${Prettifier.escapeName(dbName)}"
+      case x @ DropDatabase(dbName, ifExists, additionalAction) =>
+        (ifExists, additionalAction) match {
+          case (false, DestroyData) => s"${x.name} ${Prettifier.escapeName(dbName)} DESTROY DATA"
+          case (true, DestroyData) => s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS DESTROY DATA"
+          case (false, DumpData) => s"${x.name} ${Prettifier.escapeName(dbName)} DUMP DATA"
+          case (true, DumpData) => s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS DUMP DATA"
+        }
 
       case x @ StartDatabase(dbName) =>
         s"${x.name} ${Prettifier.escapeName(dbName)}"

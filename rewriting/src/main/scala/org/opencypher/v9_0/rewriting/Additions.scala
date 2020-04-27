@@ -27,7 +27,9 @@ import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
+import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GraphAction
 import org.opencypher.v9_0.ast.GraphPrivilege
@@ -133,6 +135,10 @@ object Additions {
       // revoke fine-grained
       case p@RevokePrivilege(GraphPrivilege(action), _, _, _, _, _) if !action.equals(WriteAction) =>
         throw cypherExceptionFactory.syntaxException(errorMessage(action), p.position)
+
+      // remove database dump data
+      case p@DropDatabase(_,_,DumpData) =>
+        throw cypherExceptionFactory.syntaxException("Dumping data when dropping databases is not supported in this Cypher version.", p.position)
     }
   }
 

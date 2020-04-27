@@ -26,11 +26,13 @@ import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateView
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DenyPrivilege
+import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropGraph
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropView
+import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.GraphAction
@@ -619,8 +621,10 @@ trait Statement extends Parser
   }
 
   def DropDatabase: Rule1[DropDatabase] = rule("CATALOG DROP DATABASE") {
-    group(keyword("DROP DATABASE") ~~ SymbolicNameOrStringParameter ~~ keyword("IF EXISTS")) ~~>> (ast.DropDatabase(_, ifExists = true)) |
-    group(keyword("DROP DATABASE") ~~ SymbolicNameOrStringParameter) ~~>> (ast.DropDatabase(_, ifExists = false))
+    group(keyword("DROP DATABASE") ~~ SymbolicNameOrStringParameter ~~ keyword("IF EXISTS") ~~ keyword("DUMP DATA")) ~~>> (ast.DropDatabase(_, ifExists = true, DumpData)) |
+    group(keyword("DROP DATABASE") ~~ SymbolicNameOrStringParameter ~~ keyword("IF EXISTS") ~~ optional(keyword("DESTROY DATA"))) ~~>> (ast.DropDatabase(_, ifExists = true, DestroyData)) |
+    group(keyword("DROP DATABASE") ~~ SymbolicNameOrStringParameter ~~ keyword("DUMP DATA")) ~~>> (ast.DropDatabase(_, ifExists = false, DumpData)) |
+    group(keyword("DROP DATABASE") ~~ SymbolicNameOrStringParameter ~~ optional(keyword("DESTROY DATA"))) ~~>> (ast.DropDatabase(_, ifExists = false, DestroyData))
   }
 
   def StartDatabase: Rule1[StartDatabase] = rule("CATALOG START DATABASE") {
