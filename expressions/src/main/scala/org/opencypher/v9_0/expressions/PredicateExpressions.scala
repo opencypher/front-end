@@ -27,7 +27,10 @@ case class And(lhs: Expression, rhs: Expression)(val position: InputPosition) ex
 }
 
 object Ands {
-  def create(exprs: Set[Expression]): Expression = {
+  def apply(exprs: Seq[Expression])(position: InputPosition): Ands =
+    new Ands(exprs.distinct)(position)
+
+  def create(exprs: Seq[Expression]): Expression = {
     val size = exprs.size
     if(size == 0)
       True()(InputPosition.NONE)
@@ -38,7 +41,7 @@ object Ands {
   }
 }
 
-case class Ands(exprs: Set[Expression])(val position: InputPosition) extends Expression with MultiOperatorExpression {
+case class Ands(exprs: Seq[Expression])(val position: InputPosition) extends Expression with MultiOperatorExpression {
 
   override def canonicalOperatorSymbol = "AND"
 }
@@ -49,7 +52,12 @@ case class Or(lhs: Expression, rhs: Expression)(val position: InputPosition) ext
   )
 }
 
-case class Ors(exprs: Set[Expression])(val position: InputPosition) extends Expression with MultiOperatorExpression {
+object Ors {
+  def apply(exprs: Seq[Expression])(position: InputPosition): Ors =
+    new Ors(exprs.distinct)(position)
+}
+
+case class Ors(exprs: Seq[Expression])(val position: InputPosition) extends Expression with MultiOperatorExpression {
   override def canonicalOperatorSymbol = "OR"
 }
 
@@ -65,7 +73,7 @@ case class Not(rhs: Expression)(val position: InputPosition) extends Expression 
   )
 }
 
-case class Equals(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with BinaryOperatorExpression {
+case class Equals(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with ChainableBinaryOperatorExpression {
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(CTAny, CTAny), outputType = CTBoolean)
   )
@@ -75,7 +83,7 @@ case class Equals(lhs: Expression, rhs: Expression)(val position: InputPosition)
   def switchSides: Equals = copy(rhs, lhs)(position)
 }
 
-case class Equivalent(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with BinaryOperatorExpression {
+case class Equivalent(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with ChainableBinaryOperatorExpression {
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(CTAny, CTAny), outputType = CTBoolean)
   )
@@ -83,7 +91,7 @@ case class Equivalent(lhs: Expression, rhs: Expression)(val position: InputPosit
   override def canonicalOperatorSymbol = "~"
 }
 
-case class NotEquals(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with BinaryOperatorExpression {
+case class NotEquals(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with ChainableBinaryOperatorExpression {
   override val signatures = Vector(
     TypeSignature(argumentTypes = Vector(CTAny, CTAny), outputType = CTBoolean)
   )
@@ -91,7 +99,7 @@ case class NotEquals(lhs: Expression, rhs: Expression)(val position: InputPositi
   override def canonicalOperatorSymbol = "<>"
 }
 
-case class InvalidNotEquals(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with BinaryOperatorExpression {
+case class InvalidNotEquals(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with ChainableBinaryOperatorExpression {
   override def canonicalOperatorSymbol = "!="
 }
 
@@ -164,7 +172,7 @@ case class IsNotNull(lhs: Expression)(val position: InputPosition) extends Expre
   override def canonicalOperatorSymbol = "IS NOT NULL"
 }
 
-sealed trait InequalityExpression extends Expression with BinaryOperatorExpression {
+sealed trait InequalityExpression extends Expression with ChainableBinaryOperatorExpression {
   override val signatures = Vector(TypeSignature(argumentTypes = Vector(CTAny, CTAny), outputType = CTBoolean))
 
   def includeEquality: Boolean

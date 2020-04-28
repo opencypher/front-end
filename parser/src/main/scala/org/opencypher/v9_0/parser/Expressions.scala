@@ -107,7 +107,7 @@ trait Expressions extends Parser
           result.append(rhs(lhs))
           lhs = rhs.expr
         }
-        Ands(Set(result: _*))
+        Ands(result)
     }
   }
 

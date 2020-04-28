@@ -24,6 +24,7 @@ import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
 import org.opencypher.v9_0.expressions.BinaryOperatorExpression
 import org.opencypher.v9_0.expressions.CaseExpression
+import org.opencypher.v9_0.expressions.ChainableBinaryOperatorExpression
 import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Contains
@@ -238,20 +239,14 @@ case class ExpressionStringifier(
 
       case Ands(expressions) =>
 
-        type BinOp = Expression with BinaryOperatorExpression
+        type ChainOp = Expression with ChainableBinaryOperatorExpression
 
-        def findChain: Option[List[BinOp]] =
-          expressions.toList
-            .collect {
-              case e: BinaryOperatorExpression => e
-            }
-            .permutations.find { chain =>
-            def hasAll = expressions.forall(chain.contains)
-
-            def aligns = chain.sliding(2).forall(p => p.head.rhs == p.last.lhs)
-
-            hasAll && aligns
-          }
+        def findChain: Option[List[ChainOp]] = {
+          val chainable = expressions.collect { case e: ChainableBinaryOperatorExpression => e }
+          def allChainable = chainable.size == expressions.size
+          def formsChain = chainable.sliding(2).forall(p => p.head.rhs == p.last.lhs)
+          if (allChainable && formsChain) Some(chainable.toList) else None
+        }
 
         findChain match {
           case Some(chain) =>
