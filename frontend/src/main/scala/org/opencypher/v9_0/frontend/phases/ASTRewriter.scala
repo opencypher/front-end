@@ -39,6 +39,7 @@ import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
 import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
+import org.opencypher.v9_0.rewriting.rewriters.moveWithPastMatch
 import org.opencypher.v9_0.rewriting.rewriters.nameMatchPatternElements
 import org.opencypher.v9_0.rewriting.rewriters.namePatternComprehensionPatternElements
 import org.opencypher.v9_0.rewriting.rewriters.nameUpdatingClauses
@@ -59,8 +60,7 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
                   getDegreeRewriting: Boolean,
                   innerVariableNamer: InnerVariableNamer) {
 
-  def rewrite(queryText: String,
-              statement: Statement,
+  def rewrite(statement: Statement,
               semanticState: SemanticState,
               parameterTypeMapping: Map[String, CypherType],
               cypherExceptionFactory: CypherExceptionFactory): (Statement, Map[String, Any], Set[RewriterCondition]) = {
@@ -68,6 +68,7 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
     val contract = rewriterSequencer("ASTRewriter")(
       recordScopes(semanticState),
       desugarMapProjection(semanticState),
+      moveWithPastMatch,
       normalizeComparisons,
       enableCondition(noReferenceEqualityAmongVariables),
       enableCondition(containsNoNodesOfType[UnaliasedReturnItem]),

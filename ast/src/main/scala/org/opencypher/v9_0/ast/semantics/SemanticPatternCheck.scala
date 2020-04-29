@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
-import org.opencypher.v9_0.ast.ReturnItemsDef
+import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.InvalidNodePattern
@@ -323,7 +323,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         ) chain implicitVariable(variable, expectedType)
     }
 
-  def checkValidPropertyKeyNamesInReturnItems(returnItems: ReturnItemsDef, position: InputPosition): SemanticCheck = {
+  def checkValidPropertyKeyNamesInReturnItems(returnItems: ReturnItems, position: InputPosition): SemanticCheck = {
     val propertyKeys = returnItems.items.collect { case item => item.expression.findByAllClass[Property]map(prop => prop.propertyKey) }.flatten
     SemanticPatternCheck.checkValidPropertyKeyNames(propertyKeys, position)
   }

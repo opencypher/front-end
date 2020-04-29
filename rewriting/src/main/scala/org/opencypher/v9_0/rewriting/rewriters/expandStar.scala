@@ -20,7 +20,6 @@ import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
-import org.opencypher.v9_0.ast.ReturnItemsDef
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Expression
@@ -48,7 +47,7 @@ case class expandStar(state: SemanticState) extends Rewriter {
   private val instance = bottomUp(rewriter, _.isInstanceOf[Expression])
 
   private def returnItems(clause: Clause, listedItems: Seq[ReturnItem], excludedNames: Set[String] = Set.empty)
-  : ReturnItemsDef = {
+  : ReturnItems = {
     val scope = state.scope(clause).getOrElse {
       throw new IllegalStateException(s"${clause.name} should note its Scope in the SemanticState")
     }

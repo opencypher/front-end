@@ -102,7 +102,7 @@ import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
-import org.opencypher.v9_0.ast.ReturnItemsDef
+import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RevokeRolesFromUsers
 import org.opencypher.v9_0.ast.SchemaCommand
@@ -570,7 +570,7 @@ case class Prettifier(
       case UnaliasedReturnItem(e, _) => expr(e)
     }
 
-    def asString(r: ReturnItemsDef): String = {
+    def asString(r: ReturnItems): String = {
       val as = if (r.includeExisting) Seq("*") else Seq()
       val is = r.items.map(asString)
       (as ++ is).mkString(", ")
