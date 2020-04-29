@@ -20,9 +20,9 @@ import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllGraphsScope
 import org.opencypher.v9_0.ast.AllNodes
+import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
 import org.opencypher.v9_0.ast.AllRelationships
-import org.opencypher.v9_0.ast.AllResource
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
@@ -752,7 +752,7 @@ object Prettifier {
     val resourceName = resource match {
       case PropertyResource(name) => ExpressionStringifier.backtick(name)
       case PropertiesResource(names) => names.map(ExpressionStringifier.backtick(_)).mkString(", ")
-      case AllResource() => "*"
+      case AllPropertyResource() => "*"
       case _ => "<unknown>"
     }
     (resourceName, extractScope(dbScope, qualifier))
