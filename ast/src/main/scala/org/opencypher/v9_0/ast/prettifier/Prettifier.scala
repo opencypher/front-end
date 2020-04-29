@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllGraphsScope
+import org.opencypher.v9_0.ast.AllLabelResource
 import org.opencypher.v9_0.ast.AllNodes
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
@@ -69,6 +70,7 @@ import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.LabelAllQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
 import org.opencypher.v9_0.ast.LabelsQualifier
+import org.opencypher.v9_0.ast.LabelsResource
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.Match
@@ -361,30 +363,29 @@ case class Prettifier(
       val scope = Prettifier.extractScope(dbScope, qualifier)
       s"${x.name} ON $scope FROM ${Prettifier.escapeNames(roleNames)}"
 
-    case x@GrantPrivilege(SetLabelPrivilege(), _, dbScope, qualifier, roleNames) =>
-      val scope = Prettifier.extractLabelScope(dbScope, qualifier)
+    case x@GrantPrivilege(SetLabelPrivilege(), Some(resource), dbScope, _, roleNames) =>
+      val scope = Prettifier.extractLabelScope(dbScope, resource)
       s"${x.name} $scope TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x@DenyPrivilege(SetLabelPrivilege(), _, dbScope, qualifier, roleNames) =>
-      val scope = Prettifier.extractLabelScope(dbScope, qualifier)
+    case x@DenyPrivilege(SetLabelPrivilege(), Some(resource), dbScope, _, roleNames) =>
+      val scope = Prettifier.extractLabelScope(dbScope, resource)
       s"${x.name} $scope TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x@RevokePrivilege(SetLabelPrivilege(), _, dbScope, qualifier, roleNames, _) =>
-      val scope = Prettifier.extractLabelScope(dbScope, qualifier)
+    case x@RevokePrivilege(SetLabelPrivilege(), Some(resource), dbScope, _, roleNames, _) =>
+      val scope = Prettifier.extractLabelScope(dbScope, resource)
       s"${x.name} $scope FROM ${Prettifier.escapeNames(roleNames)}"
 
-    case x@GrantPrivilege(RemoveLabelPrivilege(), _, dbScope, qualifier, roleNames) =>
-      val scope = Prettifier.extractLabelScope(dbScope, qualifier)
+    case x@GrantPrivilege(RemoveLabelPrivilege(), Some(resource), dbScope, _, roleNames) =>
+      val scope = Prettifier.extractLabelScope(dbScope, resource)
       s"${x.name} $scope TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x@DenyPrivilege(RemoveLabelPrivilege(), _, dbScope, qualifier, roleNames) =>
-      val scope = Prettifier.extractLabelScope(dbScope, qualifier)
+    case x@DenyPrivilege(RemoveLabelPrivilege(), Some(resource), dbScope, _, roleNames) =>
+      val scope = Prettifier.extractLabelScope(dbScope, resource)
       s"${x.name} $scope TO ${Prettifier.escapeNames(roleNames)}"
 
-    case x@RevokePrivilege(RemoveLabelPrivilege(), _, dbScope, qualifier, roleNames, _) =>
-      val scope = Prettifier.extractLabelScope(dbScope, qualifier)
+    case x@RevokePrivilege(RemoveLabelPrivilege(), Some(resource), dbScope, _, roleNames, _) =>
+      val scope = Prettifier.extractLabelScope(dbScope, resource)
       s"${x.name} $scope FROM ${Prettifier.escapeNames(roleNames)}"
-
 
     case x @ GrantPrivilege(_, Some(resource), dbScope, qualifier, roleNames) =>
       val (resourceName, scope) = Prettifier.extractScope(resource, dbScope, qualifier)
@@ -738,10 +739,10 @@ object Prettifier {
     s"$graphWord $dbString ${extractQualifierPart(qualifier)}"
   }
 
-  def extractLabelScope(dbScope: List[GraphScope], qualifier: PrivilegeQualifier): String = {
-    val labelNames = qualifier match {
-      case LabelsQualifier(names) => names.map(ExpressionStringifier.backtick(_)).mkString(", ")
-      case LabelAllQualifier() => "*"
+  def extractLabelScope(dbScope: List[GraphScope], resource: ActionResource): String = {
+    val labelNames = resource match {
+      case LabelsResource(names) => names.map(ExpressionStringifier.backtick(_)).mkString(", ")
+      case AllLabelResource() => "*"
     }
     val (dbString, _, multipleDbs) = extractDbScope(dbScope)
     val graphWord = if (multipleDbs) "GRAPHS" else "GRAPH"
