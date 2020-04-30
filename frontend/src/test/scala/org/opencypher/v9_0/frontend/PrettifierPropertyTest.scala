@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.generator.AstGenerator
-import org.opencypher.v9_0.ast.generator.AstShrinker.shrinkQuery
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.parser.CypherParser
@@ -27,7 +26,7 @@ class PrettifierPropertyTest extends CypherFunSuite
   with GeneratorDrivenPropertyChecks
   with PrettifierTestUtils {
 
-  val prettifier: Prettifier = Prettifier(ExpressionStringifier(alwaysParens = true, alwaysBacktick = true))
+  val prettifier: Prettifier = Prettifier(ExpressionStringifier(alwaysParens = true, alwaysBacktick = true, sensitiveParamsAsParams = true))
 
   val parser = new CypherParser
 
@@ -36,8 +35,8 @@ class PrettifierPropertyTest extends CypherFunSuite
   implicit val config: PropertyCheckConfiguration = PropertyCheckConfiguration(minSuccessful = 500)
 
   test("Prettifier output should parse to the same ast") {
-    forAll(astGenerator._query) { query =>
-      roundTripCheck(query)
+    forAll(astGenerator._statement) { statement =>
+      roundTripCheck(statement)
     }
   }
 }
