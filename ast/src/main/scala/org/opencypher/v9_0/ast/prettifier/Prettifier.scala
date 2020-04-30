@@ -157,7 +157,7 @@ import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.SensitiveAutoParameter
-import org.opencypher.v9_0.expressions.SensitiveStringLiteral
+import org.opencypher.v9_0.expressions.SensitiveString
 import org.opencypher.v9_0.expressions.Variable
 
 //noinspection DuplicatedCode
@@ -809,7 +809,7 @@ object Prettifier {
   }
 
   def escapePassword(password: Expression): String = password match {
-    case _: SensitiveStringLiteral => "'******'"
+    case _: SensitiveString => "'******'"
     case _: SensitiveAutoParameter => "'******'"
     case param: Parameter => s"$$${ExpressionStringifier.backtick(param.name)}"
   }
