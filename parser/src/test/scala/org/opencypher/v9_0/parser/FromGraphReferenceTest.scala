@@ -18,7 +18,7 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import  org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTAny
 import org.parboiled.scala.Rule1
 
 class FromGraphReferenceTest
