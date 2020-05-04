@@ -57,6 +57,7 @@ import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropView
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.ElementsQualifier
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantPrivilege
@@ -788,6 +789,7 @@ object Prettifier {
     case RelationshipQualifier(name)   => "RELATIONSHIP " + ExpressionStringifier.backtick(name)
     case RelationshipsQualifier(names) => "RELATIONSHIPS " + names.map(ExpressionStringifier.backtick(_)).mkString(", ")
     case RelationshipAllQualifier()    => "RELATIONSHIPS *"
+    case ElementsQualifier(names)      => "ELEMENTS " + names.map(ExpressionStringifier.backtick(_)).mkString(", ")
     case ElementsAllQualifier()        => "ELEMENTS *"
     case UsersQualifier(names)         => "(" + names.map(escapeName).mkString(", ") + ")"
     case UserQualifier(name)           => "(" + escapeName(name) + ")"
