@@ -27,21 +27,21 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 
 /**
-  * Merges multiple IN predicates into one.
-  *
-  * Examples:
-  * MATCH (n) WHERE n.prop IN [1,2,3] AND [2,3,4] RETURN n.prop
-  * -> MATCH (n) WHERE n.prop IN [2,3]
-  *
-  * MATCH (n) WHERE n.prop IN [1,2,3] OR [2,3,4] RETURN n.prop
-  * -> MATCH (n) WHERE n.prop IN [1,2,3,4]
-  *
-  * MATCH (n) WHERE n.prop IN [1,2,3] AND [4,5,6] RETURN n.prop
-  * -> MATCH (n) WHERE FALSE
-  *
-  * NOTE: this rewriter must be applied before auto parameterization, since after
-  * that we are just dealing with opaque parameters.
-  */
+ * Merges multiple IN predicates into one.
+ *
+ * Examples:
+ * MATCH (n) WHERE n.prop IN [1,2,3] AND [2,3,4] RETURN n.prop
+ * -> MATCH (n) WHERE n.prop IN [2,3]
+ *
+ * MATCH (n) WHERE n.prop IN [1,2,3] OR [2,3,4] RETURN n.prop
+ * -> MATCH (n) WHERE n.prop IN [1,2,3,4]
+ *
+ * MATCH (n) WHERE n.prop IN [1,2,3] AND [4,5,6] RETURN n.prop
+ * -> MATCH (n) WHERE FALSE
+ *
+ * NOTE: this rewriter must be applied before auto parameterization, since after
+ * that we are just dealing with opaque parameters.
+ */
 case object mergeInPredicates extends Rewriter {
 
   def apply(that: AnyRef): AnyRef = inner.apply(that)

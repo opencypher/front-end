@@ -30,8 +30,8 @@ sealed trait InternalNotificationLogger {
 }
 
 /**
-  * A null implementation that discards all notifications.
-  */
+ * A null implementation that discards all notifications.
+ */
 case object devNullLogger extends InternalNotificationLogger {
   override def log(notification: InternalNotification) {}
 
@@ -39,8 +39,8 @@ case object devNullLogger extends InternalNotificationLogger {
 }
 
 /**
-  * NotificationLogger that records all notifications for later retrieval.
-  */
+ * NotificationLogger that records all notifications for later retrieval.
+ */
 class RecordingNotificationLogger(override val offset: Option[InputPosition] = None) extends InternalNotificationLogger {
   private val builder = Set.newBuilder[InternalNotification]
 
