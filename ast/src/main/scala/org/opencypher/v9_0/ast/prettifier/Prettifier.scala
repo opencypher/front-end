@@ -67,6 +67,7 @@ import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.GraphScope
 import org.opencypher.v9_0.ast.GraphSelection
 import org.opencypher.v9_0.ast.IfExistsDoNothing
+import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.LabelAllQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
 import org.opencypher.v9_0.ast.LabelsQualifier
@@ -246,7 +247,7 @@ case class Prettifier(
     case x @ CreateUser(userName, initialPassword, requirePasswordChange, suspended, ifExistsDo) =>
       val userNameString = Prettifier.escapeName(userName)
       val ifNotExists = ifExistsDo match {
-        case _: IfExistsDoNothing => " IF NOT EXISTS"
+        case _: IfExistsDoNothing | _: IfExistsInvalidSyntax => " IF NOT EXISTS"
         case _                    => ""
       }
       val password = expr.escapePassword(initialPassword)
@@ -278,13 +279,13 @@ case class Prettifier(
 
     case x @ CreateRole(roleName, None, ifExistsDo) =>
       ifExistsDo match {
-        case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS"
+        case _: IfExistsDoNothing | _: IfExistsInvalidSyntax => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS"
         case _                    => s"${x.name} ${Prettifier.escapeName(roleName)}"
       }
 
     case x @ CreateRole(roleName, Some(fromRole), ifExistsDo) =>
       ifExistsDo match {
-        case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS AS COPY OF ${Prettifier.escapeName(fromRole)}"
+        case _: IfExistsDoNothing | _: IfExistsInvalidSyntax => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS AS COPY OF ${Prettifier.escapeName(fromRole)}"
         case _                    => s"${x.name} ${Prettifier.escapeName(roleName)} AS COPY OF ${Prettifier.escapeName(fromRole)}"
       }
 
@@ -399,8 +400,8 @@ case class Prettifier(
 
     case x @ CreateDatabase(dbName, ifExistsDo) =>
       ifExistsDo match {
-        case _: IfExistsDoNothing => s"${x.name} ${Prettifier.escapeName(dbName)} IF NOT EXISTS"
-        case _                    => s"${x.name} ${Prettifier.escapeName(dbName)}"
+        case _: IfExistsDoNothing | _: IfExistsInvalidSyntax => s"${x.name} ${Prettifier.escapeName(dbName)} IF NOT EXISTS"
+        case _                                               => s"${x.name} ${Prettifier.escapeName(dbName)}"
       }
 
     case x @ DropDatabase(dbName, ifExists) =>
