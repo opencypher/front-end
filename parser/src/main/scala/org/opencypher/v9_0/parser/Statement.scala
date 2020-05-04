@@ -54,9 +54,7 @@ import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.parboiled.scala.Parser
 import org.parboiled.scala.Rule0
 import org.parboiled.scala.Rule1
