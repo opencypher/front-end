@@ -1326,12 +1326,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   // Top level administration command
 
-  def _adminCommand: Gen[AdministrationCommand] = oneOf(
-    _userCommand,
-    _roleCommand,
-    _privilegeCommand,
-    _multiDatabaseCommand
-  )
+  def _adminCommand: Gen[AdministrationCommand] = for {
+    command <- oneOf(_userCommand, _roleCommand, _privilegeCommand, _multiDatabaseCommand)
+    use     <- frequency(1 -> some(_use), 9 -> const(None))
+  } yield command.withGraph(use)
 
   // Top level statement
   // ----------------------------------
