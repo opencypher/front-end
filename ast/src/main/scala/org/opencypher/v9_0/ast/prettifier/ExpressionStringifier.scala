@@ -69,6 +69,8 @@ import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.ReduceScope
 import org.opencypher.v9_0.expressions.RegexMatch
 import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SensitiveAutoParameter
+import org.opencypher.v9_0.expressions.SensitiveString
 import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.SingleIterablePredicate
 import org.opencypher.v9_0.expressions.StartsWith
@@ -85,7 +87,8 @@ case class ExpressionStringifier(
   extension: ExpressionStringifier.Extension,
   alwaysParens: Boolean,
   alwaysBacktick: Boolean,
-  preferSingleQuotes: Boolean
+  preferSingleQuotes: Boolean,
+  sensitiveParamsAsParams: Boolean
 ) {
 
   val patterns = PatternStringifier(this)
@@ -376,6 +379,12 @@ case class ExpressionStringifier(
     else
       "\"" + str + "\""
   }
+
+  def escapePassword(password: Expression): String = password match {
+    case _: SensitiveString => "'******'"
+    case _: SensitiveAutoParameter if !sensitiveParamsAsParams => "'******'"
+    case param: Parameter => s"$$${ExpressionStringifier.backtick(param.name)}"
+  }
 }
 
 object ExpressionStringifier {
@@ -384,8 +393,9 @@ object ExpressionStringifier {
     extender: Expression => String = failingExtender,
     alwaysParens: Boolean = false,
     alwaysBacktick: Boolean = false,
-    preferSingleQuotes: Boolean = false
-  ): ExpressionStringifier = ExpressionStringifier(Extension.simple(extender), alwaysParens, alwaysBacktick, preferSingleQuotes)
+    preferSingleQuotes: Boolean = false,
+    sensitiveParamsAsParams: Boolean = false
+  ): ExpressionStringifier = ExpressionStringifier(Extension.simple(extender), alwaysParens, alwaysBacktick, preferSingleQuotes, sensitiveParamsAsParams)
 
   trait Extension {
     def apply(ctx: ExpressionStringifier)(expression: Expression): String
