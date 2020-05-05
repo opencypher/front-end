@@ -48,12 +48,18 @@ import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAction
 import org.opencypher.v9_0.ast.CreateElementAction
+import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
+import org.opencypher.v9_0.ast.CreateIndexNewSyntax
+import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
+import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreatePropertyKeyAction
+import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateRoleAction
+import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.DatabaseAction
@@ -64,11 +70,18 @@ import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DropConstraintAction
+import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAction
+import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexAction
+import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.DropNodeKeyConstraint
+import org.opencypher.v9_0.ast.DropNodePropertyExistenceConstraint
+import org.opencypher.v9_0.ast.DropRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropRoleAction
+import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.ElementsAllQualifier
@@ -121,6 +134,7 @@ import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RevokeRolesFromUsers
+import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
 import org.opencypher.v9_0.ast.SetClause
@@ -1067,6 +1081,80 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     1 -> _bulkImportQuery
   )
 
+  // Schema commands
+  // ----------------------------------
+
+  def _variableProperty: Gen[Property] = for {
+    map <- _variable
+    key <- _propertyKeyName
+  } yield Property(map, key)(pos)
+
+  def _listOfProperties: Gen[List[Property]] = for {
+    props <- oneOrMore(_variableProperty)
+  } yield props
+
+  def _createIndex: Gen[CreateIndexNewSyntax] = for {
+    variable  <- _variable
+    labelName <- _labelName
+    props     <- _listOfProperties
+    name      <- option(_identifier)
+    use       <- option(_use)
+  } yield CreateIndexNewSyntax(variable, labelName, props, name, use)(pos)
+
+  def _dropIndex: Gen[DropIndexOnName] = for {
+    name <- _identifier
+    use  <- option(_use)
+  } yield DropIndexOnName(name, use)(pos)
+
+  def _indexCommandsOldSyntax: Gen[SchemaCommand] = for {
+    labelName <- _labelName
+    props     <- oneOrMore(_propertyKeyName)
+    use       <- option(_use)
+    command   <- oneOf(CreateIndex(labelName, props, use)(pos), DropIndex(labelName, props, use)(pos))
+  } yield command
+
+  def _createConstraint: Gen[SchemaCommand] = for {
+    variable            <- _variable
+    labelName           <- _labelName
+    relTypeName         <- _relTypeName
+    props               <- _listOfProperties
+    prop                <- _variableProperty
+    name                <- option(_identifier)
+    use                 <- option(_use)
+    nodeKey             = CreateNodeKeyConstraint(variable, labelName, props, name, use)(pos)
+    uniqueness          = CreateUniquePropertyConstraint(variable, labelName, Seq(prop), name, use)(pos)
+    compositeUniqueness = CreateUniquePropertyConstraint(variable, labelName, props, name, use)(pos)
+    nodeExistence       = CreateNodePropertyExistenceConstraint(variable, labelName, prop, name, use)(pos)
+    relExistence        = CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, prop, name, use)(pos)
+    command             <- oneOf(nodeKey, uniqueness, compositeUniqueness, nodeExistence, relExistence)
+  } yield command
+
+  def _dropConstraintOldSyntax: Gen[SchemaCommand] = for {
+    variable            <- _variable
+    labelName           <- _labelName
+    relTypeName         <- _relTypeName
+    props               <- _listOfProperties
+    prop                <- _variableProperty
+    use                 <- option(_use)
+    nodeKey             = DropNodeKeyConstraint(variable, labelName, props, use)(pos)
+    uniqueness          = DropUniquePropertyConstraint(variable, labelName, Seq(prop), use)(pos)
+    compositeUniqueness = DropUniquePropertyConstraint(variable, labelName, props, use)(pos)
+    nodeExistence       = DropNodePropertyExistenceConstraint(variable, labelName, prop, use)(pos)
+    relExistence        = DropRelationshipPropertyExistenceConstraint(variable, relTypeName, prop, use)(pos)
+    command             <- oneOf(nodeKey, uniqueness, compositeUniqueness, nodeExistence, relExistence)
+  } yield command
+
+  def _dropConstraint: Gen[DropConstraintOnName] = for {
+    name <- _identifier
+    use  <- option(_use)
+  } yield DropConstraintOnName(name, use)(pos)
+
+  def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex, _indexCommandsOldSyntax)
+
+  def _constraintCommand: Gen[SchemaCommand] = oneOf(_createConstraint, _dropConstraint, _dropConstraintOldSyntax)
+
+  def _schemaCommand: Gen[SchemaCommand] = oneOf(_indexCommand, _constraintCommand)
+
   // Administration commands
   // ----------------------------------
 
@@ -1336,6 +1424,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _statement: Gen[Statement] = oneOf(
     _query,
+    _schemaCommand,
     _adminCommand
   )
 }

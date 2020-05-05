@@ -50,8 +50,12 @@ trait SchemaCommand extends Parser
       | DropIndexOnName) ~~> ((use, command) => command.withGraph(use))
   )
 
-  def PropertyExpressions: Rule1[Seq[Property]] = rule("multiple property expressions") {
-    oneOrMore(WS ~ Variable ~ PropertyLookup, separator = CommaSep)
+  def VariablePropertyExpression: Rule1[Property] = rule("single property expression from variable") {
+    Variable ~ PropertyLookup
+  }
+
+  def VariablePropertyExpressions: Rule1[Seq[Property]] = rule("multiple property expressions from variable") {
+    oneOrMore(WS ~ VariablePropertyExpression, separator = CommaSep)
   }
 
   def CreateIndex: Rule1[ast.CreateIndex] = rule {
@@ -66,7 +70,7 @@ trait SchemaCommand extends Parser
   }
 
   def IndexPatternSyntax: Rule3[Variable, LabelName, Seq[Property]] = rule {
-    group("(" ~~ Variable ~~ NodeLabel ~~ ")" ~~ keyword("ON") ~~ "(" ~~ PropertyExpressions ~~ ")")
+    group("(" ~~ Variable ~~ NodeLabel ~~ ")" ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")")
   }
 
   def DropIndex: Rule1[ast.DropIndex] = rule {
@@ -134,19 +138,19 @@ trait SchemaCommand extends Parser
   }
 
   private def NodeKeyConstraintSyntax: Rule3[Variable, LabelName, Seq[Property]] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
-    keyword("ASSERT") ~~ "(" ~~ PropertyExpressions ~~ ")" ~~ keyword("IS NODE KEY")
+    keyword("ASSERT") ~~ "(" ~~ VariablePropertyExpressions ~~ ")" ~~ keyword("IS NODE KEY")
 
   private def UniqueConstraintSyntax: Rule3[Variable, LabelName, Property] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
-    keyword("ASSERT") ~~ PropertyExpression ~~ keyword("IS UNIQUE")
+    keyword("ASSERT") ~~ VariablePropertyExpression ~~ keyword("IS UNIQUE")
 
   private def UniqueCompositeConstraintSyntax: Rule3[Variable, LabelName, Seq[Property]] = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
-    keyword("ASSERT") ~~ "(" ~~ PropertyExpressions ~~ ")" ~~ keyword("IS UNIQUE")
+    keyword("ASSERT") ~~ "(" ~~ VariablePropertyExpressions ~~ ")" ~~ keyword("IS UNIQUE")
 
   private def NodePropertyExistenceConstraintSyntax = keyword("ON") ~~ "(" ~~ Variable ~~ NodeLabel ~~ ")" ~~
-    keyword("ASSERT EXISTS") ~~ "(" ~~ PropertyExpression ~~ ")"
+    keyword("ASSERT EXISTS") ~~ "(" ~~ VariablePropertyExpression ~~ ")"
 
   private def RelationshipPropertyExistenceConstraintSyntax = keyword("ON") ~~ RelationshipPatternSyntax ~~
-    keyword("ASSERT EXISTS") ~~ "(" ~~ PropertyExpression ~~ ")"
+    keyword("ASSERT EXISTS") ~~ "(" ~~ VariablePropertyExpression ~~ ")"
 
   private def RelationshipPatternSyntax = rule(
     ("()-[" ~~ Variable~~ RelType ~~ "]-()")
