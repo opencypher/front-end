@@ -545,7 +545,7 @@ case class Match(
               }
             }
             SkipChildren(newAcc)
-        case _: Where | _: And | _: Ands | _: Set[_] | _: Or | _: Ors =>
+        case _: Where | _: And | _: Ands | _: Set[_] | _: Seq[_] | _: Or | _: Ors =>
           acc => TraverseChildren(acc)
         case _ =>
           acc => SkipChildren(acc)
@@ -581,7 +581,7 @@ case class Match(
       case Some(innerWhere) => innerWhere.treeFold(labels) {
         case HasLabels(Variable(id), predicateLabels) if id == variable =>
           acc => SkipChildren(acc ++ predicateLabels.map(_.name))
-        case _: Where | _: And | _: Ands | _: Set[_] =>
+        case _: Where | _: And | _: Ands | _: Set[_] | _: Seq[_] =>
           acc => TraverseChildren(acc)
         case _ =>
           acc => SkipChildren(acc)
