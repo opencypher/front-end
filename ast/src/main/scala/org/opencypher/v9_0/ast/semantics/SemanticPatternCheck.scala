@@ -41,6 +41,8 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.ShortestPaths
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.DeprecatedRepeatedRelVarInPatternExpression
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.UnboundedShortestPathNotification
 import org.opencypher.v9_0.util.symbols.CTList
@@ -55,11 +57,12 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
   def check(ctx: SemanticContext, pattern: Pattern): SemanticCheck =
         semanticCheckFold(pattern.patternParts)(declareVariables(ctx)) chain
           semanticCheckFold(pattern.patternParts)(check(ctx)) chain
-          ensureNoDuplicateRelationships(pattern)
+          ensureNoDuplicateRelationships(pattern, error = true)
 
   def check(ctx: SemanticContext, pattern: RelationshipsPattern): SemanticCheck =
     declareVariables(ctx, pattern.element) chain
-      check(ctx, pattern.element)
+      check(ctx, pattern.element) chain
+      ensureNoDuplicateRelationships(pattern, error = false)
 
   def declareVariables(ctx: SemanticContext)(part: PatternPart): SemanticCheck =
     part match {
@@ -294,10 +297,18 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         }
     }
 
-  private def ensureNoDuplicateRelationships(pattern: Pattern): SemanticCheck = {
-    pattern.findDuplicateRelationships.foldLeft(SemanticCheckResult.success) {
-      (acc, duplicate) =>
-        acc chain SemanticError(s"Cannot use the same relationship variable '${duplicate.name}' for multiple patterns", duplicate.position)
+  /**
+   * @param error if `true` return an error, otherwise a warning.
+   */
+  private def ensureNoDuplicateRelationships(astNode: ASTNode, error: Boolean): SemanticCheck = {
+    def perDuplicate(name: String, pos: InputPosition): SemanticCheck =
+      if(error)
+        SemanticError(s"Cannot use the same relationship variable '$name' for multiple patterns", pos)
+      else
+        state => SemanticCheckResult(state.addNotification(DeprecatedRepeatedRelVarInPatternExpression(pos, name)), Seq.empty)
+
+    RelationshipChain.findDuplicateRelationships(astNode).foldSemanticCheck {
+      duplicate =>perDuplicate(duplicate.name, duplicate.position)
     }
   }
 
