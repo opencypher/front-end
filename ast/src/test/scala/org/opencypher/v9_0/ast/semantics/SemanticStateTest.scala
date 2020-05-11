@@ -41,7 +41,6 @@ class SemanticStateTest extends CypherFunSuite {
       case Right(_) => fail("Expected an error from second declaration")
       case Left(error) =>
         error.position should equal(variable2.position)
-        error.references should equal(Seq(variable1.position))
     }
   }
 
@@ -103,7 +102,6 @@ class SemanticStateTest extends CypherFunSuite {
       case Right(_) => fail("Expected an error")
       case Left(error) =>
         error.position should equal(DummyPosition(3))
-        error.references should be (Seq(DummyPosition(0)))
         error.msg should equal("Type mismatch: foo defined with conflicting type Map (expected Node)")
     }
 
@@ -113,7 +111,6 @@ class SemanticStateTest extends CypherFunSuite {
       case Right(_) => fail("Expected an error")
       case Left(error) =>
         error.position should equal(DummyPosition(9))
-        error.references should equal(Seq(DummyPosition(0), DummyPosition(3)))
         error.msg should equal("Type mismatch: foo defined with conflicting type Node (expected Integer or Relationship)")
     }
   }
