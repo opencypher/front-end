@@ -27,25 +27,30 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
+//noinspection ZeroIndexToHead
 class FindDuplicateRelationshipsTest extends CypherFunSuite {
 
-  val pos = DummyPosition(0)
-  val node = NodePattern(None, Seq.empty, None)(pos)
-  val relR = Variable("r")(pos)
-  val relS = Variable("s")(pos)
+  private val pos = DummyPosition(0)
+  private val node = NodePattern(None, Seq.empty, None)(pos)
+  private val relR = Variable("r")(pos)
+  private val relRBumped = Variable("r")(pos.bumped())
+  private val relS = Variable("s")(pos)
 
   test("find duplicate relationships across pattern parts") {
-    val relPath = EveryPath(RelationshipChain(node, relPattern(relR), node)(pos))
-    val pattern = Pattern(Seq(relPath, relPath))(pos)
+    val relPath0 = EveryPath(RelationshipChain(node, relPattern(relR), node)(pos))
+    val relPath1 = EveryPath(RelationshipChain(node, relPattern(relRBumped), node)(pos))
+    val pattern = Pattern(Seq(relPath0, relPath1))(pos)
 
-    Pattern.findDuplicateRelationships(pattern) should equal(Set(Seq(relR, relR)))
+    pattern.findDuplicateRelationships should equal(Seq(relR))
+    pattern.findDuplicateRelationships(0).position should equal(relR.position)
   }
 
   test("find duplicate relationships in a long rel chain") {
-    val relPath = expressions.EveryPath(relChain(relR, relS, relR))
+    val relPath = expressions.EveryPath(relChain(relR, relS, relRBumped))
     val pattern = Pattern(Seq(relPath))(pos)
 
-    Pattern.findDuplicateRelationships(pattern) should equal(Set(Seq(relR, relR)))
+    pattern.findDuplicateRelationships should equal(Seq(relR))
+    pattern.findDuplicateRelationships(0).position should equal(relR.position)
   }
 
   test("does not find duplicate relationships across pattern parts if there is none") {
@@ -53,19 +58,19 @@ class FindDuplicateRelationshipsTest extends CypherFunSuite {
     val otherRelPath = EveryPath(expressions.RelationshipChain(node, relPattern(relS), node)(pos))
     val pattern = Pattern(Seq(relPath, otherRelPath))(pos)
 
-    Pattern.findDuplicateRelationships(pattern) should equal(Set.empty)
+    pattern.findDuplicateRelationships should equal(Seq.empty)
   }
 
   test("does not find duplicate relationships in a long rel chain if there is none") {
     val relPath = expressions.EveryPath(relChain(relS, relR))
     val pattern = Pattern(Seq(relPath))(pos)
 
-    Pattern.findDuplicateRelationships(pattern) should equal(Set.empty)
+    pattern.findDuplicateRelationships should equal(Seq.empty)
   }
 
   private def relChain(ids: Variable*) =
-    ids.foldRight(node.asInstanceOf[PatternElement]) {
-      (id, n) => expressions.RelationshipChain(n, relPattern(id), node)(pos)
+    ids.foldLeft(node.asInstanceOf[PatternElement]) {
+      (n, id) => expressions.RelationshipChain(n, relPattern(id), node)(pos)
     }
 
   private def relPattern(id: Variable) =
