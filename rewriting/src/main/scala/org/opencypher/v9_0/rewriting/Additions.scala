@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.ast.CreateIndexNewSyntax
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -28,6 +29,7 @@ import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.GrantPrivilege
+import org.opencypher.v9_0.ast.GraphAction
 import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RoleManagementAction
@@ -122,18 +124,22 @@ object Additions {
 
       // grant fine-grained write
       case p@GrantPrivilege(GraphPrivilege(action), _, _, _, _) if !action.equals(WriteAction) =>
-        throw cypherExceptionFactory.syntaxException("Fine-grained writes are not supported in this Cypher version.", p.position)
+        throw cypherExceptionFactory.syntaxException(errorMessage(action), p.position)
 
       // deny fine-grained write
       case p@DenyPrivilege(GraphPrivilege(action), _, _, _, _) if !action.equals(WriteAction) =>
-        throw cypherExceptionFactory.syntaxException("Fine-grained writes are not supported in this Cypher version.", p.position)
+        throw cypherExceptionFactory.syntaxException(errorMessage(action), p.position)
 
       // revoke fine-grained
       case p@RevokePrivilege(GraphPrivilege(action), _, _, _, _, _) if !action.equals(WriteAction) =>
-        throw cypherExceptionFactory.syntaxException("Fine-grained writes are not supported in this Cypher version.", p.position)
+        throw cypherExceptionFactory.syntaxException(errorMessage(action), p.position)
     }
   }
 
+  private def errorMessage(action: GraphAction) = {
+    val prefix = if (action.equals(AllGraphAction)) s"${action.name} is" else "Fine-grained writes are"
+    s"$prefix not supported in this Cypher version."
+  }
 }
 
 trait Additions extends {
