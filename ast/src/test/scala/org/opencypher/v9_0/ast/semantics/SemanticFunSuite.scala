@@ -28,7 +28,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class SemanticFunSuite extends CypherFunSuite with SemanticAnalysisTooling {
+class SemanticFunSuite extends CypherFunSuite with SemanticAnalysisTooling with AstConstructionTestSupport {
 
   override def initTest(): Unit = {
     SemanticExpressionCheck.semanticCheckFallback =
@@ -47,8 +47,6 @@ class SemanticFunSuite extends CypherFunSuite with SemanticAnalysisTooling {
             SemanticExpressionCheck.crashOnUnknownExpression(ctx, x)
         }
   }
-
-  val pos = DummyPosition(0)
 
   def literal(x:String) = StringLiteral(x)(pos)
   def literal(x:Double) = DecimalDoubleLiteral(x.toString)(pos)
