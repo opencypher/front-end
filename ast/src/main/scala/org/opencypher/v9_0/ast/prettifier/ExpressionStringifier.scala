@@ -60,6 +60,7 @@ import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.PathExpression
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Pow
@@ -92,6 +93,8 @@ case class ExpressionStringifier(
 ) {
 
   val patterns = PatternStringifier(this)
+
+  val pathSteps = PathStepStringifier(this)
 
   def apply(ast: Expression): String =
     stringify(ast)
@@ -259,6 +262,9 @@ case class ExpressionStringifier(
 
       case ShortestPathExpression(pattern) =>
         patterns.apply(pattern)
+
+      case PathExpression(pathStep) =>
+        pathSteps(pathStep)
 
       case ReduceExpression(ReduceScope(Variable(acc), Variable(identifier), expression), init, list) =>
         val a = backtick(acc)
