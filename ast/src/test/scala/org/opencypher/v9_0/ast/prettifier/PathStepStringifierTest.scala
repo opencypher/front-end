@@ -22,35 +22,30 @@ import org.opencypher.v9_0.expressions.SemanticDirection.BOTH
 import org.opencypher.v9_0.expressions.SemanticDirection.INCOMING
 import org.opencypher.v9_0.expressions.SemanticDirection.OUTGOING
 import org.opencypher.v9_0.expressions.SingleRelationshipPathStep
-import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
 
-class PathStepStringifierTest extends CypherFunSuite {
+class PathStepStringifierTest extends CypherFunSuite with AstConstructionTestSupport {
 
   private val expressionStringifier = ExpressionStringifier()
   private val pathStringifier = PathStepStringifier(expressionStringifier)
-  private val pos = DummyPosition(0)
 
   test("SingleRelationshipPathStep with outgoing relationship direction") {
     val pathStep = NodePathStep(varFor("a"), SingleRelationshipPathStep(varFor("b"), OUTGOING, Some(varFor("c")), NilPathStep))
 
-    assert(pathStringifier(pathStep) === "a-[b]->c")
+    assert(pathStringifier(pathStep) === "(a)-[b]->(c)")
   }
 
   test("MultiRelationshipPathStep with incoming relationship direction") {
     val pathStep = NodePathStep(varFor("a"), MultiRelationshipPathStep(varFor("b"), INCOMING, Some(varFor("c")), NilPathStep))
 
-    assert(pathStringifier(pathStep) === "a<-[b*]-c")
+    assert(pathStringifier(pathStep) === "(a)<-[b*]-(c)")
   }
 
   test("Multiple relationship path steps") {
     val nextPathStep = SingleRelationshipPathStep(varFor("d"), BOTH, Some(varFor("e")), NilPathStep)
     val pathStep = NodePathStep(varFor("a"), MultiRelationshipPathStep(varFor("b"), OUTGOING, Some(varFor("c")), nextPathStep))
 
-    assert(pathStringifier(pathStep) === "a-[b*]->c-[d]-e")
+    assert(pathStringifier(pathStep) === "(a)-[b*]->(c)-[d]-(e)")
   }
-
-  private def varFor(name: String): Variable = Variable(name)(pos)
-
 }
