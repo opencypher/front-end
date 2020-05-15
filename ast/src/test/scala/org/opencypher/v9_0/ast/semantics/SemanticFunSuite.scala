@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
 import org.opencypher.v9_0.expressions.DummyExpression
 import org.opencypher.v9_0.expressions.Expression
