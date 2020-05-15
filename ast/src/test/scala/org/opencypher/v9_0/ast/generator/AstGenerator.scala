@@ -70,10 +70,12 @@ import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DescSortItem
+import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAction
+import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
 import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexAction
 import org.opencypher.v9_0.ast.DropIndexOnName
@@ -85,6 +87,7 @@ import org.opencypher.v9_0.ast.DropRoleAction
 import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropUserAction
+import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementsAllQualifier
 import org.opencypher.v9_0.ast.ElementsQualifier
 import org.opencypher.v9_0.ast.Foreach
@@ -1414,7 +1417,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _dropDatabase: Gen[DropDatabase] = for {
     dbName <- _nameAsEither
     ifExists <- boolean
-  } yield DropDatabase(dbName, ifExists)(pos)
+    additionalAction <- Gen.oneOf( DumpData, DestroyData )
+  } yield DropDatabase(dbName, ifExists, additionalAction)(pos)
 
   def _startDatabase: Gen[StartDatabase] = for {
     dbName <- _nameAsEither
