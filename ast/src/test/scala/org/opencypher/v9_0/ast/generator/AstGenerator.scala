@@ -108,6 +108,7 @@ import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAction
+import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
@@ -1254,7 +1255,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   // Privilege commands
 
   def _graphAction: Gen[GraphAction] = oneOf(
-    CreateElementAction, DeleteElementAction, WriteAction, RemoveLabelAction, SetLabelAction, SetPropertyAction, AllGraphAction
+    MergeAdminAction, CreateElementAction, DeleteElementAction, WriteAction, RemoveLabelAction, SetLabelAction, SetPropertyAction, AllGraphAction
     // TODO: TraverseAction, ReadAction and MatchAction are used as individual Privileges and not as actions
   )
 
@@ -1311,7 +1312,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
         qualifier      <- _graphQualifier
       } yield (qualifier, None)
     } else {
-      // READ, MATCH, SET PROPERTY have any graph qualifier and property resource
+      // READ, MATCH, MERGE, SET PROPERTY have any graph qualifier and property resource
       for {
         qualifier      <- _graphQualifier
         resourceNames  <- oneOrMore(_identifier)
