@@ -24,6 +24,12 @@ import org.opencypher.v9_0.ast.ProjectionClause
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowDatabases
+import org.opencypher.v9_0.ast.ShowDefaultDatabase
+import org.opencypher.v9_0.ast.ShowPrivileges
+import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.SortItem
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
@@ -160,24 +166,53 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
     }
   }
 
+  private def rewriteReturnItems(ri: ReturnItems): ReturnItems = {
+    val aliasedReturnItems =
+      ri.items.map {
+        case i: AliasedReturnItem => i
+        case i: UnaliasedReturnItem =>
+          val newPosition = i.expression.position.bumped()
+          AliasedReturnItem(i.expression, Variable(i.name)(newPosition))(i.position)
+      }
+    ri.copy(items = aliasedReturnItems)(ri.position)
+  }
+
+  private def rewriteOptionalReturn(or: Option[Return]): Option[Return] = or.map(r => r.copy(returnItems = rewriteReturnItems(r.returnItems))(r.position))
+
   private val instance: Rewriter = bottomUp(Rewriter.lift {
     case query@SingleQuery(clauses) =>
       val finalClause =
         clauses.last match {
           case r @ Return(_, ri: ReturnItems, _, _, _, _) =>
-
             // All un-aliased return items in the final RETURN are OK
-            val aliasedReturnItems =
-              ri.items.map {
-                case i: AliasedReturnItem => i
-                case i: UnaliasedReturnItem =>
-                  val newPosition = i.expression.position.bumped()
-                  AliasedReturnItem(i.expression, Variable(i.name)(newPosition))(i.position)
-              }
-            r.copyProjection(returnItems = ri.copy(items = aliasedReturnItems)(ri.position))
+            r.copyProjection(returnItems = rewriteReturnItems(ri))
 
           case clause => clause
       }
       query.copy(clauses = (clauses.init :+ finalClause).map(clauseRewriter))(query.position)
+
+    case s@ShowPrivileges(_, yields, _, returns) =>
+      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+        .withGraph(s.useGraph)
+
+    case s@ShowDatabases(yields, _, returns) =>
+      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+        .withGraph(s.useGraph)
+
+    case s@ShowDefaultDatabase(yields, _, returns) =>
+      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+        .withGraph(s.useGraph)
+
+    case s@ShowDatabase(_, yields, _, returns) =>
+      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+        .withGraph(s.useGraph)
+
+    case s@ShowUsers(yields, _, returns) =>
+      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+        .withGraph(s.useGraph)
+
+    case s@ShowRoles(_, _, yields, _, returns) =>
+      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+        .withGraph(s.useGraph)
   })
 }

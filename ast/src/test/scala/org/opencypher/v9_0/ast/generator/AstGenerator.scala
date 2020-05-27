@@ -75,7 +75,6 @@ import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAction
-import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
 import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexAction
 import org.opencypher.v9_0.ast.DropIndexOnName
@@ -869,6 +868,22 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     limit <- option(_limit)
   } yield Return(distinct, ReturnItems(inclExisting, retItems)(pos), orderBy, skip, limit)(pos)
 
+  def _yield: Gen[Return] = for {
+    retItems <- oneOrMore(_yieldItem)
+    orderBy <- option(_orderBy)
+    skip <- option(_signedDecIntLit.map(Skip(_)(pos)))
+    limit <- option(_signedDecIntLit.map(Limit(_)(pos)))
+  } yield Return(false, ReturnItems(false, retItems)(pos), orderBy, skip, limit)(pos)
+
+  def _yieldItem: Gen[ReturnItem] = for {
+    var1 <- _variable
+    var2 <- _variable
+    item <- oneOf(
+      UnaliasedReturnItem(var1, "")(pos),
+      AliasedReturnItem(var1, var2)(pos)
+    )
+  }  yield item
+
   def _match: Gen[Match] = for {
     optional <- boolean
     pattern <- _pattern
@@ -1181,7 +1196,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   // User commands
 
-  def _showUsers: Gen[ShowUsers] = const(ShowUsers()(pos))
+  def _showUsers: Gen[ShowUsers] = for {
+    where <- Gen.option(_where)
+    yields <- Gen.option(_yield)
+  } yield ShowUsers(yields, where, None)(pos)
 
   def _createUser: Gen[CreateUser] = for {
     userName              <- _nameAsEither
@@ -1221,7 +1239,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _showRoles: Gen[ShowRoles] = for {
     withUsers <- boolean
     showAll   <- boolean
-  } yield ShowRoles(withUsers, showAll)(pos)
+    where <- Gen.option(_where)
+    yields <- Gen.option(_yield)
+  } yield ShowRoles(withUsers, showAll, yields, where, None)(pos)
 
   def _createRole: Gen[CreateRole] = for {
     roleName     <- _nameAsEither
@@ -1327,7 +1347,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     showUser   = ShowUserPrivileges(optionName)(pos)
     showAll    = ShowAllPrivileges()(pos)
     scope      <- oneOf(showRole, showUser, showAll)
-  } yield ShowPrivileges(scope)(pos)
+    where      <- Gen.option(_where)
+    yields     <- Gen.option(_yield)
+  } yield ShowPrivileges(scope, yields, where, None)(pos)
 
   def _dbmsPrivilege: Gen[PrivilegeCommand] = for {
     dbmsAction      <- _dbmsAction
@@ -1403,11 +1425,19 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _showDatabase: Gen[ShowDatabase] = for {
     dbName <- _nameAsEither
-  } yield ShowDatabase(dbName)(pos)
+    where <- Gen.option(_where)
+    yields <- Gen.option(_yield)
+  } yield ShowDatabase(dbName, yields, where, None)(pos)
 
-  def _showDatabases: Gen[ShowDatabases] = const(ShowDatabases()(pos))
+  def _showDatabases: Gen[ShowDatabases] = for {
+    where <- Gen.option(_where)
+    yields <- Gen.option(_yield)
+  } yield ShowDatabases(yields, where, None)(pos)
 
-  def _showDefaultDatabase: Gen[ShowDefaultDatabase] = const(ShowDefaultDatabase()(pos))
+  def _showDefaultDatabase: Gen[ShowDefaultDatabase] = for {
+    where <- Gen.option(_where)
+    yields <- Gen.option(_yield)
+  } yield ShowDefaultDatabase(yields, where, None)(pos)
 
   def _createDatabase: Gen[CreateDatabase] = for {
     dbName <- _nameAsEither

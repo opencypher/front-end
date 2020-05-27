@@ -43,6 +43,7 @@ import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.IfExistsReplace
 import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.ast.PrivilegeQualifier
+import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RevokeRolesFromUsers
 import org.opencypher.v9_0.ast.SetOwnPassword
@@ -55,6 +56,7 @@ import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.StopDatabase
+import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.util.InputPosition
@@ -116,7 +118,7 @@ trait Statement extends Parser
   }
 
   def ShowUsers: Rule1[ShowUsers] = rule("CATALOG SHOW USERS") {
-    keyword("SHOW USERS") ~>>> (_=> ast.ShowUsers())
+    keyword("SHOW USERS") ~~ ShowCommandClauses ~~>> (ast.ShowUsers(_,_,_)_)
   }
 
   def CreateUser: Rule1[CreateUser] = rule("CATALOG CREATE USER") {
@@ -219,14 +221,14 @@ trait Statement extends Parser
   def ShowRoles: Rule1[ShowRoles] = rule("CATALOG SHOW ROLES") {
     //SHOW [ ALL | POPULATED ] ROLES WITH USERS
     group(keyword("SHOW") ~~ keyword("POPULATED") ~~ keyword("ROLES") ~~
-      keyword("WITH USERS")) ~>>> (_ => ast.ShowRoles(withUsers = true, showAll = false)) |
+      keyword("WITH USERS")) ~~ ShowCommandClauses ~~>> (ast.ShowRoles(withUsers = true, showAll = false, _, _, _)) |
     group(keyword("SHOW") ~~ optional(keyword("ALL")) ~~ keyword("ROLES") ~~
-      keyword("WITH USERS")) ~>>> (_ => ast.ShowRoles(withUsers = true, showAll = true)) |
+      keyword("WITH USERS")) ~~ ShowCommandClauses ~~>> (ast.ShowRoles(withUsers = true, showAll = true, _, _, _)) |
     // SHOW [ ALL | POPULATED ] ROLES
-    group(keyword("SHOW") ~~ keyword("POPULATED") ~~ keyword("ROLES")) ~>>>
-      (_ => ast.ShowRoles(withUsers = false, showAll = false)) |
-    group(keyword("SHOW") ~~ optional(keyword("ALL")) ~~ keyword("ROLES")) ~>>>
-      (_ => ast.ShowRoles(withUsers = false, showAll = true))
+    group(keyword("SHOW") ~~ keyword("POPULATED") ~~ keyword("ROLES")) ~~ ShowCommandClauses ~~>>
+      (ast.ShowRoles(withUsers = false, showAll = false, _, _, _)) |
+    group(keyword("SHOW") ~~ optional(keyword("ALL")) ~~ keyword("ROLES")) ~~ ShowCommandClauses ~~>>
+      (ast.ShowRoles(withUsers = false, showAll = true, _, _, _))
   }
 
   def CreateRole: Rule1[CreateRole] = rule("CATALOG CREATE ROLE") {
@@ -460,7 +462,13 @@ trait Statement extends Parser
   }
 
   def ShowPrivileges: Rule1[ShowPrivileges] = rule("CATALOG SHOW PRIVILEGES") {
-    group(keyword("SHOW") ~~ ScopeForShowPrivileges) ~~>> (ast.ShowPrivileges(_))
+    group(keyword("SHOW") ~~ ScopeForShowPrivileges ~~ ShowCommandClauses
+      ~~>> ((scope, yld, where, rtn) => ast.ShowPrivileges(scope, yld, where, rtn)))
+  }
+
+  private def ShowCommandClauses: Rule3[Option[Return], Option[Where], Option[Return]] = rule("YIELD ... WHERE .. RETURN .. for SHOW commands") {
+    optional(group(keyword("YIELD") ~~ YieldBody) ~~>> (ast.Return(distinct = false, _, _, _, _))) ~~
+      optional(Where) ~> (_ => None)
   }
 
   private def PrivilegeProperty: Rule1[ActionResource] = rule("{propertyList}")(
@@ -602,15 +610,15 @@ trait Statement extends Parser
   )
 
   def ShowDatabase: Rule1[ShowDatabase] = rule("CATALOG SHOW DATABASE") {
-    group(keyword("SHOW DATABASE") ~~ SymbolicNameOrStringParameter) ~~>> (ast.ShowDatabase(_))
+    group(keyword("SHOW DATABASE") ~~ SymbolicNameOrStringParameter) ~~ ShowCommandClauses ~~>> (ast.ShowDatabase(_,_,_,_))
   }
 
   def ShowDatabases: Rule1[ShowDatabases] = rule("CATALOG SHOW DATABASES") {
-    keyword("SHOW DATABASES") ~>>> (_=> ast.ShowDatabases())
+    keyword("SHOW DATABASES") ~~ ShowCommandClauses ~~>> (ast.ShowDatabases(_,_,_))
   }
 
   def ShowDefaultDatabase: Rule1[ShowDefaultDatabase] = rule("CATALOG SHOW DEFAULT DATABASE") {
-    keyword("SHOW DEFAULT DATABASE") ~>>> (_=> ast.ShowDefaultDatabase())
+    keyword("SHOW DEFAULT DATABASE") ~~ ShowCommandClauses ~~>> (ast.ShowDefaultDatabase(_,_,_))
   }
 
   def CreateDatabase: Rule1[CreateDatabase] = rule("CATALOG CREATE DATABASE") {

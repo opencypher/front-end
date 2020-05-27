@@ -16,6 +16,8 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
+import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.util.InputPosition
 
 class RoleAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
@@ -23,27 +25,35 @@ class RoleAdministrationCommandParserTest extends AdministrationCommandParserTes
   //  Showing roles
 
   test("SHOW ROLES") {
-    yields(ast.ShowRoles(withUsers = false, showAll = true))
+    yields(ast.ShowRoles(withUsers = false, showAll = true, None, None, None))
   }
 
   test("CATALOG SHOW ALL ROLES") {
-    yields(ast.ShowRoles(withUsers = false, showAll = true))
+    yields(ast.ShowRoles(withUsers = false, showAll = true, None, None, None))
+  }
+
+  test("CATALOG SHOW ALL ROLES YIELD role") {
+    yields(ast.ShowRoles(withUsers = false, showAll = true, Some(ast.Return(ast.ReturnItems(false, List(UnaliasedReturnItem(varFor("role"), "role")_))_)_), None, None))
+  }
+
+  test("CATALOG SHOW ALL ROLES WHERE role='PUBLIC'") {
+    yields(ast.ShowRoles(withUsers = false, showAll = true, None, Some(ast.Where(Equals(varFor("role"), literalString("PUBLIC"))_)_), None))
   }
 
   test("CATALOG SHOW POPULATED ROLES") {
-    yields(ast.ShowRoles(withUsers = false, showAll = false))
+    yields(ast.ShowRoles(withUsers = false, showAll = false, None, None, None))
   }
 
   test("SHOW ROLES WITH USERS") {
-    yields(ast.ShowRoles(withUsers = true, showAll = true))
+    yields(ast.ShowRoles(withUsers = true, showAll = true, None, None, None))
   }
 
   test("CATALOG SHOW ALL ROLES WITH USERS") {
-    yields(ast.ShowRoles(withUsers = true, showAll = true))
+    yields(ast.ShowRoles(withUsers = true, showAll = true, None, None, None))
   }
 
   test("SHOW POPULATED ROLES WITH USERS") {
-    yields(ast.ShowRoles(withUsers = true, showAll = false))
+    yields(ast.ShowRoles(withUsers = true, showAll = false, None, None, None))
   }
 
   test("CATALOG SHOW ROLE") {

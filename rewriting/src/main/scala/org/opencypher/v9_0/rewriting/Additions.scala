@@ -35,6 +35,12 @@ import org.opencypher.v9_0.ast.GraphAction
 import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RoleManagementAction
+import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowDatabases
+import org.opencypher.v9_0.ast.ShowDefaultDatabase
+import org.opencypher.v9_0.ast.ShowPrivileges
+import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.TransactionManagementAction
 import org.opencypher.v9_0.ast.WriteAction
@@ -139,6 +145,20 @@ object Additions {
       // remove database dump data
       case p@DropDatabase(_,_,DumpData) =>
         throw cypherExceptionFactory.syntaxException("Dumping data when dropping databases is not supported in this Cypher version.", p.position)
+
+      // extended show commands
+      case sp @ ShowPrivileges(_, yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
+        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sp.position)
+      case sr @ ShowRoles(_, _, yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
+        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sr.position)
+      case su @ ShowUsers(yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
+        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", su.position)
+      case sd @ ShowDatabases(yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
+        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sd.position)
+      case sd @ ShowDatabase(_, yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
+        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sd.position)
+      case sd @ ShowDefaultDatabase(yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
+        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sd.position)
     }
   }
 
