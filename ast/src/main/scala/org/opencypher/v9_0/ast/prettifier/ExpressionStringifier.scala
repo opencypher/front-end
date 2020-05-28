@@ -19,6 +19,7 @@ import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
 import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.AndedPropertyInequalities
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
 import org.opencypher.v9_0.expressions.BinaryOperatorExpression
@@ -256,6 +257,9 @@ case class ExpressionStringifier(
           case None        =>
             expressions.map(x => inner(ast)(x)).mkString(" AND ")
         }
+
+      case AndedPropertyInequalities(_, _, exprs) =>
+        exprs.map(apply).toIndexedSeq.mkString(" AND ")
 
       case Ors(expressions) =>
         expressions.map(x => inner(ast)(x)).mkString(" OR ")
