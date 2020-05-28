@@ -84,6 +84,7 @@ import org.opencypher.v9_0.expressions.UnarySubtract
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.expressions.functions.UserDefinedFunctionInvocation
 
 case class ExpressionStringifier(
   extension: ExpressionStringifier.Extension,
@@ -143,6 +144,9 @@ case class ExpressionStringifier(
         val ds = if (distinct) "DISTINCT " else ""
         val as = args.map(inner(ast)).mkString(", ")
         s"$ns$np${apply(functionName)}($ds$as)"
+
+      case functionInvocation: UserDefinedFunctionInvocation =>
+        apply(functionInvocation.asUnresolvedFunction)
 
       case Property(m, k) =>
         s"${inner(ast)(m)}.${apply(k)}"
