@@ -59,6 +59,12 @@ sealed trait QueryPart extends ASTNode with SemanticCheckable {
   def finalScope(scope: Scope): Scope
 
   /**
+   * Given the root scope for this query part,
+   * looks up the scope that could be used to validate return variables
+   */
+  def scopeForReturnVariablesValidation(scope: Scope): Scope
+
+  /**
    * Check this query part if it start with an importing WITH
    */
   def checkImportingWith: SemanticCheck
@@ -298,8 +304,11 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  def finalScope(scope: Scope): Scope =
+  override def finalScope(scope: Scope): Scope =
     scope.children.last
+
+  override def scopeForReturnVariablesValidation(scope: Scope): Scope =
+    finalScope(scope)
 }
 
 object Union {
@@ -365,9 +374,13 @@ sealed trait Union extends QueryPart with SemanticAnalysisTooling {
     result
   }
 
-  def finalScope(scope: Scope): Scope =
+  override def finalScope(scope: Scope): Scope =
     // Union defines all return variables in its own scope using defineUnionVariables
     scope
+
+  override def scopeForReturnVariablesValidation(scope: Scope): Scope =
+    // Return the last union branch to get a nicer error message
+    query.scopeForReturnVariablesValidation(scope.children.last)
 
   // Check that columns names agree between both parts of the union
   def checkColumnNamesAgree: SemanticCheck
