@@ -89,7 +89,6 @@ import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.StartsWith
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Subtract
-import org.opencypher.v9_0.expressions.TypeSignature
 import org.opencypher.v9_0.expressions.UnaryAdd
 import org.opencypher.v9_0.expressions.UnarySubtract
 import org.opencypher.v9_0.expressions.Variable

@@ -26,7 +26,6 @@ import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SemanticFunSuite extends CypherFunSuite with SemanticAnalysisTooling with AstConstructionTestSupport {

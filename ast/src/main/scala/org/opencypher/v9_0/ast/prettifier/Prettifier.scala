@@ -177,6 +177,7 @@ case class Prettifier(
     case c: SchemaCommand         => asString(c)
     case c: AdministrationCommand => asString(c)
     case c: MultiGraphDDL         => asString(c)
+    case _ => throw new IllegalStateException(s"Unknown statement: $statement")
   }
 
   def asString(command: SchemaCommand): String = {
@@ -230,6 +231,8 @@ case class Prettifier(
 
       case DropConstraintOnName(name, _) =>
         s"DROP CONSTRAINT ${backtick(name)}"
+
+      case _ => throw new IllegalStateException(s"Unknown command: $command")
     }
     useString + commandString
   }
@@ -487,7 +490,6 @@ case class Prettifier(
               s"${INDENT}UNION mappings: (${u.unionMappings.map(asString).mkString(", ")})"
           }
           Seq(lhs, operation, rhs).mkString(NL)
-
       }
 
     private def asString(u: UnionMapping): String = {
@@ -750,6 +752,7 @@ object Prettifier {
     val labelNames = resource match {
       case LabelsResource(names) => names.map(ExpressionStringifier.backtick(_)).mkString(", ")
       case AllLabelResource() => "*"
+      case _ => throw new IllegalStateException(s"Unknown resource: $resource")
     }
     val (dbString, _, multipleDbs) = extractDbScope(dbScope)
     val graphWord = if (multipleDbs) "GRAPHS" else "GRAPH"

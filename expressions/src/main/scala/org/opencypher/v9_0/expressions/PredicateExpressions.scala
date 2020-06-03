@@ -18,15 +18,7 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
-import org.opencypher.v9_0.util.symbols.CTDate
-import org.opencypher.v9_0.util.symbols.CTDateTime
-import org.opencypher.v9_0.util.symbols.CTFloat
-import org.opencypher.v9_0.util.symbols.CTInteger
-import org.opencypher.v9_0.util.symbols.CTLocalDateTime
-import org.opencypher.v9_0.util.symbols.CTLocalTime
-import org.opencypher.v9_0.util.symbols.CTPoint
 import org.opencypher.v9_0.util.symbols.CTString
-import org.opencypher.v9_0.util.symbols.CTTime
 
 case class And(lhs: Expression, rhs: Expression)(val position: InputPosition) extends Expression with BinaryOperatorExpression {
   override val signatures = Vector(
