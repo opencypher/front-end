@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.rewriting.Condition
 import org.opencypher.v9_0.util.Foldable.FoldableAny
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 
 case object noUnnamedPatternElementsInPatternComprehension extends Condition {
 
@@ -27,7 +28,7 @@ case object noUnnamedPatternElementsInPatternComprehension extends Condition {
 
   override def apply(that: Any): Seq[String] = that.treeFold(Seq.empty[String]) {
     case expr: PatternComprehension if containsUnNamedPatternElement(expr.pattern) =>
-      acc => (acc :+ s"Expression $expr contains pattern elements which are not named", None)
+      acc => SkipChildren(acc :+ s"Expression $expr contains pattern elements which are not named")
   }
 
   private def containsUnNamedPatternElement(expr: RelationshipsPattern) = expr.treeExists {

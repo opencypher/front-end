@@ -22,20 +22,22 @@ import org.opencypher.v9_0.rewriting.rewriters.literalReplacement.ExtractParamet
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement.LiteralReplacement
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement.LiteralReplacements
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Foldable
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.symbols.CTString
 
 object sensitiveLiteralReplacement {
 
-  private val sensitiveliteralMatcher: PartialFunction[Any, LiteralReplacements => (LiteralReplacements, Option[LiteralReplacements => LiteralReplacements])] = {
+  private val sensitiveliteralMatcher: PartialFunction[Any, LiteralReplacements => Foldable.FoldingBehavior[LiteralReplacements]] = {
     case l: SensitiveStringLiteral =>
       acc =>
         if (acc.contains(l)) {
-          (acc, None)
+          SkipChildren(acc)
         } else {
           val parameter = new AutoExtractedParameter(s"  AUTOSTRING${acc.size}", CTString, l)(l.position) with SensitiveAutoParameter
-          (acc + (l -> LiteralReplacement(parameter, l.value)), None)
+          SkipChildren(acc + (l -> LiteralReplacement(parameter, l.value)))
         }
   }
 

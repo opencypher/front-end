@@ -27,6 +27,7 @@ import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with RewritePhaseTest {
@@ -182,7 +183,7 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
 
     val outerScope = statement.treeFold(Set.empty[Variable]) {
       case expr: ExistsSubClause =>
-        acc => (acc ++ expr.outerScope, Some(identity))
+        acc => TraverseChildren(acc ++ expr.outerScope)
     }
 
     outerScope.map(_.name) should be(Set("  n@7"))

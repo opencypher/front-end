@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.SensitiveParameter
 import org.opencypher.v9_0.expressions.SensitiveString
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.METADATA_COLLECTION
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.ObfuscationMetadata
 
 object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, BaseState] {
@@ -44,9 +45,9 @@ object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, BaseS
   private def collectSensitiveLiteralOffsets(statement: Statement, extractedParamNames: Set[String], preParserOffset: Int): Vector[Int] =
     statement.treeFold(Vector.empty[Int]) {
       case literal: SensitiveString =>
-        acc => (acc :+ literal.position.offset, None)
+        acc => SkipChildren(acc :+ literal.position.offset)
       case parameter: SensitiveParameter if extractedParamNames.contains(parameter.name) =>
-        acc => (acc :+ parameter.position.offset, None)
+        acc => SkipChildren(acc :+ parameter.position.offset)
     }.distinct.sorted.map(_ + preParserOffset)
 
   private def collectSensitiveParameterNames(queryParams: Seq[Parameter], extractedParamNames: Set[String]): Set[String] =

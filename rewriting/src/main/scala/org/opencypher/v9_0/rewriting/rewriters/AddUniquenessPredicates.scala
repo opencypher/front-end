@@ -35,6 +35,8 @@ import org.opencypher.v9_0.expressions.ScopeExpression
 import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Foldable.SkipChildren
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
@@ -81,15 +83,15 @@ case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = Same
   def collectUniqueRels(pattern: ASTNode): Seq[UniqueRel] =
     pattern.treeFold(Seq.empty[UniqueRel]) {
       case _:ScopeExpression =>
-        acc => (acc, None)
+        acc => SkipChildren(acc)
 
       case _: ShortestPaths =>
-        acc => (acc, None)
+        acc => SkipChildren(acc)
 
       case RelationshipChain(_, patRel@RelationshipPattern(optIdent, types, _, _, _, _, _), _) =>
         acc => {
           val ident = optIdent.getOrElse(throw new IllegalStateException("This rewriter cannot work with unnamed patterns"))
-          (acc :+ UniqueRel(ident, types.toSet, patRel.isSingleLength), Some(identity))
+          TraverseChildren(acc :+ UniqueRel(ident, types.toSet, patRel.isSingleLength))
         }
     }
 

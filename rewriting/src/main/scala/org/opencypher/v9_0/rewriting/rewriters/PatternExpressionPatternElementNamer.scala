@@ -24,6 +24,8 @@ import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Foldable.SkipChildren
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.NodeNameGenerator
 import org.opencypher.v9_0.util.RelNameGenerator
@@ -76,10 +78,10 @@ object PatternExpressionPatternElementNamer {
   private case object findPatternElements {
     def apply(astNode: ASTNode): Seq[PatternElement] = astNode.treeFold(Seq.empty[PatternElement]) {
       case patternElement: PatternElement =>
-        acc => (acc :+ patternElement, Some(identity))
+        acc => TraverseChildren(acc :+ patternElement)
 
       case _: PatternExpression =>
-        acc => (acc, None)
+        acc => SkipChildren(acc)
     }
   }
 

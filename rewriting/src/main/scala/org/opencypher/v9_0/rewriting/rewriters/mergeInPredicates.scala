@@ -23,6 +23,7 @@ import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 
@@ -116,7 +117,7 @@ case object mergeInPredicates extends Rewriter {
       case In(a, ListLiteral(exprs)) => map => {
         //if there is already a list associated with `a`, do map(a) ++ exprs otherwise exprs
         val values = map.get(a).map(current => merge(current, exprs)).getOrElse(exprs).distinct
-        (map + (a -> values), None)
+        SkipChildren(map + (a -> values))
       }
     })
     //Take list of maps, [map1,map2,...] and merge the using the provided `merge` to

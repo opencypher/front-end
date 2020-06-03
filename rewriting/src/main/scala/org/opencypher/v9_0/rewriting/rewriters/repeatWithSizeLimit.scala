@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.Foldable.FoldableAny
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Rewriter
 
 import scala.annotation.tailrec
@@ -28,7 +29,7 @@ This rewriter tries to limit rewriters that grow the product AST too much
 case class repeatWithSizeLimit(rewriter: Rewriter)(implicit val monitor: AstRewritingMonitor) extends Rewriter {
 
   private def astNodeSize(value: Any): Int = value.treeFold(1) {
-    case _: ASTNode => acc => (acc + 1, Some(identity))
+    case _: ASTNode => acc => TraverseChildren(acc + 1)
   }
 
   final def apply(that: AnyRef): AnyRef = {

@@ -19,6 +19,7 @@ import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
@@ -42,9 +43,9 @@ object parameterValueTypeReplacement {
     val replaceableParameters = term.treeFold(IdentityMap.empty: ParameterValueTypeReplacements){
       case p@ExplicitParameter(_, CTAny) =>
         acc =>
-          if (acc.contains(p)) (acc, None) else {
+          if (acc.contains(p)) SkipChildren(acc) else {
             val cypherType = paramTypes.getOrElse(p.name, CTAny)
-            (acc + (p -> ParameterValueTypeReplacement(ExplicitParameter(p.name, cypherType)(p.position), p.name)), None)
+            SkipChildren(acc + (p -> ParameterValueTypeReplacement(ExplicitParameter(p.name, cypherType)(p.position), p.name)))
           }
     }
     ExtractParameterRewriter(replaceableParameters)

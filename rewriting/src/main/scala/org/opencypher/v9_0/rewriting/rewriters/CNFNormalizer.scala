@@ -26,6 +26,7 @@ import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.util.Foldable.FoldableAny
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
@@ -65,8 +66,8 @@ case class distributeLawsRewriter()(implicit monitor: AstRewritingMonitor) exten
   }
 
   private def dnfCounts(value: Any) = value.treeFold(1) {
-    case Or(lhs, a: And) => acc => (acc + 1, Some(identity))
-    case Or(a: And, rhs) => acc => (acc + 1, Some(identity))
+    case Or(lhs, a: And) => acc => TraverseChildren(acc + 1)
+    case Or(a: And, rhs) => acc => TraverseChildren(acc + 1)
   }
 
   private val step = Rewriter.lift {

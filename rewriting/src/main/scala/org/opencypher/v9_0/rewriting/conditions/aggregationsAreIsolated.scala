@@ -20,12 +20,13 @@ import org.opencypher.v9_0.expressions.IsAggregate
 import org.opencypher.v9_0.expressions.containsAggregate
 import org.opencypher.v9_0.rewriting.Condition
 import org.opencypher.v9_0.util.Foldable.FoldableAny
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 
 case object aggregationsAreIsolated extends Condition {
 
   def apply(that: Any): Seq[String] = that.treeFold(Seq.empty[String]) {
     case expr: Expression if hasAggregateButIsNotAggregate(expr) =>
-      acc => (acc :+ s"Expression $expr contains child expressions which are aggregations", None)
+      acc => SkipChildren(acc :+ s"Expression $expr contains child expressions which are aggregations")
   }
 
   override def name: String = productPrefix

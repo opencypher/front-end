@@ -23,6 +23,8 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.util.Foldable.SkipChildren
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
@@ -53,11 +55,11 @@ case object transitiveClosure extends StatementRewriter {
 
     //Collects property equalities, e.g `a.prop = 42`
     private def collect(e: Expression): Closures = e.treeFold(Closures.empty) {
-      case _: Or => acc => (acc, None)
-      case _: And => acc => (acc, Some(identity))
-      case Equals(p1: Property, p2: Property) => acc => (acc.withEquivalence(p1 -> p2), None)
-      case Equals(p: Property, other) => acc => (acc.withMapping(p -> other), None)
-      case Not(Equals(_,_)) => acc => (acc, None)
+      case _: Or => acc => SkipChildren(acc)
+      case _: And => acc => TraverseChildren(acc)
+      case Equals(p1: Property, p2: Property) => acc => SkipChildren(acc.withEquivalence(p1 -> p2))
+      case Equals(p: Property, other) => acc => SkipChildren(acc.withMapping(p -> other))
+      case Not(Equals(_,_)) => acc => SkipChildren(acc)
     }
 
     //NOTE that this might introduce duplicate predicates, however at a later rewrite
