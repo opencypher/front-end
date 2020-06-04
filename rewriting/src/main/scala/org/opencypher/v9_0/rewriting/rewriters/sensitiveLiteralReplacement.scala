@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.SensitiveAutoParameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement.ExtractParameterRewriter
@@ -34,7 +34,7 @@ object sensitiveLiteralReplacement {
         if (acc.contains(l)) {
           (acc, None)
         } else {
-          val parameter = new Parameter(s"  AUTOSTRING${acc.size}", CTString)(l.position) with SensitiveAutoParameter
+          val parameter = new AutoExtractedParameter(s"  AUTOSTRING${acc.size}", CTString)(l.position) with SensitiveAutoParameter
           (acc + (l -> LiteralReplacement(parameter, l.value)), None)
         }
   }

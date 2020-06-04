@@ -26,6 +26,7 @@ import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.DoubleLiteral
 import org.opencypher.v9_0.expressions.Expression
@@ -82,26 +83,26 @@ object literalReplacement {
     case l: StringLiteral =>
       acc =>
         if (acc.contains(l)) (acc, None) else {
-          val parameter = Parameter(s"  AUTOSTRING${acc.size}", CTString)(l.position)
+          val parameter = AutoExtractedParameter(s"  AUTOSTRING${acc.size}", CTString)(l.position)
           (acc + (l -> LiteralReplacement(parameter, l.value)), None)
         }
     case l: IntegerLiteral =>
       acc =>
         if (acc.contains(l)) (acc, None) else {
-          val parameter = Parameter(s"  AUTOINT${acc.size}", CTInteger)(l.position)
+          val parameter = AutoExtractedParameter(s"  AUTOINT${acc.size}", CTInteger)(l.position)
           (acc + (l -> LiteralReplacement(parameter, l.value)), None)
         }
     case l: DoubleLiteral =>
       acc =>
         if (acc.contains(l)) (acc, None) else {
-          val parameter = Parameter(s"  AUTODOUBLE${acc.size}", CTFloat)(l.position)
+          val parameter = AutoExtractedParameter(s"  AUTODOUBLE${acc.size}", CTFloat)(l.position)
           (acc + (l -> LiteralReplacement(parameter, l.value)), None)
         }
     case l: ListLiteral if l.expressions.forall(_.isInstanceOf[Literal]) =>
       acc =>
         if (acc.contains(l)) (acc, None) else {
-          val parameter = Parameter(s"  AUTOLIST${acc.size}", CTList(CTAny))(l.position)
-          val values: Seq[AnyRef] = l.expressions.map(_.asInstanceOf[Literal].value).toIndexedSeq
+          val values = l.expressions.map(_.asInstanceOf[Literal].value)
+          val parameter = AutoExtractedParameter(s"  AUTOLIST${acc.size}", CTList(CTAny))(l.position)
           (acc + (l -> LiteralReplacement(parameter, values)), None)
         }
   }

@@ -15,14 +15,14 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
-import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CypherType
 
 object parameterValueTypeReplacement {
 

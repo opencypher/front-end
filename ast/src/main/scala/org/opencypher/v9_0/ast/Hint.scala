@@ -18,7 +18,7 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.expressions.LabelName
-import org.opencypher.v9_0.expressions.Param
+import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.UnsignedIntegerLiteral
 import org.opencypher.v9_0.expressions.Variable
@@ -100,7 +100,7 @@ sealed trait NodeStartItem extends StartItem {
   def semanticCheck = declareVariable(variable, CTNode)
 }
 
-case class NodeByParameter(variable: Variable, parameter: Param)(val position: InputPosition) extends NodeStartItem
+case class NodeByParameter(variable: Variable, parameter: Parameter)(val position: InputPosition) extends NodeStartItem
 case class AllNodes(variable: Variable)(val position: InputPosition) extends NodeStartItem
 
 sealed trait RelationshipStartItem extends StartItem {
@@ -108,7 +108,7 @@ sealed trait RelationshipStartItem extends StartItem {
 }
 
 case class RelationshipByIds(variable: Variable, ids: Seq[UnsignedIntegerLiteral])(val position: InputPosition) extends RelationshipStartItem
-case class RelationshipByParameter(variable: Variable, parameter: Param)(val position: InputPosition) extends RelationshipStartItem
+case class RelationshipByParameter(variable: Variable, parameter: Parameter)(val position: InputPosition) extends RelationshipStartItem
 case class AllRelationships(variable: Variable)(val position: InputPosition) extends RelationshipStartItem
 
 // no longer supported non-hint legacy start items

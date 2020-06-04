@@ -219,6 +219,7 @@ import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.Equivalent
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractScope
 import org.opencypher.v9_0.expressions.False
@@ -456,10 +457,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _stringParameter: Gen[Parameter] = _identifier.map(Parameter(_, CTString)(pos))
 
   def _sensitiveStringParameter: Gen[Parameter with SensitiveParameter] =
-    _identifier.map(new Parameter(_, CTString)(pos) with SensitiveParameter)
+    _identifier.map(new ExplicitParameter(_, CTString)(pos) with SensitiveParameter)
 
   def _sensitiveAutoStringParameter: Gen[Parameter with SensitiveAutoParameter] =
-    _identifier.map(new Parameter(_, CTString)(pos) with SensitiveAutoParameter)
+    _identifier.map(new ExplicitParameter(_, CTString)(pos) with SensitiveAutoParameter)
 
   def _variable: Gen[Variable] = {
     val nameGen = allowedVarNames match {

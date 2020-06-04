@@ -15,7 +15,8 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.AutoExtractedParameter
+import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.Forced
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
@@ -139,7 +140,7 @@ class LiteralReplacementTest extends CypherFunSuite  {
   private def assertRewrite(originalQuery: String, expectedQuery: String, replacements: Map[String, Any], extractLiterals: LiteralExtraction = IfNoParameter) {
     val exceptionFactory = OpenCypherExceptionFactory(None)
     val original = parser.parse(originalQuery, exceptionFactory)
-    val expected = parser.parse(expectedQuery, exceptionFactory).endoRewrite(fixParameterTypeExpectations)
+    val expected = parser.parse(expectedQuery, exceptionFactory).endoRewrite(toAutoExtracted)
 
     val (rewriter, replacedLiterals) = literalReplacement(original, extractLiterals)
 
@@ -148,10 +149,10 @@ class LiteralReplacementTest extends CypherFunSuite  {
     assert(replacements === replacedLiterals)
   }
 
-  private def fixParameterTypeExpectations = bottomUp(Rewriter.lift {
-    case p@Parameter(name, _) if name.startsWith("  AUTOSTRING") => p.copy(parameterType = CTString)(p.position)
-    case p@Parameter(name, _) if name.startsWith("  AUTOINT") => p.copy(parameterType = CTInteger)(p.position)
-    case p@Parameter(name, _) if name.startsWith("  AUTODOUBLE") => p.copy(parameterType = CTFloat)(p.position)
-    case p@Parameter(name, _) if name.startsWith("  AUTOLIST") => p.copy(parameterType = CTList(CTAny))(p.position)
+  private def toAutoExtracted = bottomUp(Rewriter.lift {
+    case p@ExplicitParameter(name, _) if name.startsWith("  AUTOSTRING") => AutoExtractedParameter(name, CTString)(p.position)
+    case p@ExplicitParameter(name, _) if name.startsWith("  AUTOINT") => AutoExtractedParameter(name, CTInteger)(p.position)
+    case p@ExplicitParameter(name, _) if name.startsWith("  AUTODOUBLE") => AutoExtractedParameter(name, CTFloat)(p.position)
+    case p@ExplicitParameter(name, _) if name.startsWith("  AUTOLIST") => AutoExtractedParameter(name, CTList(CTAny))(p.position)
   })
 }
