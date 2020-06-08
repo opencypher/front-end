@@ -15,11 +15,16 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -97,6 +102,24 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
       "MATCH (n) WITH *, 1 AS b RETURN *",
       "MATCH (n) WITH n, 1 AS b RETURN b, n"
     )
+  }
+
+  test("uses the position of the clause for variables in new return items") {
+    // This is quite important. If the position of a variable in new return item is a previous declaration,
+    // that can destroy scoping. In a query like
+    // MATCH (owner)
+    // WITH HEAD(COLLECT(42)) AS sortValue, owner
+    // RETURN *
+    // owner would not be scoped/namespaced correctly after having done `isolateAggregation`.
+    val wizz = "WITH 1 AS foo "
+    val pos = InputPosition(wizz.length, 1, wizz.length + 1)
+
+    val original = prepRewrite(s"${wizz}RETURN *")
+    val checkResult = original.semanticCheck(SemanticState.clean)
+    val after = original.rewrite(expandStar(checkResult.state))
+    val returnItem = after.asInstanceOf[Query].part.asInstanceOf[SingleQuery].clauses.last.asInstanceOf[Return].returnItems.items.head.asInstanceOf[AliasedReturnItem]
+    returnItem.expression.position should equal(pos)
+    returnItem.variable.position should equal(pos)
   }
 
   private def assertRewrite(originalQuery: String, expectedQuery: String) {
