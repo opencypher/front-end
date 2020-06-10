@@ -15,42 +15,21 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.ast.CreateIndexNewSyntax
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
-import org.opencypher.v9_0.ast.DatabasePrivilege
-import org.opencypher.v9_0.ast.DbmsAdminAction
-import org.opencypher.v9_0.ast.DbmsPrivilege
-import org.opencypher.v9_0.ast.DefaultDatabaseScope
-import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
-import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropIndexOnName
-import org.opencypher.v9_0.ast.DumpData
-import org.opencypher.v9_0.ast.GrantPrivilege
-import org.opencypher.v9_0.ast.GraphAction
-import org.opencypher.v9_0.ast.GraphPrivilege
-import org.opencypher.v9_0.ast.RevokePrivilege
-import org.opencypher.v9_0.ast.RoleManagementAction
-import org.opencypher.v9_0.ast.ShowDatabase
-import org.opencypher.v9_0.ast.ShowDatabases
-import org.opencypher.v9_0.ast.ShowDefaultDatabase
-import org.opencypher.v9_0.ast.ShowPrivileges
-import org.opencypher.v9_0.ast.ShowRoles
-import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.TransactionManagementAction
-import org.opencypher.v9_0.ast.WriteAction
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.util.CypherExceptionFactory
 
 object Additions {
 
-  // This is functionality that has been added in 4.0 and should not work when using CYPHER 3.5
-  case object addedFeaturesIn4_0 extends Additions {
+  // This is functionality that has been added in 4.0 and 4.1 and should not work when using CYPHER 3.5
+  case object addedFeaturesIn4_x extends Additions {
 
     override def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit = statement.treeExists {
 
@@ -89,82 +68,10 @@ object Additions {
     }
   }
 
-  // This is functionality that has been added in 4.1 and should not work when using CYPHER 3.5 and CYPHER 4.0
-  case object addedFeaturesIn4_1 extends Additions {
+  // This is functionality that has been added in 4.2 and should not work when using CYPHER 3.5 and CYPHER 4.1
+  case object addedFeaturesIn4_2 extends Additions {
 
-    override def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit = statement.treeExists {
-
-      // Grant DEFAULT DATABASE
-      case p@GrantPrivilege(_, _, List(DefaultDatabaseScope()), _, _) =>
-        throw cypherExceptionFactory.syntaxException("DEFAULT DATABASE is not supported in this Cypher version.", p.position)
-
-      // Deny DEFAULT DATABASE
-      case p@DenyPrivilege(_, _, List(DefaultDatabaseScope()), _, _) =>
-        throw cypherExceptionFactory.syntaxException("DEFAULT DATABASE is not supported in this Cypher version.", p.position)
-
-      // Revoke DEFAULT DATABASE
-      case p@RevokePrivilege(_, _, List(DefaultDatabaseScope()), _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("DEFAULT DATABASE is not supported in this Cypher version.", p.position)
-
-      // grant dbms privilege (except role management)
-      case p@GrantPrivilege(DbmsPrivilege(action: DbmsAdminAction), _, _, _, _) if !action.isInstanceOf[RoleManagementAction] =>
-        throw cypherExceptionFactory.syntaxException(s"${action.name} privilege is not supported in this Cypher version.", p.position)
-
-      // deny dbms privilege (except role management)
-      case p@DenyPrivilege(DbmsPrivilege(action: DbmsAdminAction), _, _, _, _) if !action.isInstanceOf[RoleManagementAction] =>
-        throw cypherExceptionFactory.syntaxException(s"${action.name} privilege is not supported in this Cypher version.", p.position)
-
-      // revoke dbms privilege (except role management)
-      case p@RevokePrivilege(DbmsPrivilege(action: DbmsAdminAction), _, _, _, _, _) if !action.isInstanceOf[RoleManagementAction] =>
-        throw cypherExceptionFactory.syntaxException(s"${action.name} privilege is not supported in this Cypher version.", p.position)
-
-      // grant transaction administration
-      case p@GrantPrivilege(DatabasePrivilege(_: TransactionManagementAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("Transaction administration privileges are not supported in this Cypher version.", p.position)
-
-      // deny transaction administration
-      case p@DenyPrivilege(DatabasePrivilege(_: TransactionManagementAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("Transaction administration privileges are not supported in this Cypher version.", p.position)
-
-      // revoke transaction administration
-      case p@RevokePrivilege(DatabasePrivilege(_: TransactionManagementAction), _, _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("Transaction administration privileges are not supported in this Cypher version.", p.position)
-
-      // grant fine-grained write
-      case p@GrantPrivilege(GraphPrivilege(action), _, _, _, _) if !action.equals(WriteAction) =>
-        throw cypherExceptionFactory.syntaxException(errorMessage(action), p.position)
-
-      // deny fine-grained write
-      case p@DenyPrivilege(GraphPrivilege(action), _, _, _, _) if !action.equals(WriteAction) =>
-        throw cypherExceptionFactory.syntaxException(errorMessage(action), p.position)
-
-      // revoke fine-grained
-      case p@RevokePrivilege(GraphPrivilege(action), _, _, _, _, _) if !action.equals(WriteAction) =>
-        throw cypherExceptionFactory.syntaxException(errorMessage(action), p.position)
-
-      // remove database dump data
-      case p@DropDatabase(_,_,DumpData) =>
-        throw cypherExceptionFactory.syntaxException("Dumping data when dropping databases is not supported in this Cypher version.", p.position)
-
-      // extended show commands
-      case sp @ ShowPrivileges(_, yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
-        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sp.position)
-      case sr @ ShowRoles(_, _, yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
-        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sr.position)
-      case su @ ShowUsers(yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
-        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", su.position)
-      case sd @ ShowDatabases(yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
-        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sd.position)
-      case sd @ ShowDatabase(_, yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
-        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sd.position)
-      case sd @ ShowDefaultDatabase(yields, where, returns) if Seq(yields, where, returns).flatten.nonEmpty =>
-        throw cypherExceptionFactory.syntaxException("Extended show commands are not supported in this Cypher version.", sd.position)
-    }
-  }
-
-  private def errorMessage(action: GraphAction) = {
-    val prefix = if (action.equals(AllGraphAction)) s"${action.name} is" else "Fine-grained writes are"
-    s"$prefix not supported in this Cypher version."
+    override def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit = {}
   }
 }
 
