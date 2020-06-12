@@ -185,6 +185,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
     failsToParse
   }
 
+  test("CREATE DATABASE foo IF EXISTS") {
+    failsToParse
+  }
+
   test("CATALOG CREATE OR REPLACE DATABASE _foo-bar42") {
     failsToParse
   }
@@ -220,6 +224,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   }
 
   test("DROP DATABASE  IF EXISTS") {
+    failsToParse
+  }
+
+  test("DROP DATABASE foo IF NOT EXISTS") {
     failsToParse
   }
 
