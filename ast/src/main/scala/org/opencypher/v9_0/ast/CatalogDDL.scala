@@ -23,6 +23,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Parameter
@@ -95,6 +96,11 @@ sealed trait ReadAdministrationCommand extends AdministrationCommand {
     else None
   }
 
+  private def checkForDML(where: Where): SemanticCheck = {
+    val invalid: Option[Expression] = where.expression.treeFind[Expression] { case _: ExistsSubClause => true }
+    invalid.map(exp => SemanticError("The EXISTS clause is not valid on SHOW commands.", exp.position))
+  }
+
   override def semanticCheck: SemanticCheck =
     super.semanticCheck
       .chain(withScopedState(
@@ -108,6 +114,7 @@ sealed trait ReadAdministrationCommand extends AdministrationCommand {
         // WHERE and ORDER BY should operate on the return columns scoped by the YIELD
         declareVariables(calculateResultColumns(yields).zipWithIndex.map { case (name, index) => createSymbol(name, index) })
           .chain(where.semanticCheck)
+          .chain(where.map(checkForDML).getOrElse(None))
           .chain(yields.flatMap(_.orderBy).semanticCheck))
       ))
 }
