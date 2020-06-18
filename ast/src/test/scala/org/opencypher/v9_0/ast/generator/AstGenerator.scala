@@ -166,12 +166,13 @@ import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoleAction
-import org.opencypher.v9_0.ast.ShowRolePrivileges
 import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowTransactionAction
 import org.opencypher.v9_0.ast.ShowUserAction
 import org.opencypher.v9_0.ast.ShowUserPrivileges
 import org.opencypher.v9_0.ast.ShowUsers
+import org.opencypher.v9_0.ast.ShowUsersPrivileges
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.SortItem
@@ -1349,12 +1350,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     }
 
   def _showPrivileges: Gen[ShowPrivileges] = for {
-    name       <- _nameAsEither
-    optionName <- option(name)
-    showRole   = ShowRolePrivileges(name)(pos)
-    showUser   = ShowUserPrivileges(optionName)(pos)
+    names      <- _listOfNameOfEither
+    showRole   = ShowRolesPrivileges(names)(pos)
+    showUser1  = ShowUsersPrivileges(Some(names))(pos) // sending in None here will be parsed as ShowUserPrivilege instead
+    showUser2  = ShowUserPrivileges(None)(pos)
     showAll    = ShowAllPrivileges()(pos)
-    scope      <- oneOf(showRole, showUser, showAll)
+    scope      <- oneOf(showRole, showUser1, showUser2, showAll)
     where      <- Gen.option(_where)
     yields     <- Gen.option(_yield)
   } yield ShowPrivileges(scope, yields, where, None)(pos)

@@ -119,10 +119,11 @@ import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeScope
 import org.opencypher.v9_0.ast.ShowPrivileges
-import org.opencypher.v9_0.ast.ShowRolePrivileges
 import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowUserPrivileges
 import org.opencypher.v9_0.ast.ShowUsers
+import org.opencypher.v9_0.ast.ShowUsersPrivileges
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.Start
@@ -711,7 +712,20 @@ object Prettifier {
           s"USER ${escapeName(name.get)}"
         else
           "USER"
-      case ShowRolePrivileges(name) => s"ROLE ${escapeName(name)}"
+      case ShowUsersPrivileges(names) =>
+        if (names.isDefined) {
+          val n = names.get
+          if (n.size == 1)
+            s"USER ${escapeName(n.head)}"
+          else
+            s"USERS ${escapeNames(n)}"
+        } else
+          "USER"
+      case ShowRolesPrivileges(names) =>
+        if (names.size == 1)
+          s"ROLE ${escapeName(names.head)}"
+        else
+          s"ROLES ${escapeNames(names)}"
       case ShowAllPrivileges()      => "ALL"
       case _                        => "<unknown>"
     }
