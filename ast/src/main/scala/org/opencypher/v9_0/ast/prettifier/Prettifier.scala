@@ -133,7 +133,6 @@ import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.SubQuery
-import org.opencypher.v9_0.ast.TraversePrivilege
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Union
 import org.opencypher.v9_0.ast.Union.UnionMapping
@@ -334,18 +333,6 @@ case class Prettifier(
 
       case x @ RevokePrivilege(DatabasePrivilege(_), _, dbScope, qualifier, roleNames, _) =>
         Prettifier.prettifyDatabasePrivilege(x.name, dbScope, qualifier, "FROM", roleNames)
-
-      case x@GrantPrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames) =>
-        val scope = Prettifier.extractScope(dbScope, qualifier)
-        s"${x.name} ON $scope TO ${Prettifier.escapeNames(roleNames)}"
-
-      case x@DenyPrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames) =>
-        val scope = Prettifier.extractScope(dbScope, qualifier)
-        s"${x.name} ON $scope TO ${Prettifier.escapeNames(roleNames)}"
-
-      case x@RevokePrivilege(TraversePrivilege(), _, dbScope, qualifier, roleNames, _) =>
-        val scope = Prettifier.extractScope(dbScope, qualifier)
-        s"${x.name} ON $scope FROM ${Prettifier.escapeNames(roleNames)}"
 
       case x@GrantPrivilege(GraphPrivilege(WriteAction), _, dbScope, _, roleNames) =>
         val scope = Prettifier.extractGraphScope(dbScope)
