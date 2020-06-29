@@ -30,6 +30,7 @@ import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTString
 import org.parboiled.scala.Rule1
@@ -45,7 +46,7 @@ class AdministrationCommandParserTestBase
 
   def toUtf8Bytes(pw: String): Array[Byte] = pw.getBytes(StandardCharsets.UTF_8)
 
-  def pw(password: String) = expressions.SensitiveStringLiteral(toUtf8Bytes(password))(_)
+  def pw(password: String): InputPosition => SensitiveStringLiteral = expressions.SensitiveStringLiteral(toUtf8Bytes(password))(_)
 
   def pwParam(name: String): expressions.Parameter = expressions.Parameter(name, CTString)(_)
 
@@ -92,13 +93,13 @@ class AdministrationCommandParserTestBase
     ast.RevokePrivilege(p, None, s, q, r, RevokeGrantType()(pos))
 
   def revokeGrantDatabasePrivilege(d: DatabaseAction, s: List[GraphScope], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.grantedDatabaseAction(d, s, r)
+    ast.RevokePrivilege.databaseAction(d, s, r, RevokeGrantType()(pos))
 
   def revokeGrantTransactionPrivilege(d: DatabaseAction, s: List[GraphScope], q: PrivilegeQualifier, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.grantedDatabaseAction(d, s, r, q)
+    ast.RevokePrivilege.databaseAction(d, s, r, RevokeGrantType()(pos), q)
 
   def revokeGrantDbmsPrivilege(a: AdminAction, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.grantedDbmsAction(a, r)
+    ast.RevokePrivilege.dbmsAction(a, r, RevokeGrantType()(pos))
 
   def revokeDeny(p: PrivilegeType, a: ActionResource, s: List[GraphScope], q: PrivilegeQualifier, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
     ast.RevokePrivilege(p, Some(a), s, q, r, RevokeDenyType()(pos))
@@ -107,13 +108,13 @@ class AdministrationCommandParserTestBase
     ast.RevokePrivilege(p, None, s, q, r, RevokeDenyType()(pos))
 
   def revokeDenyDatabasePrivilege(d: DatabaseAction, s: List[GraphScope], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.deniedDatabaseAction(d, s, r)
+    ast.RevokePrivilege.databaseAction(d, s, r, RevokeDenyType()(pos))
 
   def revokeDenyTransactionPrivilege(d: DatabaseAction, s: List[GraphScope], q: PrivilegeQualifier, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.deniedDatabaseAction(d, s, r, q)
+    ast.RevokePrivilege.databaseAction(d, s, r, RevokeDenyType()(pos), q)
 
   def revokeDenyDbmsPrivilege(a: AdminAction, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.deniedDbmsAction(a, r)
+    ast.RevokePrivilege.dbmsAction(a, r, RevokeDenyType()(pos))
 
   def revokeBoth(p: PrivilegeType, a: ActionResource, s: List[GraphScope], q: PrivilegeQualifier, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
     ast.RevokePrivilege(p, Some(a), s, q, r, RevokeBothType()(pos))
@@ -122,11 +123,11 @@ class AdministrationCommandParserTestBase
     ast.RevokePrivilege(p, None, s, q, r, RevokeBothType()(pos))
 
   def revokeDatabasePrivilege(d: DatabaseAction, s: List[GraphScope], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.databaseAction(d, s, r)
+    ast.RevokePrivilege.databaseAction(d, s, r, RevokeBothType()(pos))
 
   def revokeTransactionPrivilege(d: DatabaseAction, s: List[GraphScope], q: PrivilegeQualifier, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.databaseAction(d, s, r, q)
+    ast.RevokePrivilege.databaseAction(d, s, r, RevokeBothType()(pos), q)
 
   def revokeDbmsPrivilege(a: AdminAction, r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.dbmsAction(a, r)
+    ast.RevokePrivilege.dbmsAction(a, r, RevokeBothType()(pos))
 }

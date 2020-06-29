@@ -136,8 +136,12 @@ import org.opencypher.v9_0.ast.RemoveRoleAction
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.RevokeBothType
+import org.opencypher.v9_0.ast.RevokeDenyType
+import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RevokeRolesFromUsers
+import org.opencypher.v9_0.ast.RevokeType
 import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
@@ -1274,6 +1278,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   // Privilege commands
 
+  def _revokeType: Gen[RevokeType] = oneOf(RevokeGrantType()(pos), RevokeDenyType()(pos), RevokeBothType()(pos))
+
   def _graphAction: Gen[GraphAction] = oneOf(
     MergeAdminAction, CreateElementAction, DeleteElementAction, WriteAction, RemoveLabelAction, SetLabelAction, SetPropertyAction, AllGraphAction
     // TODO: TraverseAction, ReadAction and MatchAction are used as individual Privileges and not as actions
@@ -1354,12 +1360,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _dbmsPrivilege: Gen[PrivilegeCommand] = for {
     dbmsAction      <- _dbmsAction
     roleNames       <- _listOfNameOfEither
+    revokeType      <- _revokeType
     dbmsGrant       = GrantPrivilege.dbmsAction(dbmsAction, roleNames)(pos)
     dbmsDeny        = DenyPrivilege.dbmsAction(dbmsAction, roleNames)(pos)
-    dbmsRevokeGrant = RevokePrivilege.grantedDbmsAction(dbmsAction, roleNames)(pos)
-    dbmsRevokeDeny  = RevokePrivilege.deniedDbmsAction(dbmsAction, roleNames)(pos)
-    dbmsRevoke      = RevokePrivilege.dbmsAction(dbmsAction, roleNames)(pos)
-    dbms            <- oneOf(dbmsGrant, dbmsDeny, dbmsRevokeGrant, dbmsRevokeDeny, dbmsRevoke)
+    dbmsRevoke      = RevokePrivilege.dbmsAction(dbmsAction, roleNames, revokeType)(pos)
+    dbms            <- oneOf(dbmsGrant, dbmsDeny, dbmsRevoke)
   } yield dbms
 
   def _databasePrivilege: Gen[PrivilegeCommand] = for {
@@ -1368,12 +1373,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     databaseScope       <- oneOf(namedScope, List(AllGraphsScope()(pos)), List(DefaultDatabaseScope()(pos)))
     databaseQualifier   <- _databaseQualifier(databaseAction.isInstanceOf[TransactionManagementAction])
     roleNames           <- _listOfNameOfEither
+    revokeType          <- _revokeType
     databaseGrant       = GrantPrivilege.databaseAction(databaseAction, databaseScope, roleNames, databaseQualifier)(pos)
     databaseDeny        = DenyPrivilege.databaseAction(databaseAction, databaseScope, roleNames, databaseQualifier)(pos)
-    databaseRevokeGrant = RevokePrivilege.grantedDatabaseAction(databaseAction, databaseScope, roleNames, databaseQualifier)(pos)
-    databaseRevokeDeny  = RevokePrivilege.deniedDatabaseAction(databaseAction, databaseScope, roleNames, databaseQualifier)(pos)
-    databaseRevoke      = RevokePrivilege.databaseAction(databaseAction, databaseScope, roleNames, databaseQualifier)(pos)
-    database            <- oneOf(databaseGrant, databaseDeny, databaseRevokeGrant, databaseRevokeDeny, databaseRevoke)
+    databaseRevoke      = RevokePrivilege.databaseAction(databaseAction, databaseScope, roleNames, revokeType, databaseQualifier)(pos)
+    database            <- oneOf(databaseGrant, databaseDeny, databaseRevoke)
   } yield database
 
   def _graphPrivilege: Gen[PrivilegeCommand] = for {
@@ -1387,6 +1391,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     propertyResource            <- oneOf(PropertiesResource(propertyNames)(pos), AllPropertyResource()(pos))
     matchQualifier              <- _graphQualifier
     roleNames                   <- _listOfNameOfEither
+    revokeType                  <- _revokeType
     graphGrant                  = GrantPrivilege.graphAction(graphAction, maybeResource, graphScope, qualifier, roleNames)(pos)
     traverseGrant               = GrantPrivilege.traverse(graphScope, matchQualifier, roleNames)(pos)
     readGrant                   = GrantPrivilege.read(propertyResource, graphScope, matchQualifier, roleNames)(pos)
@@ -1395,22 +1400,14 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     traverseDeny                = DenyPrivilege.traverse(graphScope, matchQualifier, roleNames)(pos)
     readDeny                    = DenyPrivilege.read(propertyResource, graphScope, matchQualifier, roleNames)(pos)
     matchDeny                   = DenyPrivilege.asMatch(propertyResource, graphScope, matchQualifier, roleNames)(pos)
-    graphRevokeGrant            = RevokePrivilege.grantedGraphAction(graphAction, maybeResource, graphScope, qualifier, roleNames)(pos)
-    traverseRevokeGrant         = RevokePrivilege.grantedTraverse(graphScope, matchQualifier, roleNames)(pos)
-    readRevokeGrant             = RevokePrivilege.grantedRead(propertyResource, graphScope, matchQualifier, roleNames)(pos)
-    matchRevokeGrant            = RevokePrivilege.grantedAsMatch(propertyResource, graphScope, matchQualifier, roleNames)(pos)
-    graphRevokeDeny             = RevokePrivilege.deniedGraphAction(graphAction, maybeResource, graphScope, qualifier, roleNames)(pos)
-    traverseRevokeDeny          = RevokePrivilege.deniedTraverse(graphScope, matchQualifier, roleNames)(pos)
-    readRevokeDeny              = RevokePrivilege.deniedRead(propertyResource, graphScope, matchQualifier, roleNames)(pos)
-    matchRevokeDeny             = RevokePrivilege.deniedAsMatch(propertyResource, graphScope, matchQualifier, roleNames)(pos)
-    graphRevoke                 = RevokePrivilege.graphAction(graphAction, maybeResource, graphScope, qualifier, roleNames)(pos)
-    traverseRevoke              = RevokePrivilege.traverse(graphScope, matchQualifier, roleNames)(pos)
-    readRevoke                  = RevokePrivilege.read(propertyResource, graphScope, matchQualifier, roleNames)(pos)
-    matchRevoke                 = RevokePrivilege.asMatch(propertyResource, graphScope, matchQualifier, roleNames)(pos)
-    graphPrivilege              <- oneOf(graphGrant, graphDeny, graphRevokeGrant, graphRevokeDeny, graphRevoke)
-    traversePrivilege           <- oneOf(traverseGrant, traverseDeny, traverseRevokeGrant, traverseRevokeDeny, traverseRevoke)
-    readPrivilege               <- oneOf(readGrant, readDeny, readRevokeGrant, readRevokeDeny, readRevoke)
-    matchPrivilege              <- oneOf(matchGrant, matchDeny, matchRevokeGrant, matchRevokeDeny, matchRevoke)
+    graphRevoke                 = RevokePrivilege.graphAction(graphAction, maybeResource, graphScope, qualifier, roleNames, revokeType)(pos)
+    traverseRevoke              = RevokePrivilege.traverse(graphScope, matchQualifier, roleNames, revokeType)(pos)
+    readRevoke                  = RevokePrivilege.read(propertyResource, graphScope, matchQualifier, roleNames, revokeType)(pos)
+    matchRevoke                 = RevokePrivilege.asMatch(propertyResource, graphScope, matchQualifier, roleNames, revokeType)(pos)
+    graphPrivilege              <- oneOf(graphGrant, graphDeny, graphRevoke)
+    traversePrivilege           <- oneOf(traverseGrant, traverseDeny, traverseRevoke)
+    readPrivilege               <- oneOf(readGrant, readDeny, readRevoke)
+    matchPrivilege              <- oneOf(matchGrant, matchDeny, matchRevoke)
     graph                       <- oneOf(graphPrivilege, traversePrivilege, readPrivilege, matchPrivilege)
   } yield graph
 
