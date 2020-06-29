@@ -356,18 +356,29 @@ final case class UserQualifier(username: Either[String, Parameter])(val position
     this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
 }
 
-sealed trait GraphScope extends Rewritable {
-  override def dup(children: Seq[AnyRef]): GraphScope.this.type = this
+sealed trait GraphOrDatabaseScope extends Rewritable {
+  override def dup(children: Seq[AnyRef]): GraphOrDatabaseScope.this.type = this
 }
 
-final case class NamedGraphScope(database: Either[String, Parameter])(val position: InputPosition) extends GraphScope {
+sealed trait GraphScope extends GraphOrDatabaseScope
+
+final case class NamedGraphScope(graph: Either[String, Parameter])(val position: InputPosition) extends GraphScope {
   override def dup(children: Seq[AnyRef]): NamedGraphScope.this.type =
     this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
 }
 
 final case class AllGraphsScope()(val position: InputPosition) extends GraphScope
 
-final case class DefaultDatabaseScope()(val position: InputPosition) extends GraphScope
+sealed trait DatabaseScope extends GraphOrDatabaseScope
+
+final case class NamedDatabaseScope(database: Either[String, Parameter])(val position: InputPosition) extends DatabaseScope {
+  override def dup(children: Seq[AnyRef]): NamedDatabaseScope.this.type =
+    this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
+}
+
+final case class AllDatabasesScope()(val position: InputPosition) extends DatabaseScope
+
+final case class DefaultDatabaseScope()(val position: InputPosition) extends DatabaseScope
 
 sealed trait ShowPrivilegeScope extends Rewritable {
   override def dup(children: Seq[AnyRef]): ShowPrivilegeScope.this.type = this
@@ -522,7 +533,7 @@ object GrantPrivilege {
     GrantPrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), List(AllQualifier()(InputPosition.NONE)), roleNames)
 
   def databaseAction[T <: DatabasePrivilegeQualifier](action: DatabaseAction,
-                     scope: List[GraphScope],
+                     scope: List[DatabaseScope],
                      roleNames: Seq[Either[String, Parameter]],
                      qualifier: List[T] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => GrantPrivilege =
     GrantPrivilege(DatabasePrivilege(action)(InputPosition.NONE), None, scope, qualifier, roleNames)
@@ -540,7 +551,7 @@ object DenyPrivilege {
     DenyPrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), List(AllQualifier()(InputPosition.NONE)), roleNames)
 
   def databaseAction[T <: DatabasePrivilegeQualifier](action: DatabaseAction,
-                     scope: List[GraphScope],
+                     scope: List[DatabaseScope],
                      roleNames: Seq[Either[String, Parameter]],
                      qualifier: List[T] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => DenyPrivilege =
     DenyPrivilege(DatabasePrivilege(action)(InputPosition.NONE), None, scope, qualifier, roleNames)
@@ -560,7 +571,7 @@ object RevokePrivilege {
     RevokePrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), List(AllQualifier()(InputPosition.NONE)), roleNames, revokeType)
 
   def databaseAction[T <: DatabasePrivilegeQualifier](action: DatabaseAction,
-                     scope: List[GraphScope],
+                     scope: List[DatabaseScope],
                      roleNames: Seq[Either[String, Parameter]],
                      revokeType: RevokeType,
                      qualifier: List[T] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => RevokePrivilege =
@@ -585,7 +596,7 @@ sealed abstract class PrivilegeCommand(privilege: PrivilegeType, qualifier: List
 
 final case class GrantPrivilege(privilege: PrivilegeType,
                                 resource: Option[ActionResource],
-                                scope: List[GraphScope],
+                                scope: List[GraphOrDatabaseScope],
                                 qualifier: List[PrivilegeQualifier],
                                 roleNames: Seq[Either[String, Parameter]])
                                (val position: InputPosition) extends PrivilegeCommand(privilege, qualifier, position) {
@@ -594,7 +605,7 @@ final case class GrantPrivilege(privilege: PrivilegeType,
 
 final case class DenyPrivilege(privilege: PrivilegeType,
                                resource: Option[ActionResource],
-                               scope: List[GraphScope],
+                               scope: List[GraphOrDatabaseScope],
                                qualifier: List[PrivilegeQualifier],
                                roleNames: Seq[Either[String, Parameter]])
                               (val position: InputPosition) extends PrivilegeCommand(privilege, qualifier, position) {
@@ -611,7 +622,7 @@ final case class DenyPrivilege(privilege: PrivilegeType,
 
 final case class RevokePrivilege(privilege: PrivilegeType,
                                  resource: Option[ActionResource],
-                                 scope: List[GraphScope],
+                                 scope: List[GraphOrDatabaseScope],
                                  qualifier: List[PrivilegeQualifier],
                                  roleNames: Seq[Either[String, Parameter]],
                                  revokeType: RevokeType)(val position: InputPosition) extends PrivilegeCommand(privilege, qualifier, position) {
@@ -647,12 +658,12 @@ final case class ShowPrivileges(scope: ShowPrivilegeScope, override  val yields:
       SemanticState.recordCurrentScope(this)
 }
 
-final case class ShowDatabase(scope: GraphScope, override val yields: Option[Return], override val where: Option[Where],
+final case class ShowDatabase(scope: DatabaseScope, override val yields: Option[Return], override val where: Option[Where],
                               override val returns: Option[Return])(val position: InputPosition) extends ReadAdministrationCommand {
 
   override def name: String = scope match {
-    case _: NamedGraphScope => "SHOW DATABASE"
-    case _: AllGraphsScope => "SHOW DATABASES"
+    case _: NamedDatabaseScope => "SHOW DATABASE"
+    case _: AllDatabasesScope => "SHOW DATABASES"
     case _: DefaultDatabaseScope => "SHOW DEFAULT DATABASE"
   }
 

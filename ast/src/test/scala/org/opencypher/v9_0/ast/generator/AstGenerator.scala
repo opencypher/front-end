@@ -25,6 +25,7 @@ import org.opencypher.v9_0.ast.AllConstraintActions
 import org.opencypher.v9_0.ast.AllDatabaseAction
 import org.opencypher.v9_0.ast.AllDatabaseManagementActions
 import org.opencypher.v9_0.ast.AllDatabasesQualifier
+import org.opencypher.v9_0.ast.AllDatabasesScope
 import org.opencypher.v9_0.ast.AllDbmsAction
 import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.ast.AllGraphsScope
@@ -112,6 +113,7 @@ import org.opencypher.v9_0.ast.MatchAction
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.MergeAdminAction
+import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
@@ -1372,8 +1374,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _databasePrivilege: Gen[PrivilegeCommand] = for {
     databaseAction      <- _databaseAction
-    namedScope          <- _listOfNameOfEither.map(_.map(n => NamedGraphScope(n)(pos)))
-    databaseScope       <- oneOf(namedScope, List(AllGraphsScope()(pos)), List(DefaultDatabaseScope()(pos)))
+    namedScope          <- _listOfNameOfEither.map(_.map(n => NamedDatabaseScope(n)(pos)))
+    databaseScope       <- oneOf(namedScope, List(AllDatabasesScope()(pos)), List(DefaultDatabaseScope()(pos)))
     databaseQualifier   <- _databaseQualifier(databaseAction.isInstanceOf[TransactionManagementAction])
     roleNames           <- _listOfNameOfEither
     revokeType          <- _revokeType
@@ -1407,7 +1409,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _showDatabase: Gen[ShowDatabase] = for {
     dbName <- _nameAsEither
-    scope  <- oneOf(NamedGraphScope(dbName)(pos), AllGraphsScope()(pos), DefaultDatabaseScope()(pos))
+    scope  <- oneOf(NamedDatabaseScope(dbName)(pos), AllDatabasesScope()(pos), DefaultDatabaseScope()(pos))
     where  <- Gen.option(_where)
     yields <- Gen.option(_yield)
   } yield ShowDatabase(scope, yields, where, None)(pos)

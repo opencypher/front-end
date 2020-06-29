@@ -16,11 +16,11 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.AllGraphsScope
+import org.opencypher.v9_0.ast.AllDatabasesScope
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DumpData
-import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Where
@@ -30,10 +30,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   // SHOW DATABASE
 
   Seq(
-    ("DATABASES", ast.ShowDatabase.apply(AllGraphsScope()(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
+    ("DATABASES", ast.ShowDatabase.apply(AllDatabasesScope()(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
     ("DEFAULT DATABASE", ast.ShowDatabase.apply(DefaultDatabaseScope()(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
-    ("DATABASE $db",  ast.ShowDatabase.apply(NamedGraphScope(param("db"))(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
-    ("DATABASE neo4j",  ast.ShowDatabase.apply(NamedGraphScope(literal("neo4j"))(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  )
+    ("DATABASE $db",  ast.ShowDatabase.apply(NamedDatabaseScope(param("db"))(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
+    ("DATABASE neo4j",  ast.ShowDatabase.apply(NamedDatabaseScope(literal("neo4j"))(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  )
   ).foreach{ case (dbType, privilege) =>
     test(s"SHOW $dbType") {
       yields(privilege(None, None, None))
@@ -86,7 +86,7 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   }
 
   test("SHOW DATABASE `foo.bar`") {
-    yields(ast.ShowDatabase(NamedGraphScope(literal("foo.bar"))(pos), None, None, None))
+    yields(ast.ShowDatabase(NamedDatabaseScope(literal("foo.bar"))(pos), None, None, None))
   }
 
   test("SHOW DATABASE foo.bar") {
