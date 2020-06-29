@@ -18,6 +18,7 @@ package org.opencypher.v9_0.ast.prettifier
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AllDatabasesQualifier
 import org.opencypher.v9_0.ast.AllGraphsScope
 import org.opencypher.v9_0.ast.AllLabelResource
 import org.opencypher.v9_0.ast.AllNodes
@@ -59,8 +60,8 @@ import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropView
 import org.opencypher.v9_0.ast.DumpData
+import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
-import org.opencypher.v9_0.ast.ElementsQualifier
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantPrivilege
@@ -72,7 +73,6 @@ import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.LabelAllQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
-import org.opencypher.v9_0.ast.LabelsQualifier
 import org.opencypher.v9_0.ast.LabelsResource
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
@@ -99,7 +99,6 @@ import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
-import org.opencypher.v9_0.ast.RelationshipsQualifier
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
@@ -141,7 +140,6 @@ import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.UserAllQualifier
 import org.opencypher.v9_0.ast.UserQualifier
-import org.opencypher.v9_0.ast.UsersQualifier
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
@@ -725,7 +723,7 @@ object Prettifier {
     s"$graphWord $dbString"
   }
 
-  def extractScope(dbScope: List[GraphScope], qualifier: PrivilegeQualifier): String = {
+  def extractScope(dbScope: List[GraphScope], qualifier: List[PrivilegeQualifier]): String = {
     s"${extractGraphScope(dbScope)}${extractQualifierString(qualifier)}"
   }
 
@@ -740,7 +738,7 @@ object Prettifier {
     s"$labelNames ON $graphWord $dbString"
   }
 
-  def extractScope(resource: ActionResource, dbScope: List[GraphScope], qualifier: PrivilegeQualifier): (String, String) = {
+  def extractScope(resource: ActionResource, dbScope: List[GraphScope], qualifier: List[PrivilegeQualifier]): (String, String) = {
     val resourceName = resource match {
       case PropertyResource(name) => ExpressionStringifier.backtick(name)
       case PropertiesResource(names) => names.map(ExpressionStringifier.backtick(_)).mkString(", ")
@@ -754,7 +752,7 @@ object Prettifier {
 
   def prettifyDatabasePrivilege(privilegeName: String,
                                 dbScope: List[GraphScope],
-                                qualifier: PrivilegeQualifier,
+                                qualifier: List[PrivilegeQualifier],
                                 preposition: String,
                                 roleNames: Seq[Either[String, Parameter]]): String = {
     val (dbName, default, multiple) = Prettifier.extractDbScope(dbScope)
@@ -768,23 +766,33 @@ object Prettifier {
     s"$privilegeName${extractQualifierString(qualifier)} ON $db $preposition ${escapeNames(roleNames)}"
   }
 
-  def extractQualifierPart(qualifier: PrivilegeQualifier): Option[String] = qualifier match {
-    case LabelQualifier(name)          => Some("NODE " + ExpressionStringifier.backtick(name))
-    case LabelsQualifier(names)        => Some("NODES " + names.map(ExpressionStringifier.backtick(_)).mkString(", "))
-    case LabelAllQualifier()           => Some("NODES *")
-    case RelationshipQualifier(name)   => Some("RELATIONSHIP " + ExpressionStringifier.backtick(name))
-    case RelationshipsQualifier(names) => Some("RELATIONSHIPS " + names.map(ExpressionStringifier.backtick(_)).mkString(", "))
-    case RelationshipAllQualifier()    => Some("RELATIONSHIPS *")
-    case ElementsQualifier(names)      => Some("ELEMENTS " + names.map(ExpressionStringifier.backtick(_)).mkString(", "))
-    case ElementsAllQualifier()        => Some("ELEMENTS *")
-    case UsersQualifier(names)         => Some("(" + names.map(escapeName).mkString(", ") + ")")
-    case UserQualifier(name)           => Some("(" + escapeName(name) + ")")
-    case UserAllQualifier()            => Some("(*)")
-    case AllQualifier()                => None
-    case _                             => Some("<unknown>")
+  def extractQualifierPart(qualifier: List[PrivilegeQualifier]): Option[String] = {
+    def stringify: PartialFunction[PrivilegeQualifier,String] = {
+      case LabelQualifier(name) => ExpressionStringifier.backtick(name)
+      case RelationshipQualifier(name) => ExpressionStringifier.backtick(name)
+      case ElementQualifier(name) => ExpressionStringifier.backtick(name)
+      case UserQualifier(name) => escapeName(name)
+    }
+
+    qualifier match {
+      case l@LabelQualifier(_) :: Nil => Some("NODE " + l.map(stringify).mkString(", "))
+      case l@LabelQualifier(_) :: _ => Some("NODES " + l.map(stringify).mkString(", "))
+      case LabelAllQualifier() :: Nil => Some("NODES *")
+      case rels@RelationshipQualifier(_) :: Nil => Some("RELATIONSHIP " + rels.map(stringify).mkString(", "))
+      case rels@RelationshipQualifier(_) :: _ => Some("RELATIONSHIPS " + rels.map(stringify).mkString(", "))
+      case RelationshipAllQualifier() :: Nil => Some("RELATIONSHIPS *")
+      case elems@ElementQualifier(_) :: _ => Some("ELEMENTS " + elems.map(stringify).mkString(", "))
+      case ElementsAllQualifier() :: Nil => Some("ELEMENTS *")
+      case UserQualifier(user) :: Nil => Some("(" + escapeName(user) + ")")
+      case users@UserQualifier(_) :: _ => Some("(" + users.map(stringify).mkString(", ") + ")")
+      case UserAllQualifier() :: Nil => Some("(*)")
+      case AllQualifier() :: Nil => None
+      case AllDatabasesQualifier() :: Nil => None
+      case _ => Some("<unknown>")
+    }
   }
 
-  private def extractQualifierString(qualifier: PrivilegeQualifier): String = {
+  private def extractQualifierString(qualifier: List[PrivilegeQualifier]): String = {
     val qualifierPart = extractQualifierPart(qualifier)
     qualifierPart match {
       case Some(string) => s" $string"

@@ -24,6 +24,7 @@ import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllConstraintActions
 import org.opencypher.v9_0.ast.AllDatabaseAction
 import org.opencypher.v9_0.ast.AllDatabaseManagementActions
+import org.opencypher.v9_0.ast.AllDatabasesQualifier
 import org.opencypher.v9_0.ast.AllDbmsAction
 import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.ast.AllGraphsScope
@@ -64,6 +65,7 @@ import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.DatabaseAction
+import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DbmsAdminAction
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.Delete
@@ -87,20 +89,21 @@ import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
+import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
-import org.opencypher.v9_0.ast.ElementsQualifier
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.GraphAction
+import org.opencypher.v9_0.ast.GraphPrivilegeQualifier
 import org.opencypher.v9_0.ast.IfExistsDo
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.IfExistsReplace
 import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.ast.LabelAllQualifier
-import org.opencypher.v9_0.ast.LabelsQualifier
+import org.opencypher.v9_0.ast.LabelQualifier
 import org.opencypher.v9_0.ast.LabelsResource
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
@@ -127,7 +130,7 @@ import org.opencypher.v9_0.ast.ReadAction
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
-import org.opencypher.v9_0.ast.RelationshipsQualifier
+import org.opencypher.v9_0.ast.RelationshipQualifier
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveItem
 import org.opencypher.v9_0.ast.RemoveLabelAction
@@ -191,7 +194,7 @@ import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.UserAllQualifier
-import org.opencypher.v9_0.ast.UsersQualifier
+import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
@@ -1301,36 +1304,36 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     AllPrivilegeActions, ShowPrivilegeAction, AssignPrivilegeAction, RemovePrivilegeAction
   )
 
-  def _databaseQualifier(haveUserQualifier: Boolean): Gen[PrivilegeQualifier] =
+  def _databaseQualifier(haveUserQualifier: Boolean): Gen[List[DatabasePrivilegeQualifier]] =
     if (haveUserQualifier) {
       for {
         userNames <- _listOfNameOfEither
-        qualifier <- oneOf(UserAllQualifier()(pos), UsersQualifier(userNames)(pos))
+        qualifier <- oneOf(List(UserAllQualifier()(pos)), userNames.map(UserQualifier(_)(pos)))
       } yield qualifier
     } else {
-      AllQualifier()(pos)
+      List(AllDatabasesQualifier()(pos))
     }
 
-  def _graphQualifier: Gen[PrivilegeQualifier] = for {
+  def _graphQualifier: Gen[List[GraphPrivilegeQualifier]] = for {
     qualifierNames <- oneOrMore(_identifier)
-    qualifier      <- oneOf(RelationshipsQualifier(qualifierNames)(pos), RelationshipAllQualifier()(pos),
-                            LabelsQualifier(qualifierNames)(pos), LabelAllQualifier()(pos),
-                            ElementsQualifier(qualifierNames)(pos), ElementsAllQualifier()(pos))
+    qualifier <- oneOf(qualifierNames.map(RelationshipQualifier(_)(pos)), List(RelationshipAllQualifier()(pos)),
+                       qualifierNames.map(LabelQualifier(_)(pos)), List(LabelAllQualifier()(pos)),
+                       qualifierNames.map(ElementQualifier(_)(pos)), List(ElementsAllQualifier()(pos)))
   } yield qualifier
 
-  def _graphQualifierAndResource(graphAction: GraphAction): Gen[(PrivilegeQualifier, Option[ActionResource])] =
+  def _graphQualifierAndResource(graphAction: GraphAction): Gen[(List[GraphPrivilegeQualifier], Option[ActionResource])] =
     if (graphAction == AllGraphAction) {
       // ALL GRAPH PRIVILEGES has AllQualifier and no resource
-      (AllQualifier()(pos), None)
+      (List(AllQualifier()(pos)), None)
     } else if (graphAction == WriteAction) {
       // WRITE has AllElementsQualifier and no resource
-      (ElementsAllQualifier()(pos), None)
+      (List(ElementsAllQualifier()(pos)), None)
     } else if (graphAction == SetLabelAction || graphAction == RemoveLabelAction) {
       // SET/REMOVE LABEL have AllLabelQualifier and label resource
       for {
         resourceNames  <- oneOrMore(_identifier)
         resource       <- oneOf(LabelsResource(resourceNames)(pos), AllLabelResource()(pos))
-      } yield (LabelAllQualifier()(pos), Some(resource))
+      } yield (List(LabelAllQualifier()(pos)), Some(resource))
     } else if (graphAction == TraverseAction || graphAction == CreateElementAction || graphAction == DeleteElementAction) {
       // TRAVERSE, CREATE/DELETE ELEMENT have any graph qualifier and no resource
       for {
