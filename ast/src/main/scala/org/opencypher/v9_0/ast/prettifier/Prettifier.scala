@@ -118,8 +118,6 @@ import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowDatabase
-import org.opencypher.v9_0.ast.ShowDatabases
-import org.opencypher.v9_0.ast.ShowDefaultDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeScope
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRolePrivileges
@@ -389,17 +387,13 @@ case class Prettifier(
         val (w: String, y: String, r: String) = showClausesAsString(yields, where, returns)
         s"SHOW ${Prettifier.extractScope(scope)} PRIVILEGES$y$w$r"
 
-      case x @ ShowDatabases(yields, where, returns) =>
+      case x @ ShowDatabase(scope, yields, where, returns) =>
         val (w: String, y: String, r: String) = showClausesAsString(yields, where, returns)
-        s"${x.name}$y$w$r"
-
-      case x @ ShowDefaultDatabase(yields, where, returns) =>
-        val (w: String, y: String, r: String) = showClausesAsString(yields, where, returns)
-        s"${x.name}$y$w$r"
-
-      case x @ ShowDatabase(dbName, yields, where, returns) =>
-        val (w: String, y: String, r: String) = showClausesAsString(yields, where, returns)
-        s"${x.name} ${Prettifier.escapeName(dbName)}$y$w$r"
+        val optionalName = scope match {
+          case NamedGraphScope(dbName) => s" ${Prettifier.escapeName(dbName)}"
+          case _ => ""
+        }
+        s"${x.name}$optionalName$y$w$r"
 
       case x @ CreateDatabase(dbName, ifExistsDo) =>
         ifExistsDo match {

@@ -160,8 +160,6 @@ import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowDatabase
-import org.opencypher.v9_0.ast.ShowDatabases
-import org.opencypher.v9_0.ast.ShowDefaultDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoleAction
@@ -1405,19 +1403,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _showDatabase: Gen[ShowDatabase] = for {
     dbName <- _nameAsEither
-    where <- Gen.option(_where)
+    scope  <- oneOf(NamedGraphScope(dbName)(pos), AllGraphsScope()(pos), DefaultDatabaseScope()(pos))
+    where  <- Gen.option(_where)
     yields <- Gen.option(_yield)
-  } yield ShowDatabase(dbName, yields, where, None)(pos)
-
-  def _showDatabases: Gen[ShowDatabases] = for {
-    where <- Gen.option(_where)
-    yields <- Gen.option(_yield)
-  } yield ShowDatabases(yields, where, None)(pos)
-
-  def _showDefaultDatabase: Gen[ShowDefaultDatabase] = for {
-    where <- Gen.option(_where)
-    yields <- Gen.option(_yield)
-  } yield ShowDefaultDatabase(yields, where, None)(pos)
+  } yield ShowDatabase(scope, yields, where, None)(pos)
 
   def _createDatabase: Gen[CreateDatabase] = for {
     dbName <- _nameAsEither
@@ -1440,8 +1429,6 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _multiDatabaseCommand: Gen[AdministrationCommand] = oneOf(
     _showDatabase,
-    _showDatabases,
-    _showDefaultDatabase,
     _createDatabase,
     _dropDatabase,
     _startDatabase,

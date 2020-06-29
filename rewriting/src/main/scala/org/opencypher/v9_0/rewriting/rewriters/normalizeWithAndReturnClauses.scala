@@ -25,8 +25,6 @@ import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.ShowDatabase
-import org.opencypher.v9_0.ast.ShowDatabases
-import org.opencypher.v9_0.ast.ShowDefaultDatabase
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
@@ -192,14 +190,6 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
       query.copy(clauses = (clauses.init :+ finalClause).map(clauseRewriter))(query.position)
 
     case s@ShowPrivileges(_, yields, _, returns) =>
-      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
-        .withGraph(s.useGraph)
-
-    case s@ShowDatabases(yields, _, returns) =>
-      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
-        .withGraph(s.useGraph)
-
-    case s@ShowDefaultDatabase(yields, _, returns) =>
       s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
         .withGraph(s.useGraph)
 

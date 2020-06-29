@@ -16,8 +16,11 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.AllGraphsScope
+import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DumpData
+import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Where
@@ -27,10 +30,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   // SHOW DATABASE
 
   Seq(
-    ("DATABASES", ast.ShowDatabases.apply _),
-    ("DEFAULT DATABASE", ast.ShowDefaultDatabase.apply _),
-    ("DATABASE $db",  ast.ShowDatabase.apply(param("db"), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
-    ("DATABASE neo4j",  ast.ShowDatabase.apply(literal("neo4j"), _: Option[Return], _: Option[Where], _: Option[Return]) _  )
+    ("DATABASES", ast.ShowDatabase.apply(AllGraphsScope()(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
+    ("DEFAULT DATABASE", ast.ShowDatabase.apply(DefaultDatabaseScope()(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
+    ("DATABASE $db",  ast.ShowDatabase.apply(NamedGraphScope(param("db"))(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  ),
+    ("DATABASE neo4j",  ast.ShowDatabase.apply(NamedGraphScope(literal("neo4j"))(pos), _: Option[Return], _: Option[Where], _: Option[Return]) _  )
   ).foreach{ case (dbType, privilege) =>
     test(s"SHOW $dbType") {
       yields(privilege(None, None, None))
@@ -83,7 +86,7 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   }
 
   test("SHOW DATABASE `foo.bar`") {
-    yields(ast.ShowDatabase(literal("foo.bar"), None, None, None))
+    yields(ast.ShowDatabase(NamedGraphScope(literal("foo.bar"))(pos), None, None, None))
   }
 
   test("SHOW DATABASE foo.bar") {
