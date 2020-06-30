@@ -107,8 +107,7 @@ trait Statement extends Parser
   }
 
   def RevokeCommand: Rule1[ast.AdministrationCommand] = rule("Security privilege revoke statement") {
-    RevokeRole | RevokeGraphPrivilege |
-    RevokeGrantDatabasePrivilege | RevokeDenyDatabasePrivilege | RevokeDatabasePrivilege |
+    RevokeRole | RevokeGraphPrivilege | RevokeGrantDatabasePrivilege | RevokeDenyDatabasePrivilege | RevokeDatabasePrivilege |
     RevokeGrantDbmsPrivilege | RevokeDenyDbmsPrivilege | RevokeDbmsPrivilege
   }
 
