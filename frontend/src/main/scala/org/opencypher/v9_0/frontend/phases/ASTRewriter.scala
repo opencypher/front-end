@@ -33,7 +33,6 @@ import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
-import org.opencypher.v9_0.rewriting.rewriters.addImplicitExistToPatternExpressions
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
@@ -45,6 +44,7 @@ import org.opencypher.v9_0.rewriting.rewriters.namePatternComprehensionPatternEl
 import org.opencypher.v9_0.rewriting.rewriters.nameUpdatingClauses
 import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
 import org.opencypher.v9_0.rewriting.rewriters.normalizeComparisons
+import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
 import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
@@ -90,7 +90,7 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
       namePatternComprehensionPatternElements,
       enableCondition(noUnnamedPatternElementsInPatternComprehension),
       inlineNamedPathsInPatternComprehensions,
-      addImplicitExistToPatternExpressions(semanticState)
+      normalizeExistsPatternExpressions(semanticState),
     )
 
     val rewrittenStatement = statement.endoRewrite(contract.rewriter)
