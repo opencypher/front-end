@@ -26,6 +26,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck.FilteringExpressions
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
 import org.opencypher.v9_0.ast.semantics.SemanticState
@@ -671,10 +672,11 @@ case class Unwind(
 
   override def semanticCheck: SemanticCheck =
     SemanticExpressionCheck.check(SemanticContext.Results, expression) chain
-      expectType(CTList(CTAny).covariant | CTAny.covariant, expression) ifOkChain {
-      val possibleInnerTypes: TypeGenerator = types(expression)(_).unwrapPotentialLists
-      declareVariable(variable, possibleInnerTypes)
-    }
+      expectType(CTList(CTAny).covariant | CTAny.covariant, expression) ifOkChain
+      FilteringExpressions.failIfAggregating(expression) chain {
+        val possibleInnerTypes: TypeGenerator = types(expression)(_).unwrapPotentialLists
+        declareVariable(variable, possibleInnerTypes)
+      }
 }
 
 abstract class CallClause extends Clause {
