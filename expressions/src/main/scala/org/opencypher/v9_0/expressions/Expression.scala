@@ -17,6 +17,7 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.expressions.Expression.TreeAcc
 import org.opencypher.v9_0.expressions.functions.Rand
+import org.opencypher.v9_0.expressions.functions.RandomUUID
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
@@ -149,7 +150,7 @@ abstract class Expression extends ASTNode {
   }
 
   def isDeterministic: Boolean = !this.treeExists {
-    case f: FunctionInvocation if f.function == Rand => true
+    case f: FunctionInvocation if f.function == Rand || f.function == RandomUUID => true
     case _ => false
   }
 }

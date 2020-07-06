@@ -66,6 +66,7 @@ object Function {
     Keys,
     Radians,
     Rand,
+    RandomUUID,
     Range,
     Reduce,
     Relationships,
