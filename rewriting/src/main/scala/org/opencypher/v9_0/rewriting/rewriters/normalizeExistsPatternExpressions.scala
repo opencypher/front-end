@@ -16,10 +16,16 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions._
+import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.LessThan
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Size
+import org.opencypher.v9_0.rewriting.rewriters.simplifyPredicates
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols
@@ -43,19 +49,11 @@ case class normalizeExistsPatternExpressions(semanticState: SemanticState) exten
   private val instance = bottomUp(Rewriter.lift {
     case p: PatternExpression if semanticState.expressionType(p).expected.contains(symbols.CTBoolean.invariant) =>
       Exists(p)(p.position)
-    case GreaterThan(Length(p: PatternExpression), SignedDecimalIntegerLiteral("0")) =>
-      Exists(p)(p.position)
     case GreaterThan(Size(p: PatternExpression), SignedDecimalIntegerLiteral("0")) =>
-      Exists(p)(p.position)
-    case LessThan(SignedDecimalIntegerLiteral("0"), Length(p: PatternExpression)) =>
       Exists(p)(p.position)
     case LessThan(SignedDecimalIntegerLiteral("0"), Size(p: PatternExpression)) =>
       Exists(p)(p.position)
-    case Equals(Length(p: PatternExpression), SignedDecimalIntegerLiteral("0")) =>
-      Not(Exists(p)(p.position))(p.position)
     case Equals(Size(p: PatternExpression), SignedDecimalIntegerLiteral("0")) =>
-      Not(Exists(p)(p.position))(p.position)
-    case Equals(SignedDecimalIntegerLiteral("0"), Length(p: PatternExpression)) =>
       Not(Exists(p)(p.position))(p.position)
     case Equals(SignedDecimalIntegerLiteral("0"), Size(p: PatternExpression)) =>
       Not(Exists(p)(p.position))(p.position)

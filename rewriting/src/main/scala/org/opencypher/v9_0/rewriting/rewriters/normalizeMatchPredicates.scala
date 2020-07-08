@@ -15,5 +15,5 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
-case class normalizeMatchPredicates(getDegreeRewriting: Boolean)
-  extends MatchPredicateNormalization(MatchPredicateNormalizerChain(PropertyPredicateNormalizer, LabelPredicateNormalizer), getDegreeRewriting)
+case object normalizeMatchPredicates
+  extends MatchPredicateNormalization(MatchPredicateNormalizerChain(PropertyPredicateNormalizer, LabelPredicateNormalizer))

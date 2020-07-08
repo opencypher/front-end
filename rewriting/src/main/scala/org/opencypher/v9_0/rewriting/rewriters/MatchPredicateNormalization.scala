@@ -29,11 +29,12 @@ import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
-abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer, getDegreeRewriting: Boolean) extends Rewriter {
+abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer) extends Rewriter {
 
   def apply(that: AnyRef): AnyRef = instance(that)
 
@@ -55,37 +56,13 @@ abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer,
       val newWhere: Option[Where] = predOpt.map {
         exp =>
           val pos: InputPosition = where.fold(m.position)(_.position)
-          val e = if (getDegreeRewriting)
-            exp.endoRewrite(whereRewriter)
-          else
-            exp
-          Where(e)(pos)
+          Where(exp)(pos)
       }
 
       m.copy(
         pattern = pattern.endoRewrite(topDown(Rewriter.lift(normalizer.replace))),
         where = newWhere
       )(m.position)
-  }
-
-  private def whereRewriter: Rewriter = Rewriter.lift {
-    // WHERE (a)-[:R]->() to WHERE GetDegree( (a)-[:R]->()) > 0
-    case p@PatternExpression(RelationshipsPattern(RelationshipChain(NodePattern(Some(node), List(), None, _),
-                                                                    RelationshipPattern(None, types, None, None, dir, _, _),
-                                                                    NodePattern(None, List(), None, _)))) =>
-      GreaterThan(calculateUsingGetDegree(p, node, types, dir), SignedDecimalIntegerLiteral("0")(p.position))(p.position)
-    // WHERE ()-[:R]->(a) to WHERE GetDegree( (a)<-[:R]-()) > 0
-    case p@PatternExpression(RelationshipsPattern(RelationshipChain(NodePattern(None, List(), None, _),
-                                                                    RelationshipPattern(None, types, None, None, dir, _, _),
-                                                                    NodePattern(Some(node), List(), None, _)))) =>
-      expressions.GreaterThan(calculateUsingGetDegree(p, node, types, dir.reversed), SignedDecimalIntegerLiteral("0")(p.position))(p.position)
-
-    case a@And(lhs, rhs) =>
-      And(lhs.endoRewrite(whereRewriter), rhs.endoRewrite(whereRewriter))(a.position)
-
-    case o@Or(lhs, rhs) => Or(lhs.endoRewrite(whereRewriter), rhs.endoRewrite(whereRewriter))(o.position)
-
-    case n@Not(e) => Not(e.endoRewrite(whereRewriter))(n.position)
   }
 
   private val instance = topDown(rewriter, _.isInstanceOf[Expression])
