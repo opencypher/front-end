@@ -15,18 +15,9 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast.Match
-import org.opencypher.v9_0.ast.Query
-import org.opencypher.v9_0.ast.Return
-import org.opencypher.v9_0.ast.SingleQuery
-import org.opencypher.v9_0.ast.Where
-import org.opencypher.v9_0.expressions.GetDegree
-import org.opencypher.v9_0.expressions.GreaterThan
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.LabelPredicateNormalizer
 import org.opencypher.v9_0.rewriting.rewriters.MatchPredicateNormalization
 import org.opencypher.v9_0.rewriting.rewriters.PropertyPredicateNormalizer
-import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -166,32 +157,5 @@ class MatchPredicateNormalizerTest extends CypherFunSuite with RewriteTest {
     assertRewrite(
       "MATCH (a:Artist)-[r:WORKED_WITH* { year: $foo }]->(b:Artist) RETURN *",
       "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE a:Artist AND b:Artist AND ALL(`  FRESHID16` in r where `  FRESHID16`.year = $foo)  RETURN *")
-  }
-
-  test("rewrite outgoing pattern to getDegree call") {
-    rewrite(parseForRewriting("MATCH (a) WHERE EXISTS((a)-[:R]->()) RETURN a.prop")) should matchPattern {
-      case Query(_, SingleQuery(Seq(Match(_, _, _, Some(Where(GreaterThan(_: GetDegree, _)))), _: Return))) =>
-    }
-  }
-
-  test("rewrite incoming pattern to getDegree call") {
-    rewrite(parseForRewriting("MATCH (a) WHERE EXISTS(()-[:R]->(a)) RETURN a.prop")) should matchPattern {
-      case Query(_, SingleQuery(Seq(Match(_, _, _, Some(Where(GreaterThan(_: GetDegree, _)))), _: Return))) =>
-    }
-  }
-
-  test("does not rewrite getDegree if turned off") {
-    val rewriter1 = new MatchPredicateNormalization(PropertyPredicateNormalizer) {}
-    val rewriter2 = new MatchPredicateNormalization(LabelPredicateNormalizer) {}
-
-    val rewriterUnderTest: Rewriter = inSequence(
-      rewriter1,
-      rewriter2
-    )
-
-    val query = "MATCH (a) WHERE ()-[:R]->(a) RETURN a.prop"
-    val original = parser.parse(query, OpenCypherExceptionFactory(None))
-    val result = original.rewrite(rewriterUnderTest)
-    assert(result === original, "\n" + query)
   }
 }
