@@ -20,6 +20,7 @@ import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
+import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.ShowPrivileges
@@ -82,10 +83,12 @@ object Additions {
       // SHOW USER user1, user2 PRIVILEGES
       case s@ShowPrivileges(ShowUsersPrivileges(u), _, _, _) if u.size > 1 =>
         throw cypherExceptionFactory.syntaxException("Multiple users in SHOW USER PRIVILEGE command is not supported in this Cypher version.", s.position)
+
+      case d: DefaultGraphScope => throw cypherExceptionFactory.syntaxException("Default graph is not supported in this Cypher version.", d.position)
     }
   }
 }
 
 trait Additions extends {
-  def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit
+  def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit = {}
 }

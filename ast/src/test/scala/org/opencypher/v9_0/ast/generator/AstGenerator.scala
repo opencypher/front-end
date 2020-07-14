@@ -69,6 +69,7 @@ import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DbmsAdminAction
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
+import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
@@ -1388,7 +1389,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _graphPrivilege: Gen[PrivilegeCommand] = for {
     graphAction                 <- _graphAction
     namedScope                  <- _listOfNameOfEither.map(_.map(n => NamedGraphScope(n)(pos)))
-    graphScope                  <- oneOf(namedScope, List(AllGraphsScope()(pos)))
+    graphScope                  <- oneOf(namedScope, List(AllGraphsScope()(pos)), List(DefaultGraphScope()(pos)))
     (qualifier, maybeResource)  <- _graphQualifierAndResource(graphAction)
     roleNames                   <- _listOfNameOfEither
     revokeType                  <- _revokeType

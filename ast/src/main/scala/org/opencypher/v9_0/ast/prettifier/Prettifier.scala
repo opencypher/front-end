@@ -45,6 +45,7 @@ import org.opencypher.v9_0.ast.DatabasePrivilege
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
+import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DescSortItem
@@ -731,14 +732,12 @@ object Prettifier {
   }
 
   def extractGraphScope(graphScope: List[GraphScope]): String = {
-    val (graphString, multipleGraphs) = graphScope match {
-        case NamedGraphScope(name) :: Nil => (escapeName(name), false)
-        case AllGraphsScope() :: Nil => ("*", false)
-        case namedGraphScopes => (escapeNames(namedGraphScopes.collect { case NamedGraphScope(name) => name }), true)
+      graphScope match {
+        case NamedGraphScope(name) :: Nil => s"GRAPH ${escapeName(name)}"
+        case AllGraphsScope() :: Nil => "GRAPH *"
+        case DefaultGraphScope() :: Nil => "DEFAULT GRAPH"
+        case namedGraphScopes => s"GRAPHS ${escapeNames(namedGraphScopes.collect { case NamedGraphScope(name) => name })}"
       }
-
-    val graphWord = if (multipleGraphs) "GRAPHS" else "GRAPH"
-    s"$graphWord $graphString"
   }
 
   def extractScope(graphScope: List[GraphScope], qualifier: List[PrivilegeQualifier]): String = {

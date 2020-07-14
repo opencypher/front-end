@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.parser.privilege
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.WriteAction
 import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
 
 class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
@@ -28,6 +29,22 @@ class TraversePrivilegeAdministrationCommandParserTest extends AdministrationCom
     ("REVOKE", "FROM", revokeGraphPrivilege: noResourcePrivilegeFunc)
   ).foreach {
     case (command: String, preposition: String, func: noResourcePrivilegeFunc) =>
+
+      test(s"$command TRAVERSE ON DEFAULT GRAPH $preposition role") {
+        yields(func(ast.GraphPrivilege(ast.TraverseAction)(pos), List(ast.DefaultGraphScope()(_)), List(ast.ElementsAllQualifier() _), Seq(literal("role"))))
+      }
+
+      test(s"$command TRAVERSE ON DEFAULT GRAPH NODE Label $preposition role") {
+        yields(func(ast.GraphPrivilege(ast.TraverseAction)(pos), List(ast.DefaultGraphScope()(_)), List(ast.LabelQualifier("Label") _), Seq(literal("role"))))
+      }
+
+      test(s"$command TRAVERSE ON DEFAULT GRAPH RELATIONSHIP * $preposition role") {
+        yields(func(ast.GraphPrivilege(ast.TraverseAction)(pos), List(ast.DefaultGraphScope()(_)), List(ast.RelationshipAllQualifier() _), Seq(literal("role"))))
+      }
+
+      test(s"$command TRAVERSE ON DEFAULT GRAPH ELEMENT Label $preposition role") {
+        yields(func(ast.GraphPrivilege(ast.TraverseAction)(pos), List(ast.DefaultGraphScope()(_)), List(ast.ElementQualifier("Label") _), Seq(literal("role"))))
+      }
 
       Seq("GRAPH", "GRAPHS").foreach {
         graphKeyword =>
