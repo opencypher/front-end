@@ -74,6 +74,8 @@ import org.opencypher.v9_0.ast.GraphScope
 import org.opencypher.v9_0.ast.GraphSelection
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
+import org.opencypher.v9_0.ast.IfExistsReplace
+import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.ast.LabelAllQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
 import org.opencypher.v9_0.ast.LabelsResource
@@ -191,15 +193,22 @@ case class Prettifier(
       case CreateIndex(LabelName(label), properties, _) =>
         s"CREATE INDEX ON :${backtick(label)}${properties.map(p => backtick(p.name)).mkString("(", ", ", ")")}"
 
-      case CreateIndexNewSyntax(Variable(variable), LabelName(label), properties, name, _) =>
+      case CreateIndexNewSyntax(Variable(variable), LabelName(label), properties, name, ifExistsDo, _) =>
         val nameString = name.map(n => s"${backtick(n)} ").getOrElse("")
-        s"CREATE INDEX ${nameString}FOR (${backtick(variable)}:${backtick(label)}) ON ${propertiesToString(properties)}"
+        val startOfCommand = ifExistsDo match {
+          case IfExistsDoNothing     => s"CREATE INDEX ${nameString}IF NOT EXISTS "
+          case IfExistsInvalidSyntax => s"CREATE OR REPLACE INDEX ${nameString}IF NOT EXISTS "
+          case IfExistsReplace       => s"CREATE OR REPLACE INDEX $nameString"
+          case IfExistsThrowError    => s"CREATE INDEX $nameString"
+        }
+        s"${startOfCommand}FOR (${backtick(variable)}:${backtick(label)}) ON ${propertiesToString(properties)}"
 
       case DropIndex(LabelName(label), properties, _) =>
         s"DROP INDEX ON :${backtick(label)}${properties.map(p => backtick(p.name)).mkString("(", ", ", ")")}"
 
-      case DropIndexOnName(name, _) =>
-        s"DROP INDEX ${backtick(name)}"
+      case DropIndexOnName(name, ifExists, _) =>
+        val ifExistsString = if (ifExists) " IF EXISTS" else ""
+        s"DROP INDEX ${backtick(name)}$ifExistsString"
 
       case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, name, _) =>
         val nameString = name.map(n => s"${backtick(n)} ").getOrElse("")

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LogicalVariable
@@ -40,18 +41,22 @@ case class CreateIndex(label: LabelName, properties: List[PropertyKeyName], useG
   def semanticCheck = Seq()
 }
 
-case class CreateIndexNewSyntax(variable: Variable, label: LabelName, properties: List[Property], name: Option[String], useGraph: Option[GraphSelection] = None)(val position: InputPosition)
+case class CreateIndexNewSyntax(variable: Variable, label: LabelName, properties: List[Property], name: Option[String], ifExistsDo: IfExistsDo, useGraph: Option[GraphSelection] = None)(val position: InputPosition)
   extends SchemaCommand with SemanticAnalysisTooling {
   override def withGraph(useGraph: Option[GraphSelection]): SchemaCommand = copy(useGraph = useGraph)(position)
-  override def semanticCheck =
-    declareVariable(variable, CTNode) chain
-    SemanticExpressionCheck.simple(properties) chain
-    semanticCheckFold(properties) {
-      property =>
-        when(!property.map.isInstanceOf[Variable]) {
-          error("Cannot index nested properties", property.position)
+  override def semanticCheck = ifExistsDo match {
+    case IfExistsInvalidSyntax => SemanticError(s"Failed to create index: cannot supply both `OR REPLACE` and `IF NOT EXISTS`.", position)
+    case IfExistsReplace if name.isEmpty => SemanticError(s"Failed to create index: a name is required to `REPLACE` an existing index.", position)
+    case _ =>
+      declareVariable(variable, CTNode) chain
+        SemanticExpressionCheck.simple(properties) chain
+        semanticCheckFold(properties) {
+          property =>
+            when(!property.map.isInstanceOf[Variable]) {
+              error("Cannot index nested properties", property.position)
+            }
         }
-    }
+  }
 }
 
 case class DropIndex(label: LabelName, properties: List[PropertyKeyName], useGraph: Option[GraphSelection] = None)(val position: InputPosition) extends SchemaCommand {
@@ -60,7 +65,7 @@ case class DropIndex(label: LabelName, properties: List[PropertyKeyName], useGra
   def semanticCheck = Seq()
 }
 
-case class DropIndexOnName(name: String, useGraph: Option[GraphSelection] = None)(val position: InputPosition) extends SchemaCommand {
+case class DropIndexOnName(name: String, ifExists: Boolean, useGraph: Option[GraphSelection] = None)(val position: InputPosition) extends SchemaCommand {
   override def withGraph(useGraph: Option[GraphSelection]): SchemaCommand = copy(useGraph = useGraph)(position)
   def semanticCheck = Seq()
 }

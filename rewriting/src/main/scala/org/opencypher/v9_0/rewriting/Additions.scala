@@ -23,6 +23,7 @@ import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowUsersPrivileges
@@ -89,6 +90,15 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Multiple users in SHOW USER PRIVILEGE command is not supported in this Cypher version.", s.position)
 
       case d: DefaultGraphScope => throw cypherExceptionFactory.syntaxException("Default graph is not supported in this Cypher version.", d.position)
+
+      // CREATE OR REPLACE INDEX name ...
+      // CREATE INDEX [name] IF NOT EXISTS ...
+      case c@CreateIndexNewSyntax(_, _, _, _, ifExistsDo, _) if ifExistsDo != IfExistsThrowError =>
+        throw cypherExceptionFactory.syntaxException("Creating index using `OR REPLACE` or `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
+
+      // DROP INDEX name IF EXISTS
+      case d@DropIndexOnName(_, true, _) =>
+        throw cypherExceptionFactory.syntaxException("Dropping index using `IF EXISTS` is not supported in this Cypher version.", d.position)
     }
   }
 }
