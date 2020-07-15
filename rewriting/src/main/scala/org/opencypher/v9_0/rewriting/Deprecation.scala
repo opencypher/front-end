@@ -30,12 +30,16 @@ import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
+import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedDropConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDropIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedFunctionNotification
+import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
+import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedParameterSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
@@ -68,6 +72,21 @@ object Deprecations {
           () => Some(DeprecatedFunctionNotification(f.position, name, functionRenames(name)))
         )
 
+      // old octal literal syntax
+      case p@SignedOctalIntegerLiteral(stringVal) if stringVal.charAt(1) != 'o' =>
+        Deprecation(
+          () => p,
+          () => Some(DeprecatedOctalLiteralSyntax(p.position))
+        )
+
+      // old hex literal syntax
+      case p@SignedHexIntegerLiteral(stringVal) if stringVal.charAt(1) == 'X' =>
+        Deprecation(
+          () => SignedHexIntegerLiteral(stringVal.toLowerCase)(p.position),
+          () => Some(DeprecatedHexLiteralSyntax(p.position))
+        )
+
+      // Deprecated in 4.X
       // timestamp
       case f@FunctionInvocation(namespace, FunctionName(name), distinct, args) if name.equalsIgnoreCase("timestamp")=>
         Deprecation(

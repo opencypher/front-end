@@ -450,12 +450,16 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _signedHexIntLit: Gen[SignedHexIntegerLiteral] =
     _signedIntString("0x", 16).map(SignedHexIntegerLiteral(_)(pos))
 
-  def _signedOctIntLit: Gen[SignedOctalIntegerLiteral] =
+  def _signedOctIntLitOldSyntax: Gen[SignedOctalIntegerLiteral] =
     _signedIntString("0", 8).map(SignedOctalIntegerLiteral(_)(pos))
+
+  def _signedOctIntLit: Gen[SignedOctalIntegerLiteral] =
+    _signedIntString("0o", 8).map(SignedOctalIntegerLiteral(_)(pos))
 
   def _signedIntLit: Gen[SignedIntegerLiteral] = oneOf(
     _signedDecIntLit,
     _signedHexIntLit,
+    _signedOctIntLitOldSyntax,
     _signedOctIntLit
   )
 
@@ -718,6 +722,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
         lzy(_booleanLit),
         lzy(_signedDecIntLit),
         lzy(_signedHexIntLit),
+        lzy(_signedOctIntLitOldSyntax),
         lzy(_signedOctIntLit),
         lzy(_doubleLit),
         lzy(_variable),

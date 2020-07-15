@@ -17,7 +17,9 @@ package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
 import org.opencypher.v9_0.rewriting.rewriters.replaceDeprecatedCypherSyntax
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstructionTestSupport {
@@ -52,6 +54,20 @@ class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstruct
     val before = function("TiMeStAmP")
 
     val after = prop(function("datetime"), "epochMillis")
+    rewriter(before) should equal(after)
+  }
+
+  test("should rewrite 0X123 to 0x123") {
+    val before = SignedHexIntegerLiteral("0X123")(InputPosition(0, 0, 0))
+
+    val after = SignedHexIntegerLiteral("0x123")(InputPosition(0, 0, 0))
+    rewriter(before) should equal(after)
+  }
+
+  test("should rewrite 0X9fff to 0x9fff") {
+    val before = SignedHexIntegerLiteral("0X9fff")(InputPosition(13, 17, 19))
+
+    val after = SignedHexIntegerLiteral("0x9fff")(InputPosition(13, 17, 19))
     rewriter(before) should equal(after)
   }
 }
