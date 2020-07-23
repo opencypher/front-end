@@ -108,6 +108,8 @@ object Function {
             val info: FunctionInfo = new FunctionInfo(f) {
               def getDescription: String = signature.description
 
+              def getCategory: String = signature.category
+
               def getSignature: String = signature.getSignatureAsString
             }
             Seq(info)
@@ -119,6 +121,8 @@ object Function {
       case func: FunctionWithInfo =>
         Seq(new FunctionInfo(func) {
           def getDescription: String = func.getDescription
+
+          def getCategory: String = func.getCategory
 
           def getSignature: String = func.getSignatureAsString
         })
@@ -135,6 +139,8 @@ abstract case class FunctionInfo(f: Function){
     }
 
   def getDescription: String
+
+  def getCategory: String
 
   def getSignature: String
 
@@ -169,6 +175,8 @@ trait FunctionWithInfo {
   def getSignatureAsString: String
 
   def getDescription: String
+
+  def getCategory: String
 }
 
 abstract class AggregatingFunction extends Function
