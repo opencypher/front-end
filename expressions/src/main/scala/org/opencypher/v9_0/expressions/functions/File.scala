@@ -22,6 +22,6 @@ import org.opencypher.v9_0.util.symbols.CTString
 case object File extends Function with TypeSignatures {
   def name = "file"
   override val signatures = Vector(
-    TypeSignature.noArg(name, CTString, "Returns the absolute path of the file that LOAD CSV is using.")
+    TypeSignature.noArg(name, CTString, "Returns the absolute path of the file that LOAD CSV is using.", "Scalar")
   )
 }
