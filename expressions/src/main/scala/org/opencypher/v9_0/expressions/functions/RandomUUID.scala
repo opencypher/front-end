@@ -23,6 +23,6 @@ object RandomUUID extends Function with TypeSignatures {
   override def name: String = "randomUUID"
 
   override val signatures = Vector(
-    TypeSignature.noArg(name, CTString, "Generates a random UUID.", "Scalar")
+    TypeSignature.noArg(name, CTString, "Generates a random UUID.", Category.SCALAR)
   )
 }

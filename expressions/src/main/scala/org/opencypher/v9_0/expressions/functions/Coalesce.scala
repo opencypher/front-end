@@ -22,5 +22,5 @@ case object Coalesce extends Function with FunctionWithInfo {
 
   override def getDescription: String = "Returns the first non-null value in a list of expressions."
 
-  override def getCategory: String = "Scalar"
+  override def getCategory: String = Category.SCALAR
 }

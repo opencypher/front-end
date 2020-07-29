@@ -22,6 +22,19 @@ import org.opencypher.v9_0.expressions.FunctionTypeSignature
 import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.InputPosition
 
+object Category extends Enumeration {
+  val NUMERIC = "Numeric"
+  val TRIGONOMETRIC = "Trigonometric"
+  val PREDICATE = "Predicate"
+  val AGGREGATING = "Aggregating"
+  val SCALAR = "Scalar"
+  val TEMPORAL = "Temporal"
+  val LOGARITHMIC = "Logarithmic"
+  val LIST = "List"
+  val STRING = "String"
+  val SPATIAL = "Spatial"
+}
+
 object Function {
   private val knownFunctions: Seq[Function] = Vector(
     Abs,
