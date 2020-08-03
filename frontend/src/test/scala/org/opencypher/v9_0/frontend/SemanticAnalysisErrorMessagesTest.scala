@@ -15,13 +15,17 @@
  */
 package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.ast.semantics.SemanticFeature.CorrelatedSubQueries
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
 import org.opencypher.v9_0.frontend.helpers.NoPlannerName
 import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.Parsing
+import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
+import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.DeprecatedRepeatedRelVarInPatternExpression
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.SubqueryVariableShadowing
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -33,7 +37,13 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
 
   // This test invokes SemanticAnalysis twice because that's what the production pipeline does
-  private val pipeline = Parsing andThen SemanticAnalysis(warn = true) andThen SemanticAnalysis(warn = false)
+  private val pipeline =
+    Parsing andThen
+      PreparatoryRewriting(Deprecations.V2) andThen
+      SemanticAnalysis(warn = true, CorrelatedSubQueries) andThen
+      SemanticAnalysis(warn = false, CorrelatedSubQueries)
+
+  private val emptyTokenErrorMessage = "'' is not a valid token name. Token names cannot be empty, or contain any null-bytes or back-ticks."
 
   // positive tests that we get the error message
   // "In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN"
@@ -813,7 +823,217 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
     }
   }
 
-  private val emptyTokenErrorMessage = "'' is not a valid token name. Token names cannot be empty, or contain any null-bytes or back-ticks."
+  test("Should warn about variable shadowing in a subquery") {
+    val query =
+      """MATCH (shadowed)
+        |CALL {
+        |  MATCH (shadowed)-[:REL]->(m) // warning here
+        |  RETURN m
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(SubqueryVariableShadowing(InputPosition(33, 3, 10), "shadowed")))
+    context.errors should be(empty)
+  }
+
+  test("Should warn about variable shadowing in a subquery when aliasing") {
+    val query =
+      """MATCH (shadowed)
+        |CALL {
+        |  MATCH (n)-[:REL]->(m)
+        |  WITH m AS shadowed // warning here
+        |  WITH shadowed AS m
+        |  RETURN m
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(SubqueryVariableShadowing(InputPosition(60, 4, 13), "shadowed")))
+    context.errors should be(empty)
+  }
+
+  test("Should warn about variable shadowing in a nested subquery") {
+    val query =
+      """MATCH (shadowed)
+        |CALL {
+        |  MATCH (n)-[:REL]->(m)
+        |  CALL {
+        |    MATCH (shadowed)-[:REL]->(x) // warning here
+        |    RETURN x
+        |  }
+        |  RETURN m, x
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(SubqueryVariableShadowing(InputPosition(68, 5, 12), "shadowed")))
+    context.errors should be(empty)
+  }
+
+  test("Should warn about variable shadowing from enclosing subquery") {
+    val query =
+      """MATCH (shadowed)
+        |CALL {
+        |  WITH shadowed
+        |  MATCH (shadowed)-[:REL]->(m)
+        |  CALL {
+        |    MATCH (shadowed)-[:REL]->(x) // warning here
+        |    RETURN x
+        |  }
+        |  RETURN m, x
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(SubqueryVariableShadowing(InputPosition(91, 6, 12), "shadowed")))
+    context.errors should be(empty)
+  }
+
+  test("Should warn about multiple shadowed variables in a subquery") {
+    val query =
+      """MATCH (shadowed)-->(alsoShadowed)
+        |CALL {
+        |  MATCH (shadowed)-->(alsoShadowed) // multiple warnings here
+        |  RETURN shadowed AS n, alsoShadowed AS m
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(
+      SubqueryVariableShadowing(InputPosition(50, 3, 10), "shadowed"),
+      SubqueryVariableShadowing(InputPosition(63, 3, 23), "alsoShadowed")
+    ))
+    context.errors should be(empty)
+  }
+
+  test("Should warn about multiple shadowed variables in a nested subquery") {
+    val query =
+      """MATCH (shadowed)
+        |CALL {
+        |  MATCH (shadowed)-[:REL]->(m) // warning here
+        |  CALL {
+        |    MATCH (shadowed)-[:REL]->(x) // and also here
+        |    RETURN x
+        |  }
+        |  RETURN m, x
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(
+      SubqueryVariableShadowing(InputPosition(33, 3, 10), "shadowed"),
+      SubqueryVariableShadowing(InputPosition(91, 5, 12), "shadowed")
+    ))
+    context.errors should be(empty)
+  }
+
+  test("Should not warn about variable shadowing in a subquery if it has been removed from scope by WITH") {
+    val query =
+      """MATCH (notShadowed)
+        |WITH notShadowed AS n
+        |CALL {
+        |  MATCH (notShadowed)-[:REL]->(m)
+        |  RETURN m
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should be(empty)
+    context.errors should be(empty)
+  }
+
+  test("Should not warn about variable shadowing in a subquery if it has been imported previously") {
+    val query =
+      """MATCH (notShadowed)
+        |CALL {
+        |  WITH notShadowed
+        |  MATCH (notShadowed)-[:REL]->(m)
+        |  WITH m AS notShadowed
+        |  RETURN notShadowed AS x
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should be(empty)
+    context.errors should be(empty)
+  }
+
+  test("Should warn about variable shadowing in an union subquery") {
+    val query =
+      """MATCH (shadowed)
+        |CALL {
+        |  MATCH (m) RETURN m
+        | UNION
+        |  MATCH (shadowed)-[:REL]->(m) // warning here
+        |  RETURN m
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(SubqueryVariableShadowing(InputPosition(61, 5, 10), "shadowed")))
+    context.errors should be(empty)
+  }
+
+  test("Should warn about variable shadowing in one of the union subquery branches") {
+    val query =
+      """MATCH (shadowed)
+        |CALL {
+        |  WITH shadowed
+        |  MATCH (shadowed)-[:REL]->(m)
+        |  RETURN m
+        | UNION
+        |  MATCH (shadowed)-[:REL]->(m) // warning here
+        |  RETURN m
+        | UNION
+        |  MATCH (x) RETURN x AS m
+        |}
+        |RETURN *""".stripMargin
+
+    val startState = initStartState(query, Map.empty)
+    val context = new ErrorCollectingContext()
+
+    val resultState = pipeline.transform(startState, context)
+
+    resultState.semantics().notifications should equal(Set(SubqueryVariableShadowing(InputPosition(98, 7, 10), "shadowed")))
+    context.errors should be(empty)
+  }
 
   private def initStartState(query: String, initialFields: Map[String, CypherType]) =
     InitialState(query, None, NoPlannerName, initialFields)
