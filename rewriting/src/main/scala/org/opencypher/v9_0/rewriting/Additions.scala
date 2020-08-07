@@ -27,6 +27,7 @@ import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsThrowError
@@ -108,17 +109,23 @@ object Additions {
 
       case d: DefaultGraphScope => throw cypherExceptionFactory.syntaxException("Default graph is not supported in this Cypher version.", d.position)
 
-      // GRANT EXECUTE PROCEDURE ...
+      // GRANT [BOOSTED] EXECUTE PROCEDURE ...
       case p@GrantPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
+      case p@GrantPrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
 
-      // DENY EXECUTE PROCEDURE ...
+      // DENY [BOOSTED] EXECUTE PROCEDURE ...
       case p@DenyPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
+      case p@DenyPrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
 
-      // REVOKE EXECUTE PROCEDURE ...
+      // REVOKE [BOOSTED] EXECUTE PROCEDURE ...
       case p@RevokePrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
+      case p@RevokePrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
 
       // CREATE OR REPLACE INDEX name ...
       // CREATE INDEX [name] IF NOT EXISTS ...

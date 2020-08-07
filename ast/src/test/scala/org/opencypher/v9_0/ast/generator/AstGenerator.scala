@@ -93,6 +93,7 @@ import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
@@ -1394,7 +1395,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield dbms
 
   def _qualifiedDbmsPrivilege: Gen[PrivilegeCommand] = for {
-    dbmsAction         <- ExecuteProcedureAction
+    dbmsAction         <- oneOf(ExecuteProcedureAction, ExecuteBoostedProcedureAction)
     procedureNamespace <- _namespace
     procedureName      <- _procedureName
     procedures         <- oneOrMore(ProcedureQualifier(procedureNamespace, procedureName)(pos))

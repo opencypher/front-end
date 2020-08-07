@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.parser.privilege
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.ProcedureQualifier
 import org.opencypher.v9_0.expressions
@@ -36,7 +37,8 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
     case (verb: String, preposition: String, func: executePrivilegeFunc) =>
 
       Seq(
-        ("EXECUTE PROCEDURE", ExecuteProcedureAction)
+        ("EXECUTE PROCEDURE", ExecuteProcedureAction),
+        ("EXECUTE BOOSTED PROCEDURE", ExecuteBoostedProcedureAction)
       ).foreach {
         case (execute, action) =>
 
