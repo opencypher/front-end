@@ -29,6 +29,7 @@ import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Contains
 import org.opencypher.v9_0.expressions.CountStar
+import org.opencypher.v9_0.expressions.DesugaredMapProjection
 import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.Equals
@@ -86,6 +87,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.expressions.functions.UserDefinedFunctionInvocation
+import org.opencypher.v9_0.util.InputPosition
 
 case class ExpressionStringifier(
   extension: ExpressionStringifier.Extension,
@@ -215,6 +217,13 @@ case class ExpressionStringifier(
 
       case MapProjection(variable, items) =>
         val itemsText = items.map(apply).mkString(", ")
+        s"${apply(variable)}{$itemsText}"
+
+      case DesugaredMapProjection(variable, items, includeAllProps) =>
+        val itemsText = {
+          val allItems = if (!includeAllProps) items else items :+ AllPropertiesSelector()(InputPosition.NONE)
+          allItems.map(apply).mkString(", ")
+        }
         s"${apply(variable)}{$itemsText}"
 
       case LiteralEntry(k, e) =>
