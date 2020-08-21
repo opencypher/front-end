@@ -94,6 +94,9 @@ import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.PrivilegeQualifier
+import org.opencypher.v9_0.ast.ProcedureAllQualifier
+import org.opencypher.v9_0.ast.ProcedurePrivilegeQualifier
+import org.opencypher.v9_0.ast.ProcedureQualifier
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
 import org.opencypher.v9_0.ast.ProjectingUnionAll
@@ -331,11 +334,20 @@ case class Prettifier(
       case x @ RevokeRolesFromUsers(roleNames, userNames) =>
         s"${x.name} ${roleNames.map(Prettifier.escapeName).mkString(", ")} FROM ${userNames.map(Prettifier.escapeName).mkString(", ")}"
 
+      case x @ GrantPrivilege(DbmsPrivilege(_), _, _, qualifiers: List[ProcedurePrivilegeQualifier], roleNames) =>
+        s"${x.name}${Prettifier.extractQualifierString(qualifiers)} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
+
       case x @ GrantPrivilege(DbmsPrivilege(_), _, _, _, roleNames) =>
         s"${x.name} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
 
+      case x @ DenyPrivilege(DbmsPrivilege(_), _, _, qualifiers: List[ProcedurePrivilegeQualifier], roleNames) =>
+        s"${x.name}${Prettifier.extractQualifierString(qualifiers)} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
+
       case x @ DenyPrivilege(DbmsPrivilege(_), _, _, _, roleNames) =>
         s"${x.name} ON DBMS TO ${Prettifier.escapeNames(roleNames)}"
+
+      case x @ RevokePrivilege(DbmsPrivilege(_), _, _, qualifiers: List[ProcedurePrivilegeQualifier], roleNames, _) =>
+        s"${x.name}${Prettifier.extractQualifierString(qualifiers)} ON DBMS FROM ${Prettifier.escapeNames(roleNames)}"
 
       case x @ RevokePrivilege(DbmsPrivilege(_), _, _, _, roleNames, _) =>
         s"${x.name} ON DBMS FROM ${Prettifier.escapeNames(roleNames)}"
@@ -801,6 +813,7 @@ object Prettifier {
       case RelationshipQualifier(name) => ExpressionStringifier.backtick(name)
       case ElementQualifier(name) => ExpressionStringifier.backtick(name)
       case UserQualifier(name) => escapeName(name)
+      case ProcedureQualifier(nameSpace, procedureName) => nameSpace.parts.mkString(".") + "." + procedureName.name
     }
 
     qualifier match {
@@ -817,6 +830,8 @@ object Prettifier {
       case UserAllQualifier() :: Nil => Some("(*)")
       case AllQualifier() :: Nil => None
       case AllDatabasesQualifier() :: Nil => None
+      case p@ProcedureQualifier(_, _) :: _ => Some(p.map(stringify).mkString(", "))
+      case ProcedureAllQualifier() :: Nil => Some("*")
       case _ => Some("<unknown>")
     }
   }

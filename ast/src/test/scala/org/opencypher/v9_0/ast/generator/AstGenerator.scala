@@ -67,7 +67,7 @@ import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
-import org.opencypher.v9_0.ast.DbmsAdminAction
+import org.opencypher.v9_0.ast.DbmsAction
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
@@ -1308,7 +1308,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     AllTransactionActions, ShowTransactionAction, TerminateTransactionAction
   )
 
-  def _dbmsAction: Gen[DbmsAdminAction] = oneOf(
+  def _dbmsAction: Gen[DbmsAction] = oneOf(
     AllDbmsAction,
     AllUserActions, ShowUserAction, CreateUserAction, SetUserStatusAction, SetPasswordsAction, AlterUserAction, DropUserAction,
     AllRoleActions, ShowRoleAction, CreateRoleAction, DropRoleAction, AssignRoleAction, RemoveRoleAction,

@@ -20,10 +20,15 @@ import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
+import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DefaultGraphScope
+import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.ExecuteProcedureAction
+import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsThrowError
+import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowUsersPrivileges
@@ -90,6 +95,18 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Multiple users in SHOW USER PRIVILEGE command is not supported in this Cypher version.", s.position)
 
       case d: DefaultGraphScope => throw cypherExceptionFactory.syntaxException("Default graph is not supported in this Cypher version.", d.position)
+
+      // GRANT EXECUTE PROCEDURE ...
+      case p@GrantPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
+
+      // DENY EXECUTE PROCEDURE ...
+      case p@DenyPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
+
+      // REVOKE EXECUTE PROCEDURE ...
+      case p@RevokePrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
 
       // CREATE OR REPLACE INDEX name ...
       // CREATE INDEX [name] IF NOT EXISTS ...

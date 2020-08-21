@@ -26,7 +26,9 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.ProcedureName
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
@@ -321,6 +323,14 @@ sealed trait PrivilegeQualifier extends Rewritable {
   override def dup(children: Seq[AnyRef]): PrivilegeQualifier.this.type = this
 }
 
+sealed trait ProcedurePrivilegeQualifier extends PrivilegeQualifier {
+  override def dup(children: Seq[AnyRef]): ProcedurePrivilegeQualifier.this.type = this
+}
+
+final case class ProcedureQualifier(nameSpace: Namespace, procedureName: ProcedureName)(val position: InputPosition) extends ProcedurePrivilegeQualifier
+
+final case class ProcedureAllQualifier()(val position: InputPosition) extends ProcedurePrivilegeQualifier
+
 sealed trait GraphPrivilegeQualifier extends PrivilegeQualifier {
   override def dup(children: Seq[AnyRef]): GraphPrivilegeQualifier.this.type = this
 }
@@ -459,13 +469,15 @@ case object ShowTransactionAction extends TransactionManagementAction("SHOW TRAN
 
 case object TerminateTransactionAction extends TransactionManagementAction("TERMINATE TRANSACTION")
 
-abstract class DbmsAdminAction(override val name: String) extends AdminAction
+abstract class DbmsAction(override val name: String) extends AdminAction
 
-case object AllAdminAction extends DbmsAdminAction("ALL ADMIN PRIVILEGES")
+case object AllAdminAction extends DbmsAction("ALL ADMIN PRIVILEGES")
 
-case object AllDbmsAction extends DbmsAdminAction("ALL DBMS PRIVILEGES")
+case object AllDbmsAction extends DbmsAction("ALL DBMS PRIVILEGES")
 
-abstract class UserManagementAction(override val name: String) extends DbmsAdminAction(name)
+case object ExecuteProcedureAction extends DbmsAction("EXECUTE PROCEDURE")
+
+abstract class UserManagementAction(override val name: String) extends DbmsAction(name)
 
 case object AllUserActions extends UserManagementAction("USER MANAGEMENT")
 
@@ -481,7 +493,7 @@ case object AlterUserAction extends UserManagementAction("ALTER USER")
 
 case object DropUserAction extends UserManagementAction("DROP USER")
 
-abstract class RoleManagementAction(override val name: String) extends DbmsAdminAction(name)
+abstract class RoleManagementAction(override val name: String) extends DbmsAction(name)
 
 case object AllRoleActions extends RoleManagementAction("ROLE MANAGEMENT")
 
@@ -495,7 +507,7 @@ case object AssignRoleAction extends RoleManagementAction("ASSIGN ROLE")
 
 case object RemoveRoleAction extends RoleManagementAction("REMOVE ROLE")
 
-abstract class DatabaseManagementAction(override val name: String) extends DbmsAdminAction(name)
+abstract class DatabaseManagementAction(override val name: String) extends DbmsAction(name)
 
 case object AllDatabaseManagementActions extends DatabaseManagementAction("DATABASE MANAGEMENT")
 
@@ -503,7 +515,7 @@ case object CreateDatabaseAction extends DatabaseManagementAction("CREATE DATABA
 
 case object DropDatabaseAction extends DatabaseManagementAction("DROP DATABASE")
 
-abstract class PrivilegeManagementAction(override val name: String) extends DbmsAdminAction(name)
+abstract class PrivilegeManagementAction(override val name: String) extends DbmsAction(name)
 
 case object AllPrivilegeActions extends PrivilegeManagementAction("PRIVILEGE MANAGEMENT")
 
@@ -539,13 +551,16 @@ case object AllGraphAction extends GraphAction("ALL GRAPH PRIVILEGES", "AllGraph
 
 object GrantPrivilege {
 
-  def dbmsAction(action: AdminAction, roleNames: Seq[Either[String, Parameter]]): InputPosition => GrantPrivilege =
-    GrantPrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), List(AllQualifier()(InputPosition.NONE)), roleNames)
+  def dbmsAction(action: AdminAction,
+                 roleNames: Seq[Either[String, Parameter]],
+                 qualifier: List[PrivilegeQualifier] = List(AllQualifier()(InputPosition.NONE))
+                ): InputPosition => GrantPrivilege =
+    GrantPrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), qualifier, roleNames)
 
-  def databaseAction[T <: DatabasePrivilegeQualifier](action: DatabaseAction,
+  def databaseAction(action: DatabaseAction,
                      scope: List[DatabaseScope],
                      roleNames: Seq[Either[String, Parameter]],
-                     qualifier: List[T] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => GrantPrivilege =
+                     qualifier: List[DatabasePrivilegeQualifier] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => GrantPrivilege =
     GrantPrivilege(DatabasePrivilege(action)(InputPosition.NONE), None, scope, qualifier, roleNames)
 
   def graphAction[T <: GraphPrivilegeQualifier](action: GraphAction,
@@ -557,13 +572,16 @@ object GrantPrivilege {
 }
 
 object DenyPrivilege {
-  def dbmsAction(action: AdminAction, roleNames: Seq[Either[String, Parameter]]): InputPosition => DenyPrivilege =
-    DenyPrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), List(AllQualifier()(InputPosition.NONE)), roleNames)
+  def dbmsAction(action: AdminAction,
+                 roleNames: Seq[Either[String, Parameter]],
+                 qualifier: List[PrivilegeQualifier] = List(AllQualifier()(InputPosition.NONE))
+                ): InputPosition => DenyPrivilege =
+    DenyPrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), qualifier, roleNames)
 
-  def databaseAction[T <: DatabasePrivilegeQualifier](action: DatabaseAction,
+  def databaseAction(action: DatabaseAction,
                      scope: List[DatabaseScope],
                      roleNames: Seq[Either[String, Parameter]],
-                     qualifier: List[T] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => DenyPrivilege =
+                     qualifier: List[DatabasePrivilegeQualifier] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => DenyPrivilege =
     DenyPrivilege(DatabasePrivilege(action)(InputPosition.NONE), None, scope, qualifier, roleNames)
 
   def graphAction[T <: GraphPrivilegeQualifier](action: GraphAction,
@@ -577,14 +595,16 @@ object DenyPrivilege {
 object RevokePrivilege {
   def dbmsAction(action: AdminAction,
                  roleNames: Seq[Either[String, Parameter]],
-                 revokeType: RevokeType): InputPosition => RevokePrivilege =
-    RevokePrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), List(AllQualifier()(InputPosition.NONE)), roleNames, revokeType)
+                 revokeType: RevokeType,
+                 qualifier: List[PrivilegeQualifier] = List(AllQualifier()(InputPosition.NONE))
+                ): InputPosition => RevokePrivilege =
+    RevokePrivilege(DbmsPrivilege(action)(InputPosition.NONE), None, List(AllGraphsScope()(InputPosition.NONE)), qualifier, roleNames, revokeType)
 
-  def databaseAction[T <: DatabasePrivilegeQualifier](action: DatabaseAction,
+  def databaseAction(action: DatabaseAction,
                      scope: List[DatabaseScope],
                      roleNames: Seq[Either[String, Parameter]],
                      revokeType: RevokeType,
-                     qualifier: List[T] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => RevokePrivilege =
+                     qualifier: List[DatabasePrivilegeQualifier] = List(AllDatabasesQualifier()(InputPosition.NONE))): InputPosition => RevokePrivilege =
     RevokePrivilege(DatabasePrivilege(action)(InputPosition.NONE), None, scope, qualifier, roleNames, revokeType)
 
   def graphAction[T <: GraphPrivilegeQualifier](action: GraphAction,
