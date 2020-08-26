@@ -24,6 +24,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapProjection
@@ -86,7 +87,12 @@ sealed trait ReturnItem extends ASTNode with SemanticCheckable {
   def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult
   def isPassThrough: Boolean = alias.contains(expression)
 
-  def semanticCheck: SemanticCheck = SemanticExpressionCheck.check(Expression.SemanticContext.Results, expression)
+  def semanticCheck: SemanticCheck = SemanticExpressionCheck.check(Expression.SemanticContext.Results, expression) chain checkForExists
+
+  private def checkForExists: SemanticCheck = {
+    val invalid: Option[Expression] = expression.treeFind[Expression] { case _: ExistsSubClause => true }
+    invalid.map(exp => SemanticError("The EXISTS subclause is not valid inside a WITH or RETURN clause.", exp.position))
+  }
 }
 
 case class UnaliasedReturnItem(expression: Expression, inputText: String)(val position: InputPosition) extends ReturnItem {

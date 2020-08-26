@@ -16,9 +16,12 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
+import org.opencypher.v9_0.ast.semantics.SemanticCheck
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
+import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
+import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LogicalProperty
@@ -42,10 +45,17 @@ sealed trait SetProperty extends SetItem with SemanticAnalysisTooling
 
 case class SetPropertyItem(property: LogicalProperty, expression: Expression)(val position: InputPosition) extends SetProperty {
   def semanticCheck =
-    SemanticExpressionCheck.simple(property) chain
+
+    checkForExists chain
+      SemanticExpressionCheck.simple(property) chain
       SemanticPatternCheck.checkValidPropertyKeyNames(Seq(property.propertyKey), property.position) chain
       SemanticExpressionCheck.simple(expression) chain
       expectType(CTNode.covariant | CTRelationship.covariant, property.map)
+
+  private def checkForExists: SemanticCheck = {
+    val invalid: Option[Expression] = expression.treeFind[Expression] { case _: ExistsSubClause => true }
+    invalid.map(exp => SemanticError("The EXISTS subclause is not valid inside a SET clause.", exp.position))
+  }
 }
 
 case class SetExactPropertiesFromMapItem(variable: Variable, expression: Expression)
