@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0
 
+import org.opencypher.v9_0.parser.matchers.GlobbedIdentifierPartMatcher
+import org.opencypher.v9_0.parser.matchers.GlobbedIdentifierStartMatcher
 import org.opencypher.v9_0.parser.matchers.IdentifierPartMatcher
 import org.opencypher.v9_0.parser.matchers.IdentifierStartMatcher
 import org.opencypher.v9_0.parser.matchers.WhitespaceCharMatcher
@@ -22,6 +24,8 @@ import org.parboiled.scala.Rule0
 
 package object parser {
   lazy val IdentifierStart: Rule0 = new IdentifierStartMatcher()
+  lazy val GlobbedIdentifierStart: Rule0 = new GlobbedIdentifierStartMatcher()
   lazy val IdentifierPart: Rule0 = new IdentifierPartMatcher()
+  lazy val GlobbedIdentifierPart: Rule0 = new GlobbedIdentifierPartMatcher()
   lazy val WSChar: Rule0 = new WhitespaceCharMatcher()
 }

@@ -18,3 +18,7 @@ package org.opencypher.v9_0.parser.matchers
 class IdentifierStartMatcher extends ScalaCharMatcher("an identifier") {
   protected def matchChar(c: Char): Boolean = Character.isJavaIdentifierStart(c) && Character.getType(c) != Character.CURRENCY_SYMBOL
 }
+
+class GlobbedIdentifierStartMatcher extends IdentifierStartMatcher {
+  override protected def matchChar(c: Char): Boolean = super.matchChar(c) || '*'.equals(c) || '?'.equals(c)
+}

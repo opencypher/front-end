@@ -124,7 +124,6 @@ import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.PrivilegeCommand
-import org.opencypher.v9_0.ast.ProcedureAllQualifier
 import org.opencypher.v9_0.ast.ProcedureQualifier
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
@@ -1389,7 +1388,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     procedureNamespace <- _namespace
     procedureName      <- _procedureName
     procedures         <- oneOrMore(ProcedureQualifier(procedureNamespace, procedureName)(pos))
-    qualifier          <- oneOf(procedures, List(ProcedureAllQualifier()(pos)))
+    qualifier          <- frequency(7 -> procedures, 3 -> List(ProcedureQualifier(Namespace()(pos), ProcedureName("*")(pos))(pos)))
     roleNames          <- _listOfNameOfEither
     revokeType         <- _revokeType
     dbmsGrant          = GrantPrivilege.dbmsAction(dbmsAction, roleNames, qualifier)(pos)

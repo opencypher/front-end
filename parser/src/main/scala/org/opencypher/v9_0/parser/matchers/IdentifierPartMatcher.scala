@@ -18,3 +18,7 @@ package org.opencypher.v9_0.parser.matchers
 class IdentifierPartMatcher extends ScalaCharMatcher("an identifier character") {
   protected def matchChar(c: Char): Boolean = Character.isJavaIdentifierPart(c)
 }
+
+class GlobbedIdentifierPartMatcher extends IdentifierPartMatcher {
+  override protected def matchChar(c: Char): Boolean = super.matchChar(c) || '*'.equals(c) || '?'.equals(c)
+}
