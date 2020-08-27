@@ -93,6 +93,7 @@ import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantPrivilege
@@ -123,6 +124,8 @@ import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.PrivilegeCommand
+import org.opencypher.v9_0.ast.ProcedureAllQualifier
+import org.opencypher.v9_0.ast.ProcedureQualifier
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
 import org.opencypher.v9_0.ast.PropertiesResource
@@ -1381,6 +1384,20 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     dbms            <- oneOf(dbmsGrant, dbmsDeny, dbmsRevoke)
   } yield dbms
 
+  def _qualifiedDbmsPrivilege: Gen[PrivilegeCommand] = for {
+    dbmsAction         <- ExecuteProcedureAction
+    procedureNamespace <- _namespace
+    procedureName      <- _procedureName
+    procedures         <- oneOrMore(ProcedureQualifier(procedureNamespace, procedureName)(pos))
+    qualifier          <- oneOf(procedures, List(ProcedureAllQualifier()(pos)))
+    roleNames          <- _listOfNameOfEither
+    revokeType         <- _revokeType
+    dbmsGrant          = GrantPrivilege.dbmsAction(dbmsAction, roleNames, qualifier)(pos)
+    dbmsDeny           = DenyPrivilege.dbmsAction(dbmsAction, roleNames, qualifier)(pos)
+    dbmsRevoke         = RevokePrivilege.dbmsAction(dbmsAction, roleNames, revokeType, qualifier)(pos)
+    dbms               <- oneOf(dbmsGrant, dbmsDeny, dbmsRevoke)
+  } yield dbms
+
   def _databasePrivilege: Gen[PrivilegeCommand] = for {
     databaseAction      <- _databaseAction
     namedScope          <- _listOfNameOfEither.map(_.map(n => NamedDatabaseScope(n)(pos)))
@@ -1410,6 +1427,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _privilegeCommand: Gen[AdministrationCommand] = oneOf(
     _showPrivileges,
     _dbmsPrivilege,
+    _qualifiedDbmsPrivilege,
     _databasePrivilege,
     _graphPrivilege
   )
