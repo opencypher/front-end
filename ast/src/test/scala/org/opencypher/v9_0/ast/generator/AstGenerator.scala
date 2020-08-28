@@ -93,6 +93,7 @@ import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.Foreach
@@ -1322,7 +1323,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   )
 
   def _dbmsAction: Gen[DbmsAction] = oneOf(
-    AllDbmsAction,
+    AllDbmsAction, ExecuteAdminProcedureAction,
     AllUserActions, ShowUserAction, CreateUserAction, SetUserStatusAction, SetPasswordsAction, AlterUserAction, DropUserAction,
     AllRoleActions, ShowRoleAction, CreateRoleAction, DropRoleAction, AssignRoleAction, RemoveRoleAction,
     AllDatabaseManagementActions, CreateDatabaseAction, DropDatabaseAction,

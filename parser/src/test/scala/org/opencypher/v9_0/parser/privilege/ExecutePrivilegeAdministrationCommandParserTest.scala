@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.parser.privilege
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.ProcedureQualifier
@@ -33,7 +34,7 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
     ("REVOKE GRANT", "FROM", revokeGrantExecutePrivilege: executePrivilegeFunc),
     ("REVOKE DENY", "FROM", revokeDenyExecutePrivilege: executePrivilegeFunc),
     ("REVOKE", "FROM", revokeExecutePrivilege: executePrivilegeFunc)
-  ).foreach{
+  ).foreach {
     case (verb: String, preposition: String, func: executePrivilegeFunc) =>
 
       Seq(
@@ -101,6 +102,43 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
           test(s"$verb $execute apoc.math.sin, math.* ON DBMS $preposition role") {
             yields(func(action, List(procedureQualifier(List(apocString, mathString), "sin"), procedureQualifier(List(mathString), "*")), Seq(literalRole)))
           }
+
+          test(s"$verb $execute * ON DATABASE * $preposition role") {
+            failsToParse
+          }
+      }
+  }
+
+  Seq(
+    ("GRANT", "TO", grantDbmsPrivilege: dbmsPrivilegeFunc),
+    ("DENY", "TO", denyDbmsPrivilege: dbmsPrivilegeFunc),
+    ("REVOKE GRANT", "FROM", revokeGrantDbmsPrivilege: dbmsPrivilegeFunc),
+    ("REVOKE DENY", "FROM", revokeDenyDbmsPrivilege: dbmsPrivilegeFunc),
+    ("REVOKE", "FROM", revokeDbmsPrivilege: dbmsPrivilegeFunc)
+  ).foreach {
+    case (verb: String, preposition: String, func: dbmsPrivilegeFunc) =>
+      Seq(
+        "EXECUTE ADMIN PROCEDURES",
+        "EXECUTE ADMINISTRATOR PROCEDURES"
+      ).foreach {
+        command =>
+
+          test(s"$verb $command ON DBMS $preposition role") {
+            yields(func(ExecuteAdminProcedureAction, Seq(literalRole)))
+          }
+
+          test(s"$verb $command * ON DBMS $preposition role") {
+            failsToParse
+          }
+
+          test(s"$verb $command ON DATABASE * $preposition role") {
+            failsToParse
+          }
+          
+      }
+
+      test(s"$verb EXECUTE ADMIN PROCEDURE ON DBMS $preposition role") {
+        failsToParse
       }
   }
 

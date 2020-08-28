@@ -27,6 +27,7 @@ import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.GrantPrivilege
@@ -109,23 +110,29 @@ object Additions {
 
       case d: DefaultGraphScope => throw cypherExceptionFactory.syntaxException("Default graph is not supported in this Cypher version.", d.position)
 
-      // GRANT [BOOSTED] EXECUTE PROCEDURE ...
+      // GRANT EXECUTE [BOOSTED|ADMIN] PROCEDURES ...
       case p@GrantPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
       case p@GrantPrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
+      case p@GrantPrivilege(DbmsPrivilege(ExecuteAdminProcedureAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE ADMIN PROCEDURES is not supported in this Cypher version.", p.position)
 
-      // DENY [BOOSTED] EXECUTE PROCEDURE ...
+      // DENY EXECUTE [BOOSTED|ADMIN] PROCEDURES ...
       case p@DenyPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
       case p@DenyPrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
+      case p@DenyPrivilege(DbmsPrivilege(ExecuteAdminProcedureAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE ADMIN PROCEDURES is not supported in this Cypher version.", p.position)
 
-      // REVOKE [BOOSTED] EXECUTE PROCEDURE ...
+      // REVOKE EXECUTE [BOOSTED|ADMIN] PROCEDURES ...
       case p@RevokePrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
       case p@RevokePrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
+      case p@RevokePrivilege(DbmsPrivilege(ExecuteAdminProcedureAction), _, _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("EXECUTE ADMIN PROCEDURES is not supported in this Cypher version.", p.position)
 
       // CREATE OR REPLACE INDEX name ...
       // CREATE INDEX [name] IF NOT EXISTS ...
