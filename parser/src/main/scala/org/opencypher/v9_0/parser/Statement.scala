@@ -363,12 +363,6 @@ trait Statement extends Parser
       ~~>> ((scope, yld, rtn) => ast.ShowPrivileges(scope, yld, rtn)))
   }
 
-  private def ShowCommandClauses: Rule2[Option[Either[Yield, Where]], Option[Return]] = rule("YIELD ... WHERE .. RETURN .. for SHOW commands") {
-    optional(keyword("YIELD") ~~ YieldBody ~~>>
-      ((returnItems, maybeOrderBy, maybeSkip, maybeLimit, maybeWhere) => pos => Left(ast.Yield(returnItems, maybeOrderBy, maybeSkip, maybeLimit, maybeWhere)(pos))) |
-      Where ~~>> (where => _ => Right(where))) ~~ optional(ReturnWithoutGraph)
-  }
-
   private def PrivilegeProperty: Rule1[ActionResource] = rule("{propertyList}")(
     group("{" ~~ SymbolicNamesList ~~ "}") ~~>> {ast.PropertiesResource(_)} |
       group("{" ~~ "*" ~~ "}") ~~~> {ast.AllPropertyResource()}
@@ -512,8 +506,6 @@ trait Statement extends Parser
 
   private def PasswordKeyword: Rule0 = keyword("PASSWORD") | keyword("PASSWORDS")
 
-  private def RoleKeyword: Rule0 = keyword("ROLES") | keyword("ROLE")
-
   private def UserKeyword: Rule0 = keyword("USERS") | keyword("USER")
 
   private def ProcedureKeyword: Rule0 = keyword("PROCEDURE") | keyword("PROCEDURES")
@@ -599,6 +591,14 @@ trait Statement extends Parser
   }
 
   // Shared help methods
+
+  private def RoleKeyword: Rule0 = keyword("ROLES") | keyword("ROLE")
+
+  private def ShowCommandClauses: Rule2[Option[Either[Yield, Where]], Option[Return]] = rule("YIELD ... WHERE .. RETURN .. for SHOW commands") {
+    optional(keyword("YIELD") ~~ YieldBody ~~>>
+      ((returnItems, maybeOrderBy, maybeSkip, maybeLimit, maybeWhere) => pos => Left(ast.Yield(returnItems, maybeOrderBy, maybeSkip, maybeLimit, maybeWhere)(pos))) |
+      Where ~~>> (where => _ => Right(where))) ~~ optional(ReturnWithoutGraph)
+  }
 
   def SymbolicNameOrStringParameter: Rule1[Either[String, expressions.Parameter]] =
     group(SymbolicNameString) ~~>> (s => _ => Left(s)) |
