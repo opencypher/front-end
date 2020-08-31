@@ -18,17 +18,26 @@ package org.opencypher.v9_0.ast.semantics.functions
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTMap
+import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTPoint
+import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CTString
 
 class PointTest extends FunctionTestBase("point")  {
 
-  test("should accept correct types") {
+  test("should accept map") {
     testValidTypes(CTMap)(CTPoint)
   }
 
+  test("should accept node") {
+    testValidTypes(CTNode)(CTPoint)
+  }
+
+  test("should accept relationship") {
+    testValidTypes(CTRelationship)(CTPoint)
+  }
+
   test("should fail type check for incompatible arguments") {
-    // TODO: Fix error message which seems to assume that Node and Relationships are acceptable maps
     testInvalidApplication(CTList(CTAny))(
       "Type mismatch: expected Map, Node or Relationship but was List<Any>"
     )
