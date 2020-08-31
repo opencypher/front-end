@@ -24,23 +24,55 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DatabaseScope
+import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.GraphPrivilegeQualifier
 import org.opencypher.v9_0.ast.GraphScope
+import org.opencypher.v9_0.ast.LabelQualifier
+import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.PrivilegeType
 import org.opencypher.v9_0.ast.ProcedurePrivilegeQualifier
+import org.opencypher.v9_0.ast.RelationshipQualifier
 import org.opencypher.v9_0.ast.RevokeBothType
 import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
+import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTString
 import org.parboiled.scala.Rule1
 
 class AdministrationCommandParserTestBase
   extends ParserAstTest[ast.Statement] with Statement with AstConstructionTestSupport {
+  val propSeq = Seq("prop")
+  val accessString = "access"
+  val grantedString: StringLiteral = literalString("GRANTED")
+  val literalEmpty: Either[String, Parameter] = literal("")
+  val literalUser: Either[String, Parameter] = literal("user")
+  val literalUser1: Either[String, Parameter] = literal("user1")
+  val literalFoo: Either[String, Parameter] = literal("foo")
+  val literalFColonOo: Either[String, Parameter] = literal("f:oo")
+  val literalBar: Either[String, Parameter] = literal("bar")
+  val literalRole: Either[String, Parameter] = literal("role")
+  val literalRColonOle: Either[String, Parameter] = literal("r:ole")
+  val literalRole1: Either[String, Parameter] = literal("role1")
+  val literalRole2: Either[String, Parameter] = literal("role2")
+  val paramUser: Either[String, Parameter] = param("user")
+  val paramFoo: Either[String, Parameter] = param("foo")
+  val paramRole: Either[String, Parameter] = param("role")
+  val paramRole1: Either[String, Parameter] = param("role1")
+  val paramRole2: Either[String, Parameter] = param("role2")
+  val labelQualifierA: InputPosition => LabelQualifier = ast.LabelQualifier("A")(_)
+  val labelQualifierB: InputPosition => LabelQualifier = ast.LabelQualifier("B")(_)
+  val relQualifierA: InputPosition => RelationshipQualifier = ast.RelationshipQualifier("A")(_)
+  val relQualifierB: InputPosition => RelationshipQualifier = ast.RelationshipQualifier("B")(_)
+  val elemQualifierA: InputPosition => ElementQualifier = ast.ElementQualifier("A")(_)
+  val elemQualifierB: InputPosition => ElementQualifier = ast.ElementQualifier("B")(_)
+  val graphScopeFoo: InputPosition => NamedGraphScope = ast.NamedGraphScope(literalFoo)(_)
+  val graphScopeParamFoo: InputPosition => NamedGraphScope = ast.NamedGraphScope(paramFoo)(_)
+  val graphScopeBaz: InputPosition => NamedGraphScope = ast.NamedGraphScope(literal("baz"))(_)
 
   implicit val parser: Rule1[ast.Statement] = Statement
 

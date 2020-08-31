@@ -18,13 +18,9 @@ package org.opencypher.v9_0.parser.privilege
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.DeleteElementAction
-import org.opencypher.v9_0.ast.PrivilegeType
 import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
-import org.opencypher.v9_0.util.InputPosition
 
 class CreateDeletePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
-
-  type privilegeTypeFunction = () => InputPosition => PrivilegeType
 
   Seq(
     ("GRANT", "TO", grantGraphPrivilege: noResourcePrivilegeFunc),
@@ -42,37 +38,37 @@ class CreateDeletePrivilegeAdministrationCommandParserTest extends Administratio
         case (createOrDelete, action) =>
 
           test(s"$verb $createOrDelete ON GRAPH foo $preposition role") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.NamedGraphScope(literal("foo"))(_)), List(ast.ElementsAllQualifier()(_)), Seq(literal("role"))))
+            yields(func(ast.GraphPrivilege(action)(_), List(graphScopeFoo), List(ast.ElementsAllQualifier()(_)), Seq(literalRole)))
           }
 
-          test(s"$verb $createOrDelete ON GRAPH foo ELEMENTS bar $preposition role") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.NamedGraphScope(literal("foo"))(_)), List(ast.ElementQualifier("bar")(_)), Seq(literal("role"))))
+          test(s"$verb $createOrDelete ON GRAPH foo ELEMENTS A $preposition role") {
+            yields(func(ast.GraphPrivilege(action)(_), List(graphScopeFoo), List(elemQualifierA), Seq(literalRole)))
           }
 
-          test(s"$verb $createOrDelete ON GRAPH foo NODE bar $preposition role") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.NamedGraphScope(literal("foo"))(_)), List(ast.LabelQualifier("bar")(_)), Seq(literal("role"))))
+          test(s"$verb $createOrDelete ON GRAPH foo NODE A $preposition role") {
+            yields(func(ast.GraphPrivilege(action)(_), List(graphScopeFoo), List(labelQualifierA), Seq(literalRole)))
           }
 
           test(s"$verb $createOrDelete ON GRAPH foo RELATIONSHIPS * $preposition role") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.NamedGraphScope(literal("foo"))(_)), List(ast.RelationshipAllQualifier()(_)), Seq(literal("role"))))
+            yields(func(ast.GraphPrivilege(action)(_), List(graphScopeFoo), List(ast.RelationshipAllQualifier()(_)), Seq(literalRole)))
           }
 
           // Default graph
 
           test(s"$verb $createOrDelete ON DEFAULT GRAPH $preposition role") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.ElementsAllQualifier()(_)), Seq(literal("role"))))
+            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.ElementsAllQualifier()(_)), Seq(literalRole)))
           }
 
           test(s"$verb $createOrDelete ON DEFAULT GRAPH $preposition role1, role2") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.ElementsAllQualifier()(_)), Seq(literal("role1"), literal("role2"))))
+            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.ElementsAllQualifier()(_)), Seq(literalRole1, literalRole2)))
           }
 
           test(s"$verb $createOrDelete ON DEFAULT GRAPH $preposition $$role1, role2") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.ElementsAllQualifier()(_)), Seq(param("role1"), literal("role2"))))
+            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.ElementsAllQualifier()(_)), Seq(paramRole1, literalRole2)))
           }
 
           test(s"$verb $createOrDelete ON DEFAULT GRAPH RELATIONSHIPS * $preposition role") {
-            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.RelationshipAllQualifier()(_)), Seq(literal("role"))))
+            yields(func(ast.GraphPrivilege(action)(_), List(ast.DefaultGraphScope()(_)), List(ast.RelationshipAllQualifier()(_)), Seq(literalRole)))
           }
 
           // Both Default and * should not parse
