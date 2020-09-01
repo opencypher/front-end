@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
@@ -56,6 +57,7 @@ class SemanticFunSuite extends CypherFunSuite with SemanticAnalysisTooling with 
   def signedDecimal(str:String) = SignedDecimalIntegerLiteral(str)(pos)
   def decimalDouble(str:String) = DecimalDoubleLiteral(str)(pos)
   def signedOctal(str:String) = SignedOctalIntegerLiteral(str)(pos)
+  def signedHex(str:String) = SignedHexIntegerLiteral(str)(pos)
 
   def variable(name: String): Variable = Variable(name)(pos)
   def propertyKeyName(name: String) = PropertyKeyName("prop")(pos)
