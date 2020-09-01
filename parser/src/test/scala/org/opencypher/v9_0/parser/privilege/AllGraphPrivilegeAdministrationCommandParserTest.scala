@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
 
-class GraphPrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
   Seq(
     ("GRANT", "TO", grantGraphPrivilege: noResourcePrivilegeFunc),
