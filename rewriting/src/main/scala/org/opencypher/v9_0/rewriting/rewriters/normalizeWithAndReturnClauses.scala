@@ -32,6 +32,7 @@ import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.SortItem
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Variable
@@ -177,6 +178,11 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
 
   private def rewriteOptionalReturn(or: Option[Return]): Option[Return] = or.map(r => r.copy(returnItems = rewriteReturnItems(r.returnItems))(r.position))
 
+  private def rewriteOptionalYield(or: Option[Either[Yield, Where]]): Option[Either[Yield, Where]] = or match {
+    case Some(Left(y)) => Some(Left(y.copy(returnItems = rewriteReturnItems(y.returnItems))(y.position)))
+    case other => other
+  }
+
   private val instance: Rewriter = bottomUp(Rewriter.lift {
     case query@SingleQuery(clauses) =>
       val finalClause =
@@ -189,20 +195,20 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
       }
       query.copy(clauses = (clauses.init :+ finalClause).map(clauseRewriter))(query.position)
 
-    case s@ShowPrivileges(_, yields, _, returns) =>
-      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+    case s@ShowPrivileges(_, yields, returns) =>
+      s.copy(yieldOrWhere = rewriteOptionalYield(yields), returns = rewriteOptionalReturn(returns))(s.position)
         .withGraph(s.useGraph)
 
-    case s@ShowDatabase(_, yields, _, returns) =>
-      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+    case s@ShowDatabase(_, yields, returns) =>
+      s.copy(yieldOrWhere = rewriteOptionalYield(yields), returns = rewriteOptionalReturn(returns))(s.position)
         .withGraph(s.useGraph)
 
-    case s@ShowUsers(yields, _, returns) =>
-      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+    case s@ShowUsers(yields, returns) =>
+      s.copy(yieldOrWhere = rewriteOptionalYield(yields), returns = rewriteOptionalReturn(returns))(s.position)
         .withGraph(s.useGraph)
 
-    case s@ShowRoles(_, _, yields, _, returns) =>
-      s.copy(yields = rewriteOptionalReturn(yields), returns = rewriteOptionalReturn(returns))(s.position)
+    case s@ShowRoles(_, _, yields, returns) =>
+      s.copy(yieldOrWhere = rewriteOptionalYield(yields), returns = rewriteOptionalReturn(returns))(s.position)
         .withGraph(s.useGraph)
   })
 }

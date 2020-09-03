@@ -533,7 +533,7 @@ class PrettifierIT extends CypherFunSuite {
           |    ORDER BY user ASCENDING
           |    SKIP 1
           |    LIMIT 1
-          |  WHERE user = "neo4j"""".stripMargin,
+          |    WHERE user = "neo4j"""".stripMargin,
 
       "show user abc privileges" ->
         "SHOW USER abc PRIVILEGES",
@@ -595,7 +595,7 @@ class PrettifierIT extends CypherFunSuite {
           |    ORDER BY name ASCENDING
           |    SKIP 1
           |    LIMIT 1
-          |  WHERE name = "neo4j"""".stripMargin,
+          |    WHERE name = "neo4j"""".stripMargin,
 
       "catalog create database foO_Bar_42" ->
         "CREATE DATABASE foO_Bar_42",

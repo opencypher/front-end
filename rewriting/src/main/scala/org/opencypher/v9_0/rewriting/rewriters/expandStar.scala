@@ -21,6 +21,7 @@ import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Variable
@@ -40,14 +41,17 @@ case class expandStar(state: SemanticState) extends Rewriter {
       val newReturnItems = if (values.includeExisting) returnItems(clause, values.items, excludedNames) else values
       clause.copy(returnItems = newReturnItems, excludedNames = Set.empty)(clause.position)
 
+    case clause@Yield(values, _, _, _, _) if values.includeExisting =>
+      val newReturnItems = if (values.includeExisting) returnItems(clause, values.items) else values
+      clause.copy(returnItems = newReturnItems)(clause.position)
+
     case expandedAstNode =>
       expandedAstNode
   }
 
   private val instance = bottomUp(rewriter, _.isInstanceOf[Expression])
 
-  private def returnItems(clause: Clause, listedItems: Seq[ReturnItem], excludedNames: Set[String] = Set.empty)
-  : ReturnItems = {
+  private def returnItems(clause: Clause, listedItems: Seq[ReturnItem], excludedNames: Set[String] = Set.empty): ReturnItems = {
     val scope = state.scope(clause).getOrElse {
       throw new IllegalStateException(s"${clause.name} should note its Scope in the SemanticState")
     }
