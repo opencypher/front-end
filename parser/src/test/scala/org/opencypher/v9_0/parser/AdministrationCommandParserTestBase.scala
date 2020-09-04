@@ -37,9 +37,11 @@ import org.opencypher.v9_0.ast.RevokeBothType
 import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTString
 import org.parboiled.scala.Rule1
@@ -66,6 +68,7 @@ class AdministrationCommandParserTestBase
   val paramRole: Either[String, Parameter] = param("role")
   val paramRole1: Either[String, Parameter] = param("role1")
   val paramRole2: Either[String, Parameter] = param("role2")
+  val accessVar: Variable = varFor(accessString)
   val labelQualifierA: InputPosition => LabelQualifier = ast.LabelQualifier("A")(_)
   val labelQualifierB: InputPosition => LabelQualifier = ast.LabelQualifier("B")(_)
   val relQualifierA: InputPosition => RelationshipQualifier = ast.RelationshipQualifier("A")(_)
@@ -78,15 +81,15 @@ class AdministrationCommandParserTestBase
 
   implicit val parser: Rule1[ast.Statement] = Statement
 
-  def literal(name: String): Either[String, expressions.Parameter] = Left(name)
+  def literal(name: String): Either[String, Parameter] = Left(name)
 
-  def param(name: String): Either[String, expressions.Parameter] = Right(expressions.Parameter(name, CTString)(_))
+  def param(name: String): Either[String, Parameter] = Right(expressions.Parameter(name, CTString)(_))
 
   def toUtf8Bytes(pw: String): Array[Byte] = pw.getBytes(StandardCharsets.UTF_8)
 
   def pw(password: String): InputPosition => SensitiveStringLiteral = expressions.SensitiveStringLiteral(toUtf8Bytes(password))(_)
 
-  def pwParam(name: String): expressions.Parameter = expressions.Parameter(name, CTString)(_)
+  def pwParam(name: String): Parameter = expressions.Parameter(name, CTString)(_)
 
   type resourcePrivilegeFunc = (PrivilegeType, ActionResource, List[GraphScope], List[GraphPrivilegeQualifier], Seq[Either[String, Parameter]]) => InputPosition => ast.Statement
   type noResourcePrivilegeFunc = (PrivilegeType, List[GraphScope], List[GraphPrivilegeQualifier], Seq[Either[String, Parameter]]) => InputPosition => ast.Statement
@@ -184,4 +187,35 @@ class AdministrationCommandParserTestBase
 
   def revokeExecutePrivilege(a: AdminAction, q: List[ProcedurePrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
     ast.RevokePrivilege.dbmsAction(a, r, RevokeBothType()(pos), q)
+
+  def variableReturnItem(text: String): ast.UnaliasedReturnItem = returnItem(varFor(text), text)
+
+  def returnItem(expr: Expression, text: String): ast.UnaliasedReturnItem = ast.UnaliasedReturnItem(expr, text)(pos)
+
+  def aliasedReturnItem(variable: Variable): ast.AliasedReturnItem = ast.AliasedReturnItem(variable)
+
+  def returnAllItems: ast.ReturnItems = ast.ReturnItems(includeExisting = true, Seq.empty)(pos)
+
+  def returnItems(items: ast.ReturnItem*): ast.ReturnItems = ast.ReturnItems(includeExisting = false, items)(pos)
+
+  def where(expr: Expression): ast.Where = ast.Where(expr)(pos)
+
+  def skip(value: Long): ast.Skip = ast.Skip(literalInt(value))(pos)
+
+  def limit(value: Long): ast.Limit = ast.Limit(literalInt(value))(pos)
+
+  def yieldClause(returnItems: ast.ReturnItems,
+                  orderBy: Option[ast.OrderBy] = None,
+                  skip: Option[ast.Skip] = None,
+                  limit: Option[ast.Limit] = None,
+                  where: Option[ast.Where] = None): ast.Yield =
+    ast.Yield(returnItems, orderBy, skip, limit, where)(pos)
+
+  // Can't use the `return_` methods in `AstConstructionTestSupport`
+  // since that results in `Cannot resolve overloaded method 'return_'` for unknown reasons
+  def returnClause(returnItems: ast.ReturnItems,
+                   orderBy: Option[ast.OrderBy] = None,
+                   limit: Option[ast.Limit] = None,
+                   distinct: Boolean = false): ast.Return =
+    ast.Return(distinct, returnItems, orderBy, None, limit)(pos)
 }
