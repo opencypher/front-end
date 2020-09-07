@@ -38,7 +38,11 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
+import org.opencypher.v9_0.util.InternalNotification
+import org.opencypher.v9_0.util.MissingAliasNotification
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
@@ -62,7 +66,7 @@ import org.opencypher.v9_0.util.topDown
  * WITH n.prop AS prop ORDER BY prop DESC
  * RETURN prop AS prop
  */
-case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherExceptionFactory) extends Rewriter {
+case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotification => Unit) extends Rewriter {
 
   def apply(that: AnyRef): AnyRef = that match {
     case q@Query(_, queryPart) => q.copy(part = rewriteTopLevelQueryPart(queryPart))(q.position)
@@ -131,6 +135,24 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
   }
 
   /**
+   * Convert all UnaliasedReturnItems to AliasedReturnItems, but generate warnings if an expression other than a variable or map projection
+   * gets automatically aliased.
+   */
+  private def aliasUnaliasedReturnItemsWithWarning(ri: ReturnItems): ReturnItems = {
+    val aliasedReturnItems =
+      ri.items.map {
+        case i: UnaliasedReturnItem =>
+          if (i.alias.isEmpty) {
+            notificationLogger(MissingAliasNotification(i.position))
+          }
+          val newPosition = i.expression.position.bumped()
+          AliasedReturnItem(i.expression, Variable(i.name)(newPosition))(i.position)
+        case x => x
+      }
+    ri.copy(items = aliasedReturnItems)(ri.position)
+  }
+
+  /**
    * Convert those UnaliasedReturnItems to AliasedReturnItems which refer to a variable or a map projection.
    * Those can be deemed as implicitly aliased.
    */
@@ -147,7 +169,8 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
   private val rewriteProjectionsRecursively: Rewriter = topDown(Rewriter.lift {
     // Only alias return items
     case clause@ProjectionClause(_, ri: ReturnItems, None, _, _, None) =>
-      clause.copyProjection(returnItems = aliasImplicitlyAliasedReturnItems(ri))
+      val replacer: ReturnItems => ReturnItems = if(clause.isReturn) aliasUnaliasedReturnItemsWithWarning else aliasImplicitlyAliasedReturnItems
+      clause.copyProjection(returnItems = replacer(ri))
 
     // Alias return items and rewrite ORDER BY and WHERE
     case clause@ProjectionClause(_, ri: ReturnItems, orderBy, _, _, where) =>
@@ -160,7 +183,8 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
       val updatedOrderBy = orderBy.map(aliasOrderBy(existingAliases, _))
       val updatedWhere = where.map(aliasWhere(existingAliases, _))
 
-      clause.copyProjection(returnItems = aliasImplicitlyAliasedReturnItems(ri), orderBy = updatedOrderBy, where = updatedWhere)
+      val replacer: ReturnItems => ReturnItems = if(clause.isReturn) aliasUnaliasedReturnItemsWithWarning else aliasImplicitlyAliasedReturnItems
+      clause.copyProjection(returnItems = replacer(ri), orderBy = updatedOrderBy, where = updatedWhere)
   })
 
   /**

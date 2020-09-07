@@ -23,17 +23,21 @@ import org.opencypher.v9_0.ast.semantics.SemanticFeature.CorrelatedSubQueries
 import org.opencypher.v9_0.ast.semantics.SemanticFeature.MultipleDatabases
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.InternalNotification
+import org.opencypher.v9_0.util.MissingAliasNotification
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
+import scala.collection.mutable.ArrayBuffer
+
 class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest {
-  val exceptionFactory = OpenCypherExceptionFactory(None)
-  val rewriterUnderTest: Rewriter = normalizeWithAndReturnClauses(exceptionFactory)
+  private val exceptionFactory = OpenCypherExceptionFactory(None)
+  private val notificationBuffer = new ArrayBuffer[InternalNotification]()
+  val rewriterUnderTest: Rewriter = normalizeWithAndReturnClauses(exceptionFactory, notificationBuffer += _)
 
   test("ensure variables are aliased") {
     assertRewrite(
@@ -115,42 +119,57 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
       """.stripMargin)
   }
 
-  test("expression in subquery return must be aliased") {
-    assertNotRewrittenAndSemanticErrors(
+  test("expression in subquery return should be aliased") {
+    assertRewriteAndWarnings(
       """CALL {
         |  RETURN 5 + 5
         |}
         |RETURN `5 + 5` AS `5 + 5`
       """.stripMargin,
-      "Expression in CALL { RETURN ... } must be aliased (use AS) (line 2, column 10 (offset: 16))")
+        """CALL {
+          |  RETURN 5 + 5 AS `5 + 5`
+          |}
+          |RETURN `5 + 5` AS `5 + 5`
+      """.stripMargin,
+      Set(MissingAliasNotification(InputPosition(16, 2, 10))))
   }
 
   test("ensure variables are aliased for SHOW PRIVILEGES") {
-    val yields = Some(Left(ast.Yield(ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(Variable("role")(InputPosition.NONE))))(InputPosition.NONE), None, None, None, None)(InputPosition.NONE)))
     assertRewrite(
       "SHOW PRIVILEGES YIELD role",
-      ast.ShowPrivileges(ShowAllPrivileges()(InputPosition.NONE), yields, None)(InputPosition.NONE))
+      "SHOW PRIVILEGES YIELD role AS role")
+  }
+
+  test("ensure variables are aliased for SHOW USER PRIVILEGES with WHERE") {
+    assertRewriteAndSemanticError(
+      "SHOW USER neo4j PRIVILEGES YIELD access, resource WHERE role = 'PUBLIC'",
+      "SHOW USER neo4j PRIVILEGES YIELD access AS access, resource AS resource WHERE role = 'PUBLIC'",
+      "Variable `role` not defined (line 1, column 57 (offset: 56))")
+  }
+
+  test("ensure variables are aliased for SHOW USER PRIVILEGES with ORDER BY") {
+    assertRewriteAndSemanticError(
+      "SHOW USER neo4j PRIVILEGES YIELD access, resource ORDER BY role",
+      "SHOW USER neo4j PRIVILEGES YIELD access AS access, resource AS resource ORDER BY role",
+      "Variable `role` not defined (line 1, column 60 (offset: 59))")
   }
 
   test("ensure variables are aliased for SHOW USER") {
-    val yields = Some(Left(ast.Yield(ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(Variable("user")(InputPosition.NONE))))(InputPosition.NONE), None, None, None, None)(InputPosition.NONE)))
     assertRewrite(
       "SHOW USERS YIELD user",
-      ast.ShowUsers(yields, None)(InputPosition.NONE))
+      "SHOW USERS YIELD user AS user")
   }
 
   test("ensure variables are aliased for SHOW ROLES") {
-    val yields = Some(Left(ast.Yield(ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(Variable("role")(InputPosition.NONE))))(InputPosition.NONE), None, None, None, None)(InputPosition.NONE)))
     assertRewrite(
       "SHOW ROLES YIELD role",
-      ast.ShowRoles(withUsers = false, showAll = true, yields, None)(InputPosition.NONE))
+      "SHOW ROLES YIELD role AS role")
   }
 
   test("ensure variables are aliased for SHOW DATABASES") {
-    val yields = Some(Left(ast.Yield(ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(Variable("name")(InputPosition.NONE))))(InputPosition.NONE), None, None, None, None)(InputPosition.NONE)))
     assertRewrite(
       "SHOW DATABASES YIELD name",
-      ast.ShowDatabase(ast.AllDatabasesScope()(InputPosition.NONE), yields,  None)(InputPosition.NONE))
+      "SHOW DATABASES YIELD name AS name")
   }
 
   test("WITH: attach ORDER BY expressions to existing aliases") {
@@ -887,6 +906,25 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
   }
 
   protected override def assertRewrite(originalQuery: String, expectedQuery: String) {
+    // Expect no warnings
+    assertRewriteAndWarnings(originalQuery, expectedQuery, Set.empty)
+  }
+
+  protected def assertRewriteAndSemanticError(originalQuery: String, expectedQuery: String, semanticErrors: String*) {
+    val original = parseForRewriting(originalQuery.replace("\r\n", "\n"))
+    val expected = parseForRewriting(expectedQuery.replace("\r\n", "\n"))
+    val result = endoRewrite(original)
+    assert(result === expected, s"\n$originalQuery\nshould be rewritten to:\n$expectedQuery\nbut was rewritten to:${prettifier.asString(result.asInstanceOf[Statement])}")
+
+    val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases, CorrelatedSubQueries))
+    val errors = checkResult.errors.map(error => s"${error.msg} (${error.position})").toSet
+    semanticErrors.foreach(msg =>
+      assert(errors contains msg, s"Error '$msg' not produced (errors: $errors)}")
+    )
+  }
+
+  protected def assertRewriteAndWarnings(originalQuery: String, expectedQuery: String, expectedWarnings: Set[InternalNotification]) {
+    notificationBuffer.clear()
     val original = parseForRewriting(originalQuery.replace("\r\n", "\n"))
     val expected = parseForRewriting(expectedQuery.replace("\r\n", "\n"))
     val result = endoRewrite(original)
@@ -894,29 +932,11 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
 
     val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases, CorrelatedSubQueries))
     assert(checkResult.errors === Seq())
-  }
-
-  // SHOW commands don't accept YIELD with aliases but they should be rewritten internally anyway
-  protected def assertRewrite(originalQuery: String, expectedStatement: Statement) {
-    val original = parseForRewriting(originalQuery.replace("\r\n", "\n"))
-    val result = endoRewrite(original)
-    assert(result === expectedStatement, s"\n$originalQuery\nshould be rewritten to:\n${prettifier.asString(expectedStatement)}\n" +
-      s"but was rewritten to:${prettifier.asString(result.asInstanceOf[Statement])}")
-
-    val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases, CorrelatedSubQueries))
-    assert(checkResult.errors === Seq())
+    notificationBuffer.toSet should equal(expectedWarnings)
   }
 
   protected def assertNotRewrittenAndSemanticErrors(query: String, semanticErrors: String*): Unit = {
-    val original = parser.parse(query.replace("\r\n", "\n"), exceptionFactory)
-    val result = endoRewrite(original)
-    assert(result === original, s"\n$query\nshould not have been rewritten but was to:\n${prettifier.asString(result.asInstanceOf[Statement])}")
-
-    val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases, CorrelatedSubQueries))
-    val errors = checkResult.errors.map(error => s"${error.msg} (${error.position})").toSet
-    semanticErrors.foreach(msg =>
-      assert(errors contains msg, s"Error '$msg' not produced (errors: $errors)}")
-    )
+    assertRewriteAndSemanticError(query, query, semanticErrors: _*)
   }
 
   protected def rewriting(queryText: String): Unit = {
