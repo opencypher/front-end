@@ -15,11 +15,13 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateIndexNewSyntax
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
+import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.DenyPrivilege
@@ -37,12 +39,21 @@ import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.util.CypherExceptionFactory
 
+import scala.Option
+import scala.Option
+
 object Additions {
 
   // This is functionality that has been added in 4.0 and 4.1 and should not work when using CYPHER 3.5
   case object addedFeaturesIn4_x extends Additions {
 
     override def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit = statement.treeExists {
+
+      case c@CreateUser(_, true, _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("Creating a user with an encrypted password is not supported in this Cypher version.", c.position)
+
+      case c@AlterUser(_, Some(true), _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("Updating a user with an encrypted password is not supported in this Cypher version.", c.position)
 
       case u: UseGraph =>
         throw cypherExceptionFactory.syntaxException("The USE clause is not supported in this Cypher version.", u.position)
