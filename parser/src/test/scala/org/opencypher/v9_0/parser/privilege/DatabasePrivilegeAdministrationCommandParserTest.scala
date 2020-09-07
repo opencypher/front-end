@@ -328,22 +328,6 @@ class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCom
         yields(privilegeFunc(ast.AllTransactionActions, List(databaseScopeFoo, databaseScopeParamBar), List(ast.UserQualifier(literalUser)_), Seq(literalRole)))
       }
 
-      test(s"$verb TRANSACTION ON DATABASE foo, * $preposition role") {
-        failsToParse
-      }
-
-      test(s"$verb TRANSACTION ON DATABASE *, foo $preposition role") {
-        failsToParse
-      }
-
-      test(s"$verb TRANSACTIONS ON DATABASES * $preposition role") {
-        failsToParse
-      }
-
-      test(s"$verb TRANSACTIONS (*) ON DATABASES * $preposition role") {
-        failsToParse
-      }
-
       test(s"$verb TRANSACTION MANAGEMENT ON DEFAULT DATABASE $preposition role") {
         yields(privilegeFunc(ast.AllTransactionActions, List(ast.DefaultDatabaseScope() _), List(ast.UserAllQualifier() _), Seq(literalRole)))
       }
@@ -366,6 +350,22 @@ class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCom
 
       test(s"$verb TRANSACTION MANAGEMENT (user) ON DATABASES foo, $$bar $preposition role") {
         yields(privilegeFunc(ast.AllTransactionActions, List(databaseScopeFoo, databaseScopeParamBar), List(ast.UserQualifier(literalUser) _), Seq(literalRole)))
+      }
+
+      test(s"$verb TRANSACTION ON DATABASE foo, * $preposition role") {
+        failsToParse
+      }
+
+      test(s"$verb TRANSACTION ON DATABASE *, foo $preposition role") {
+        failsToParse
+      }
+
+      test(s"$verb TRANSACTIONS ON DATABASES * $preposition role") {
+        failsToParse
+      }
+
+      test(s"$verb TRANSACTIONS (*) ON DATABASES * $preposition role") {
+        failsToParse
       }
 
       test(s"$verb TRANSACTIONS MANAGEMENT ON DATABASES * $preposition role") {

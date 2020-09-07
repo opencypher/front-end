@@ -92,10 +92,6 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
     }
   }
 
-  test("SHOW DATABASE blah YIELD *,blah RETURN user") {
-    failsToParse
-  }
-
   test("SHOW DATABASE `foo.bar`") {
     yields(ast.ShowDatabase(NamedDatabaseScope(literalFooBar)(pos), None, None))
   }
@@ -105,6 +101,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   }
 
   test("SHOW DATABASE") {
+    failsToParse
+  }
+
+  test("SHOW DATABASE blah YIELD *,blah RETURN user") {
     failsToParse
   }
 
@@ -237,18 +237,6 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
     yields(ast.DropDatabase(literalFoo, ifExists = true, DestroyData))
   }
 
-  test("DROP DATABASE") {
-    failsToParse
-  }
-
-  test("DROP DATABASE  IF EXISTS") {
-    failsToParse
-  }
-
-  test("DROP DATABASE foo IF NOT EXISTS") {
-    failsToParse
-  }
-
   test("DROP DATABASE foo DUMP DATA") {
     yields(ast.DropDatabase(literalFoo, ifExists = false, DumpData))
   }
@@ -263,6 +251,18 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
 
   test("DROP DATABASE foo IF EXISTS DESTROY DATA") {
     yields(ast.DropDatabase(literalFoo, ifExists = true, DestroyData))
+  }
+
+  test("DROP DATABASE") {
+    failsToParse
+  }
+
+  test("DROP DATABASE  IF EXISTS") {
+    failsToParse
+  }
+
+  test("DROP DATABASE foo IF NOT EXISTS") {
+    failsToParse
   }
 
   test("DROP DATABASE  KEEP DATA") {
