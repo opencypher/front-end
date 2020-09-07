@@ -172,6 +172,7 @@ trait EitherAsString {
 }
 
 final case class CreateUser(userName: Either[String, Parameter],
+                            isEncryptedPassword: Boolean,
                             initialPassword: Expression,
                             requirePasswordChange: Boolean,
                             suspended: Option[Boolean],
@@ -201,6 +202,7 @@ final case class DropUser(userName: Either[String, Parameter], ifExists: Boolean
 }
 
 final case class AlterUser(userName: Either[String, Parameter],
+                           isEncryptedPassword: Option[Boolean],
                            initialPassword: Option[Expression],
                            requirePasswordChange: Option[Boolean],
                            suspended: Option[Boolean])(val position: InputPosition) extends WriteAdministrationCommand {
