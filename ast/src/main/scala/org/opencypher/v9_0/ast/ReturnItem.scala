@@ -84,7 +84,6 @@ sealed trait ReturnItem extends ASTNode with SemanticCheckable {
   def expression: Expression
   def alias: Option[LogicalVariable]
   def name: String
-  def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult
   def isPassThrough: Boolean = alias.contains(expression)
 
   def semanticCheck: SemanticCheck = SemanticExpressionCheck.check(Expression.SemanticContext.Results, expression) chain checkForExists
@@ -102,9 +101,6 @@ case class UnaliasedReturnItem(expression: Expression, inputText: String)(val po
     case _ => None
   }
   val name: String = alias.map(_.name) getOrElse { inputText.trim }
-
-  def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult =
-    throw new IllegalStateException("Should have been aliased before this step")
 }
 
 object AliasedReturnItem {
@@ -115,6 +111,4 @@ object AliasedReturnItem {
 case class AliasedReturnItem(expression: Expression, variable: LogicalVariable)(val position: InputPosition) extends ReturnItem {
   val alias = Some(variable)
   val name: String = variable.name
-
-  def makeSureIsNotUnaliased(state: SemanticState): SemanticCheckResult = success(state)
 }
