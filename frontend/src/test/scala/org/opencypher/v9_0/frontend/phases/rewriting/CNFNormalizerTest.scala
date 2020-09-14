@@ -22,11 +22,11 @@ import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CNFNormalizer
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
-import org.opencypher.v9_0.frontend.phases.InternalNotificationLogger
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.scalatest.mockito.MockitoSugar

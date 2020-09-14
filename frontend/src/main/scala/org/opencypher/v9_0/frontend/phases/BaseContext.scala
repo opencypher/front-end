@@ -17,6 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InternalNotificationLogger
 
 trait BaseContext {
   def tracer: CompilationPhaseTracer

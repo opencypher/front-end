@@ -29,6 +29,7 @@ import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.MissingAliasNotification
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
+import org.opencypher.v9_0.util.RecordingNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -36,8 +37,8 @@ import scala.collection.mutable.ArrayBuffer
 
 class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest {
   private val exceptionFactory = OpenCypherExceptionFactory(None)
-  private val notificationBuffer = new ArrayBuffer[InternalNotification]()
-  val rewriterUnderTest: Rewriter = normalizeWithAndReturnClauses(exceptionFactory, notificationBuffer += _)
+  private val notificationLogger = new RecordingNotificationLogger()
+  val rewriterUnderTest: Rewriter = normalizeWithAndReturnClauses(exceptionFactory, notificationLogger)
 
   test("ensure variables are aliased") {
     assertRewrite(
@@ -924,7 +925,7 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
   }
 
   protected def assertRewriteAndWarnings(originalQuery: String, expectedQuery: String, expectedWarnings: Set[InternalNotification]) {
-    notificationBuffer.clear()
+    notificationLogger.clear()
     val original = parseForRewriting(originalQuery.replace("\r\n", "\n"))
     val expected = parseForRewriting(expectedQuery.replace("\r\n", "\n"))
     val result = endoRewrite(original)
@@ -932,7 +933,7 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
 
     val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases, CorrelatedSubQueries))
     assert(checkResult.errors === Seq())
-    notificationBuffer.toSet should equal(expectedWarnings)
+    notificationLogger.notifications should equal(expectedWarnings)
   }
 
   protected def assertNotRewrittenAndSemanticErrors(query: String, semanticErrors: String*): Unit = {

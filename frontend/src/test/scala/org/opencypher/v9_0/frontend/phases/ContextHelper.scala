@@ -18,7 +18,9 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.NO_TRACING
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.devNullLogger
 import org.scalatest.mockito.MockitoSugar
 
 object ContextHelper extends MockitoSugar {

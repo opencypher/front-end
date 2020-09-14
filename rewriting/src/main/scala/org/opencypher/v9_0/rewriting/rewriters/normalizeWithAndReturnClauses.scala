@@ -42,6 +42,7 @@ import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.InternalNotification
+import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.MissingAliasNotification
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
@@ -66,7 +67,7 @@ import org.opencypher.v9_0.util.topDown
  * WITH n.prop AS prop ORDER BY prop DESC
  * RETURN prop AS prop
  */
-case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotification => Unit) extends Rewriter {
+case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotificationLogger) extends Rewriter {
 
   def apply(that: AnyRef): AnyRef = that match {
     case q@Query(_, queryPart) => q.copy(part = rewriteTopLevelQueryPart(queryPart))(q.position)
@@ -131,7 +132,7 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
       ri.items.map {
         case i: UnaliasedReturnItem =>
           if (warnForMissingAliases && i.alias.isEmpty) {
-            notificationLogger(MissingAliasNotification(i.position))
+            notificationLogger.log(MissingAliasNotification(i.position))
           }
           val newPosition = i.expression.position.bumped()
           AliasedReturnItem(i.expression, Variable(i.name)(newPosition))(i.position)

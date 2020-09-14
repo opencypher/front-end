@@ -20,9 +20,9 @@ import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
-import org.opencypher.v9_0.frontend.phases.devNullLogger
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.devNullLogger
 import org.scalatest.matchers.MatchResult
 import org.scalatest.matchers.Matcher
 

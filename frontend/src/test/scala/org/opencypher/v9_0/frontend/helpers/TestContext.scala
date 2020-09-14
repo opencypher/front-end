@@ -17,9 +17,9 @@ package org.opencypher.v9_0.frontend.helpers
 
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
-import org.opencypher.v9_0.frontend.phases.InternalNotificationLogger
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.scalatest.mockito.MockitoSugar.mock
 

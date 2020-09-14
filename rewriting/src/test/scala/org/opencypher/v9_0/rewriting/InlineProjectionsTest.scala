@@ -27,6 +27,7 @@ import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.inlineProjections
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.devNullLogger
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -409,7 +410,7 @@ class InlineProjectionsTest extends CypherFunSuite with AstRewritingTestSupport 
   private def ast(queryText: String): Statement = {
     val parsed = parser.parse(queryText, OpenCypherExceptionFactory(None))
     val exceptionFactory = OpenCypherExceptionFactory(Some(pos))
-    val normalized = parsed.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, _ => ())))
+    val normalized = parsed.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger)))
     val checkResult = normalized.semanticCheck(SemanticState.clean)
     normalized.endoRewrite(inSequence(expandStar(checkResult.state)))
   }

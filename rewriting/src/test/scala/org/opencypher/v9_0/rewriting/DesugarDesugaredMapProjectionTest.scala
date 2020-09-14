@@ -23,6 +23,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.recordScopes
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.devNullLogger
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -74,7 +75,7 @@ class DesugarDesugaredMapProjectionTest extends CypherFunSuite {
     test(originalQuery + " is rewritten to " + expectedQuery) {
       def rewrite(q: String): Statement = {
         val exceptionFactory = OpenCypherExceptionFactory(None)
-        val sequence: Rewriter = inSequence(normalizeWithAndReturnClauses(exceptionFactory, _ => ()))
+        val sequence: Rewriter = inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger))
         val originalAst = parser.parse(q, OpenCypherExceptionFactory(None)).endoRewrite(sequence)
         val semanticCheckResult = originalAst.semanticCheck(SemanticState.clean)
         val withScopes = originalAst.endoRewrite(recordScopes(semanticCheckResult.state))

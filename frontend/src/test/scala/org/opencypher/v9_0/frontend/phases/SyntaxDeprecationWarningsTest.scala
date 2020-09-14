@@ -22,6 +22,7 @@ import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.Deprecations.V1
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.RecordingNotificationLogger
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SyntaxDeprecationWarningsTest extends CypherFunSuite {

@@ -26,6 +26,7 @@ import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.devNullLogger
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -137,9 +138,9 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
   private def prepRewrite(q: String, multipleGraphs: Boolean = false) = {
     val exceptionFactory = OpenCypherExceptionFactory(None)
     val rewriter = if (multipleGraphs)
-      inSequence(normalizeWithAndReturnClauses(exceptionFactory, _ => ()))
+      inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger))
     else
-      inSequence(normalizeWithAndReturnClauses(exceptionFactory, _ => ()))
+      inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger))
     parser.parse(q, exceptionFactory).endoRewrite(rewriter)
   }
 }
