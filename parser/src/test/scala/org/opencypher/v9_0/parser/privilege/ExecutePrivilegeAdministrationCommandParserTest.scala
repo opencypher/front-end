@@ -23,7 +23,6 @@ import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
 import org.opencypher.v9_0.util.InputPosition
 
 class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
-  private val starString = "*"
   private val apocString = "apoc"
   private val mathString = "math"
 
@@ -42,15 +41,15 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
         case (execute, action) =>
 
           test(s"$verb $execute * ON DBMS $preposition role") {
-            yields(func(action, List(procedureQualifier(starString)), Seq(literalRole)))
+            yields(func(action, List(procedureQualifier("*")), Seq(literalRole)))
           }
 
           test(s"$verb ${execute}S * ON DBMS $preposition role") {
-            yields(func(action, List(procedureQualifier(starString)), Seq(literalRole)))
+            yields(func(action, List(procedureQualifier("*")), Seq(literalRole)))
           }
 
           test(s"$verb ${execute}S `*` ON DBMS $preposition role") {
-            yields(func(action, List(procedureQualifier(starString)), Seq(literalRole)))
+            yields(func(action, List(procedureQualifier("*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.procedure ON DBMS $preposition role") {
@@ -74,7 +73,7 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
           }
 
           test(s"$verb $execute apoc.*.math.* ON DBMS $preposition role") {
-            yields(func(action, List(procedureQualifier(List(apocString, starString, mathString), starString)), Seq(literalRole)))
+            yields(func(action, List(procedureQualifier(List(apocString, "*", mathString), "*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute math.*n ON DBMS $preposition role") {
@@ -86,11 +85,11 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
           }
 
           test(s"$verb $execute *.sin ON DBMS $preposition role") {
-            yields(func(action, List(procedureQualifier(List(starString), "sin")), Seq(literalRole)))
+            yields(func(action, List(procedureQualifier(List("*"), "sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.math.* ON DBMS $preposition role") {
-            yields(func(action, List(procedureQualifier(List(apocString, mathString), starString)), Seq(literalRole)))
+            yields(func(action, List(procedureQualifier(List(apocString, mathString), "*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute math.sin, math.cos ON DBMS $preposition role") {
@@ -98,7 +97,7 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
           }
 
           test(s"$verb $execute apoc.math.sin, math.* ON DBMS $preposition role") {
-            yields(func(action, List(procedureQualifier(List(apocString, mathString), "sin"), procedureQualifier(List(mathString), starString)), Seq(literalRole)))
+            yields(func(action, List(procedureQualifier(List(apocString, mathString), "sin"), procedureQualifier(List(mathString), "*")), Seq(literalRole)))
           }
       }
   }
