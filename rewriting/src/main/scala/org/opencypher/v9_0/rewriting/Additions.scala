@@ -31,7 +31,7 @@ import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.GrantPrivilege
-import org.opencypher.v9_0.ast.IfExistsThrowError
+import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
@@ -40,9 +40,6 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.util.CypherExceptionFactory
-
-import scala.Option
-import scala.Option
 
 object Additions {
 
@@ -134,34 +131,29 @@ object Additions {
       case p@RevokePrivilege(DbmsPrivilege(ExecuteAdminProcedureAction), _, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("EXECUTE ADMIN PROCEDURES is not supported in this Cypher version.", p.position)
 
-      // CREATE OR REPLACE INDEX name ...
       // CREATE INDEX [name] IF NOT EXISTS ...
-      case c@CreateIndexNewSyntax(_, _, _, _, ifExistsDo, _) if ifExistsDo != IfExistsThrowError =>
-        throw cypherExceptionFactory.syntaxException("Creating index using `OR REPLACE` or `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
+      case c@CreateIndexNewSyntax(_, _, _, _, ifExistsDo, _) if ifExistsDo == IfExistsDoNothing =>
+        throw cypherExceptionFactory.syntaxException("Creating index using `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
 
       // DROP INDEX name IF EXISTS
       case d@DropIndexOnName(_, true, _) =>
         throw cypherExceptionFactory.syntaxException("Dropping index using `IF EXISTS` is not supported in this Cypher version.", d.position)
 
-      // CREATE OR REPLACE CONSTRAINT name ...
       // CREATE CONSTRAINT [name] IF NOT EXISTS ...
-      case c@CreateNodeKeyConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo != IfExistsThrowError =>
-        throw cypherExceptionFactory.syntaxException("Creating node key constraint using `OR REPLACE` or `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
+      case c@CreateNodeKeyConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo == IfExistsDoNothing =>
+        throw cypherExceptionFactory.syntaxException("Creating node key constraint using `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
 
-      // CREATE OR REPLACE CONSTRAINT name ...
       // CREATE CONSTRAINT [name] IF NOT EXISTS ...
-      case c@CreateUniquePropertyConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo != IfExistsThrowError =>
-        throw cypherExceptionFactory.syntaxException("Creating uniqueness constraint using `OR REPLACE` or `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
+      case c@CreateUniquePropertyConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo == IfExistsDoNothing =>
+        throw cypherExceptionFactory.syntaxException("Creating uniqueness constraint using `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
 
-      // CREATE OR REPLACE CONSTRAINT name ...
       // CREATE CONSTRAINT [name] IF NOT EXISTS ...
-      case c@CreateNodePropertyExistenceConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo != IfExistsThrowError =>
-        throw cypherExceptionFactory.syntaxException("Creating node existence constraint using `OR REPLACE` or `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
+      case c@CreateNodePropertyExistenceConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo == IfExistsDoNothing =>
+        throw cypherExceptionFactory.syntaxException("Creating node existence constraint using `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
 
-      // CREATE OR REPLACE CONSTRAINT name ...
       // CREATE CONSTRAINT [name] IF NOT EXISTS ...
-      case c@CreateRelationshipPropertyExistenceConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo != IfExistsThrowError =>
-        throw cypherExceptionFactory.syntaxException("Creating relationship existence constraint using `OR REPLACE` or `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
+      case c@CreateRelationshipPropertyExistenceConstraint(_, _, _, _, ifExistsDo, _) if ifExistsDo == IfExistsDoNothing=>
+        throw cypherExceptionFactory.syntaxException("Creating relationship existence constraint using `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
 
       // DROP CONSTRAINT name IF EXISTS
       case d@DropConstraintOnName(_, true, _) =>
