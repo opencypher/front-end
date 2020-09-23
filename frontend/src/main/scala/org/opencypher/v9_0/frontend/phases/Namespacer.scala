@@ -24,9 +24,7 @@ import org.opencypher.v9_0.ast.UnionDistinct
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.ast.semantics.SymbolUse
-import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.ExpressionWithOuterScope
-import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.ProcedureOutput
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
