@@ -27,6 +27,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.Parameter
@@ -327,7 +328,9 @@ sealed trait PrivilegeQualifier extends Rewritable {
   override def dup(children: Seq[AnyRef]): PrivilegeQualifier.this.type = this
 }
 
-sealed trait ProcedurePrivilegeQualifier extends PrivilegeQualifier {
+sealed trait ExecutePrivilegeQualifier extends PrivilegeQualifier
+
+sealed trait ProcedurePrivilegeQualifier extends ExecutePrivilegeQualifier {
   override def dup(children: Seq[AnyRef]): ProcedurePrivilegeQualifier.this.type = this
 }
 
@@ -339,6 +342,19 @@ final case class ProcedureQualifier(nameSpace: Namespace, procedureName: Procedu
 }
 
 final case class ProcedureAllQualifier()(val position: InputPosition) extends ProcedurePrivilegeQualifier
+
+sealed trait FunctionPrivilegeQualifier extends ExecutePrivilegeQualifier {
+  override def dup(children: Seq[AnyRef]): FunctionPrivilegeQualifier.this.type = this
+}
+
+final case class FunctionQualifier(nameSpace: Namespace, functionName: FunctionName)(val position: InputPosition) extends FunctionPrivilegeQualifier {
+  override def simplify: Seq[FunctionPrivilegeQualifier] = (nameSpace, functionName) match {
+    case (Namespace(Nil), FunctionName("*")) => Seq(FunctionAllQualifier()(position))
+    case _ => Seq(this)
+  }
+}
+
+final case class FunctionAllQualifier()(val position: InputPosition) extends FunctionPrivilegeQualifier
 
 sealed trait GraphPrivilegeQualifier extends PrivilegeQualifier {
   override def dup(children: Seq[AnyRef]): GraphPrivilegeQualifier.this.type = this
@@ -489,6 +505,10 @@ case object ExecuteProcedureAction extends DbmsAction("EXECUTE PROCEDURE")
 case object ExecuteBoostedProcedureAction extends DbmsAction("EXECUTE BOOSTED PROCEDURE")
 
 case object ExecuteAdminProcedureAction extends DbmsAction("EXECUTE ADMIN PROCEDURES")
+
+case object ExecuteFunctionAction extends DbmsAction("EXECUTE USER DEFINED FUNCTION")
+
+case object ExecuteBoostedFunctionAction extends DbmsAction("EXECUTE BOOSTED USER DEFINED FUNCTION")
 
 abstract class UserManagementAction(override val name: String) extends DbmsAction(name)
 

@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.parser.privilege
 
-import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
@@ -24,18 +23,18 @@ import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
 import org.opencypher.v9_0.util.InputPosition
 
-class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class ExecuteProcedurePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
   private val apocString = "apoc"
   private val mathString = "math"
 
   Seq(
-    ("GRANT", "TO", grantExecutePrivilege: executePrivilegeFunc),
-    ("DENY", "TO", denyExecutePrivilege: executePrivilegeFunc),
-    ("REVOKE GRANT", "FROM", revokeGrantExecutePrivilege: executePrivilegeFunc),
-    ("REVOKE DENY", "FROM", revokeDenyExecutePrivilege: executePrivilegeFunc),
-    ("REVOKE", "FROM", revokeExecutePrivilege: executePrivilegeFunc)
+    ("GRANT", "TO", grantExecuteProcedurePrivilege: executeProcedurePrivilegeFunc),
+    ("DENY", "TO", denyExecuteProcedurePrivilege: executeProcedurePrivilegeFunc),
+    ("REVOKE GRANT", "FROM", revokeGrantExecuteProcedurePrivilege: executeProcedurePrivilegeFunc),
+    ("REVOKE DENY", "FROM", revokeDenyExecuteProcedurePrivilege: executeProcedurePrivilegeFunc),
+    ("REVOKE", "FROM", revokeExecuteProcedurePrivilege: executeProcedurePrivilegeFunc)
   ).foreach {
-    case (verb: String, preposition: String, func: executePrivilegeFunc) =>
+    case (verb: String, preposition: String, func: executeProcedurePrivilegeFunc) =>
 
       Seq(
         ("EXECUTE PROCEDURE", ExecuteProcedureAction),
@@ -103,6 +102,10 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
             yields(func(action, List(procedureQualifier(List(apocString, mathString), "sin"), procedureQualifier(List(mathString), "*")), Seq(literalRole)))
           }
 
+          test(s"$verb $execute * $preposition role") {
+            failsToParse
+          }
+
           test(s"$verb $execute * ON DATABASE * $preposition role") {
             failsToParse
           }
@@ -145,5 +148,5 @@ class ExecutePrivilegeAdministrationCommandParserTest extends AdministrationComm
   private def procedureQualifier(procName: String): InputPosition => ProcedureQualifier = procedureQualifier(List.empty, procName)
 
   private def procedureQualifier(nameSpace: List[String], procName: String): InputPosition => ProcedureQualifier =
-    ast.ProcedureQualifier(expressions.Namespace(nameSpace)(_), expressions.ProcedureName(procName)(_))(_)
+    ProcedureQualifier(expressions.Namespace(nameSpace)(_), expressions.ProcedureName(procName)(_))(_)
 }
