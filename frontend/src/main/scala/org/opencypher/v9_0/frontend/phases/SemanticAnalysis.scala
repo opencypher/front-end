@@ -23,6 +23,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
+import org.opencypher.v9_0.rewriting.rewriters.recordScopes
 
 case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
   extends Phase[BaseContext, BaseState, BaseState] {
@@ -41,7 +42,19 @@ case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
     context.errorHandler(errors)
 
     val table = SemanticTable(types = state.typeTable, recordedScopes = state.recordedScopes.mapValues(_.scope))
-    from.withSemanticState(state).withSemanticTable(table)
+    val rewrittenStatement = if (errors.isEmpty) {
+      // Some expressions record some semantic information in themselves.
+      // This is done by the recordScopes rewriter.
+      // We need to apply it after each pass of SemanticAnalysis.
+      from.statement().endoRewrite(recordScopes(state))
+    } else {
+      // If we have errors we should rather avoid running recordScopes, since the state might be incomplete.
+      from.statement()
+    }
+    from
+      .withStatement(rewrittenStatement)
+      .withSemanticState(state)
+      .withSemanticTable(table)
   }
 
   override def phase: CompilationPhaseTracer.CompilationPhase = SEMANTIC_CHECK

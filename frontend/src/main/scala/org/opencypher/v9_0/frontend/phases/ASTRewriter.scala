@@ -49,7 +49,6 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
-import org.opencypher.v9_0.rewriting.rewriters.recordScopes
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
 import org.opencypher.v9_0.util.CypherExceptionFactory
@@ -65,7 +64,6 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
               cypherExceptionFactory: CypherExceptionFactory): (Statement, Map[String, Any], Set[RewriterCondition]) = {
 
     val contract = rewriterSequencer("ASTRewriter")(
-      recordScopes(semanticState),
       expandStar(semanticState),
       desugarMapProjection(semanticState),
       moveWithPastMatch,
