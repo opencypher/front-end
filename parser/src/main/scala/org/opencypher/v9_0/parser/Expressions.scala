@@ -23,6 +23,7 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 import org.parboiled.scala.EMPTY
@@ -183,7 +184,7 @@ trait Expressions extends Parser
     | group(keyword("SINGLE") ~~ "(" ~~ FilterExpression ~~ ")") ~~>> (expressions.SingleIterablePredicate(_, _, _))
     | Exists
     | ShortestPathPattern ~~> expressions.ShortestPathExpression
-    | RelationshipsPattern ~~> PatternExpression
+    | RelationshipsPattern ~~> (PatternExpression(_)(Set.empty))
     | parenthesizedExpression
     | FunctionInvocation
     | Variable

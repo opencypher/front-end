@@ -26,6 +26,7 @@ import org.opencypher.v9_0.expressions.Literal
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.PathExpression
 import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.ASTNode
@@ -56,7 +57,10 @@ trait ASTSlicingPhrase extends SemanticCheckable with SemanticAnalysisTooling {
 
   private def doesNotTouchTheGraph: SemanticCheck = {
     val badExpressionFound = expression.treeExists {
-      case _: PatternComprehension | PathExpression => true
+      case _: PatternComprehension |
+           _: PatternExpression |
+           _: PathExpression =>
+        true
     }
     when(badExpressionFound) {
       error(s"It is not allowed to refer to variables in $name", expression.position)

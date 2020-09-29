@@ -43,6 +43,8 @@ import org.opencypher.v9_0.util.symbols
   * This rewrite normalizes this cases and make it easier to plan correctly.
  *
  * [[simplifyPredicates]]  takes care of rewriting the Not(Not(Exists(...))) which can be introduced by this rewriter.
+ *
+ * This rewriter needs to run before [[namePatternElements]], which rewrites pattern expressions. Otherwise we don't find them in the semantic table.
   */
 case class normalizeExistsPatternExpressions(semanticState: SemanticState) extends Rewriter {
 

@@ -16,25 +16,34 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.Create
+import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
-import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 
-case object nameUpdatingClauses extends Rewriter {
+case object namePatternElements extends Rewriter {
 
   def apply(that: AnyRef): AnyRef = instance(that)
 
-  private val findingRewriter: Rewriter = Rewriter.lift {
-
+  private val rewriter = Rewriter.lift {
+    case m: Match =>
+      val rewrittenPattern = m.pattern.endoRewrite(nameAllPatternElements.namingRewriter)
+      m.copy(pattern = rewrittenPattern)(m.position)
     case create@Create(pattern) =>
       val rewrittenPattern = pattern.endoRewrite(nameAllPatternElements.namingRewriter)
       create.copy(pattern = rewrittenPattern)(create.position)
-
     case merge@Merge(pattern, _, _) =>
       val rewrittenPattern = pattern.endoRewrite(nameAllPatternElements.namingRewriter)
       merge.copy(pattern = rewrittenPattern)(merge.position)
+    case p: PatternExpression =>
+      val rewrittenPattern = p.pattern.endoRewrite(nameAllPatternElements.namingRewriter)
+      p.copy(pattern = rewrittenPattern)(p.outerScope)
+    case p: PatternComprehension =>
+      val rewrittenPattern = p.pattern.endoRewrite(nameAllPatternElements.namingRewriter)
+      p.copy(pattern = rewrittenPattern)(p.position, p.outerScope)
   }
 
-  private val instance = bottomUp(findingRewriter, _.isInstanceOf[Expression])
+  private val instance = bottomUp(rewriter)
 }

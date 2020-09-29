@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
@@ -26,6 +27,8 @@ case class recordScopes(semanticState: SemanticState) extends Rewriter {
   def apply(that: AnyRef): AnyRef = instance.apply(that)
 
   private val instance: Rewriter = topDown(Rewriter.lift {
+    case x: PatternExpression =>
+      x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable))
     case x: PatternComprehension =>
       x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable))
     case x: ExistsSubClause =>

@@ -18,8 +18,9 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.NodeNameGenerator
+import org.opencypher.v9_0.util.RelNameGenerator
 import org.opencypher.v9_0.util.Rewriter
-import org.opencypher.v9_0.util.UnNamedNameGenerator
 import org.opencypher.v9_0.util.bottomUp
 
 case object nameAllPatternElements extends Rewriter {
@@ -28,11 +29,11 @@ case object nameAllPatternElements extends Rewriter {
 
   val namingRewriter: Rewriter = bottomUp(Rewriter.lift {
     case pattern: NodePattern if pattern.variable.isEmpty =>
-      val syntheticName = UnNamedNameGenerator.name(pattern.position.bumped())
+      val syntheticName = NodeNameGenerator.name(pattern.position.bumped())
       pattern.copy(variable = Some(Variable(syntheticName)(pattern.position)))(pattern.position)
 
     case pattern: RelationshipPattern if pattern.variable.isEmpty  =>
-      val syntheticName = UnNamedNameGenerator.name(pattern.position.bumped())
+      val syntheticName = RelNameGenerator.name(pattern.position.bumped())
       pattern.copy(variable = Some(Variable(syntheticName)(pattern.position)))(pattern.position)
   })
 }

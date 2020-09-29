@@ -39,9 +39,7 @@ import org.opencypher.v9_0.rewriting.rewriters.foldConstants
 import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.rewriting.rewriters.moveWithPastMatch
-import org.opencypher.v9_0.rewriting.rewriters.nameMatchPatternElements
-import org.opencypher.v9_0.rewriting.rewriters.namePatternComprehensionPatternElements
-import org.opencypher.v9_0.rewriting.rewriters.nameUpdatingClauses
+import org.opencypher.v9_0.rewriting.rewriters.namePatternElements
 import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
 import org.opencypher.v9_0.rewriting.rewriters.normalizeComparisons
 import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
@@ -73,10 +71,9 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
       enableCondition(noDuplicatesInReturnItems),
       enableCondition(containsNoReturnAll),
       foldConstants(cypherExceptionFactory),
-      nameMatchPatternElements,
-      nameUpdatingClauses,
-      enableCondition(noUnnamedPatternElementsInMatch),
       normalizeExistsPatternExpressions(semanticState),
+      namePatternElements,
+      enableCondition(noUnnamedPatternElementsInMatch),
       normalizeMatchPredicates,
       normalizeNotEquals,
       enableCondition(containsNoNodesOfType[NotEquals]),
@@ -85,7 +82,6 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
       enableCondition(normalizedEqualsArguments),
       AddUniquenessPredicates(innerVariableNamer),
       replaceLiteralDynamicPropertyLookups,
-      namePatternComprehensionPatternElements,
       enableCondition(noUnnamedPatternElementsInPatternComprehension),
       inlineNamedPathsInPatternComprehensions
     )

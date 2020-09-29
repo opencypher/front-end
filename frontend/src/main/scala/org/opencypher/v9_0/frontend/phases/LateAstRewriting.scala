@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.rewriting.rewriters.collapseMultipleInPredicates
-import org.opencypher.v9_0.rewriting.rewriters.nameUpdatingClauses
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.inSequence
@@ -24,7 +23,6 @@ import org.opencypher.v9_0.util.inSequence
 object LateAstRewriting extends StatementRewriter {
   override def instance(context: BaseContext): Rewriter = inSequence(
     collapseMultipleInPredicates,
-    nameUpdatingClauses,
     projectNamedPaths
 //    enableCondition(containsNamedPathOnlyForShortestPath), // TODO Re-enable
   )
