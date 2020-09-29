@@ -159,6 +159,7 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.WriteAction
 import org.opencypher.v9_0.ast.Yield
+import org.opencypher.v9_0.ast.YieldOrWhere
 import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
 import org.opencypher.v9_0.expressions.LabelName
@@ -258,21 +259,18 @@ case class Prettifier(
   def asString(adminCommand: AdministrationCommand): String =  {
     val useString = asString(adminCommand.useGraph)
 
-    def showClausesAsString(yields: Option[Either[Yield, Where]],
-                      returns: Option[Return]): (String, String) = {
+    def showClausesAsString(yieldOrWhere: YieldOrWhere): (String, String) = {
       val ind: IndentingQueryPrettifier = base.indented()
-      val y = yields match {
-        case Some(Left(y)) => "\n" + ind.asString(y)
-        case Some(Right(w)) => "\n" + ind.asString(w)
-        case None => ""
+      yieldOrWhere match {
+        case Some(Left((y,r))) => ("\n" + ind.asString(y), r.map(ind.asString).map("\n" + _).getOrElse(""))
+        case Some(Right(w)) => ("\n" + ind.asString(w), "")
+        case None => ("", "")
       }
-      val r = returns.map(ind.asString).map("\n" + _).getOrElse("")
-      (y, r)
     }
     val commandString = adminCommand match {
 
-      case x @ ShowUsers(yields, returns) =>
-        val (y: String, r: String) = showClausesAsString(yields, returns)
+      case x @ ShowUsers(yields) =>
+        val (y: String, r: String) = showClausesAsString(yields)
         s"${x.name}$y$r"
 
       case x @ CreateUser(userName, isEncryptedPassword, initialPassword, requirePasswordChange, suspended, ifExistsDo) =>
@@ -307,8 +305,8 @@ case class Prettifier(
       case x @ SetOwnPassword(newPassword, currentPassword) =>
         s"${x.name} FROM ${expr.escapePassword(currentPassword)} TO ${expr.escapePassword(newPassword)}"
 
-      case x @ ShowRoles(withUsers, _, yields, returns) =>
-        val (y: String, r: String) = showClausesAsString(yields, returns)
+      case x @ ShowRoles(withUsers, _, yields) =>
+        val (y: String, r: String) = showClausesAsString(yields)
         s"${x.name}${if (withUsers) " WITH USERS" else ""}$y$r"
 
       case x @ CreateRole(roleName, None, ifExistsDo) =>
@@ -417,12 +415,12 @@ case class Prettifier(
         val (resourceName, scope) = Prettifier.extractScope(resource, graphScope, qualifier)
         s"${x.name} {$resourceName} ON $scope FROM ${Prettifier.escapeNames(roleNames)}"
 
-      case ShowPrivileges(scope, yields, returns) =>
-        val (y: String, r: String) = showClausesAsString(yields, returns)
+      case ShowPrivileges(scope, yields) =>
+        val (y: String, r: String) = showClausesAsString(yields)
         s"SHOW ${Prettifier.extractScope(scope)} PRIVILEGES$y$r"
 
-      case x @ ShowDatabase(scope, yields, returns) =>
-        val (y: String, r: String) = showClausesAsString(yields, returns)
+      case x @ ShowDatabase(scope, yields) =>
+        val (y: String, r: String) = showClausesAsString(yields)
         val optionalName = scope match {
           case NamedDatabaseScope(dbName) => s" ${Prettifier.escapeName(dbName)}"
           case _ => ""

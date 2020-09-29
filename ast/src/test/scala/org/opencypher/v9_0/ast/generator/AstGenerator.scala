@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast.generator
 
 import java.nio.charset.StandardCharsets
 
+import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
@@ -210,6 +211,7 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.WriteAction
 import org.opencypher.v9_0.ast.Yield
+import org.opencypher.v9_0.ast.YieldOrWhere
 import org.opencypher.v9_0.ast.generator.AstGenerator.boolean
 import org.opencypher.v9_0.ast.generator.AstGenerator.char
 import org.opencypher.v9_0.ast.generator.AstGenerator.oneOrMore
@@ -1223,13 +1225,13 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _showUsers: Gen[ShowUsers] = for {
     yields <- option(_eitherYieldOrWhere)
-    returns <- option(_return)
-  } yield ShowUsers(yields, returns)(pos)
+  } yield ShowUsers(yields)(pos)
 
-  def _eitherYieldOrWhere: Gen[Either[Yield, Where]] = for {
+  def _eitherYieldOrWhere: Gen[Either[(ast.Yield, Option[ast.Return]), ast.Where]] = for {
     yields <- _yield
     where <- _where
-    eyw <- oneOf(Seq(Left(yields), Right(where)))
+    returns <- option(_return)
+    eyw <- oneOf(Seq(Left((yields,returns)), Right(where)))
   } yield eyw
 
   def _createUser: Gen[CreateUser] = for {
@@ -1273,8 +1275,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     withUsers <- boolean
     showAll   <- boolean
     yields <- option(_eitherYieldOrWhere)
-    returns <- option(_return)
-  } yield ShowRoles(withUsers, showAll, yields, returns)(pos)
+  } yield ShowRoles(withUsers, showAll, yields)(pos)
 
   def _createRole: Gen[CreateRole] = for {
     roleName     <- _nameAsEither
@@ -1382,8 +1383,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     showAll    = ShowAllPrivileges()(pos)
     scope      <- oneOf(showRole, showUser1, showUser2, showAll)
     yields     <- option(_eitherYieldOrWhere)
-    returns    <- option(_return)
-  } yield ShowPrivileges(scope, yields, returns)(pos)
+  } yield ShowPrivileges(scope, yields)(pos)
 
   def _dbmsPrivilege: Gen[PrivilegeCommand] = for {
     dbmsAction      <- _dbmsAction
@@ -1449,8 +1449,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     dbName <- _nameAsEither
     scope  <- oneOf(NamedDatabaseScope(dbName)(pos), AllDatabasesScope()(pos), DefaultDatabaseScope()(pos))
     yields <- option(_eitherYieldOrWhere)
-    returns <- option(_return)
-  } yield ShowDatabase(scope, yields, returns)(pos)
+  } yield ShowDatabase(scope, yields)(pos)
 
   def _createDatabase: Gen[CreateDatabase] = for {
     dbName <- _nameAsEither

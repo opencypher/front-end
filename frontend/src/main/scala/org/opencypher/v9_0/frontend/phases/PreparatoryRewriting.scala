@@ -18,6 +18,7 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.expandCallWhere
+import org.opencypher.v9_0.rewriting.rewriters.expandShowWhere
 import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAndMatch
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
@@ -32,6 +33,7 @@ case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseCo
       normalizeWithAndReturnClauses(context.cypherExceptionFactory, context.notificationLogger),
       insertWithBetweenOptionalMatchAndMatch,
       expandCallWhere,
+      expandShowWhere,
       replaceDeprecatedCypherSyntax(deprecations),
       mergeInPredicates))
 
