@@ -101,7 +101,7 @@ object Deprecations {
           () => Some(DeprecatedVarLengthBindingNotification(p.position, variable.name))
         )
 
-      case i: ast.CreateIndex =>
+      case i: ast.CreateIndexOldSyntax =>
         Deprecation(
           () => i,
           () => Some(DeprecatedCreateIndexSyntax(i.position))

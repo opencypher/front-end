@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AlterUser
-import org.opencypher.v9_0.ast.CreateIndexNewSyntax
+import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
@@ -54,7 +54,7 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("The USE clause is not supported in this Cypher version.", u.position)
 
       // CREATE INDEX [name] FOR (n:Label) ON (n.prop)
-      case c: CreateIndexNewSyntax =>
+      case c: CreateIndex =>
         throw cypherExceptionFactory.syntaxException("Creating index using this syntax is not supported in this Cypher version.", c.position)
 
       // DROP INDEX name

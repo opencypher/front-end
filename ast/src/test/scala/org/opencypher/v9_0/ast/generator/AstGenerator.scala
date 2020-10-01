@@ -54,7 +54,7 @@ import org.opencypher.v9_0.ast.CreateDatabaseAction
 import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
-import org.opencypher.v9_0.ast.CreateIndexNewSyntax
+import org.opencypher.v9_0.ast.CreateIndexOldSyntax
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -1146,14 +1146,14 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     props <- oneOrMore(_variableProperty)
   } yield props
 
-  def _createIndex: Gen[CreateIndexNewSyntax] = for {
+  def _createIndex: Gen[CreateIndex] = for {
     variable   <- _variable
     labelName  <- _labelName
     props      <- _listOfProperties
     name       <- option(_identifier)
     ifExistsDo <- _ifExistsDo
     use        <- option(_use)
-  } yield CreateIndexNewSyntax(variable, labelName, props, name, ifExistsDo, use)(pos)
+  } yield CreateIndex(variable, labelName, props, name, ifExistsDo, use)(pos)
 
   def _dropIndex: Gen[DropIndexOnName] = for {
     name     <- _identifier
@@ -1165,7 +1165,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     labelName <- _labelName
     props     <- oneOrMore(_propertyKeyName)
     use       <- option(_use)
-    command   <- oneOf(CreateIndex(labelName, props, use)(pos), DropIndex(labelName, props, use)(pos))
+    command   <- oneOf(CreateIndexOldSyntax(labelName, props, use)(pos), DropIndex(labelName, props, use)(pos))
   } yield command
 
   def _createConstraint: Gen[SchemaCommand] = for {

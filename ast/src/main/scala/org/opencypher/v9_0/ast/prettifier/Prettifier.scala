@@ -33,7 +33,7 @@ import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateGraph
 import org.opencypher.v9_0.ast.CreateIndex
-import org.opencypher.v9_0.ast.CreateIndexNewSyntax
+import org.opencypher.v9_0.ast.CreateIndexOldSyntax
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
@@ -208,10 +208,10 @@ case class Prettifier(
     val useString = asString(command.useGraph)
     val commandString = command match {
 
-      case CreateIndex(LabelName(label), properties, _) =>
+      case CreateIndexOldSyntax(LabelName(label), properties, _) =>
         s"CREATE INDEX ON :${backtick(label)}${properties.map(p => backtick(p.name)).mkString("(", ", ", ")")}"
 
-      case CreateIndexNewSyntax(Variable(variable), LabelName(label), properties, name, ifExistsDo, _) =>
+      case CreateIndex(Variable(variable), LabelName(label), properties, name, ifExistsDo, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "INDEX")
         s"${startOfCommand}FOR (${backtick(variable)}:${backtick(label)}) ON ${propertiesToString(properties)}"
 
