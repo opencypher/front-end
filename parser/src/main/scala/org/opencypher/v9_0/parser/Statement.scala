@@ -224,7 +224,8 @@ trait Statement extends Parser
   // Privilege commands
 
   def ShowPrivileges: Rule1[ast.ShowPrivileges] = rule("SHOW PRIVILEGES") {
-    group(keyword("SHOW") ~~ ScopeForShowPrivileges ~~ optional(ShowCommandClauses) ~~>> ((scope, yld) => ast.ShowPrivileges(scope, yld)))
+    group(keyword("SHOW") ~~ ScopeForShowPrivileges ~~ keyword("AS") ~~ asRevoke ~~ optional(ShowCommandClauses) ~~>> ((scope, revoke, yld) => ast.ShowPrivileges(scope, Some(revoke), yld))) |
+    group(keyword("SHOW") ~~ ScopeForShowPrivileges ~~ optional(ShowCommandClauses) ~~>> ((scope, yld) => ast.ShowPrivileges(scope, None, yld)))
   }
 
   private def ScopeForShowPrivileges: Rule1[ast.ShowPrivilegeScope] = rule("show privilege scope") {
@@ -232,6 +233,11 @@ trait Statement extends Parser
     group(UserKeyword ~~ SymbolicNameOrStringParameterList ~~ keyword("PRIVILEGES")) ~~>> (ast.ShowUsersPrivileges(_)) |
     group(UserKeyword ~~ keyword("PRIVILEGES")) ~~~> ast.ShowUserPrivileges(None) |
     optional(keyword("ALL")) ~~ keyword("PRIVILEGES") ~~~> ast.ShowAllPrivileges()
+  }
+
+  private def asRevoke: Rule1[Boolean] = rule("AS COMMAND") {
+    keyword("COMMAND") ~> (_ => false) |
+    keyword("REVOKE COMMAND") ~> (_ => true)
   }
 
   //` ... ON DBMS TO role`
