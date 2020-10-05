@@ -17,6 +17,7 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.NodeNameGenerator
 import org.opencypher.v9_0.util.RelNameGenerator
@@ -27,7 +28,7 @@ case object nameAllPatternElements extends Rewriter {
 
   override def apply(in: AnyRef): AnyRef = namingRewriter.apply(in)
 
-  val namingRewriter: Rewriter = bottomUp(Rewriter.lift {
+  private val namingRewriter: Rewriter = bottomUp(Rewriter.lift {
     case pattern: NodePattern if pattern.variable.isEmpty =>
       val syntheticName = NodeNameGenerator.name(pattern.position.bumped())
       pattern.copy(variable = Some(Variable(syntheticName)(pattern.position)))(pattern.position)
@@ -35,5 +36,8 @@ case object nameAllPatternElements extends Rewriter {
     case pattern: RelationshipPattern if pattern.variable.isEmpty  =>
       val syntheticName = RelNameGenerator.name(pattern.position.bumped())
       pattern.copy(variable = Some(Variable(syntheticName)(pattern.position)))(pattern.position)
+  }, stopper = {
+    case _: ShortestPathExpression => true
+    case _ => false
   })
 }

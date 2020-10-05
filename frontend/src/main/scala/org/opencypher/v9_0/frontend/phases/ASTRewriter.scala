@@ -41,7 +41,7 @@ import org.opencypher.v9_0.rewriting.rewriters.foldConstants
 import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.rewriting.rewriters.moveWithPastMatch
-import org.opencypher.v9_0.rewriting.rewriters.namePatternElements
+import org.opencypher.v9_0.rewriting.rewriters.nameAllPatternElements
 import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
 import org.opencypher.v9_0.rewriting.rewriters.normalizeComparisons
 import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
@@ -78,7 +78,7 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
       enableCondition(containsNoReturnAll),
       foldConstants(cypherExceptionFactory),
       normalizeExistsPatternExpressions(semanticState),
-      namePatternElements,
+      nameAllPatternElements,
       enableCondition(noUnnamedPatternElementsInMatch),
       normalizeMatchPredicates,
       normalizeNotEquals,
