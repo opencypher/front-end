@@ -17,5 +17,4 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
 
-case class NodePatternExpression(patterns: List[NodePattern]) (val position: InputPosition) extends Expression {
-}
+case class NodePatternExpression(patterns: List[NodePattern])(val position: InputPosition) extends Expression
