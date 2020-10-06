@@ -26,6 +26,7 @@ import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
@@ -70,7 +71,11 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
   def apply(that: AnyRef): AnyRef = that match {
     case q@Query(_, queryPart) => q.copy(part = rewriteTopLevelQueryPart(queryPart))(q.position)
 
-    case s@ShowPrivileges(_, _, Some(Left((yields, returns))),_) =>
+    case s@ShowPrivileges(_, Some(Left((yields, returns))),_) =>
+      s.copy(yieldOrWhere = Some(Left(addAliasesToYield(yields),returns.map(addAliasesToReturn))))(s.position)
+        .withGraph(s.useGraph)
+
+    case s@ShowPrivilegeCommands(_, _, Some(Left((yields, returns))),_) =>
       s.copy(yieldOrWhere = Some(Left(addAliasesToYield(yields),returns.map(addAliasesToReturn))))(s.position)
         .withGraph(s.useGraph)
 

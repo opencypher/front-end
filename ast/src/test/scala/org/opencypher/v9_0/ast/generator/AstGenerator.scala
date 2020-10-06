@@ -178,6 +178,7 @@ import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
+import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
@@ -1429,9 +1430,19 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     showUser2  = ShowUserPrivileges(None)(pos)
     showAll    = ShowAllPrivileges()(pos)
     scope      <- oneOf(showRole, showUser1, showUser2, showAll)
-    asRevoke   <- option(boolean)
     yields     <- option(_eitherYieldOrWhere)
-  } yield ShowPrivileges(scope, asRevoke, yields)(pos)
+  } yield ShowPrivileges(scope, yields)(pos)
+
+  def _showPrivilegeCommands: Gen[ShowPrivilegeCommands] = for {
+    names      <- _listOfNameOfEither
+    showRole   = ShowRolesPrivileges(names)(pos)
+    showUser1  = ShowUsersPrivileges(names)(pos)
+    showUser2  = ShowUserPrivileges(None)(pos)
+    showAll    = ShowAllPrivileges()(pos)
+    scope      <- oneOf(showRole, showUser1, showUser2, showAll)
+    asRevoke   <- boolean
+    yields     <- option(_eitherYieldOrWhere)
+  } yield ShowPrivilegeCommands(scope, asRevoke, yields)(pos)
 
   def _dbmsPrivilege: Gen[PrivilegeCommand] = for {
     dbmsAction      <- _dbmsAction
@@ -1472,6 +1483,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _privilegeCommand: Gen[AdministrationCommand] = oneOf(
     _showPrivileges,
+    _showPrivilegeCommands,
     _dbmsPrivilege,
     _databasePrivilege,
     _graphPrivilege
