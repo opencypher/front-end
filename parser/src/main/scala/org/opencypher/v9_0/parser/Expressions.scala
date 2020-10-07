@@ -23,7 +23,6 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternExpression
-import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 import org.parboiled.scala.EMPTY
@@ -154,7 +153,7 @@ trait Expressions extends Parser
   private def Expression2: Rule1[expressions.Expression] = rule("an expression") {
     Expression1 ~ zeroOrMore(WS ~ (
         PropertyLookup
-      | NodeLabels ~~>> (expressions.HasLabels(_: expressions.Expression, _))
+      | NodeLabels ~~>> (expressions.HasLabelsOrTypes(_: expressions.Expression, _))
       |  "[" ~~ Expression ~~ "]" ~~>> (expressions.ContainerIndex(_: expressions.Expression, _))
       | "[" ~~ optional(Expression) ~~ ".." ~~ optional(Expression) ~~ "]" ~~>> (expressions.ListSlice(_: expressions.Expression, _, _))
     ))

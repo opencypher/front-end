@@ -41,6 +41,7 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
@@ -204,6 +205,10 @@ case class ExpressionStringifier(
 
       case HasLabels(arg, labels) =>
         val l = labels.map(apply).mkString(":", ":", "")
+        s"${inner(ast)(arg)}$l"
+
+      case HasTypes(arg, types) =>
+        val l = types.map(apply).mkString(":", ":", "")
         s"${inner(ast)(arg)}$l"
 
       case AllIterablePredicate(scope, e) =>

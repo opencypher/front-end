@@ -47,6 +47,8 @@ import org.opencypher.v9_0.expressions.GetDegree
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.HasLabelsOrTypes
+import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.HexIntegerLiteral
 import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
 import org.opencypher.v9_0.expressions.In
@@ -325,9 +327,19 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
       case x:ImplicitProcedureArgument =>
         specifyType(x.parameterType.covariant, x)
 
+      case x:HasLabelsOrTypes =>
+        check(ctx, x.expression, x +: parents) chain
+          expectType(CTNode.covariant | CTRelationship.covariant, x.expression) chain
+          specifyType(CTBoolean, x)
+
       case x:HasLabels =>
         check(ctx, x.expression, x +: parents) chain
           expectType(CTNode.covariant, x.expression) chain
+          specifyType(CTBoolean, x)
+
+      case x:HasTypes =>
+        check(ctx, x.expression, x +: parents) chain
+          expectType(CTRelationship.covariant, x.expression) chain
           specifyType(CTBoolean, x)
 
         // ITERABLES

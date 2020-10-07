@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
@@ -48,6 +49,9 @@ case object normalizeComparisons extends Rewriter {
       InvalidNotEquals(lhs.endoRewrite(copyVariables), rhs.endoRewrite(copyVariables))(c.position)
     case c@HasLabels(expr, labels) if labels.size > 1 =>
       val hasLabels = labels.map(l => HasLabels(expr.endoRewrite(copyVariables), Seq(l))(c.position))
+      Ands(hasLabels)(c.position)
+    case c@HasTypes(expr, types) if types.size > 1 =>
+      val hasLabels = types.map(l => HasTypes(expr.endoRewrite(copyVariables), Seq(l))(c.position))
       Ands(hasLabels)(c.position)
   })
 }
