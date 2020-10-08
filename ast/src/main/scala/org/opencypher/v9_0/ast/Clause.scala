@@ -43,6 +43,7 @@ import org.opencypher.v9_0.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
@@ -585,6 +586,8 @@ case class Match(
       case Some(innerWhere) => innerWhere.treeFold(labels) {
         case HasLabels(Variable(id), predicateLabels) if id == variable =>
           acc => SkipChildren(acc ++ predicateLabels.map(_.name))
+        case HasLabelsOrTypes(v@Variable(id), predicateLabels) if id == variable =>
+          acc => SkipChildren(acc ++ predicateLabels.map(_.name))
         case _: Where | _: And | _: Ands | _: Set[_] | _: Seq[_] =>
           acc => TraverseChildren(acc)
         case _ =>
@@ -640,7 +643,7 @@ case class Delete(expressions: Seq[Expression], forced: Boolean)(val position: I
       expectType(CTNode.covariant | CTRelationship.covariant | CTPath.covariant, expressions)
 
   private def warnAboutDeletingLabels =
-    expressions.filter(_.isInstanceOf[HasLabels]) map {
+    expressions.filter(e => e.isInstanceOf[HasLabels] || e.isInstanceOf[HasLabelsOrTypes]) map {
       e => SemanticError("DELETE doesn't support removing labels from a node. Try REMOVE.", e.position)
     }
 }

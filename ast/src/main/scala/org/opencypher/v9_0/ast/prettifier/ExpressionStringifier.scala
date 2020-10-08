@@ -41,6 +41,7 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InvalidNotEquals
@@ -202,6 +203,10 @@ case class ExpressionStringifier(
         val w = predicate.map(inner(ast)).map(" WHERE " + _).getOrElse("")
         val b = inner(ast)(proj)
         s"[$v$p$w | $b]"
+
+      case HasLabelsOrTypes(arg, labels) =>
+        val l = labels.map(apply).mkString(":", ":", "")
+        s"${inner(ast)(arg)}$l"
 
       case HasLabels(arg, labels) =>
         val l = labels.map(apply).mkString(":", ":", "")

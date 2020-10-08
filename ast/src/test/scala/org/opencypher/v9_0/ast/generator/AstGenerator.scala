@@ -253,7 +253,7 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
-import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
@@ -553,10 +553,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     )
   } yield res
 
-  def _hasLabels: Gen[HasLabels] = for {
+  def _hasLabelsOrTypes: Gen[HasLabelsOrTypes] = for {
     expression <- _expression
     labels <- oneOrMore(_labelName)
-  } yield HasLabels(expression, labels)(pos)
+  } yield HasLabelsOrTypes(expression, labels)(pos)
 
   // Collections
   // ----------------------------------
@@ -752,7 +752,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
         lzy(_predicateBinary),
         lzy(_predicateComparisonChain),
         lzy(_iterablePredicate),
-        lzy(_hasLabels),
+        lzy(_hasLabelsOrTypes),
         lzy(_arithmeticUnary),
         lzy(_arithmeticBinary),
         lzy(_case),
