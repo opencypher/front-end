@@ -108,6 +108,7 @@ import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.IfExistsReplace
 import org.opencypher.v9_0.ast.IfExistsThrowError
+import org.opencypher.v9_0.ast.IndefiniteWait
 import org.opencypher.v9_0.ast.LabelAllQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
 import org.opencypher.v9_0.ast.LabelsResource
@@ -120,6 +121,7 @@ import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.OnCreate
@@ -192,6 +194,7 @@ import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
 import org.opencypher.v9_0.ast.SubQuery
 import org.opencypher.v9_0.ast.TerminateTransactionAction
+import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.TransactionManagementAction
 import org.opencypher.v9_0.ast.TraverseAction
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
@@ -207,6 +210,7 @@ import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
 import org.opencypher.v9_0.ast.UsingScanHint
+import org.opencypher.v9_0.ast.WaitUntilComplete
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.WriteAction
@@ -1454,21 +1458,25 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _createDatabase: Gen[CreateDatabase] = for {
     dbName <- _nameAsEither
     ifExistsDo <- _ifExistsDo
-  } yield CreateDatabase(dbName, ifExistsDo)(pos)
+    wait <- _waitUntilComplete
+  } yield CreateDatabase(dbName, ifExistsDo, wait)(pos)
 
   def _dropDatabase: Gen[DropDatabase] = for {
     dbName <- _nameAsEither
     ifExists <- boolean
     additionalAction <- Gen.oneOf( DumpData, DestroyData )
-  } yield DropDatabase(dbName, ifExists, additionalAction)(pos)
+    wait <- _waitUntilComplete
+  } yield DropDatabase(dbName, ifExists, additionalAction, wait)(pos)
 
   def _startDatabase: Gen[StartDatabase] = for {
     dbName <- _nameAsEither
-  } yield StartDatabase(dbName)(pos)
+    wait <- _waitUntilComplete
+  } yield StartDatabase(dbName, wait)(pos)
 
   def _stopDatabase: Gen[StopDatabase] = for {
     dbName <- _nameAsEither
-  } yield StopDatabase(dbName)(pos)
+    wait <- _waitUntilComplete
+  } yield StopDatabase(dbName, wait)(pos)
 
   def _multiDatabaseCommand: Gen[AdministrationCommand] = oneOf(
     _showDatabase,
@@ -1477,6 +1485,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     _startDatabase,
     _stopDatabase
   )
+
+  def _waitUntilComplete: Gen[WaitUntilComplete] = for {
+    timeout <- posNum[Long]
+    wait <- oneOf(NoWait, IndefiniteWait, TimeoutAfter(timeout))
+  } yield wait
 
   // Top level administration command
 
