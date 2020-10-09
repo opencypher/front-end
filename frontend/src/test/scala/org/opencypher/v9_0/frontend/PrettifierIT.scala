@@ -1019,8 +1019,8 @@ class PrettifierIT extends CypherFunSuite {
 
         ) ++ Seq(
           ("access", "ACCESS"),
-          ("start", "START DATABASE"),
-          ("stop", "STOP DATABASE"),
+          ("start", "START"),
+          ("stop", "STOP"),
           ("create index", "CREATE INDEX"),
           ("drop index", "DROP INDEX"),
           ("index", "INDEX MANAGEMENT"),
