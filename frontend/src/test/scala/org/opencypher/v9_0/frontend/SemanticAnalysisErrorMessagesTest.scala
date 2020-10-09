@@ -783,7 +783,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about repeated rel variable in pattern expression") {
-    val query = "MATCH ()-[r]-() RETURN size( ()-[r]-()-[r]-() ) AS size"
+    val query = normalizeNewLines("MATCH ()-[r]-() RETURN size( ()-[r]-()-[r]-() ) AS size")
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -795,7 +795,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about repeated rel variable in pattern comprehension") {
-    val query = "MATCH ()-[r]-() RETURN [ ()-[r]-()-[r]-() | r ] AS rs"
+    val query = normalizeNewLines("MATCH ()-[r]-() RETURN [ ()-[r]-()-[r]-() | r ] AS rs")
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -824,13 +824,13 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about variable shadowing in a subquery") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)
         |CALL {
         |  MATCH (shadowed)-[:REL]->(m) // warning here
         |  RETURN m
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -842,7 +842,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about variable shadowing in a subquery when aliasing") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)
         |CALL {
         |  MATCH (n)-[:REL]->(m)
@@ -850,7 +850,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
         |  WITH shadowed AS m
         |  RETURN m
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -862,7 +862,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about variable shadowing in a nested subquery") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)
         |CALL {
         |  MATCH (n)-[:REL]->(m)
@@ -872,7 +872,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
         |  }
         |  RETURN m, x
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -884,7 +884,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about variable shadowing from enclosing subquery") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)
         |CALL {
         |  WITH shadowed
@@ -895,7 +895,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
         |  }
         |  RETURN m, x
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -907,13 +907,13 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about multiple shadowed variables in a subquery") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)-->(alsoShadowed)
         |CALL {
         |  MATCH (shadowed)-->(alsoShadowed) // multiple warnings here
         |  RETURN shadowed AS n, alsoShadowed AS m
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -928,7 +928,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about multiple shadowed variables in a nested subquery") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)
         |CALL {
         |  MATCH (shadowed)-[:REL]->(m) // warning here
@@ -938,7 +938,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
         |  }
         |  RETURN m, x
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -992,7 +992,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about variable shadowing in an union subquery") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)
         |CALL {
         |  MATCH (m) RETURN m
@@ -1000,7 +1000,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
         |  MATCH (shadowed)-[:REL]->(m) // warning here
         |  RETURN m
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
@@ -1012,7 +1012,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   test("Should warn about variable shadowing in one of the union subquery branches") {
-    val query =
+    val query = normalizeNewLines(
       """MATCH (shadowed)
         |CALL {
         |  WITH shadowed
@@ -1024,7 +1024,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
         | UNION
         |  MATCH (x) RETURN x AS m
         |}
-        |RETURN *""".stripMargin
+        |RETURN *""".stripMargin)
 
     val startState = initStartState(query, Map.empty)
     val context = new ErrorCollectingContext()
