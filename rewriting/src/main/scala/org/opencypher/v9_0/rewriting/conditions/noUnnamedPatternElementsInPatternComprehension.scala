@@ -18,11 +18,11 @@ package org.opencypher.v9_0.rewriting.conditions
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.RelationshipsPattern
-import org.opencypher.v9_0.rewriting.Condition
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 
-case object noUnnamedPatternElementsInPatternComprehension extends Condition {
+case object noUnnamedPatternElementsInPatternComprehension extends ValidatingCondition {
 
   override def name: String = productPrefix
 

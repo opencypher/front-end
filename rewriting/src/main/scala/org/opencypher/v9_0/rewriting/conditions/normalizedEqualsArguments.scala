@@ -20,9 +20,9 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.functions
-import org.opencypher.v9_0.rewriting.Condition
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 
-case object normalizedEqualsArguments extends Condition {
+case object normalizedEqualsArguments extends ValidatingCondition {
   def apply(that: Any): Seq[String] = {
     val equals = collectNodesOfType[Equals].apply(that)
     equals.collect {

@@ -18,11 +18,11 @@ package org.opencypher.v9_0.rewriting.conditions
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.IsAggregate
 import org.opencypher.v9_0.expressions.containsAggregate
-import org.opencypher.v9_0.rewriting.Condition
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 
-case object aggregationsAreIsolated extends Condition {
+case object aggregationsAreIsolated extends ValidatingCondition {
 
   def apply(that: Any): Seq[String] = that.treeFold(Seq.empty[String]) {
     case expr: Expression if hasAggregateButIsNotAggregate(expr) =>

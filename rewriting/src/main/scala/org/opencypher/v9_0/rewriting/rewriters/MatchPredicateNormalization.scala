@@ -17,26 +17,28 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Where
-import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.GreaterThan
-import org.opencypher.v9_0.expressions.NodePattern
-import org.opencypher.v9_0.expressions.Not
-import org.opencypher.v9_0.expressions.Or
-import org.opencypher.v9_0.expressions.PatternExpression
-import org.opencypher.v9_0.expressions.RelationshipChain
-import org.opencypher.v9_0.expressions.RelationshipPattern
-import org.opencypher.v9_0.expressions.RelationshipsPattern
-import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
-import org.opencypher.v9_0.expressions.functions.Exists
+import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.topDown
 
-abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer) extends Rewriter {
+case object NoPredicatesInNamedPartsOfMatchPattern extends StepSequencer.Condition
 
-  def apply(that: AnyRef): AnyRef = instance(that)
+abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer) extends RewritingStep {
+
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    noUnnamedPatternElementsInMatch // unnamed pattern cannot be rewritten, so they need to handled first
+  )
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(NoPredicatesInNamedPartsOfMatchPattern)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
 
   private val rewriter = Rewriter.lift {
     case m@Match(_, pattern, _, where) =>

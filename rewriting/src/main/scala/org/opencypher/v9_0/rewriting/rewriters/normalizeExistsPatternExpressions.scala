@@ -23,12 +23,14 @@ import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
-import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Size
-import org.opencypher.v9_0.rewriting.rewriters.simplifyPredicates
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols
+
+case object PatternExpressionAreWrappedInExists extends StepSequencer.Condition
 
 /**
   * Adds an exist around any pattern expression that is expected to produce a boolean e.g.
@@ -46,7 +48,14 @@ import org.opencypher.v9_0.util.symbols
  *
  * This rewriter needs to run before [[namePatternElements]], which rewrites pattern expressions. Otherwise we don't find them in the semantic table.
   */
-case class normalizeExistsPatternExpressions(semanticState: SemanticState) extends Rewriter {
+case class normalizeExistsPatternExpressions(semanticState: SemanticState) extends RewritingStep {
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(PatternExpressionAreWrappedInExists)
+
+  // TODO capture the dependency with simplifyPredicates
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
   private val instance = bottomUp(Rewriter.lift {
     case p: PatternExpression if semanticState.expressionType(p).expected.contains(symbols.CTBoolean.invariant) =>
@@ -61,5 +70,5 @@ case class normalizeExistsPatternExpressions(semanticState: SemanticState) exten
       Not(Exists(p)(p.position))(p.position)
   })
 
-  override def apply(v: AnyRef): AnyRef = instance(v)
+  override def rewrite(v: AnyRef): AnyRef = instance(v)
 }

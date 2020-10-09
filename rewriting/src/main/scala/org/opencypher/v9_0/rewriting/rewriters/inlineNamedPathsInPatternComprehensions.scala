@@ -20,10 +20,21 @@ import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.PathExpression
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
-case object inlineNamedPathsInPatternComprehensions extends Rewriter {
+case object NoNamedPathsInPatternComprehensions extends StepSequencer.Condition
+
+case object inlineNamedPathsInPatternComprehensions extends RewritingStep {
+
+  override def preConditions: Set[StepSequencer.Condition] = Set(noUnnamedPatternElementsInPatternComprehension)
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(NoNamedPathsInPatternComprehensions)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
   private val instance = bottomUp(Rewriter.lift {
     case expr @ PatternComprehension(Some(path), pattern, predicate, projection) =>
@@ -42,5 +53,5 @@ case object inlineNamedPathsInPatternComprehensions extends Rewriter {
       }
   }
 
-  override def apply(v: AnyRef): AnyRef = instance(v)
+  override def rewrite(v: AnyRef): AnyRef = instance(v)
 }

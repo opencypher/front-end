@@ -21,14 +21,28 @@ import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.topDown
 
-case class normalizeHasLabelsAndHasType(semanticState: SemanticState) extends Rewriter {
+case object HasLabelsOrTypesReplacedIfPossible extends StepSequencer.Condition
 
-  override def apply(that: AnyRef): AnyRef = instance(that)
+case class normalizeHasLabelsAndHasType(semanticState: SemanticState) extends RewritingStep {
+
+  // TODO this should be captured differently. This has an invalidated condition `ProjectionClausesHaveSemanticInfo`,
+  // which is a pre-condition of expandStar. It can invalidate this condition by rewriting things inside WITH/RETURN.
+  // But to do that we need a step that introduces that condition which would be SemanticAnalysis.
+  override def preConditions: Set[StepSequencer.Condition] = Set(containsNoReturnAll)
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(HasLabelsOrTypesReplacedIfPossible)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
 
   private val instance: Rewriter = topDown(Rewriter.lift {
     case p@HasLabelsOrTypes(e, labels) if semanticState.expressionType(e).actual == CTNode.invariant =>

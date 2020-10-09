@@ -25,12 +25,21 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
-case class expandStar(state: SemanticState) extends Rewriter {
+case class expandStar(state: SemanticState) extends RewritingStep {
 
-  def apply(that: AnyRef): AnyRef = instance(that)
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(containsNoReturnAll)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
   private val rewriter = Rewriter.lift {
     case clause@With(_, values, _, _, _, _) if values.includeExisting =>

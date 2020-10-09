@@ -15,30 +15,15 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.ast.AdministrationCommand
-import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.NotEquals
-import org.opencypher.v9_0.rewriting.RewriterCondition
-import org.opencypher.v9_0.rewriting.RewriterStep.enableCondition
-import org.opencypher.v9_0.rewriting.RewriterStepSequencer
-import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
-import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
-import org.opencypher.v9_0.rewriting.conditions.noDuplicatesInReturnItems
-import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
-import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
-import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
-import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
+import org.opencypher.v9_0.rewriting.RewritingStepSequencer
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
-import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
 import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
-import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.rewriting.rewriters.moveWithPastMatch
 import org.opencypher.v9_0.rewriting.rewriters.nameAllPatternElements
 import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
@@ -50,56 +35,37 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
-import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
 import org.opencypher.v9_0.util.CypherExceptionFactory
-import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.symbols.CypherType
 
-class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
-                  literalExtraction: LiteralExtraction,
-                  innerVariableNamer: InnerVariableNamer) {
+class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
 
   def rewrite(statement: Statement,
               semanticState: SemanticState,
               parameterTypeMapping: Map[String, CypherType],
-              cypherExceptionFactory: CypherExceptionFactory): (Statement, Map[String, Any], Set[RewriterCondition]) = {
+              cypherExceptionFactory: CypherExceptionFactory): Statement = {
 
-    val contract = rewriterSequencer("ASTRewriter")(
+    val orderedSteps = RewritingStepSequencer.orderSteps(Set(
       expandStar(semanticState),
       normalizeHasLabelsAndHasType(semanticState),
       desugarMapProjection(semanticState),
       moveWithPastMatch,
       normalizeComparisons,
-      enableCondition(noReferenceEqualityAmongVariables),
-      enableCondition(containsNoNodesOfType[UnaliasedReturnItem]),
-      enableCondition(noDuplicatesInReturnItems),
-      enableCondition(containsNoReturnAll),
       foldConstants(cypherExceptionFactory),
       normalizeExistsPatternExpressions(semanticState),
       nameAllPatternElements,
-      enableCondition(noUnnamedPatternElementsInMatch),
       normalizeMatchPredicates,
       normalizeNotEquals,
-      enableCondition(containsNoNodesOfType[NotEquals]),
       normalizeArgumentOrder,
       normalizeSargablePredicates,
-      enableCondition(normalizedEqualsArguments),
       AddUniquenessPredicates(innerVariableNamer),
       replaceLiteralDynamicPropertyLookups,
-      enableCondition(noUnnamedPatternElementsInPatternComprehension),
-      inlineNamedPathsInPatternComprehensions
-    )
+      inlineNamedPathsInPatternComprehensions,
+      parameterValueTypeReplacement(parameterTypeMapping),
+    ))
+    val combined = inSequence(orderedSteps: _*)
 
-    val rewrittenStatement = statement.endoRewrite(contract.rewriter)
-
-    val replaceParameterValueTypes = parameterValueTypeReplacement(rewrittenStatement, parameterTypeMapping)
-    val rewrittenStatementWithParameterTypes = rewrittenStatement.endoRewrite(replaceParameterValueTypes)
-    val (extractParameters, extractedParameters) = statement match {
-      case _ : AdministrationCommand => sensitiveLiteralReplacement(rewrittenStatementWithParameterTypes)
-      case _ : SchemaCommand => Rewriter.noop -> Map.empty[String, Any]
-      case _ => literalReplacement(rewrittenStatementWithParameterTypes, literalExtraction)
-    }
-
-    (rewrittenStatementWithParameterTypes.endoRewrite(extractParameters), extractedParameters, contract.postConditions)
+    statement.endoRewrite(combined)
   }
 }

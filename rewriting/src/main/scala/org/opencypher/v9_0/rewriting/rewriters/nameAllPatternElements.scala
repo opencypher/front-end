@@ -19,14 +19,30 @@ import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.util.NodeNameGenerator
 import org.opencypher.v9_0.util.RelNameGenerator
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
-case object nameAllPatternElements extends Rewriter {
+case object nameAllPatternElements extends RewritingStep {
 
-  override def apply(in: AnyRef): AnyRef = namingRewriter.apply(in)
+  // TODO this should be captured differently. This has an invalidated condition `PatternExpressionsHaveSemanticInfo`,
+  // which is a pre-condition of normalizeExistsPatternExpressions.
+  // But to do that we need a step that introduced that condition which would be SemanticAnalysis.
+  override def preConditions: Set[StepSequencer.Condition] = Set(PatternExpressionAreWrappedInExists)
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(
+    noUnnamedPatternElementsInMatch,
+    noUnnamedPatternElementsInPatternComprehension
+  )
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(that: AnyRef): AnyRef = namingRewriter.apply(that)
 
   private val namingRewriter: Rewriter = bottomUp(Rewriter.lift {
     case pattern: NodePattern if pattern.variable.isEmpty =>

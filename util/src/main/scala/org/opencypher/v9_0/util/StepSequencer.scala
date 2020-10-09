@@ -20,7 +20,6 @@ import org.opencypher.v9_0.util.StepSequencer.MutableDirectedGraph
 import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.StepSequencer.StepAccumulator
 
-import scala.collection.immutable.Set
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random

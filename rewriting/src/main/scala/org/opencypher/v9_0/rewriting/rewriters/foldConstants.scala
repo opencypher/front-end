@@ -35,12 +35,23 @@ import org.opencypher.v9_0.expressions.Subtract
 import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.expressions.UnaryAdd
 import org.opencypher.v9_0.expressions.UnarySubtract
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
-case class foldConstants(cypherExceptionFactory: CypherExceptionFactory) extends Rewriter {
-  def apply(that: AnyRef): AnyRef =
+case object ConstantNumberLiteralsFolded extends StepSequencer.Condition
+
+case class foldConstants(cypherExceptionFactory: CypherExceptionFactory) extends RewritingStep {
+
+  override def preConditions: Set[StepSequencer.Condition] = Set()
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(ConstantNumberLiteralsFolded)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(that: AnyRef): AnyRef =
   try {
     instance.apply(that)
   } catch {

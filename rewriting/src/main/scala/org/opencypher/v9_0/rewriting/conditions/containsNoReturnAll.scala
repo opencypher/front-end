@@ -16,9 +16,9 @@
 package org.opencypher.v9_0.rewriting.conditions
 
 import org.opencypher.v9_0.ast.ReturnItems
-import org.opencypher.v9_0.rewriting.Condition
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 
-case object containsNoReturnAll extends Condition {
+case object containsNoReturnAll extends ValidatingCondition {
   private val matcher = containsNoMatchingNodes({
     case ri: ReturnItems if ri.includeExisting => "ReturnItems(includeExisting = true, ...)"
   })

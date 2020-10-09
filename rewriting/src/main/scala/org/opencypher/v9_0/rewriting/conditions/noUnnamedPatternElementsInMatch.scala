@@ -18,9 +18,9 @@ package org.opencypher.v9_0.rewriting.conditions
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.RelationshipPattern
-import org.opencypher.v9_0.rewriting.Condition
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 
-case object noUnnamedPatternElementsInMatch extends Condition {
+case object noUnnamedPatternElementsInMatch extends ValidatingCondition {
   def apply(that: Any): Seq[String] = {
     val into = collectNodesOfType[Match].apply(that).map(_.pattern)
     into.flatMap(unnamedNodePatterns) ++ into.flatMap(unnamedRelationshipPatterns)

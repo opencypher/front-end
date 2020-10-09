@@ -15,12 +15,12 @@
  */
 package org.opencypher.v9_0.rewriting.conditions
 
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.rewriting.Condition
 
 import scala.reflect.ClassTag
 
-case class containsNoNodesOfType[T <: ASTNode](implicit tag: ClassTag[T]) extends Condition {
+case class containsNoNodesOfType[T <: ASTNode](implicit tag: ClassTag[T]) extends ValidatingCondition {
   def apply(that: Any): Seq[String] = collectNodesOfType[T].apply(that).map {
     node => s"Expected none but found ${node.getClass.getSimpleName} at position ${node.position}"
   }

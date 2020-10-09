@@ -17,7 +17,6 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
-import org.opencypher.v9_0.rewriting.RewriterStepSequencer
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.conditions.noDuplicatesInReturnItems
@@ -26,22 +25,17 @@ import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
-import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
 import org.opencypher.v9_0.util.symbols.CypherType
 
-case class AstRewriting(sequencer: String => RewriterStepSequencer,
-                        literalExtraction: LiteralExtraction,
-                        innerVariableNamer: InnerVariableNamer,
+case class AstRewriting(innerVariableNamer: InnerVariableNamer,
                         parameterTypeMapping : Map[String, CypherType] = Map.empty
 ) extends Phase[BaseContext, BaseState, BaseState] {
 
-  private val astRewriter = new ASTRewriter(sequencer, literalExtraction, innerVariableNamer)
+  private val astRewriter = new ASTRewriter(innerVariableNamer)
 
   override def process(in: BaseState, context: BaseContext): BaseState = {
-
-    val (rewrittenStatement, extractedParams, _) = astRewriter.rewrite(in.statement(), in.semantics(), parameterTypeMapping, context.cypherExceptionFactory)
-
-    in.withStatement(rewrittenStatement).withParams(extractedParams)
+    val rewrittenStatement = astRewriter.rewrite(in.statement(), in.semantics(), parameterTypeMapping, context.cypherExceptionFactory)
+    in.withStatement(rewrittenStatement)
   }
 
   override def phase = AST_REWRITE

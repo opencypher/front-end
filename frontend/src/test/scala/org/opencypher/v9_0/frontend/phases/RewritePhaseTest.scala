@@ -25,8 +25,6 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.helpers.TestContext
 import org.opencypher.v9_0.parser.ParserFixture.parser
-import org.opencypher.v9_0.rewriting.RewriterStepSequencer
-import org.opencypher.v9_0.rewriting.rewriters.Never
 import org.opencypher.v9_0.rewriting.rewriters.SameNameNamer
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -55,7 +53,7 @@ trait RewritePhaseTest {
     override def version: String = "fake"
   }
 
-  val astRewriter = new ASTRewriter(RewriterStepSequencer.newValidating, Never, innerVariableNamer = SameNameNamer)
+  val astRewriter = new ASTRewriter(innerVariableNamer = SameNameNamer)
 
   def assertNotRewritten(from: String): Unit = assertRewritten(from, from)
 
@@ -85,8 +83,7 @@ trait RewritePhaseTest {
     val exceptionFactory = OpenCypherExceptionFactory(None)
     val parsedAst = parser.parse(queryText, exceptionFactory)
     val cleanedAst = parsedAst.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger)))
-    val (rewrittenAst, _, _) = astRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory)
-    rewrittenAst
+    astRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory)
   }
 
  def prepareFrom(from: String, features: SemanticFeature*): BaseState = {

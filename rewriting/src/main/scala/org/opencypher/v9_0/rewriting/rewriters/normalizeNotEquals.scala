@@ -18,12 +18,21 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.NotEquals
+import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.topDown
 
-case object normalizeNotEquals extends Rewriter {
+case object normalizeNotEquals extends RewritingStep {
 
-  override def apply(that: AnyRef): AnyRef = instance(that)
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(containsNoNodesOfType[NotEquals])
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
 
   private val instance: Rewriter = topDown(Rewriter.lift {
     case p @ NotEquals(lhs, rhs) =>

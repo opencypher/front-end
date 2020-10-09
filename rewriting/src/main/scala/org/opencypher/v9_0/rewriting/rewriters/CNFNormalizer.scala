@@ -25,9 +25,11 @@ import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.inSequence
@@ -123,9 +125,17 @@ object simplifyPredicates extends Rewriter {
   private val instance = fixedPoint(bottomUp(step))
 }
 
-case object normalizeSargablePredicates extends Rewriter {
+case object NoInequalityInsideNot extends StepSequencer.Condition
 
-  override def apply(that: AnyRef): AnyRef = instance(that)
+case object normalizeSargablePredicates extends RewritingStep {
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(NoInequalityInsideNot)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
 
   private val instance: Rewriter = topDown(Rewriter.lift {
 

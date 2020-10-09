@@ -16,9 +16,9 @@
 package org.opencypher.v9_0.rewriting.conditions
 
 import org.opencypher.v9_0.ast.ReturnItems
-import org.opencypher.v9_0.rewriting.Condition
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 
-case object noDuplicatesInReturnItems extends Condition {
+case object noDuplicatesInReturnItems extends ValidatingCondition {
   def apply(that: Any): Seq[String] = {
     val returnItems = collectNodesOfType[ReturnItems].apply(that)
     returnItems.collect {

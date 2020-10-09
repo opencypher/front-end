@@ -20,7 +20,7 @@ import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.Forced
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
-import org.opencypher.v9_0.rewriting.rewriters.LiteralExtraction
+import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
@@ -133,7 +133,7 @@ class LiteralReplacementTest extends CypherFunSuite  {
     assertRewrite(query, query, Map.empty)
   }
 
-  private def assertRewrite(originalQuery: String, expectedQuery: String, replacements: Map[String, Any], extractLiterals: LiteralExtraction = IfNoParameter) {
+  private def assertRewrite(originalQuery: String, expectedQuery: String, replacements: Map[String, Any], extractLiterals: LiteralExtractionStrategy = IfNoParameter) {
     val exceptionFactory = OpenCypherExceptionFactory(None)
     val original = parser.parse(originalQuery, exceptionFactory)
     val expected = parser.parse(expectedQuery, exceptionFactory)

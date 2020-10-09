@@ -34,16 +34,31 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.ScopeExpression
 import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
+import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
-case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = SameNameNamer) extends Rewriter {
+case object RelationshipUniquenessPredicatesInMatchAndMerge extends StepSequencer.Condition
 
-  def apply(that: AnyRef): AnyRef = instance(that)
+case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = SameNameNamer) extends RewritingStep {
+
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    noUnnamedPatternElementsInMatch,
+    noUnnamedPatternElementsInPatternComprehension
+  )
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(RelationshipUniquenessPredicatesInMatchAndMerge)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
 
   private val rewriter = Rewriter.lift {
     case m@Match(_, pattern: Pattern, _, where: Option[Where]) =>
