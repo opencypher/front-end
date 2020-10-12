@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
+import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.symbols.CTRelationship
@@ -32,6 +33,6 @@ case class normalizeHasLabelsAndHasType(semanticState: SemanticState) extends Re
     case p@HasLabelsOrTypes(e, labels) =>
       if (semanticState.expressionType(e).actual == CTRelationship.invariant) HasTypes(e, labels.map(l => RelTypeName(l.name)(l.position)))(p.position)
       //we don't need to check if it is a node here, if not it will fail in semantic checking
-      else HasLabels(e, labels)(p.position)
+      else HasLabels(e, labels.map(l => LabelName(l.name)(l.position)))(p.position)
   })
 }
