@@ -35,3 +35,5 @@ case class LabelName(name: String)(val position: InputPosition) extends Symbolic
 case class PropertyKeyName(name: String)(val position: InputPosition) extends SymbolicName
 
 case class RelTypeName(name: String)(val position: InputPosition) extends SymbolicName
+
+case class LabelOrRelTypeName(name: String)(val position: InputPosition) extends SymbolicName

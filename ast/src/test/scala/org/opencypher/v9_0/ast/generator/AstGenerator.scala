@@ -260,6 +260,7 @@ import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.IterablePredicateExpression
 import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
 import org.opencypher.v9_0.expressions.ListComprehension
@@ -421,6 +422,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _relTypeName: Gen[RelTypeName] =
     _identifier.map(RelTypeName(_)(pos))
 
+  def _labelOrTypeName: Gen[LabelOrRelTypeName] =
+    _identifier.map(LabelOrRelTypeName(_)(pos))
+
   def _propertyKeyName: Gen[PropertyKeyName] =
     _identifier.map(PropertyKeyName(_)(pos))
 
@@ -555,7 +559,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _hasLabelsOrTypes: Gen[HasLabelsOrTypes] = for {
     expression <- _expression
-    labels <- oneOrMore(_labelName)
+    labels <- oneOrMore(_labelOrTypeName)
   } yield HasLabelsOrTypes(expression, labels)(pos)
 
   // Collections
