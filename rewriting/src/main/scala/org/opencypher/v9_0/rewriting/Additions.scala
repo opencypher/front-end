@@ -36,6 +36,7 @@ import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.ShowCurrentUser
+import org.opencypher.v9_0.ast.ShowIndexes
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
@@ -129,6 +130,10 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Multiple users in SHOW USER PRIVILEGE command is not supported in this Cypher version.", s.position)
 
       case d: DefaultGraphScope => throw cypherExceptionFactory.syntaxException("Default graph is not supported in this Cypher version.", d.position)
+
+        // SHOW INDEXES
+      case s@ShowIndexes(_, _, _) =>
+        throw cypherExceptionFactory.syntaxException("SHOW INDEXES is not supported in this Cypher version.", s.position)
 
       // GRANT EXECUTE [BOOSTED|ADMIN] PROCEDURES ...
       case p@GrantPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>

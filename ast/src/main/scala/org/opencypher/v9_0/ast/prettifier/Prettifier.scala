@@ -130,6 +130,7 @@ import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowIndexes
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivilegeScope
 import org.opencypher.v9_0.ast.ShowPrivileges
@@ -226,6 +227,11 @@ case class Prettifier(
       case DropIndexOnName(name, ifExists, _) =>
         val ifExistsString = if (ifExists) " IF EXISTS" else ""
         s"DROP INDEX ${backtick(name)}$ifExistsString"
+
+      case ShowIndexes(all, verbose, _) =>
+        val indexType = if (all) "ALL" else "BTREE"
+        val indexOutput = if (verbose) "VERBOSE" else "BRIEF"
+        s"SHOW $indexType INDEXES $indexOutput"
 
       case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "CONSTRAINT")

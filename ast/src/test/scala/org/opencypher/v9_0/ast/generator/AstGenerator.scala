@@ -177,6 +177,7 @@ import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowIndexes
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
@@ -1177,6 +1178,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     use       <- option(_use)
     command   <- oneOf(CreateIndexOldSyntax(labelName, props, use)(pos), DropIndex(labelName, props, use)(pos))
   } yield command
+
+  def _showIndexes: Gen[ShowIndexes] = for {
+    all     <- boolean
+    verbose <- boolean
+  }  yield ShowIndexes(all, verbose)(pos)
 
   def _createConstraint: Gen[SchemaCommand] = for {
     variable            <- _variable
