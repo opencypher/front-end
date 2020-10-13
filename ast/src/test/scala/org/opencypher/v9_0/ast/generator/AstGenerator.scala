@@ -180,10 +180,12 @@ import org.opencypher.v9_0.ast.SetPropertyAction
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
+import org.opencypher.v9_0.ast.ShowConstraintAction
 import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowIndexAction
 import org.opencypher.v9_0.ast.ShowIndexes
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
@@ -1371,8 +1373,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _databaseAction: Gen[DatabaseAction] = oneOf(
     StartDatabaseAction, StopDatabaseAction,
     AllDatabaseAction, AccessDatabaseAction,
-    AllIndexActions, CreateIndexAction, DropIndexAction,
-    AllConstraintActions, CreateConstraintAction, DropConstraintAction,
+    AllIndexActions, CreateIndexAction, DropIndexAction, ShowIndexAction,
+    AllConstraintActions, CreateConstraintAction, DropConstraintAction, ShowConstraintAction,
     AllTokenActions, CreateNodeLabelAction, CreateRelationshipTypeAction, CreatePropertyKeyAction,
     AllTransactionActions, ShowTransactionAction, TerminateTransactionAction
   )
