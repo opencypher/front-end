@@ -36,6 +36,7 @@ import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.ShowCurrentUser
+import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowUsersPrivileges
@@ -110,6 +111,9 @@ object Additions {
 
     override def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit = statement.treeExists {
 
+      case s@ShowPrivilegeCommands(_, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("SHOW PRIVILEGES AS COMMANDS command is not supported in this Cypher version.", s.position)
+
       case c@CreateUser(_, true, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("Creating a user with an encrypted password is not supported in this Cypher version.", c.position)
 
@@ -117,11 +121,11 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Updating a user with an encrypted password is not supported in this Cypher version.", c.position)
 
       // SHOW ROLE role1, role2 PRIVILEGES
-      case s@ShowPrivileges(ShowRolesPrivileges(r), _, _,_) if r.size > 1 =>
+      case s@ShowPrivileges(ShowRolesPrivileges(r), _, _) if r.size > 1 =>
         throw cypherExceptionFactory.syntaxException("Multiple roles in SHOW ROLE PRIVILEGE command is not supported in this Cypher version.", s.position)
 
       // SHOW USER user1, user2 PRIVILEGES
-      case s@ShowPrivileges(ShowUsersPrivileges(u), _, _,_) if u.size > 1 =>
+      case s@ShowPrivileges(ShowUsersPrivileges(u), _, _) if u.size > 1 =>
         throw cypherExceptionFactory.syntaxException("Multiple users in SHOW USER PRIVILEGE command is not supported in this Cypher version.", s.position)
 
       case d: DefaultGraphScope => throw cypherExceptionFactory.syntaxException("Default graph is not supported in this Cypher version.", d.position)
