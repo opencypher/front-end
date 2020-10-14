@@ -139,8 +139,8 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
   // yield / skip / limit / order by / where
 
   Seq(
-    ("AS COMMANDS", false),
-    ("AS REVOKE COMMANDS", true),
+    (" AS COMMANDS", false),
+    (" AS REVOKE COMMANDS", true),
     ("", false)
   ).foreach { case (optionalAsRev: String, asRev) =>
     Seq(
@@ -152,7 +152,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
       ("ROLE $role, reader", ast.ShowRolesPrivileges(List(paramRole, literal("reader")))(pos))
     ).foreach { case (privType, privilege) =>
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "WHERE access = 'GRANTED'").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev WHERE access = 'GRANTED'") {
         if (optionalAsRev.isEmpty) {
           yields(ast.ShowPrivileges(privilege, Some(Right(where(equals(accessVar, grantedString))))))
         } else {
@@ -160,7 +160,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "WHERE access = 'GRANTED' AND action = 'match'").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev WHERE access = 'GRANTED' AND action = 'match'") {
         val accessPredicate = equals(accessVar, grantedString)
         val matchPredicate = equals(varFor(actionString), literalString("match"))
         if (optionalAsRev.isEmpty) {
@@ -170,7 +170,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD access ORDER BY access").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD access ORDER BY access") {
         val orderByClause = orderBy(sortItem(accessVar))
         val columns = yieldClause(returnItems(variableReturnItem(accessString)), Some(orderByClause))
         if (optionalAsRev.isEmpty) {
@@ -180,7 +180,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD access ORDER BY access WHERE access ='none'").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD access ORDER BY access WHERE access ='none'") {
         val orderByClause = orderBy(sortItem(accessVar))
         val whereClause = where(equals(accessVar, noneString))
         val columns = yieldClause(returnItems(variableReturnItem(accessString)), Some(orderByClause), where = Some(whereClause))
@@ -191,7 +191,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD access ORDER BY access SKIP 1 LIMIT 10 WHERE access ='none'").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD access ORDER BY access SKIP 1 LIMIT 10 WHERE access ='none'") {
         val orderByClause = orderBy(sortItem(accessVar))
         val whereClause = where(equals(accessVar, noneString))
         val columns = yieldClause(returnItems(variableReturnItem(accessString)), Some(orderByClause),
@@ -203,7 +203,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD access SKIP -1").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD access SKIP -1") {
         val columns = yieldClause(returnItems(variableReturnItem(accessString)), skip = Some(skip(-1)))
         if (optionalAsRev.isEmpty) {
           yields(ast.ShowPrivileges(privilege, Some(Left(columns, None))))
@@ -212,7 +212,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD access, action RETURN access, count(action) ORDER BY access").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD access, action RETURN access, count(action) ORDER BY access") {
         val orderByClause = orderBy(sortItem(accessVar))
         val accessColumn = variableReturnItem(accessString)
         val actionColumn = variableReturnItem(actionString)
@@ -226,7 +226,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD access, action SKIP 1 RETURN access, action").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD access, action SKIP 1 RETURN access, action") {
         val returnItemsPart = returnItems(variableReturnItem(accessString), variableReturnItem(actionString))
         if (optionalAsRev.isEmpty) {
           yields(ast.ShowPrivileges(privilege,
@@ -242,7 +242,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
         }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD access, action WHERE access = 'none' RETURN action").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD access, action WHERE access = 'none' RETURN action") {
         val accessColumn = variableReturnItem(accessString)
         val actionColumn = variableReturnItem(actionString)
         val whereClause = where(equals(accessVar, noneString))
@@ -260,7 +260,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
           }
       }
 
-      test(Seq("SHOW", privType, "PRIVILEGES", optionalAsRev, "YIELD * RETURN *").mkString(" ")) {
+      test(s"SHOW ${privType} PRIVILEGES$optionalAsRev YIELD * RETURN *") {
         if (optionalAsRev.isEmpty) {
           yields(ast.ShowPrivileges(privilege, Some(Left((yieldClause(returnAllItems), Some(returnClause(returnAllItems)))))))
         } else {
