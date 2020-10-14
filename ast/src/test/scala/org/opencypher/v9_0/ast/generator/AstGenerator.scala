@@ -1182,7 +1182,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _showIndexes: Gen[ShowIndexes] = for {
     all     <- boolean
     verbose <- boolean
-  }  yield ShowIndexes(all, verbose)(pos)
+    use <- option(_use)
+  }  yield ShowIndexes(all, verbose, use)(pos)
 
   def _createConstraint: Gen[SchemaCommand] = for {
     variable            <- _variable
@@ -1223,7 +1224,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     use      <- option(_use)
   } yield DropConstraintOnName(name, ifExists, use)(pos)
 
-  def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex, _indexCommandsOldSyntax)
+  def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex, _indexCommandsOldSyntax, _showIndexes)
 
   def _constraintCommand: Gen[SchemaCommand] = oneOf(_createConstraint, _dropConstraint, _dropConstraintOldSyntax)
 
