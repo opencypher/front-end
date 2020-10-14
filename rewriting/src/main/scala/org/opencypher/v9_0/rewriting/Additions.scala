@@ -35,6 +35,7 @@ import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.RevokePrivilege
+import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowUsersPrivileges
@@ -178,6 +179,9 @@ object Additions {
       // CREATE CONSTRAINT ... IS UNIQUE OPTIONS {...}
       case c@CreateUniquePropertyConstraint(_, _, _, _, _, options, _) if options.nonEmpty =>
         throw cypherExceptionFactory.syntaxException("Creating uniqueness constraint with options is not supported in this Cypher version.", c.position)
+
+      // SHOW CURRENT USER
+      case s: ShowCurrentUser => throw cypherExceptionFactory.syntaxException("SHOW CURRENT USER is not supported in this Cypher version.", s.position)
     }
   }
 }

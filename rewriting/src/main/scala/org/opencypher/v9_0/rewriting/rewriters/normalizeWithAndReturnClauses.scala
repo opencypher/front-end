@@ -24,6 +24,7 @@ import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.QueryPart
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoles
@@ -74,6 +75,10 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
         .withGraph(s.useGraph)
 
     case s@ShowDatabase(_, Some(Left((yields, returns))),_) =>
+      s.copy(yieldOrWhere = Some(Left(addAliasesToYield(yields),returns.map(addAliasesToReturn))))(s.position)
+        .withGraph(s.useGraph)
+
+    case s@ShowCurrentUser(Some(Left((yields, returns))),_) =>
       s.copy(yieldOrWhere = Some(Left(addAliasesToYield(yields),returns.map(addAliasesToReturn))))(s.position)
         .withGraph(s.useGraph)
 

@@ -128,6 +128,7 @@ import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.ShowAllPrivileges
+import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeScope
 import org.opencypher.v9_0.ast.ShowPrivileges
@@ -276,6 +277,10 @@ case class Prettifier(
     val commandString = adminCommand match {
 
       case x @ ShowUsers(yields,_) =>
+        val (y: String, r: String) = showClausesAsString(yields)
+        s"${x.name}$y$r"
+
+      case x @ ShowCurrentUser(yields,_) =>
         val (y: String, r: String) = showClausesAsString(yields)
         s"${x.name}$y$r"
 

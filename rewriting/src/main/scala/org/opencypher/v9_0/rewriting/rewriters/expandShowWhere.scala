@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoles
@@ -32,6 +33,7 @@ case object expandShowWhere extends Rewriter {
       case s @ ShowRoles(_, _, Some(Right(where)), _) => s.copy(yieldOrWhere = Some(Left((whereToYield(where), None))))(s.position)
       case s @ ShowPrivileges(_, Some(Right(where)),_) => s.copy(yieldOrWhere = Some(Left((whereToYield(where), None))))(s.position)
       case s @ ShowUsers(Some(Right(where)),_) => s.copy(yieldOrWhere = Some(Left((whereToYield(where), None))))(s.position)
+      case s @ ShowCurrentUser(Some(Right(where)),_) => s.copy(yieldOrWhere = Some(Left((whereToYield(where), None))))(s.position)
     })
 
     private def whereToYield(where: Where): Yield =
