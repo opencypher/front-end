@@ -84,7 +84,15 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
     yields(ast.ShowPrivilegeCommands(ast.ShowAllPrivileges()(pos), asRevoke = false, None))
   }
 
+  test("SHOW PRIVILEGES AS COMMANDS") {
+    yields(ast.ShowPrivilegeCommands(ast.ShowAllPrivileges()(pos), asRevoke = false, None))
+  }
+
   test("SHOW PRIVILEGES AS REVOKE COMMAND") {
+    yields(ast.ShowPrivilegeCommands(ast.ShowAllPrivileges()(pos), asRevoke = true, None))
+  }
+
+  test("SHOW PRIVILEGES AS REVOKE COMMANDS") {
     yields(ast.ShowPrivilegeCommands(ast.ShowAllPrivileges()(pos), asRevoke = true, None))
   }
 
@@ -92,11 +100,11 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
     yields(ast.ShowPrivilegeCommands(ast.ShowAllPrivileges()(pos), asRevoke = false, None))
   }
 
-  test("SHOW ALL PRIVILEGES AS REVOKE COMMAND") {
+  test("SHOW ALL PRIVILEGES AS REVOKE COMMANDS") {
     yields(ast.ShowPrivilegeCommands(ast.ShowAllPrivileges()(pos), asRevoke = true, None))
   }
 
-  test("SHOW USER user PRIVILEGES AS COMMAND") {
+  test("SHOW USER user PRIVILEGES AS COMMANDS") {
     yields(ast.ShowPrivilegeCommands(ast.ShowUsersPrivileges(List(literalUser))(pos), asRevoke = false, None))
   }
 
@@ -104,11 +112,11 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
     yields(ast.ShowPrivilegeCommands(ast.ShowUsersPrivileges(List(paramUser))(pos), asRevoke = true, None))
   }
 
-  test("SHOW USER `us%er` PRIVILEGES AS COMMAND") {
+  test("SHOW USER `us%er` PRIVILEGES AS COMMANDS") {
     yields(ast.ShowPrivilegeCommands(ast.ShowUsersPrivileges(List(literal("us%er")))(pos), asRevoke = false, None))
   }
 
-  test("SHOW USER user, $user PRIVILEGES AS REVOKE COMMAND") {
+  test("SHOW USER user, $user PRIVILEGES AS REVOKE COMMANDS") {
     yields(ast.ShowPrivilegeCommands(ast.ShowUsersPrivileges(List(literalUser, paramUser))(pos), asRevoke = true, None))
   }
 
@@ -116,11 +124,11 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
     yields(ast.ShowPrivilegeCommands(ast.ShowUserPrivileges(None)(pos), asRevoke = false, None))
   }
 
-  test("SHOW USERS PRIVILEGES AS REVOKE COMMAND") {
+  test("SHOW USERS PRIVILEGES AS REVOKE COMMANDS") {
     yields(ast.ShowPrivilegeCommands(ast.ShowUserPrivileges(None)(pos), asRevoke = true, None))
   }
 
-  test("SHOW ROLE role PRIVILEGES AS COMMAND") {
+  test("SHOW ROLE role PRIVILEGES AS COMMANDS") {
     yields(ast.ShowPrivilegeCommands(ast.ShowRolesPrivileges(List(literalRole))(pos), asRevoke = false, None))
   }
 
@@ -131,8 +139,8 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
   // yield / skip / limit / order by / where
 
   Seq(
-    ("AS COMMAND", false),
-    ("AS REVOKE COMMAND", true),
+    ("AS COMMANDS", false),
+    ("AS REVOKE COMMANDS", true),
     ("", false)
   ).foreach { case (optionalAsRev: String, asRev) =>
     Seq(
@@ -306,11 +314,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
     failsToParse
   }
 
-  test("SHOW PRIVILEGES AS COMMANDS") {
-    failsToParse
-  }
-
-  test("SHOW PRIVILEGES COMMAND") {
+  test("SHOW PRIVILEGES COMMANDS") {
     failsToParse
   }
 
@@ -318,15 +322,15 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationComman
     failsToParse
   }
 
-  test("SHOW PRIVILEGES AS REVOKE COMMAND COMMAND") {
+  test("SHOW PRIVILEGES AS REVOKE COMMAND COMMANDS") {
     failsToParse
   }
 
-  test("SHOW PRIVILEGES AS COMMAND REVOKE") {
+  test("SHOW PRIVILEGES AS COMMANDS REVOKE") {
     failsToParse
   }
 
-  test("SHOW PRIVILEGES AS COMMAND USER user") {
+  test("SHOW PRIVILEGES AS COMMANDS USER user") {
     failsToParse
   }
 }
