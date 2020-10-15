@@ -16,7 +16,13 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.ExistsConstraints
+import org.opencypher.v9_0.ast.NodeExistsConstraints
+import org.opencypher.v9_0.ast.NodeKeyConstraints
+import org.opencypher.v9_0.ast.RelExistsConstraints
+import org.opencypher.v9_0.ast.UniqueConstraints
 import org.parboiled.scala.Rule1
 
 class ShowSchemaCommandParserTest
@@ -79,7 +85,7 @@ class ShowSchemaCommandParserTest
     }
   }
 
-  // Negative tests
+  // Negative tests for show indexes
 
   test("SHOW ALL BTREE INDEXES") {
     failsToParse
@@ -93,7 +99,7 @@ class ShowSchemaCommandParserTest
     failsToParse
   }
 
-  // Filtering is not supported
+  // Show indexes filtering is not supported
 
   test("SHOW INDEX WHERE uniqueness = 'UNIQUE'") {
     failsToParse
@@ -106,4 +112,121 @@ class ShowSchemaCommandParserTest
   test("SHOW BTREE INDEXES YIELD *") {
     failsToParse
   }
+
+  // Show constraints
+
+  Seq("CONSTRAINT", "CONSTRAINTS").foreach {
+    constraintKeyword =>
+
+      Seq(
+        ("", false),
+        (" BRIEF", false),
+        (" BRIEF OUTPUT", false),
+        (" VERBOSE", true),
+        (" VERBOSE OUTPUT", true)
+      ).foreach {
+        case (indexOutput, verbose) =>
+
+          test(s"SHOW $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = AllConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW ALL $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = AllConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW UNIQUE $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = UniqueConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW EXIST $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = ExistsConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW EXISTS $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = ExistsConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW NODE EXIST $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = NodeExistsConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW NODE EXISTS $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = NodeExistsConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW RELATIONSHIP EXIST $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = RelExistsConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW RELATIONSHIP EXISTS $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = RelExistsConstraints, verbose = verbose))
+          }
+
+          test(s"SHOW NODE KEY $constraintKeyword$indexOutput") {
+            yields(ast.ShowConstraints(constraintType = NodeKeyConstraints, verbose = verbose))
+          }
+      }
+  }
+
+  // Negative tests for show constraints
+
+  test("SHOW ALL EXISTS CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW UNIQUENESS CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW NODE CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW EXISTS NODE CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW NODES EXIST CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW RELATIONSHIP CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW EXISTS RELATIONSHIP CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW RELATIONSHIPS EXIST CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW KEY CONSTRAINTS") {
+    failsToParse
+  }
+
+  test("SHOW CONSTRAINTS OUTPUT") {
+    failsToParse
+  }
+
+  test("SHOW CONSTRAINTS VERBOSE BRIEF OUTPUT") {
+    failsToParse
+  }
+
+  // Show constraints filtering is not supported
+
+  test("SHOW CONSTRAINTS WHERE uniqueness = 'UNIQUE'") {
+    failsToParse
+  }
+
+  test("SHOW ALL CONSTRAINTS YIELD populationPercent") {
+    failsToParse
+  }
+
+  test("SHOW EXISTS CONSTRAINTS VERBOSE YIELD *") {
+    failsToParse
+  }
+
 }

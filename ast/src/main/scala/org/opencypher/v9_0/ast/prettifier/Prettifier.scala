@@ -128,6 +128,7 @@ import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.ShowAllPrivileges
+import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexes
@@ -264,6 +265,10 @@ case class Prettifier(
       case DropConstraintOnName(name, ifExists, _) =>
         val ifExistsString = if (ifExists) " IF EXISTS" else ""
         s"DROP CONSTRAINT ${backtick(name)}$ifExistsString"
+
+      case ShowConstraints(constraintType, verbose, _) =>
+        val output = if (verbose) "VERBOSE" else "BRIEF"
+        s"SHOW ${constraintType.name} CONSTRAINTS $output"
 
       case _ => throw new IllegalStateException(s"Unknown command: $command")
     }

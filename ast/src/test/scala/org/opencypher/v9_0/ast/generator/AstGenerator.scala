@@ -23,6 +23,7 @@ import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllConstraintActions
+import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AllDatabaseAction
 import org.opencypher.v9_0.ast.AllDatabaseManagementActions
 import org.opencypher.v9_0.ast.AllDatabasesQualifier
@@ -99,6 +100,7 @@ import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteFunctionAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
+import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.FunctionQualifier
@@ -127,6 +129,8 @@ import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
+import org.opencypher.v9_0.ast.NodeExistsConstraints
+import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
@@ -140,6 +144,7 @@ import org.opencypher.v9_0.ast.PropertiesResource
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.QueryPart
 import org.opencypher.v9_0.ast.ReadAction
+import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
@@ -175,6 +180,8 @@ import org.opencypher.v9_0.ast.SetPropertyAction
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
+import org.opencypher.v9_0.ast.ShowConstraintType
+import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexes
@@ -208,6 +215,7 @@ import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Union
 import org.opencypher.v9_0.ast.UnionAll
 import org.opencypher.v9_0.ast.UnionDistinct
+import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
@@ -1156,6 +1164,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     props <- oneOrMore(_variableProperty)
   } yield props
 
+  def _constraintType: Gen[ShowConstraintType] =
+    oneOf(AllConstraints, UniqueConstraints, ExistsConstraints, NodeExistsConstraints, RelExistsConstraints, NodeKeyConstraints)
+
   def _createIndex: Gen[CreateIndex] = for {
     variable   <- _variable
     labelName  <- _labelName
@@ -1224,9 +1235,15 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     use      <- option(_use)
   } yield DropConstraintOnName(name, ifExists, use)(pos)
 
+  def _showConstraints: Gen[ShowConstraints] = for {
+    constraintType <- _constraintType
+    verbose <- boolean
+    use <- option(_use)
+  }  yield ShowConstraints(constraintType, verbose, use)(pos)
+
   def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex, _indexCommandsOldSyntax, _showIndexes)
 
-  def _constraintCommand: Gen[SchemaCommand] = oneOf(_createConstraint, _dropConstraint, _dropConstraintOldSyntax)
+  def _constraintCommand: Gen[SchemaCommand] = oneOf(_createConstraint, _dropConstraint, _dropConstraintOldSyntax, _showConstraints)
 
   def _schemaCommand: Gen[SchemaCommand] = oneOf(_indexCommand, _constraintCommand)
 
