@@ -751,7 +751,7 @@ class PrettifierIT extends CypherFunSuite {
       "show all privileges" ->
         "SHOW ALL PRIVILEGES",
 
-      "show privileges where action = 'match'" ->
+      "show privilege where action = 'match'" ->
         """SHOW ALL PRIVILEGES
           |  WHERE action = "match"""".stripMargin,
 
@@ -780,7 +780,7 @@ class PrettifierIT extends CypherFunSuite {
       "show  users `$aB%x`  privileges" ->
         "SHOW USER `$aB%x` PRIVILEGES",
 
-      "show user `$user` privileges" ->
+      "show user `$user` privilege" ->
         "SHOW USER `$user` PRIVILEGES",
 
       "show user $user privileges" ->
@@ -795,7 +795,7 @@ class PrettifierIT extends CypherFunSuite {
       "show user privileges" ->
         "SHOW USER PRIVILEGES",
 
-      "show users privileges" ->
+      "show users privilege" ->
         "SHOW USER PRIVILEGES",
 
       "show role abc privileges" ->
@@ -813,25 +813,25 @@ class PrettifierIT extends CypherFunSuite {
       "show role $role1,abc, $role2 privileges" ->
         "SHOW ROLES $role1, abc, $role2 PRIVILEGES",
 
-      "show roles $role1,abc, $role2,$role3 privileges" ->
+      "show roles $role1,abc, $role2,$role3 privilege" ->
         "SHOW ROLES $role1, abc, $role2, $role3 PRIVILEGES",
 
       "show privileges as command" ->
         "SHOW ALL PRIVILEGES AS COMMANDS",
 
-      "show privileges as commands" ->
+      "show privilege as commands" ->
         "SHOW ALL PRIVILEGES AS COMMANDS",
 
       "show privileges as revoke command" ->
         "SHOW ALL PRIVILEGES AS REVOKE COMMANDS",
 
-      "show user privileges as revoke command" ->
+      "show user privilege as revoke command" ->
         "SHOW USER PRIVILEGES AS REVOKE COMMANDS",
 
       "show user user privileges as command" ->
         "SHOW USER user PRIVILEGES AS COMMANDS",
 
-"show user $bar privileges as command" ->
+      "show user $bar privilege as command" ->
         "SHOW USER $bar PRIVILEGES AS COMMANDS",
         
       "show user foo, $bar privileges as command" ->
@@ -840,7 +840,7 @@ class PrettifierIT extends CypherFunSuite {
       "show role role privileges as revoke command" ->
         "SHOW ROLE role PRIVILEGES AS REVOKE COMMANDS",
 
-"show role $bar privileges as command" ->
+      "show role $bar privilege as command" ->
         "SHOW ROLE $bar PRIVILEGES AS COMMANDS",
 
       "show role foo, $bar privileges as command" ->

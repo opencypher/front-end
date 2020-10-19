@@ -228,10 +228,10 @@ trait Statement extends Parser
   }
 
   private def ScopeForShowPrivileges: Rule1[ast.ShowPrivilegeScope] = rule("show privilege scope") {
-    group(RoleKeyword ~~ SymbolicNameOrStringParameterList ~~ keyword("PRIVILEGES")) ~~>> (ast.ShowRolesPrivileges(_)) |
-    group(UserKeyword ~~ SymbolicNameOrStringParameterList ~~ keyword("PRIVILEGES")) ~~>> (ast.ShowUsersPrivileges(_)) |
-    group(UserKeyword ~~ keyword("PRIVILEGES")) ~~~> ast.ShowUserPrivileges(None) |
-    optional(keyword("ALL")) ~~ keyword("PRIVILEGES") ~~~> ast.ShowAllPrivileges()
+    group(RoleKeyword ~~ SymbolicNameOrStringParameterList ~~ PrivilegeKeyword) ~~>> (ast.ShowRolesPrivileges(_)) |
+    group(UserKeyword ~~ SymbolicNameOrStringParameterList ~~ PrivilegeKeyword) ~~>> (ast.ShowUsersPrivileges(_)) |
+    group(UserKeyword ~~ PrivilegeKeyword) ~~~> ast.ShowUserPrivileges(None) |
+    optional(keyword("ALL")) ~~ PrivilegeKeyword ~~~> ast.ShowAllPrivileges()
   }
 
   private def asCommand: Rule1[Boolean] = rule("AS COMMANDS") {
@@ -571,6 +571,8 @@ trait Statement extends Parser
   private def RoleKeyword: Rule0 = keyword("ROLES") | keyword("ROLE")
 
   private def UserKeyword: Rule0 = keyword("USERS") | keyword("USER")
+
+  private def PrivilegeKeyword: Rule0 = keyword("PRIVILEGES") | keyword("PRIVILEGE")
 
   // Dbms specific
 
