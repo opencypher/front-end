@@ -29,13 +29,18 @@ import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.bottomUp
+
+case object ProjectionClausesHaveSemanticInfo extends Condition
 
 case class expandStar(state: SemanticState) extends RewritingStep {
 
   override def rewrite(that: AnyRef): AnyRef = instance(that)
 
-  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    ProjectionClausesHaveSemanticInfo // Looks up recorded scopes of projection clauses.
+  )
 
   override def postConditions: Set[StepSequencer.Condition] = Set(containsNoReturnAll)
 

@@ -26,36 +26,41 @@ import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Size
 import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Rewriter
-import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols
 
-case object PatternExpressionAreWrappedInExists extends StepSequencer.Condition
+case object PatternExpressionsHaveSemanticInfo extends Condition
+case object PatternExpressionAreWrappedInExists extends Condition
 
 /**
-  * Adds an exist around any pattern expression that is expected to produce a boolean e.g.
-  *
-  *   MATCH (n) WHERE (n)-->(m) RETURN n
-  *
-  *    is rewritten to
-  *
-  *  MATCH (n) WHERE EXISTS((n)-->(m)) RETURN n
-  *
-  * Rewrite equivalent expressions with `size` or `length` to `exists`.
-  * This rewrite normalizes this cases and make it easier to plan correctly.
+ * Adds an exist around any pattern expression that is expected to produce a boolean e.g.
+ *
+ * MATCH (n) WHERE (n)-->(m) RETURN n
+ *
+ * is rewritten to
+ *
+ * MATCH (n) WHERE EXISTS((n)-->(m)) RETURN n
+ *
+ * Rewrite equivalent expressions with `size` or `length` to `exists`.
+ * This rewrite normalizes this cases and make it easier to plan correctly.
  *
  * [[simplifyPredicates]]  takes care of rewriting the Not(Not(Exists(...))) which can be introduced by this rewriter.
  *
  * This rewriter needs to run before [[namePatternElements]], which rewrites pattern expressions. Otherwise we don't find them in the semantic table.
-  */
+ */
 case class normalizeExistsPatternExpressions(semanticState: SemanticState) extends RewritingStep {
 
-  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+  override def preConditions: Set[Condition] = Set(
+    PatternExpressionsHaveSemanticInfo // Looks up type of pattern expressions
+  )
 
-  override def postConditions: Set[StepSequencer.Condition] = Set(PatternExpressionAreWrappedInExists)
+  override def postConditions: Set[Condition] = Set(PatternExpressionAreWrappedInExists)
 
   // TODO capture the dependency with simplifyPredicates
-  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+  override def invalidatedConditions: Set[Condition] = Set(
+    ProjectionClausesHaveSemanticInfo // It can invalidate this condition by rewriting things inside WITH/RETURN.
+  )
 
   private val instance = bottomUp(Rewriter.lift {
     case p: PatternExpression if semanticState.expressionType(p).expected.contains(symbols.CTBoolean.invariant) =>

@@ -20,6 +20,8 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.rewriting.RewritingStepSequencer
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
+import org.opencypher.v9_0.rewriting.rewriters.PatternExpressionsHaveSemanticInfo
+import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
@@ -64,7 +66,7 @@ class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
       replaceLiteralDynamicPropertyLookups,
       inlineNamedPathsInPatternComprehensions,
       parameterValueTypeReplacement(parameterTypeMapping),
-    ))
+    ), initialConditions = Set(ProjectionClausesHaveSemanticInfo, PatternExpressionsHaveSemanticInfo))
     val combined = inSequence(orderedSteps: _*)
 
     statement.endoRewrite(combined)

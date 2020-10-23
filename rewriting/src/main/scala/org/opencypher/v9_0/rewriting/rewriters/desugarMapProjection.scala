@@ -26,7 +26,6 @@ import org.opencypher.v9_0.expressions.PropertySelector
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.rewriting.RewritingStep
-import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -46,14 +45,14 @@ and the same behaviour can't be mimicked with literal maps.
 case class desugarMapProjection(state: SemanticState) extends RewritingStep {
   override def rewrite(that: AnyRef): AnyRef = topDown(instance).apply(that)
 
-  // TODO this should be captured differently. This has an invalidated condition `ProjectionClausesHaveSemanticInfo`,
-  // which is a pre-condition of expandStar. It can invalidate this condition by rewriting things inside WITH/RETURN.
-  // But to do that we need a step that introduces that condition which would be SemanticAnalysis.
-  override def preConditions: Set[StepSequencer.Condition] = Set(containsNoReturnAll)
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
   override def postConditions: Set[StepSequencer.Condition] = Set(OnlyDesugaredMapProjections)
 
-  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set(
+    ProjectionClausesHaveSemanticInfo, // It can invalidate this condition by rewriting things inside WITH/RETURN.
+    PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
+  )
 
   private val instance: Rewriter = Rewriter.lift {
     case e@MapProjection(id, items) =>
