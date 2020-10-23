@@ -27,7 +27,6 @@ import org.opencypher.v9_0.rewriting.RewriterStepSequencer
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.conditions.noDuplicatesInReturnItems
-import org.opencypher.v9_0.rewriting.conditions.noHasLabelsOrTypes
 import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
@@ -68,7 +67,6 @@ class ASTRewriter(rewriterSequencer: String => RewriterStepSequencer,
     val contract = rewriterSequencer("ASTRewriter")(
       expandStar(semanticState),
       normalizeHasLabelsAndHasType(semanticState),
-      enableCondition(noHasLabelsOrTypes),
       desugarMapProjection(semanticState),
       moveWithPastMatch,
       normalizeComparisons,
