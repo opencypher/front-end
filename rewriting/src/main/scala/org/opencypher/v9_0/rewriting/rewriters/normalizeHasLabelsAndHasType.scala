@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.topDown
 
@@ -30,9 +31,9 @@ case class normalizeHasLabelsAndHasType(semanticState: SemanticState) extends Re
   override def apply(that: AnyRef): AnyRef = instance(that)
 
   private val instance: Rewriter = topDown(Rewriter.lift {
-    case p@HasLabelsOrTypes(e, labels) =>
-      if (semanticState.expressionType(e).actual == CTRelationship.invariant) HasTypes(e, labels.map(l => RelTypeName(l.name)(l.position)))(p.position)
-      //we don't need to check if it is a node here, if not it will fail in semantic checking
-      else HasLabels(e, labels.map(l => LabelName(l.name)(l.position)))(p.position)
+    case p@HasLabelsOrTypes(e, labels) if semanticState.expressionType(e).actual == CTNode.invariant =>
+      HasLabels(e, labels.map(l => LabelName(l.name)(l.position)))(p.position)
+    case p@HasLabelsOrTypes(e, labels) if semanticState.expressionType(e).actual == CTRelationship.invariant =>
+      HasTypes(e, labels.map(l => RelTypeName(l.name)(l.position)))(p.position)
   })
 }
