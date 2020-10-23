@@ -36,6 +36,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.symbols.CypherType
 
@@ -46,7 +47,7 @@ class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
               parameterTypeMapping: Map[String, CypherType],
               cypherExceptionFactory: CypherExceptionFactory): Statement = {
 
-    val orderedSteps = RewritingStepSequencer.orderSteps(Set(
+    val AccumulatedSteps(orderedSteps, _) = RewritingStepSequencer.orderSteps(Set(
       expandStar(semanticState),
       normalizeHasLabelsAndHasType(semanticState),
       desugarMapProjection(semanticState),
