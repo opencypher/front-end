@@ -70,6 +70,7 @@ import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DbmsAction
+import org.opencypher.v9_0.ast.DefaultDBMSDatabaseScope
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
@@ -178,6 +179,7 @@ import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPasswordsAction
 import org.opencypher.v9_0.ast.SetPropertyAction
 import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.SetUserDefaultDatabaseAction
 import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintAction
@@ -1292,7 +1294,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     requirePasswordChange <- boolean
     suspended             <- option(boolean)
     ifExistsDo            <- _ifExistsDo
-    defaultDatabase       <- option(_identifier)
+    defaultDatabase       <- option(_nameAsEither)
   } yield CreateUser(userName, isEncryptedPassword, password, requirePasswordChange, suspended, ifExistsDo, defaultDatabase)(pos)
 
   def _dropUser: Gen[DropUser] = for {
@@ -1306,7 +1308,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     requirePasswordChange <- option(boolean)
     isEncryptedPassword   <- if (password.isEmpty) const(None) else some(boolean)
     suspended             <- if (password.isEmpty && requirePasswordChange.isEmpty) some(boolean) else option(boolean) // All three are not allowed to be None
-  } yield AlterUser(userName, isEncryptedPassword, password, requirePasswordChange, suspended)(pos)
+    defaultDatabase       <- option(_nameAsEither)
+  } yield AlterUser(userName, isEncryptedPassword, password, requirePasswordChange, suspended, defaultDatabase)(pos)
 
   def _setOwnPassword: Gen[SetOwnPassword] = for {
     newPassword <- _password
@@ -1367,7 +1370,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     AllDbmsAction,
     ExecuteProcedureAction, ExecuteBoostedProcedureAction, ExecuteAdminProcedureAction,
     ExecuteFunctionAction, ExecuteBoostedFunctionAction,
-    AllUserActions, ShowUserAction, CreateUserAction, SetUserStatusAction, SetPasswordsAction, AlterUserAction, DropUserAction,
+    AllUserActions, ShowUserAction, CreateUserAction, SetUserStatusAction, SetPasswordsAction, SetUserDefaultDatabaseAction, AlterUserAction, DropUserAction,
     AllRoleActions, ShowRoleAction, CreateRoleAction, DropRoleAction, AssignRoleAction, RemoveRoleAction,
     AllDatabaseManagementActions, CreateDatabaseAction, DropDatabaseAction,
     AllPrivilegeActions, ShowPrivilegeAction, AssignPrivilegeAction, RemovePrivilegeAction
@@ -1522,7 +1525,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _showDatabase: Gen[ShowDatabase] = for {
     dbName <- _nameAsEither
-    scope  <- oneOf(NamedDatabaseScope(dbName)(pos), AllDatabasesScope()(pos), DefaultDatabaseScope()(pos))
+    scope  <- oneOf(NamedDatabaseScope(dbName)(pos), AllDatabasesScope()(pos), DefaultDatabaseScope()(pos), DefaultDBMSDatabaseScope()(pos))
     yields <- option(_eitherYieldOrWhere)
   } yield ShowDatabase(scope, yields)(pos)
 
