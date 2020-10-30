@@ -15,11 +15,13 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
+import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.IfExistsDoNothing
@@ -125,7 +127,7 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Creating a user with a default database is not supported in this Cypher version.", c.position)
 
       case c@AlterUser(_, _, _, _, _, Some(_)) =>
-        throw cypherExceptionFactory.syntaxException("Updating a user with a default database  is not supported in this Cypher version.", c.position)
+        throw cypherExceptionFactory.syntaxException("Updating a user with a default database is not supported in this Cypher version.", c.position)
     }
   }
 
