@@ -75,6 +75,7 @@ import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
 import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.ReduceScope
 import org.opencypher.v9_0.expressions.RegexMatch
+import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
@@ -113,6 +114,8 @@ trait AstConstructionTestSupport extends CypherTestSupport {
   def varFor(name: String): Variable = Variable(name)(pos)
 
   def labelName(s: String): LabelName = LabelName(s)(pos)
+
+  def relTypeName(s: String): RelTypeName = RelTypeName(s)(pos)
 
   def hasLabels(v: String, label: String): HasLabels =
     hasLabels(varFor(v), label)
