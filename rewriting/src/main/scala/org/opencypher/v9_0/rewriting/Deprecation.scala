@@ -35,6 +35,7 @@ import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
+import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDropConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDropIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedFunctionNotification
@@ -67,7 +68,7 @@ object Deprecations {
     override val find: PartialFunction[Any, Deprecation] = {
 
       // straight renames
-      case f@FunctionInvocation(namespace, FunctionName(name), distinct, args) if functionRenames.contains(name) =>
+      case f@FunctionInvocation(_, FunctionName(name), _, _) if functionRenames.contains(name) =>
         Deprecation(
           () => renameFunctionTo(functionRenames(name))(f),
           () => Some(DeprecatedFunctionNotification(f.position, name, functionRenames(name)))
@@ -88,7 +89,7 @@ object Deprecations {
         )
 
       // timestamp
-      case f@FunctionInvocation(namespace, FunctionName(name), distinct, args) if name.equalsIgnoreCase("timestamp")=>
+      case f@FunctionInvocation(_, FunctionName(name), _, _) if name.equalsIgnoreCase("timestamp")=>
         Deprecation(
           () => renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f),
           () => None
@@ -135,6 +136,18 @@ object Deprecations {
         Deprecation(
           () => c,
           () => Some(DeprecatedDropConstraintSyntax(c.position))
+        )
+
+      case c: ast.CreateNodePropertyExistenceConstraint if c.oldSyntax =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
+        )
+
+      case c: ast.CreateRelationshipPropertyExistenceConstraint if c.oldSyntax =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
         )
     }
   }
