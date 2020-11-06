@@ -15,36 +15,16 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
-import org.opencypher.v9_0.ast.CreateUser
-import org.opencypher.v9_0.ast.DatabasePrivilege
-import org.opencypher.v9_0.ast.DbmsPrivilege
-import org.opencypher.v9_0.ast.DefaultGraphScope
-import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
-import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
-import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
-import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
-import org.opencypher.v9_0.ast.ExecuteFunctionAction
-import org.opencypher.v9_0.ast.ExecuteProcedureAction
-import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsDoNothing
-import org.opencypher.v9_0.ast.RevokePrivilege
-import org.opencypher.v9_0.ast.ShowConstraintAction
 import org.opencypher.v9_0.ast.ShowConstraints
-import org.opencypher.v9_0.ast.ShowCurrentUser
-import org.opencypher.v9_0.ast.ShowIndexAction
 import org.opencypher.v9_0.ast.ShowIndexes
-import org.opencypher.v9_0.ast.ShowPrivilegeCommands
-import org.opencypher.v9_0.ast.ShowPrivileges
-import org.opencypher.v9_0.ast.ShowRolesPrivileges
-import org.opencypher.v9_0.ast.ShowUsersPrivileges
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.expressions.ExistsSubClause
@@ -126,22 +106,6 @@ object Additions {
       // SHOW [ALL|UNIQUE|NODE EXIST[S]|RELATIONSHIP EXIST[S]|EXIST[S]|NODE KEY] CONSTRAINT[S] [BRIEF|VERBOSE[OUTPUT]]
       case s@ShowConstraints(_, _, _) =>
         throw cypherExceptionFactory.syntaxException("SHOW CONSTRAINTS is not supported in this Cypher version.", s.position)
-
-      // GRANT EXECUTE [BOOSTED|ADMIN] PROCEDURES ...
-      case p@GrantPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
-      case p@GrantPrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
-      case p@GrantPrivilege(DbmsPrivilege(ExecuteAdminProcedureAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("EXECUTE ADMIN PROCEDURES is not supported in this Cypher version.", p.position)
-
-      // DENY EXECUTE [BOOSTED|ADMIN] PROCEDURES ...
-      case p@DenyPrivilege(DbmsPrivilege(ExecuteProcedureAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("EXECUTE PROCEDURE is not supported in this Cypher version.", p.position)
-      case p@DenyPrivilege(DbmsPrivilege(ExecuteBoostedProcedureAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("EXECUTE BOOSTED PROCEDURE is not supported in this Cypher version.", p.position)
-      case p@DenyPrivilege(DbmsPrivilege(ExecuteAdminProcedureAction), _, _, _, _) =>
-        throw cypherExceptionFactory.syntaxException("EXECUTE ADMIN PROCEDURES is not supported in this Cypher version.", p.position)
 
       // Administration commands against system database are not supported at all in CYPHER 3.5.
       // This is checked in CompilerFactory, so separate checks for such commands are not needed here.
