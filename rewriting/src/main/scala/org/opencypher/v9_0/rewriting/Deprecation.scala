@@ -34,6 +34,7 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
@@ -44,6 +45,7 @@ import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedParameterSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
+import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.SkipChildren
@@ -151,6 +153,12 @@ object Deprecations {
         Deprecation(
           () => c,
           () => Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
+        )
+
+      case e@Exists(Property(_, _)) =>
+        Deprecation(
+          () => e,
+          () => Some(DeprecatedPropertyExistenceSyntax(e.position))
         )
     }
   }
