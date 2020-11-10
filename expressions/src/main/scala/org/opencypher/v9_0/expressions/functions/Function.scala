@@ -61,6 +61,7 @@ object Function {
     Haversin,
     Head,
     Id,
+    IsEmpty,
     Labels,
     Last,
     Left,

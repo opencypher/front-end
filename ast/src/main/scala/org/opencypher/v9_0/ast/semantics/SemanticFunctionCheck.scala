@@ -34,6 +34,7 @@ import org.opencypher.v9_0.expressions.functions.Distance
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Function
 import org.opencypher.v9_0.expressions.functions.Head
+import org.opencypher.v9_0.expressions.functions.IsEmpty
 import org.opencypher.v9_0.expressions.functions.Last
 import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Max
@@ -141,6 +142,9 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
         checkTypeSignatures(ctx, Max, invocation) ifOkChain {
           specifyType(types(invocation.arguments(0))(_), invocation)
         }
+
+      case IsEmpty =>
+        checkTypeSignatures(ctx, IsEmpty, invocation)
 
       case Min =>
         checkTypeSignatures(ctx, Min, invocation) ifOkChain {
