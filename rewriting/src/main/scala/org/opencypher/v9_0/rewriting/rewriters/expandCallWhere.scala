@@ -20,11 +20,25 @@ import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.bottomUp
 
+case object WithBetweenCallAndWhereInserted extends Condition
+
 // Rewrites CALL proc WHERE <p> ==> CALL proc WITH * WHERE <p>
-case object expandCallWhere extends Rewriter {
+case object expandCallWhere extends RewritingStep {
+
+  override def rewrite(v: AnyRef): AnyRef =
+    instance(v)
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(WithBetweenCallAndWhereInserted)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
   private val instance = bottomUp(Rewriter.lift {
     case query@SingleQuery(clauses) =>
@@ -41,7 +55,4 @@ case object expandCallWhere extends Rewriter {
       }
       query.copy(clauses = newClauses)(query.position)
   })
-
-  override def apply(v: AnyRef): AnyRef =
-    instance(v)
 }

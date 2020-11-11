@@ -25,8 +25,14 @@ import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.expressions.ScopeExpression
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.bottomUp
+
+case object LiteralsAreAvailable extends Condition
+case object MultipleInPredicatesAreMerged extends Condition
 
 /**
  * Merges multiple IN predicates into one.
@@ -44,9 +50,15 @@ import org.opencypher.v9_0.util.bottomUp
  * NOTE: this rewriter must be applied before auto parameterization, since after
  * that we are just dealing with opaque parameters.
  */
-case object mergeInPredicates extends Rewriter {
+case object mergeInPredicates extends RewritingStep {
 
-  def apply(that: AnyRef): AnyRef = inner.apply(that)
+  override def preConditions: Set[StepSequencer.Condition] = Set(LiteralsAreAvailable)
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(MultipleInPredicatesAreMerged)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  def rewrite(that: AnyRef): AnyRef = inner.apply(that)
 
   private val inner: Rewriter = bottomUp(Rewriter.lift {
 

@@ -19,12 +19,14 @@ import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
+import org.opencypher.v9_0.rewriting.rewriters.LiteralsAreAvailable
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Step
 
-case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) extends Phase[BaseContext, BaseState, BaseState] {
+case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) extends Phase[BaseContext, BaseState, BaseState] with Step {
 
   override def process(in: BaseState, context: BaseContext): BaseState = {
     val statement = in.statement()
@@ -42,5 +44,9 @@ case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) exten
 
   override def description = "replace literals with parameters"
 
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
   override def postConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set(LiteralsAreAvailable)
 }

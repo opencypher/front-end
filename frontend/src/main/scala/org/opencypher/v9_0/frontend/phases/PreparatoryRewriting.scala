@@ -17,6 +17,10 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.RewritingStepSequencer
+import org.opencypher.v9_0.rewriting.rewriters.LiteralsAreAvailable
+import org.opencypher.v9_0.rewriting.rewriters.PatternExpressionsHaveSemanticInfo
+import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.expandCallWhere
 import org.opencypher.v9_0.rewriting.rewriters.expandShowWhere
 import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAndMatch
@@ -24,19 +28,22 @@ import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.replaceDeprecatedCypherSyntax
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
 import org.opencypher.v9_0.util.inSequence
 
 case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
 
   override def process(from: BaseState, context: BaseContext): BaseState = {
 
-    val rewrittenStatement = from.statement().endoRewrite(inSequence(
+    val AccumulatedSteps(orderedSteps, _) = RewritingStepSequencer.orderSteps(Set(
       normalizeWithAndReturnClauses(context.cypherExceptionFactory, context.notificationLogger),
       insertWithBetweenOptionalMatchAndMatch,
       expandCallWhere,
       expandShowWhere,
       replaceDeprecatedCypherSyntax(deprecations),
-      mergeInPredicates))
+      mergeInPredicates), initialConditions = Set(LiteralsAreAvailable))
+
+    val rewrittenStatement = from.statement().endoRewrite(inSequence(orderedSteps: _*))
 
     from.withStatement(rewrittenStatement)
   }

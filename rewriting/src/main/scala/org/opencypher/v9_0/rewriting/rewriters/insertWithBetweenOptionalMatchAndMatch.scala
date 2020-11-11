@@ -19,13 +19,24 @@ import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.topDown
 
-// Rewrites OPTIONAL MATCH (<n>) MATCH (<n>) RETURN <n> ==> OPTIONAL MATCH (<n>) WITH * MATCH (<n>) RETURN <n>
-case object insertWithBetweenOptionalMatchAndMatch extends Rewriter {
+case object WithBetweenOptionalMatchAndMatchInserted extends Condition
 
-  override def apply(that: AnyRef): AnyRef = instance(that)
+// Rewrites OPTIONAL MATCH (<n>) MATCH (<n>) RETURN <n> ==> OPTIONAL MATCH (<n>) WITH * MATCH (<n>) RETURN <n>
+case object insertWithBetweenOptionalMatchAndMatch extends RewritingStep {
+
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(WithBetweenOptionalMatchAndMatchInserted)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
   private val instance: Rewriter = topDown(Rewriter.lift {
     case sq@SingleQuery(clauses) if clauses.nonEmpty =>

@@ -40,11 +40,17 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.MissingAliasNotification
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.topDown
+
+case object ReturnItemsAreAliased extends Condition
+case object ExpressionsInOrderByAndWhereUseAliases extends Condition
 
 /**
  * This rewriter normalizes the scoping structure of a query, ensuring it is able to
@@ -66,9 +72,9 @@ import org.opencypher.v9_0.util.topDown
  * WITH n.prop AS prop ORDER BY prop DESC
  * RETURN prop AS prop
  */
-case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotificationLogger) extends Rewriter {
+case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotificationLogger) extends RewritingStep {
 
-  def apply(that: AnyRef): AnyRef = that match {
+  def rewrite(that: AnyRef): AnyRef = that match {
     case q@Query(_, queryPart) => q.copy(part = rewriteTopLevelQueryPart(queryPart))(q.position)
 
     case s@ShowPrivileges(_, Some(Left((yields, returns))),_) =>
@@ -97,6 +103,12 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
 
     case x => x
   }
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(ReturnItemsAreAliased, ExpressionsInOrderByAndWhereUseAliases)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
   /**
    * Rewrites all single queries in the top level query (which can be a single or a union query of single queries).

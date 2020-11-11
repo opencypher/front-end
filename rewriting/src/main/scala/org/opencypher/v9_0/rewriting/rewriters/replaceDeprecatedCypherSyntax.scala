@@ -16,11 +16,22 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.bottomUp
 
-case class replaceDeprecatedCypherSyntax(deprecations: Deprecations) extends Rewriter {
+case object DeprecatedSyntaxReplaced extends Condition
 
-  override def apply(that: AnyRef): AnyRef = instance(that)
+case class replaceDeprecatedCypherSyntax(deprecations: Deprecations) extends RewritingStep {
+
+  override def rewrite(that: AnyRef): AnyRef = instance(that)
   val instance: Rewriter = bottomUp(Rewriter.lift(deprecations.find.andThen(d => d.generateReplacement())))
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(DeprecatedSyntaxReplaced)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 }

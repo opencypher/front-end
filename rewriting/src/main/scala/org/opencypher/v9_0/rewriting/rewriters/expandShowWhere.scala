@@ -24,11 +24,25 @@ import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.Yield
+import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.bottomUp
 
+case object WithBetweenShowAndWhereInserted extends Condition
+
 // rewrites SHOW ... WHERE <e> " ==> SHOW ... YIELD * WHERE <e>
-case object expandShowWhere extends Rewriter {
+case object expandShowWhere extends RewritingStep {
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(WithBetweenShowAndWhereInserted)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def rewrite(v: AnyRef): AnyRef =
+    instance(v)
 
     private val instance = bottomUp(Rewriter.lift {
       case s @ ShowDatabase(_, Some(Right(where)),_) => s.copy(yieldOrWhere = Some(Left((whereToYield(where), None))))(s.position)
@@ -41,7 +55,4 @@ case object expandShowWhere extends Rewriter {
 
     private def whereToYield(where: Where): Yield =
       Yield(ReturnItems(includeExisting = true, Seq.empty)(where.position), None, None, None, Some(where))(where.position)
-
-  override def apply(v: AnyRef): AnyRef =
-      instance(v)
-  }
+}
