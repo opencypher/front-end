@@ -18,6 +18,7 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
+import org.opencypher.v9_0.util.StepSequencer
 
 object ExpandStarRewriter extends Phase[BaseContext, BaseState, BaseState] {
 
@@ -28,6 +29,6 @@ object ExpandStarRewriter extends Phase[BaseContext, BaseState, BaseState] {
   def process(from: BaseState, context: BaseContext): BaseState =
     from.withStatement(from.statement().endoRewrite(expandStar(from.semantics())))
 
-  override def postConditions: Set[Condition] =
+  override def postConditions: Set[StepSequencer.Condition] =
     Set(StatementCondition(containsNoReturnAll))
 }

@@ -23,6 +23,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeInequalities
 import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.simplifyPredicates
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.inSequence
 
 case object CNFNormalizer extends StatementRewriter {
@@ -42,5 +43,5 @@ case object CNFNormalizer extends StatementRewriter {
     )
   }
 
-  override def postConditions: Set[Condition] = Set.empty
+  override def postConditions: Set[StepSequencer.Condition] = Set.empty
 }

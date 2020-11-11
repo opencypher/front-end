@@ -25,6 +25,7 @@ import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
 
 case class AstRewriting(innerVariableNamer: InnerVariableNamer,
@@ -42,7 +43,7 @@ case class AstRewriting(innerVariableNamer: InnerVariableNamer,
 
   override def description = "normalize the AST into a form easier for the planner to work with"
 
-  override def postConditions: Set[Condition] = {
+  override def postConditions: Set[StepSequencer.Condition] = {
     val rewriterConditions = Set(
       noReferenceEqualityAmongVariables,
       noDuplicatesInReturnItems,

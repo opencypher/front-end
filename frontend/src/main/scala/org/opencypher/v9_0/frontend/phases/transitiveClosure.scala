@@ -26,6 +26,7 @@ import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
 
@@ -43,7 +44,7 @@ case object transitiveClosure extends StatementRewriter {
 
   override def instance(ignored: BaseContext): Rewriter = transitiveClosureRewriter
 
-  override def postConditions: Set[Condition] = Set.empty
+  override def postConditions: Set[StepSequencer.Condition] = Set.empty
 
   private case object transitiveClosureRewriter extends Rewriter {
 

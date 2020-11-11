@@ -23,6 +23,7 @@ import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAnd
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.replaceDeprecatedCypherSyntax
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.inSequence
 
 case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
@@ -44,5 +45,5 @@ case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseCo
 
   override val description = "rewrite the AST into a shape that semantic analysis can be performed on"
 
-  override def postConditions: Set[Condition] = Set.empty
+  override def postConditions: Set[StepSequencer.Condition] = Set.empty
 }

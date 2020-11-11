@@ -22,6 +22,7 @@ import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 
 case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) extends Phase[BaseContext, BaseState, BaseState] {
 
@@ -41,5 +42,5 @@ case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) exten
 
   override def description = "replace literals with parameters"
 
-  override def postConditions: Set[Condition] = Set.empty
+  override def postConditions: Set[StepSequencer.Condition] = Set.empty
 }

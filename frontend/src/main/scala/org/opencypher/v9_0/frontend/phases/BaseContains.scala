@@ -17,14 +17,11 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.rewriting.ValidatingCondition
 
 import scala.reflect.ClassTag
 
-trait Condition {
-  def check(state: AnyRef): Seq[String]
-}
-
-case class BaseContains[T: ClassTag](implicit manifest: Manifest[T]) extends Condition {
+case class BaseContains[T: ClassTag](implicit manifest: Manifest[T]) extends ValidatingCondition {
   private val acceptableTypes: Set[Class[_]] = Set(
     classOf[Statement],
     classOf[SemanticState]
@@ -32,7 +29,7 @@ case class BaseContains[T: ClassTag](implicit manifest: Manifest[T]) extends Con
 
   assert(acceptableTypes.contains(manifest.runtimeClass))
 
-  override def check(in: AnyRef): Seq[String] = in match {
+  override def apply(in: Any): Seq[String] = in match {
     case state: BaseState =>
       manifest.runtimeClass match {
         case x if classOf[Statement] == x && state.maybeStatement.isEmpty => Seq("Statement missing")
@@ -41,4 +38,6 @@ case class BaseContains[T: ClassTag](implicit manifest: Manifest[T]) extends Con
       }
     case x => throw new IllegalStateException(s"Unknown state: $x")
   }
+
+  override def name: String = s"$productPrefix[${manifest.runtimeClass.getSimpleName}]"
 }

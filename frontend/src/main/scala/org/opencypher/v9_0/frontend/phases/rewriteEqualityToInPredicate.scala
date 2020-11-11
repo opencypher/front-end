@@ -23,6 +23,7 @@ import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
 /*
@@ -47,5 +48,5 @@ case object rewriteEqualityToInPredicate extends StatementRewriter {
       In(prop, ListLiteral(Seq(idValueExpr))(idValueExpr.position))(predicate.position)
   })
 
-  override def postConditions: Set[Condition] = Set.empty
+  override def postConditions: Set[StepSequencer.Condition] = Set.empty
 }

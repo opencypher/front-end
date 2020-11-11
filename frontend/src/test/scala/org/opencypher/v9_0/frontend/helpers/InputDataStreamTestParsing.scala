@@ -23,7 +23,6 @@ import org.opencypher.v9_0.frontend.phases.BaseContains
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
-import org.opencypher.v9_0.frontend.phases.Condition
 import org.opencypher.v9_0.frontend.phases.Phase
 import org.opencypher.v9_0.parser.Expressions
 import org.opencypher.v9_0.parser.Statement
@@ -31,6 +30,7 @@ import org.opencypher.v9_0.util.CypherException
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.ObfuscationMetadata
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.parboiled.scala.EOI
 import org.parboiled.scala.Parser
@@ -62,7 +62,7 @@ case class InputDataStreamTestInitialState(idsQueryText: String,
                                            maybeSemantics: Option[SemanticState] = None,
                                            maybeExtractedParams: Option[Map[String, Any]] = None,
                                            maybeSemanticTable: Option[SemanticTable] = None,
-                                           accumulatedConditions: Set[Condition] = Set.empty,
+                                           accumulatedConditions: Set[StepSequencer.Condition] = Set.empty,
                                            maybeReturnColumns: Option[Seq[String]] = None,
                                            maybeObfuscationMetadata: Option[ObfuscationMetadata] = None) extends BaseState {
 

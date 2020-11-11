@@ -18,6 +18,7 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.rewriting.rewriters.collapseMultipleInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.inSequence
 
 object LateAstRewriting extends StatementRewriter {
@@ -29,5 +30,5 @@ object LateAstRewriting extends StatementRewriter {
 
   override def description: String = "normalize the AST"
 
-  override def postConditions: Set[Condition] = Set.empty
+  override def postConditions: Set[StepSequencer.Condition] = Set.empty
 }

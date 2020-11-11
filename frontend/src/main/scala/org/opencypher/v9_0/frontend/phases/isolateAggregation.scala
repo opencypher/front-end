@@ -34,6 +34,7 @@ import org.opencypher.v9_0.rewriting.conditions.aggregationsAreIsolated
 import org.opencypher.v9_0.rewriting.conditions.hasAggregateButIsNotAggregate
 import org.opencypher.v9_0.util.AggregationNameGenerator
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.topDown
@@ -60,7 +61,7 @@ case object isolateAggregation extends StatementRewriter {
 
   override def description: String = "Makes sure that aggregations are on their own in RETURN/WITH clauses"
 
-  override def postConditions: Set[Condition] = Set(StatementCondition(aggregationsAreIsolated))
+  override def postConditions: Set[StepSequencer.Condition] = Set(StatementCondition(aggregationsAreIsolated))
 
   private val rewriter = Rewriter.lift {
     case q@SingleQuery(clauses) =>

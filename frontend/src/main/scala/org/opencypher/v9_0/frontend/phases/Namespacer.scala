@@ -33,6 +33,7 @@ import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.inSequence
 
@@ -61,7 +62,7 @@ object Namespacer extends Phase[BaseContext, BaseState, BaseState] {
     }
   }
 
-  override def postConditions: Set[Condition] = Set(
+  override def postConditions: Set[StepSequencer.Condition] = Set(
     StatementCondition(containsNoNodesOfType[UnionAll]),
     StatementCondition(containsNoNodesOfType[UnionDistinct]))
 

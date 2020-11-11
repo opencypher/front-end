@@ -21,6 +21,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.ObfuscationMetadata
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
 
 trait BaseState {
@@ -35,7 +36,7 @@ trait BaseState {
   def maybeSemanticTable: Option[SemanticTable]
   def maybeObfuscationMetadata: Option[ObfuscationMetadata]
 
-  def accumulatedConditions: Set[Condition]
+  def accumulatedConditions: Set[StepSequencer.Condition]
 
 
   def statement(): Statement = maybeStatement getOrElse fail("Statement")
@@ -65,7 +66,7 @@ case class InitialState(queryText: String,
   maybeSemantics: Option[SemanticState] = None,
   maybeExtractedParams: Option[Map[String, Any]] = None,
   maybeSemanticTable: Option[SemanticTable] = None,
-  accumulatedConditions: Set[Condition] = Set.empty,
+  accumulatedConditions: Set[StepSequencer.Condition] = Set.empty,
   maybeReturnColumns: Option[Seq[String]] = None,
   maybeObfuscationMetadata: Option[ObfuscationMetadata] = None) extends BaseState {
 
