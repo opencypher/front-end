@@ -15,19 +15,13 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.rewriting.RewriterCondition
 import org.opencypher.v9_0.rewriting.ValidatingCondition
 
-// TODO change inner to be a ValidatingCondition
-case class StatementCondition(inner: Any => Seq[String]) extends ValidatingCondition {
+case class StatementCondition(inner: ValidatingCondition) extends ValidatingCondition {
   override def apply(state: Any): Seq[String] = state match {
     case s: BaseState => inner(s.statement())
     case x => throw new IllegalStateException(s"Unknown state: $x")
   }
 
   override def name: String = productPrefix
-}
-
-object StatementCondition {
-  def apply(inner: RewriterCondition) = new StatementCondition(inner.condition)
 }
