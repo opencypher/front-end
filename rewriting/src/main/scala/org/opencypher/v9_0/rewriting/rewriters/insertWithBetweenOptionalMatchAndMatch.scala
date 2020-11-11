@@ -22,6 +22,7 @@ import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
+// Rewrites OPTIONAL MATCH (<n>) MATCH (<n>) RETURN <n> ==> OPTIONAL MATCH (<n>) WITH * MATCH (<n>) RETURN <n>
 case object insertWithBetweenOptionalMatchAndMatch extends Rewriter {
 
   override def apply(that: AnyRef): AnyRef = instance(that)
