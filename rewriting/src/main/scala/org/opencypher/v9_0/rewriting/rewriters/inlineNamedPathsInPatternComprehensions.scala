@@ -15,20 +15,24 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.PathExpression
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternElement
-import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.symbols.CypherType
 
 case object NoNamedPathsInPatternComprehensions extends StepSequencer.Condition
 
-case object inlineNamedPathsInPatternComprehensions extends RewritingStep {
+case object inlineNamedPathsInPatternComprehensions extends Rewriter with Step with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set(noUnnamedPatternElementsInPatternComprehension)
 
@@ -56,5 +60,10 @@ case object inlineNamedPathsInPatternComprehensions extends RewritingStep {
       }
   }
 
-  override def rewrite(v: AnyRef): AnyRef = instance(v)
+  override def apply(v: AnyRef): AnyRef = instance(v)
+
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
 }

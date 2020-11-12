@@ -15,20 +15,28 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.NodeNameGenerator
 import org.opencypher.v9_0.util.RelNameGenerator
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.symbols.CypherType
 
-case object nameAllPatternElements extends RewritingStep {
+case object nameAllPatternElements extends Rewriter with StepSequencer.Step with ASTRewriterFactory {
+
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = namingRewriter
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
@@ -42,7 +50,7 @@ case object nameAllPatternElements extends RewritingStep {
     PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
   )
 
-  override def rewrite(that: AnyRef): AnyRef = namingRewriter.apply(that)
+  override def apply(that: AnyRef): AnyRef = namingRewriter.apply(that)
 
   private val namingRewriter: Rewriter = bottomUp(Rewriter.lift {
     case pattern: NodePattern if pattern.variable.isEmpty =>

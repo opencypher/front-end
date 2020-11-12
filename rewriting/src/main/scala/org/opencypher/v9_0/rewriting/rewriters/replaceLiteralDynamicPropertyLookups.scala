@@ -15,18 +15,22 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.StringLiteral
-import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.symbols.CypherType
 
 case object NoLiteralDynamicPropertyLookups extends StepSequencer.Condition
 
-case object replaceLiteralDynamicPropertyLookups extends RewritingStep {
+case object replaceLiteralDynamicPropertyLookups extends Rewriter with Step with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
@@ -42,5 +46,10 @@ case object replaceLiteralDynamicPropertyLookups extends RewritingStep {
       Property(expr, PropertyKeyName(lit.value)(lit.position))(index.position)
   })
 
-  override def rewrite(v: AnyRef): AnyRef = instance(v)
+  override def apply(v: AnyRef): AnyRef = instance(v)
+
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
 }

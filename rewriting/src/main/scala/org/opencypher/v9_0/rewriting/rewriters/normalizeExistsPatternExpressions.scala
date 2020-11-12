@@ -24,11 +24,14 @@ import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Size
-import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols
+import org.opencypher.v9_0.util.symbols.CypherType
 
 case object PatternExpressionsHaveSemanticInfo extends Condition
 case object PatternExpressionAreWrappedInExists extends Condition
@@ -49,18 +52,7 @@ case object PatternExpressionAreWrappedInExists extends Condition
  *
  * This rewriter needs to run before [[namePatternElements]], which rewrites pattern expressions. Otherwise we don't find them in the semantic table.
  */
-case class normalizeExistsPatternExpressions(semanticState: SemanticState) extends RewritingStep {
-
-  override def preConditions: Set[Condition] = Set(
-    PatternExpressionsHaveSemanticInfo // Looks up type of pattern expressions
-  )
-
-  override def postConditions: Set[Condition] = Set(PatternExpressionAreWrappedInExists)
-
-  // TODO capture the dependency with simplifyPredicates
-  override def invalidatedConditions: Set[Condition] = Set(
-    ProjectionClausesHaveSemanticInfo // It can invalidate this condition by rewriting things inside WITH/RETURN.
-  )
+case class normalizeExistsPatternExpressions(semanticState: SemanticState) extends Rewriter {
 
   private val instance = bottomUp(Rewriter.lift {
     case p: PatternExpression if semanticState.expressionType(p).expected.contains(symbols.CTBoolean.invariant) =>
@@ -75,5 +67,23 @@ case class normalizeExistsPatternExpressions(semanticState: SemanticState) exten
       Not(Exists(p)(p.position))(p.position)
   })
 
-  override def rewrite(v: AnyRef): AnyRef = instance(v)
+  override def apply(v: AnyRef): AnyRef = instance(v)
+}
+
+object normalizeExistsPatternExpressions extends StepSequencer.Step with ASTRewriterFactory {
+  override def preConditions: Set[Condition] = Set(
+    PatternExpressionsHaveSemanticInfo // Looks up type of pattern expressions
+  )
+
+  override def postConditions: Set[Condition] = Set(PatternExpressionAreWrappedInExists)
+
+  // TODO capture the dependency with simplifyPredicates
+  override def invalidatedConditions: Set[Condition] = Set(
+    ProjectionClausesHaveSemanticInfo // It can invalidate this condition by rewriting things inside WITH/RETURN.
+  )
+
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = normalizeExistsPatternExpressions(semanticState)
 }

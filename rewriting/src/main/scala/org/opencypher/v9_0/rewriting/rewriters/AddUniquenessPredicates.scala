@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
@@ -34,34 +35,25 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.ScopeExpression
 import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.symbols.CypherType
 
 case object RelationshipUniquenessPredicatesInMatchAndMerge extends StepSequencer.Condition
 
-case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = SameNameNamer) extends RewritingStep {
+case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = SameNameNamer) extends Rewriter {
 
-  override def preConditions: Set[StepSequencer.Condition] = Set(
-    noUnnamedPatternElementsInMatch,
-    noUnnamedPatternElementsInPatternComprehension
-  )
-
-  override def postConditions: Set[StepSequencer.Condition] = Set(RelationshipUniquenessPredicatesInMatchAndMerge)
-
-  override def invalidatedConditions: Set[StepSequencer.Condition] = Set(
-    ProjectionClausesHaveSemanticInfo, // It can invalidate this condition by rewriting things inside WITH/RETURN.
-    PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
-  )
-
-  override def rewrite(that: AnyRef): AnyRef = instance(that)
+  override def apply(that: AnyRef): AnyRef = instance(that)
 
   private val rewriter = Rewriter.lift {
     case m@Match(_, pattern: Pattern, _, where: Option[Where]) =>
@@ -147,6 +139,25 @@ case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = Same
     def isAlwaysDifferentFrom(other: UniqueRel): Boolean =
       types.nonEmpty && other.types.nonEmpty && (types intersect other.types).isEmpty
   }
+}
+
+object AddUniquenessPredicates extends Step with ASTRewriterFactory {
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    noUnnamedPatternElementsInMatch,
+    noUnnamedPatternElementsInPatternComprehension
+  )
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(RelationshipUniquenessPredicatesInMatchAndMerge)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set(
+    ProjectionClausesHaveSemanticInfo, // It can invalidate this condition by rewriting things inside WITH/RETURN.
+    PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
+  )
+
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = AddUniquenessPredicates(innerVariableNamer)
 }
 
 trait InnerVariableNamer {

@@ -15,22 +15,25 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.functions
-import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
 case object ArgumentOrderInComparisonsNormalized extends StepSequencer.Condition
 
-case object normalizeArgumentOrder extends RewritingStep {
+case object normalizeArgumentOrder extends Rewriter with StepSequencer.Step with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set(
     containsNoNodesOfType[NotEquals] // NotEquals must have been rewritten to Equals
@@ -46,7 +49,7 @@ case object normalizeArgumentOrder extends RewritingStep {
     PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
   )
 
-  override def rewrite(that: AnyRef): AnyRef = instance(that)
+  override def apply(that: AnyRef): AnyRef = instance(that)
 
   private val instance: Rewriter = topDown(Rewriter.lift {
 
@@ -73,4 +76,9 @@ case object normalizeArgumentOrder extends RewritingStep {
         inequality
       }
   })
+
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
 }

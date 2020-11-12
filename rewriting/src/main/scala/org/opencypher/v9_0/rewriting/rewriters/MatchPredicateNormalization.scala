@@ -17,18 +17,21 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
 case object NoPredicatesInNamedPartsOfMatchPattern extends StepSequencer.Condition
 
-abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer) extends RewritingStep {
+abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer) extends Rewriter with StepSequencer.Step with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set(
     noUnnamedPatternElementsInMatch // unnamed pattern cannot be rewritten, so they need to handled first
@@ -38,7 +41,12 @@ abstract class MatchPredicateNormalization(normalizer: MatchPredicateNormalizer)
 
   override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
-  override def rewrite(that: AnyRef): AnyRef = instance(that)
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
+
+  override def apply(that: AnyRef): AnyRef = instance(that)
 
   private val rewriter = Rewriter.lift {
     case m@Match(_, pattern, _, where) =>

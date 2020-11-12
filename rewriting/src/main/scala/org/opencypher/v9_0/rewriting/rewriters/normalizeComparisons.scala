@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.GreaterThan
@@ -25,17 +26,24 @@ import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
 import org.opencypher.v9_0.expressions.NotEquals
-import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
 case object OnlySingleHasLabels extends StepSequencer.Condition
 
-case object normalizeComparisons extends RewritingStep {
+case object normalizeComparisons extends Rewriter with StepSequencer.Step with ASTRewriterFactory {
 
-  override def rewrite(that: AnyRef): AnyRef = instance(that)
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
+
+  override def apply(that: AnyRef): AnyRef = instance(that)
 
   override def preConditions: Set[StepSequencer.Condition] = Set(
     HasLabelsOrTypesReplacedIfPossible // These have to have been rewritten to HasLabels / HasTypes at this point

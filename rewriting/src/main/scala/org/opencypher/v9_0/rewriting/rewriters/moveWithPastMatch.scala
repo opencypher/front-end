@@ -21,13 +21,16 @@ import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.SubQuery
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.LogicalVariable
-import org.opencypher.v9_0.rewriting.RewritingStep
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.inSequence
+import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
 case object IndependentWithsMovedAfterMatch extends StepSequencer.Condition
@@ -40,9 +43,14 @@ case object IndependentWithsMovedAfterMatch extends StepSequencer.Condition
  * This could potentially move projections to a point of higher cardinality, but the cached properties mechanism
  * should take care that expensive projections are pushed down again.
  */
-case object moveWithPastMatch extends RewritingStep {
+case object moveWithPastMatch extends Rewriter with StepSequencer.Step with ASTRewriterFactory {
 
-  override def rewrite(that: AnyRef): AnyRef = instance(that)
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
+
+  override def apply(that: AnyRef): AnyRef = instance(that)
 
   override def preConditions: Set[StepSequencer.Condition] = Set(
     containsNoReturnAll // It's better to know the variables in WITH already
