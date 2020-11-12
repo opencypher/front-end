@@ -24,16 +24,20 @@ import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.Yield
-import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Condition
+import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.bottomUp
 
 case object WithBetweenShowAndWhereInserted extends Condition
 
 // rewrites SHOW ... WHERE <e> " ==> SHOW ... YIELD * WHERE <e>
-case object expandShowWhere extends RewritingStep {
+case object expandShowWhere extends Rewriter with Step with PreparatoryRewritingRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
@@ -41,7 +45,7 @@ case object expandShowWhere extends RewritingStep {
 
   override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
-  override def rewrite(v: AnyRef): AnyRef =
+  override def apply(v: AnyRef): AnyRef =
     instance(v)
 
     private val instance = bottomUp(Rewriter.lift {
@@ -55,4 +59,8 @@ case object expandShowWhere extends RewritingStep {
 
     private def whereToYield(where: Where): Yield =
       Yield(ReturnItems(includeExisting = true, Seq.empty)(where.position), None, None, None, Some(where))(where.position)
+
+  override def getRewriter(deprecations: Deprecations,
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           notificationLogger: InternalNotificationLogger): Rewriter = instance
 }

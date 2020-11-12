@@ -19,18 +19,22 @@ import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.With
-import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Condition
+import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.topDown
 
 case object WithBetweenOptionalMatchAndMatchInserted extends Condition
 
 // Rewrites OPTIONAL MATCH (<n>) MATCH (<n>) RETURN <n> ==> OPTIONAL MATCH (<n>) WITH * MATCH (<n>) RETURN <n>
-case object insertWithBetweenOptionalMatchAndMatch extends RewritingStep {
+case object insertWithBetweenOptionalMatchAndMatch extends Rewriter with Step with PreparatoryRewritingRewriterFactory {
 
-  override def rewrite(that: AnyRef): AnyRef = instance(that)
+  override def apply(that: AnyRef): AnyRef = instance(that)
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
@@ -48,4 +52,8 @@ case object insertWithBetweenOptionalMatchAndMatch extends RewritingStep {
       }.flatten.toSeq :+ clauses.last
       SingleQuery(newClauses)(sq.position)
   })
+
+  override def getRewriter(deprecations: Deprecations,
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           notificationLogger: InternalNotificationLogger): Rewriter = instance
 }

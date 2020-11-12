@@ -23,12 +23,16 @@ import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
-import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.expressions.ScopeExpression
-import org.opencypher.v9_0.rewriting.RewritingStep
+import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.Foldable.SkipChildren
+import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Condition
+import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.bottomUp
 
 case object LiteralsAreAvailable extends Condition
@@ -50,7 +54,7 @@ case object MultipleInPredicatesAreMerged extends Condition
  * NOTE: this rewriter must be applied before auto parameterization, since after
  * that we are just dealing with opaque parameters.
  */
-case object mergeInPredicates extends RewritingStep {
+case object mergeInPredicates extends Rewriter with Step with PreparatoryRewritingRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set(LiteralsAreAvailable)
 
@@ -58,7 +62,7 @@ case object mergeInPredicates extends RewritingStep {
 
   override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
-  def rewrite(that: AnyRef): AnyRef = inner.apply(that)
+  override def apply(that: AnyRef): AnyRef = inner.apply(that)
 
   private val inner: Rewriter = bottomUp(Rewriter.lift {
 
@@ -142,4 +146,8 @@ case object mergeInPredicates extends RewritingStep {
       acc ++ updates ++ (current -- sharedKeys)
     })
   }
+
+  override def getRewriter(deprecations: Deprecations,
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           notificationLogger: InternalNotificationLogger): Rewriter = this
 }
