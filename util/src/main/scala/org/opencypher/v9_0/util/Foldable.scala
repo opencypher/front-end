@@ -24,7 +24,7 @@ object Foldable {
   type TreeFold[R] = PartialFunction[Any, R => (R, Option[R => R])]
 
   implicit class TreeAny(val that: Any) extends AnyVal {
-    def children: Iterator[AnyRef] = that match {
+    def treeChildren: Iterator[AnyRef] = that match {
       case p: Product => p.productIterator.asInstanceOf[Iterator[AnyRef]]
       case s: Seq[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
       case s: Set[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
@@ -32,7 +32,7 @@ object Foldable {
       case _ => Iterator.empty.asInstanceOf[Iterator[AnyRef]]
     }
 
-    def reverseChildren: Iterator[AnyRef] = that match {
+    def reverseTreeChildren: Iterator[AnyRef] = that match {
       case p: Product => reverseProductIterator(p)
       case s: Seq[_] => s.reverseIterator.asInstanceOf[Iterator[AnyRef]]
       case s: Set[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
@@ -159,7 +159,7 @@ object Foldable {
           case x: A => result += x
           case _ =>
         }
-        remaining ++= that.reverseChildren
+        remaining ++= that.reverseTreeChildren
       }
 
       result
@@ -172,7 +172,7 @@ object Foldable {
       acc
     } else {
       val that = remaining.pop()
-      foldAcc(remaining ++= that.reverseChildren, f(that).fold(acc)(_(acc)), f)
+      foldAcc(remaining ++= that.reverseTreeChildren, f(that).fold(acc)(_(acc)), f)
     }
 
   @tailrec
@@ -194,13 +194,13 @@ object Foldable {
       val that = remaining.pop()
       f(that) match {
         case None =>
-          val children = if (reverse) that.children else that.reverseChildren
+          val children = if (reverse) that.treeChildren else that.reverseTreeChildren
           treeFoldAcc(remaining ++= children, acc, f, continuation, reverse)
         case Some(pf) =>
           pf(acc) match {
             case (newAcc, Some(contAccFunc)) =>
               continuation.push((remaining, contAccFunc))
-              val children = if (reverse) that.children else that.reverseChildren
+              val children = if (reverse) that.treeChildren else that.reverseTreeChildren
               treeFoldAcc(mutable.ArrayStack() ++= children, newAcc, f, continuation, reverse)
             case (newAcc, None) =>
               treeFoldAcc(remaining, newAcc, f, continuation, reverse)
@@ -218,7 +218,7 @@ object Foldable {
         case Some(true) =>
           true
         case _ =>
-          existsAcc(remaining ++= that.reverseChildren, f)
+          existsAcc(remaining ++= that.reverseTreeChildren, f)
       }
     }
 
@@ -239,7 +239,7 @@ object Foldable {
           acc
       }
 
-      countAcc(remaining ++= that.reverseChildren, f, next)
+      countAcc(remaining ++= that.reverseTreeChildren, f, next)
     }
 
   @tailrec
@@ -250,7 +250,7 @@ object Foldable {
       val that = remaining.pop()
       that match {
         case x: A => x
-        case _ => findAcc(remaining ++= that.reverseChildren)
+        case _ => findAcc(remaining ++= that.reverseTreeChildren)
       }
     }
 
@@ -265,7 +265,7 @@ object Foldable {
       val that = remaining.pop()
       that match {
         case x: A if predicate(x).isDefined => Some(x)
-        case _ => findAcc(remaining ++= that.reverseChildren, predicate)
+        case _ => findAcc(remaining ++= that.reverseTreeChildren, predicate)
       }
     }
 }
