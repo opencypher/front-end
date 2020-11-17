@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractExpression
 import org.opencypher.v9_0.expressions.ExtractScope
@@ -42,8 +43,10 @@ import org.opencypher.v9_0.util.DeprecatedFunctionNotification
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedParameterSyntax
+import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.LengthOnNonPathNotification
 
@@ -51,7 +54,7 @@ import scala.collection.immutable.TreeMap
 
 object Deprecations {
 
-  def propertyOf(propertyKey:String): Expression => Expression =
+  def propertyOf(propertyKey: String): Expression => Expression =
     e => Property(e, PropertyKeyName(propertyKey)(e.position))(e.position)
 
   def renameFunctionTo(newName: String): FunctionInvocation => FunctionInvocation =
@@ -89,7 +92,7 @@ object Deprecations {
         )
 
       // timestamp
-      case f@FunctionInvocation(_, FunctionName(name), _, _) if name.equalsIgnoreCase("timestamp")=>
+      case f@FunctionInvocation(_, FunctionName(name), _, _) if name.equalsIgnoreCase("timestamp") =>
         Deprecation(
           () => renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f),
           () => None
@@ -154,6 +157,26 @@ object Deprecations {
 
   case object V2 extends Deprecations {
     override val find: PartialFunction[Any, Deprecation] = V1.find
+  }
+
+  case object deprecatedFeaturesIn4_3AfterRewrite extends Deprecations {
+    override def find: PartialFunction[Any, Deprecation] = PartialFunction.empty
+
+    override def findWithContext(statement: Statement): Set[Deprecation] = {
+      statement.treeFold[Set[Deprecation]](Set.empty) {
+
+        case FunctionInvocation(_, FunctionName(name), _, _) if name.toLowerCase.equals("exists") =>
+          // Don't look inside exists()
+          deprecations => SkipChildren(deprecations)
+
+        case p: PatternExpression =>
+          val deprecation = Deprecation(
+            () => p,
+            () => Some(DeprecatedPatternExpressionOutsideExistsSyntax(p.position))
+          )
+          deprecations => SkipChildren(deprecations + deprecation)
+      }
+    }
   }
 
   // This is functionality that has been removed in an earlier version of 4.x but still should work (but be deprecated) when using CYPHER 3.5
@@ -240,11 +263,12 @@ object Deprecations {
  * This class holds both the ability to replace a part of the AST with the preferred non-deprecated variant, and
  * the ability to generate an optional notification to the user that they are using a deprecated feature.
  *
- * @param generateReplacement function which rewrites the matched construct
+ * @param generateReplacement  function which rewrites the matched construct
  * @param generateNotification function which generates an appropriate deprecation notification
  */
 case class Deprecation(generateReplacement: () => ASTNode, generateNotification: () => Option[InternalNotification])
 
 trait Deprecations extends {
   def find: PartialFunction[Any, Deprecation]
+  def findWithContext(statement: Statement): Set[Deprecation] = Set.empty
 }

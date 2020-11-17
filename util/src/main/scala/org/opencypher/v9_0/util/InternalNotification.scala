@@ -50,6 +50,8 @@ case class DeprecatedOctalLiteralSyntax(position: InputPosition) extends Interna
 
 case class DeprecatedHexLiteralSyntax(position: InputPosition) extends InternalNotification
 
+case class DeprecatedPatternExpressionOutsideExistsSyntax(position: InputPosition) extends InternalNotification
+
 case class SubqueryVariableShadowing(position: InputPosition, varName: String) extends InternalNotification
 
 case class MissingAliasNotification(pos: InputPosition) extends InternalNotification
