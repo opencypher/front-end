@@ -15,12 +15,13 @@
  */
 package org.opencypher.v9_0.expressions
 
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.NonEmptyList
 
 case class AndedPropertyInequalities(
                                       variable: LogicalVariable,
                                       property: LogicalProperty,
                                       inequalities: NonEmptyList[InequalityExpression]
-                                    ) extends Expression {
-  def position = variable.position
+                                    ) extends BooleanExpression {
+  def position: InputPosition = variable.position
 }

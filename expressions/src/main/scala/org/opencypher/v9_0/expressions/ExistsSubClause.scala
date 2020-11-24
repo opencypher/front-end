@@ -18,7 +18,7 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.InputPosition
 
 case class ExistsSubClause(pattern: Pattern, optionalWhereExpression: Option[Expression])
-                          (val position: InputPosition, override val outerScope: Set[Variable]) extends ScopeExpression with ExpressionWithOuterScope {
+                          (val position: InputPosition, override val outerScope: Set[Variable]) extends ScopeExpression with BooleanExpression with ExpressionWithOuterScope {
 
   self =>
 
