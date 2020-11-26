@@ -43,6 +43,7 @@ import org.opencypher.v9_0.util.symbols.CypherType
 sealed trait CatalogDDL extends Statement with SemanticAnalysisTooling {
 
   def name: String
+
 }
 
 sealed trait AdministrationCommand extends CatalogDDL {
@@ -55,6 +56,8 @@ sealed trait AdministrationCommand extends CatalogDDL {
   }
 
   def isReadOnly: Boolean
+
+  override def containsUpdates: Boolean = !isReadOnly
 
   override def semanticCheck: SemanticCheck =
       requireFeatureSupport(s"The `$name` clause", SemanticFeature.MultipleDatabases, position) chain
@@ -122,6 +125,8 @@ sealed trait WriteAdministrationCommand extends AdministrationCommand {
 
 sealed trait MultiGraphDDL extends CatalogDDL {
   override def returnColumns: List[LogicalVariable] = List.empty
+
+  override def containsUpdates: Boolean = true
 
   //TODO Refine to split between multigraph and views
   override def semanticCheck: SemanticCheck =
