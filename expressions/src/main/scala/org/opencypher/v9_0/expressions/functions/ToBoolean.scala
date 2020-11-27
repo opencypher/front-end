@@ -29,7 +29,7 @@ case object ToBoolean extends Function with FunctionWithInfo with TypeSignatures
 
   override def getCategory: String = Category.SCALAR
 
-  override val signatures = Vector(
+  override def signatures = Vector(
     TypeSignature(name, CTString, CTBoolean, getDescription, getCategory)
   )
 }
