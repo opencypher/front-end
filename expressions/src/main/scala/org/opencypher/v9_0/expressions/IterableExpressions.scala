@@ -15,9 +15,12 @@
  */
 package org.opencypher.v9_0.expressions
 
-import org.opencypher.v9_0.expressions.functions.FunctionInfo
+import org.opencypher.v9_0.expressions.functions.Category
 import org.opencypher.v9_0.expressions.functions.FunctionWithName
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTList
 
 trait FilteringExpression extends Expression {
   def name: String
@@ -31,8 +34,8 @@ trait FilteringExpression extends Expression {
 case class FilterExpression(scope: FilterScope, expression: Expression)(val position: InputPosition) extends FilteringExpression {
   val name = "filter"
 
-  def variable = scope.variable
-  def innerPredicate = scope.innerPredicate
+  def variable: LogicalVariable = scope.variable
+  def innerPredicate: Option[Expression] = scope.innerPredicate
 }
 
 object FilterExpression {
@@ -44,8 +47,8 @@ case class ExtractExpression(scope: ExtractScope, expression: Expression)(val po
 {
   val name = "extract"
 
-  def variable = scope.variable
-  def innerPredicate = scope.innerPredicate
+  def variable: LogicalVariable = scope.variable
+  def innerPredicate: Option[Expression] = scope.innerPredicate
 }
 
 object ExtractExpression {
@@ -61,9 +64,9 @@ case class ListComprehension(scope: ExtractScope, expression: Expression)(val po
 
   val name = "[...]"
 
-  def variable = scope.variable
-  def innerPredicate = scope.innerPredicate
-  def extractExpression = scope.extractExpression
+  def variable: LogicalVariable = scope.variable
+  def innerPredicate: Option[Expression] = scope.innerPredicate
+  def extractExpression: Option[Expression] = scope.extractExpression
 }
 
 object ListComprehension {
@@ -100,12 +103,19 @@ case class PatternComprehension(namedPath: Option[LogicalVariable], pattern: Rel
   }
 }
 
-sealed trait IterableExpressionWithInfo extends FunctionWithName {
+sealed trait IterableExpressionWithInfo extends FunctionWithName with TypeSignatures {
   def description: String
-  def category = "Predicate"
+
   // TODO: Get specification formalized by CLG
-  def signature: String = s"$name(variable :: VARIABLE IN list :: LIST OF ANY? WHERE predicate :: ANY?) :: (BOOLEAN?)"
-  def isAggregationFunction = false
+  override def signatures: Seq[TypeSignature] =
+    Seq(FunctionTypeSignature(function = this,
+      CTBoolean,
+      names = Vector("variable", "list"),
+      description = description,
+      argumentTypes = Vector(CTAny, CTList(CTAny)),
+      category = Category.PREDICATE,
+      overrideDefaultAsString = Some(s"$name(variable :: VARIABLE IN list :: LIST OF ANY? WHERE predicate :: ANY?) :: (BOOLEAN?)")
+    ))
 }
 
 sealed trait IterablePredicateExpression extends FilteringExpression with BooleanExpression {
@@ -127,17 +137,14 @@ object IterablePredicateExpression {
     SingleIterablePredicate
   )
 
-  def functionInfo: Seq[FunctionInfo] = knownPredicateFunctions.map(
-    p => new FunctionInfo(p) {
-      override def getDescription: String = p.description
-      override def getCategory: String = p.category
-      override def getSignature: String = p.signature
-    }
-  )
+  def functionInfo: Seq[FunctionTypeSignature] = knownPredicateFunctions.flatMap(_.signatures.map {
+    case f: FunctionTypeSignature => f
+    case problem => throw new IllegalStateException("Did not expect the following at this point: " + problem)
+  })
 }
 
 case class AllIterablePredicate(scope: FilterScope, expression: Expression)(val position: InputPosition) extends IterablePredicateExpression {
-  val name = AllIterablePredicate.name
+  val name: String = AllIterablePredicate.name
 }
 
 object AllIterablePredicate extends IterableExpressionWithInfo {
@@ -149,7 +156,7 @@ object AllIterablePredicate extends IterableExpressionWithInfo {
 }
 
 case class AnyIterablePredicate(scope: FilterScope, expression: Expression)(val position: InputPosition) extends IterablePredicateExpression {
-  val name = AnyIterablePredicate.name
+  val name: String = AnyIterablePredicate.name
 }
 
 object AnyIterablePredicate extends IterableExpressionWithInfo {
@@ -161,7 +168,7 @@ object AnyIterablePredicate extends IterableExpressionWithInfo {
 }
 
 case class NoneIterablePredicate(scope: FilterScope, expression: Expression)(val position: InputPosition) extends IterablePredicateExpression {
-  val name = NoneIterablePredicate.name
+  val name: String = NoneIterablePredicate.name
 }
 
 object NoneIterablePredicate extends IterableExpressionWithInfo {
@@ -173,7 +180,7 @@ object NoneIterablePredicate extends IterableExpressionWithInfo {
 }
 
 case class SingleIterablePredicate(scope: FilterScope, expression: Expression)(val position: InputPosition) extends IterablePredicateExpression {
-  val name = SingleIterablePredicate.name
+  val name: String = SingleIterablePredicate.name
 }
 
 object SingleIterablePredicate extends IterableExpressionWithInfo {
@@ -185,13 +192,13 @@ object SingleIterablePredicate extends IterableExpressionWithInfo {
 }
 
 case class ReduceExpression(scope: ReduceScope, init: Expression, list: Expression)(val position: InputPosition) extends Expression {
-  def variable = scope.variable
-  def accumulator = scope.accumulator
-  def expression = scope.expression
+  def variable: LogicalVariable = scope.variable
+  def accumulator: LogicalVariable = scope.accumulator
+  def expression: Expression = scope.expression
 }
 
 object ReduceExpression {
-  val AccumulatorExpressionTypeMismatchMessageGenerator = (expected: String, existing: String) => s"accumulator is $expected but expression has type $existing"
+  val AccumulatorExpressionTypeMismatchMessageGenerator: (String, String) => String = (expected: String, existing: String) => s"accumulator is $expected but expression has type $existing"
 
   def apply(accumulator: Variable, init: Expression, variable: Variable, list: Expression, expression: Expression)(position: InputPosition): ReduceExpression =
     ReduceExpression(ReduceScope(accumulator, variable, expression)(position), init, list)(position)

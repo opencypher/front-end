@@ -16,17 +16,16 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
 
-case object Properties extends Function with TypeSignatures {
+case object Properties extends Function {
   override def name = "properties"
 
   override val signatures = Vector(
-    TypeSignature(name, CTNode, CTMap, "Returns a map containing all the properties of a node.", Category.SCALAR),
-    TypeSignature(name, CTRelationship, CTMap, description = "Returns a map containing all the properties of a relationship.", Category.SCALAR),
-    TypeSignature(name, CTMap, CTMap, description = "Returns a map containing all the properties of a map.", Category.SCALAR)
+    TypeSignature(this, CTNode, CTMap, "Returns a map containing all the properties of a node.", Category.SCALAR),
+    TypeSignature(this, CTRelationship, CTMap, description = "Returns a map containing all the properties of a relationship.", Category.SCALAR),
+    TypeSignature(this, CTMap, CTMap, description = "Returns a map containing all the properties of a map.", Category.SCALAR)
   )
 }

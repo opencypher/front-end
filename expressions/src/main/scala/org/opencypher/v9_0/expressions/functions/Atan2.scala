@@ -16,14 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.FunctionTypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Atan2 extends Function with TypeSignatures {
+case object Atan2 extends Function {
   def name = "atan2"
 
   override val signatures = Vector(
-    FunctionTypeSignature(functionName = name, names = Vector("y", "x"), argumentTypes = Vector(CTFloat, CTFloat), outputType = CTFloat,
+    FunctionTypeSignature(this, names = Vector("y", "x"), argumentTypes = Vector(CTFloat, CTFloat), outputType = CTFloat,
       description = "Returns the arctangent2 of a set of coordinates in radians.", category = Category.TRIGONOMETRIC)
   )
 }

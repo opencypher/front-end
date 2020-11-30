@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTString
 
-object RandomUUID extends Function with TypeSignatures {
+object RandomUUID extends Function {
   override def name: String = "randomUUID"
 
   override val signatures = Vector(
-    TypeSignature.noArg(name, CTString, "Generates a random UUID.", Category.SCALAR)
+    TypeSignature.noArg(this, CTString, "Generates a random UUID.", Category.SCALAR)
   )
 }

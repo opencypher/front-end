@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Sin extends Function with TypeSignatures {
+case object Sin extends Function {
   def name = "sin"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat, "Returns the sine of a number.", Category.TRIGONOMETRIC)
+    TypeSignature(this, CTFloat, CTFloat, "Returns the sine of a number.", Category.TRIGONOMETRIC)
   )
 }

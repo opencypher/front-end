@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Tan extends Function with TypeSignatures {
+case object Tan extends Function {
   def name = "tan"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat, "Returns the tangent of a number.", Category.TRIGONOMETRIC)
+    TypeSignature(this, CTFloat, CTFloat, "Returns the tangent of a number.", Category.TRIGONOMETRIC)
   )
 }

@@ -16,15 +16,14 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.FunctionTypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object Left extends Function with TypeSignatures {
+case object Left extends Function {
   def name = "left"
 
   override val signatures = Vector(
-    FunctionTypeSignature(functionName = name, names = Vector("original", "length"),argumentTypes = Vector(CTString, CTInteger), outputType = CTString,
+    FunctionTypeSignature(function = this, names = Vector("original", "length"),argumentTypes = Vector(CTString, CTInteger), outputType = CTString,
       description = "Returns a string containing the specified number of leftmost characters of the original string.", category = Category.STRING)
   )
 }

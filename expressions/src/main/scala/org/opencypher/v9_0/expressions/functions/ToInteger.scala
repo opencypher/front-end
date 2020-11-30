@@ -16,16 +16,15 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTNumber
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object ToInteger extends Function with TypeSignatures {
+case object ToInteger extends Function {
   override def name = "toInteger"
 
   override val signatures = Vector(
-    TypeSignature(name, CTString, CTInteger, "Converts a string value to an integer value.", Category.SCALAR),
-    TypeSignature(name, CTNumber, CTInteger, "Converts a floating point value to an integer value.", Category.SCALAR)
+    TypeSignature(this, CTString, CTInteger, "Converts a string value to an integer value.", Category.SCALAR),
+    TypeSignature(this, CTNumber, CTInteger, "Converts a floating point value to an integer value.", Category.SCALAR)
   )
 }

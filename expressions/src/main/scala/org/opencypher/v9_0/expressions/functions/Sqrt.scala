@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Sqrt extends Function with TypeSignatures {
+case object Sqrt extends Function {
   def name = "sqrt"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat, "Returns the square root of a number.", Category.LOGARITHMIC)
+    TypeSignature(this, CTFloat, CTFloat, "Returns the square root of a number.", Category.LOGARITHMIC)
   )
 }

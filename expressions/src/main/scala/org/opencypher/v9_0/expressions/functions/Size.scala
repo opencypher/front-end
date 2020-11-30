@@ -16,17 +16,16 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object Size extends Function with TypeSignatures {
+case object Size extends Function {
   def name = "size"
 
   override val signatures = Vector(
-    TypeSignature(name, CTList(CTAny), CTInteger, "Returns the number of items in a list.", Category.SCALAR),
-    TypeSignature(name, CTString, CTInteger, "Returns the number of Unicode characters in a string.", Category.SCALAR)
+    TypeSignature(this, CTList(CTAny), CTInteger, "Returns the number of items in a list.", Category.SCALAR),
+    TypeSignature(this, CTString, CTInteger, "Returns the number of Unicode characters in a string.", Category.SCALAR)
   )
 }

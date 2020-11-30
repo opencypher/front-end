@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Pi extends Function with TypeSignatures {
+case object Pi extends Function {
   def name = "pi"
 
   override val signatures = Vector(
-    TypeSignature.noArg(name, CTFloat, "Returns the mathematical constant pi.", Category.TRIGONOMETRIC)
+    TypeSignature.noArg(this, CTFloat, "Returns the mathematical constant pi.", Category.TRIGONOMETRIC)
   )
 }

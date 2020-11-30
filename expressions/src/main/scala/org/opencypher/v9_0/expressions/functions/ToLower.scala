@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object ToLower extends Function with TypeSignatures {
+case object ToLower extends Function  {
   def name = "toLower"
 
   override val signatures = Vector(
-    TypeSignature(name, CTString, CTString, "Returns the original string in lowercase.", Category.STRING)
+    TypeSignature(this, CTString, CTString, "Returns the original string in lowercase.", Category.STRING)
   )
 }

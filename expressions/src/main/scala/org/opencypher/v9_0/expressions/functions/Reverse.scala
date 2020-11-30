@@ -16,16 +16,15 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object Reverse extends Function with TypeSignatures {
+case object Reverse extends Function {
   def name = "reverse"
 
   override val signatures = Vector(
-    TypeSignature(name, CTString, CTString, "Returns a string in which the order of all characters in the original string have been reversed.", Category.STRING),
-    TypeSignature(name, CTList(CTAny), CTList(CTAny), "Returns a list in which the order of all elements in the original list have been reversed.", Category.LIST)
+    TypeSignature(this, CTString, CTString, "Returns a string in which the order of all characters in the original string have been reversed.", Category.STRING),
+    TypeSignature(this, CTList(CTAny), CTList(CTAny), "Returns a list in which the order of all elements in the original list have been reversed.", Category.LIST)
   )
 }

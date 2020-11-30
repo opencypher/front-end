@@ -15,12 +15,14 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-case object Last extends Function with FunctionWithInfo {
+import org.opencypher.v9_0.expressions.FunctionTypeSignature
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTList
+
+case object Last extends Function {
   def name = "last"
-
-  override def getSignatureAsString: String = name + "(list :: LIST? OF ANY?) :: (ANY?)"
-
-  override def getDescription: String = "Returns the last element in a list."
-
-  override def getCategory: String = Category.SCALAR
+  override val signatures = Vector(
+     FunctionTypeSignature(function = this, names = Vector("list"), argumentTypes = Vector(CTList(CTAny)), outputType = CTAny,
+      description = "Returns the last element in a list.", category = Category.SCALAR)
+  )
 }

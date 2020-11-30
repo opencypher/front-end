@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTDate
 import org.opencypher.v9_0.util.symbols.CTDateTime
@@ -27,7 +29,7 @@ import org.opencypher.v9_0.util.symbols.CTPoint
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.CTTime
 
-case object ToString extends Function with FunctionWithInfo {
+case object ToString extends Function {
   override def name = "toString"
 
   val validInputTypes = Seq(
@@ -44,10 +46,8 @@ case object ToString extends Function with FunctionWithInfo {
     CTPoint
   )
 
-  override def getSignatureAsString: String = name + "(input :: ANY?) :: (STRING?)"
-
-  override def getDescription: String =
-    "Converts an integer, float, boolean or temporal type (i.e. Date, Time, LocalTime, DateTime, LocalDateTime or Duration) value to a string."
-
-  override def getCategory: String = Category.STRING
+  override val signatures = Vector(
+    TypeSignature(this, CTAny, CTString,
+      "Converts an integer, float, boolean or temporal type (i.e. Date, Time, LocalTime, DateTime, LocalDateTime or Duration) value to a string.", Category.STRING)
+  )
 }

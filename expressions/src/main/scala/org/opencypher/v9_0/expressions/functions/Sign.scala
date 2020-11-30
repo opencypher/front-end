@@ -16,15 +16,14 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 
-case object Sign extends Function with TypeSignatures {
+case object Sign extends Function {
   def name = "sign"
 
   override val signatures = Vector(
-    TypeSignature(name, CTInteger, CTInteger, "Returns the signum of an integer number: 0 if the number is 0, -1 for any negative number, and 1 for any positive number.", Category.NUMERIC),
-    TypeSignature(name, CTFloat, CTInteger, "Returns the signum of a floating point number: 0 if the number is 0, -1 for any negative number, and 1 for any positive number.", Category.NUMERIC)
+    TypeSignature(this, CTInteger, CTInteger, "Returns the signum of an integer number: 0 if the number is 0, -1 for any negative number, and 1 for any positive number.", Category.NUMERIC),
+    TypeSignature(this, CTFloat, CTInteger, "Returns the signum of a floating point number: 0 if the number is 0, -1 for any negative number, and 1 for any positive number.", Category.NUMERIC)
   )
 }

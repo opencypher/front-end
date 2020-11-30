@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object Trim extends Function with TypeSignatures {
+case object Trim extends Function {
   def name = "trim"
 
   override val signatures = Vector(
-    TypeSignature(name, CTString, CTString, "Returns the original string with leading and trailing whitespace removed.", Category.STRING)
+    TypeSignature(this, CTString, CTString, "Returns the original string with leading and trailing whitespace removed.", Category.STRING)
   )
 }

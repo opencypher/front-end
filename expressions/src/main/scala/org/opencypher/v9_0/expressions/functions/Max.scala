@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTAny
 
-case object Max extends AggregatingFunction with TypeSignatures {
+case object Max extends AggregatingFunction {
   override def name = "max"
 
   override val signatures: Vector[TypeSignature] = Vector(
-    TypeSignature(name, CTAny, CTAny, "Returns the maximum value in a set of values.", Category.AGGREGATING)
+    TypeSignature(this, CTAny, CTAny, "Returns the maximum value in a set of values.", Category.AGGREGATING)
   )
 }

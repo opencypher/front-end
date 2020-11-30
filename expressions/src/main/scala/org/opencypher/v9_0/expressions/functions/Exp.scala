@@ -16,14 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Exp extends Function with TypeSignatures {
+case object Exp extends Function {
   def name = "exp"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat,
+    TypeSignature(this, CTFloat, CTFloat,
       "Returns e^n, where e is the base of the natural logarithm, and n is the value of the argument expression.", Category.LOGARITHMIC)
   )
 }

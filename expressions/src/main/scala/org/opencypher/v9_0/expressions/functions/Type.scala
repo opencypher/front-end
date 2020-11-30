@@ -16,14 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object Type extends Function with TypeSignatures {
+case object Type extends Function {
   override def name = "type"
 
   override val signatures = Vector(
-    TypeSignature(name, CTRelationship, CTString, "Returns the string representation of the relationship type.", Category.SCALAR)
+    TypeSignature(this, CTRelationship, CTString, "Returns the string representation of the relationship type.", Category.SCALAR)
   )
 }

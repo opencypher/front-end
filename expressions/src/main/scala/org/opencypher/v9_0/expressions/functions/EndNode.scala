@@ -16,14 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
 
-case object EndNode extends Function with TypeSignatures {
+case object EndNode extends Function  {
   def name = "endNode"
 
   override val signatures = Vector(
-    TypeSignature(name, CTRelationship, CTNode, "Returns the end node of a relationship.", Category.SCALAR)
+    TypeSignature(this, CTRelationship, CTNode, "Returns the end node of a relationship.", Category.SCALAR)
   )
 }

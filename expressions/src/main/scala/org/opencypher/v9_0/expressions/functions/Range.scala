@@ -16,17 +16,16 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.FunctionTypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 
-case object Range extends Function with TypeSignatures {
+case object Range extends Function {
   def name = "range"
 
   override val signatures = Vector(
-    FunctionTypeSignature(functionName = name, names = Vector("start", "end"), argumentTypes = Vector(CTInteger, CTInteger),
+     FunctionTypeSignature(function = this, names = Vector("start", "end"), argumentTypes = Vector(CTInteger, CTInteger),
       outputType = CTList(CTInteger), description = "Returns a list comprising all integer values within a specified range.", category = Category.LIST),
-    FunctionTypeSignature(functionName = name, names = Vector("start", "end", "step"), argumentTypes = Vector(CTInteger, CTInteger, CTInteger),
+     FunctionTypeSignature(function = this, names = Vector("start", "end", "step"), argumentTypes = Vector(CTInteger, CTInteger, CTInteger),
       outputType = CTList(CTInteger), description = "Returns a list comprising all integer values within a specified range created with step length.", category = Category.LIST)
   )
 }

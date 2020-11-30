@@ -16,14 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTPoint
 
-case object Point extends Function with TypeSignatures {
+case object Point extends Function {
   override def name = "point"
 
   override val signatures = Vector(
-    TypeSignature(name, CTMap, CTPoint, "Returns a 2D or 3D point object, given two or respectively three coordinate values in the Cartesian coordinate system or WGS 84 geographic coordinate system.", Category.SPATIAL)
+    TypeSignature(this, CTMap, CTPoint, "Returns a 2D or 3D point object, given two or respectively three coordinate values in the Cartesian coordinate system or WGS 84 geographic coordinate system.", Category.SPATIAL)
   )
 }

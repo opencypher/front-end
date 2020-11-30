@@ -16,17 +16,16 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTDuration
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 
-case object Avg extends AggregatingFunction with TypeSignatures {
+case object Avg extends AggregatingFunction {
   def name = "avg"
 
   override val signatures = Vector(
-    TypeSignature(name, CTInteger, CTInteger, "Returns the average of a set of integer values.", Category.AGGREGATING),
-    TypeSignature(name, CTFloat, CTFloat, "Returns the average of a set of floating point values.", Category.AGGREGATING),
-    TypeSignature(name, CTDuration, CTDuration, "Returns the average of a set of duration values.", Category.AGGREGATING)
+    TypeSignature(this, CTInteger, CTInteger, "Returns the average of a set of integer values.", Category.AGGREGATING),
+    TypeSignature(this, CTFloat, CTFloat, "Returns the average of a set of floating point values.", Category.AGGREGATING),
+    TypeSignature(this, CTDuration, CTDuration, "Returns the average of a set of duration values.", Category.AGGREGATING)
   )
 }

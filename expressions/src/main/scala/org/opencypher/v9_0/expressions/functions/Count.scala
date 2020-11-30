@@ -16,14 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTInteger
 
-case object Count extends AggregatingFunction with TypeSignatures {
+case object Count extends AggregatingFunction {
   def name = "count"
 
   override val signatures = Vector(
-    TypeSignature(name, CTAny, CTInteger, "Returns the number of values or rows.", Category.AGGREGATING)
+    TypeSignature(this, CTAny, CTInteger, "Returns the number of values or rows.", Category.AGGREGATING)
   )
 }

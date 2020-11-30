@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object StdDevP extends AggregatingFunction with TypeSignatures {
+case object StdDevP extends AggregatingFunction {
   def name = "stdevp"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat, "Returns the standard deviation for the given value over a group for an entire population.", Category.AGGREGATING)
+    TypeSignature(this, CTFloat, CTFloat, "Returns the standard deviation for the given value over a group for an entire population.", Category.AGGREGATING)
   )
 }

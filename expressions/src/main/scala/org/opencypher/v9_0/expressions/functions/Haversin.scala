@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Haversin extends Function with TypeSignatures {
+case object Haversin extends Function {
   def name = "haversin"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat, "Returns half the versine of a number.", Category.TRIGONOMETRIC)
+    TypeSignature(this, CTFloat, CTFloat, "Returns half the versine of a number.", Category.TRIGONOMETRIC)
   )
 }

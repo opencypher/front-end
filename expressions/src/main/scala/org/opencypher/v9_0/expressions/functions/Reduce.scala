@@ -15,16 +15,24 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
+import org.opencypher.v9_0.expressions.FunctionTypeSignature
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTList
+
 // this implementation exists only to handle the case where "reduce(x = 0, x in y : foo)" is parsed as a function invocation,
 // rather than a ReduceExpression
-case object Reduce extends Function with FunctionWithInfo {
+case object Reduce extends Function {
   def name = "reduce"
 
   // TODO: Get specification formalized by CLG
-  override def getSignatureAsString: String =
-    name + "(accumulator :: VARIABLE = initial :: ANY?, variable :: VARIABLE IN list :: LIST OF ANY? | expression :: ANY) :: (ANY?)"
-
-  override def getDescription: String = "Runs an expression against individual elements of a list, storing the result of the expression in an accumulator."
-
-  override def getCategory: String = Category.LIST
+  override val signatures = Vector(
+    FunctionTypeSignature(
+      function = this,
+      names = Vector("accumulator", "variable"),
+      argumentTypes = Vector(CTAny, CTList(CTAny)),
+      outputType = CTAny,
+      description = "Runs an expression against individual elements of a list, storing the result of the expression in an accumulator.",
+      category = Category.LIST,
+      overrideDefaultAsString = Some(name + "(accumulator :: VARIABLE = initial :: ANY?, variable :: VARIABLE IN list :: LIST OF ANY? | expression :: ANY) :: (ANY?)"))
+  )
 }

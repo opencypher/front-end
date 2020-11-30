@@ -16,15 +16,14 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 
-case object Abs extends Function with TypeSignatures {
+case object Abs extends Function {
   def name = "abs"
 
   override val signatures: IndexedSeq[TypeSignature] = Vector(
-    TypeSignature(name, CTInteger, CTInteger, "Returns the absolute value of an integer.", Category.NUMERIC),
-    TypeSignature(name, CTFloat, CTFloat, "Returns the absolute value of a floating point number.", Category.NUMERIC)
+    TypeSignature(this, CTInteger, CTInteger, "Returns the absolute value of an integer.", Category.NUMERIC),
+    TypeSignature(this, CTFloat, CTFloat, "Returns the absolute value of a floating point number.", Category.NUMERIC)
   )
 }

@@ -16,14 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Floor extends Function with TypeSignatures {
+case object Floor extends Function {
   def name = "floor"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat,
+    TypeSignature(this, CTFloat, CTFloat,
       "Returns the largest floating point number that is less than or equal to a number and equal to a mathematical integer.", Category.NUMERIC)
   )
 }

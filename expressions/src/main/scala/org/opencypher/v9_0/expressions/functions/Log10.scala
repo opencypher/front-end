@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Log10 extends Function with TypeSignatures {
+case object Log10 extends Function {
   def name = "log10"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat, "Returns the common logarithm (base 10) of a number.", Category.LOGARITHMIC)
+    TypeSignature(this, CTFloat, CTFloat, "Returns the common logarithm (base 10) of a number.", Category.LOGARITHMIC)
   )
 }

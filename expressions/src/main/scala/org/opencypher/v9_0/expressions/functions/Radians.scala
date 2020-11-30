@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Radians extends Function with TypeSignatures {
+case object Radians extends Function {
   def name = "radians"
 
   override val signatures = Vector(
-    TypeSignature(name, CTFloat, CTFloat, "Converts degrees to radians.", Category.TRIGONOMETRIC)
+    TypeSignature(this, CTFloat, CTFloat, "Converts degrees to radians.", Category.TRIGONOMETRIC)
   )
 }

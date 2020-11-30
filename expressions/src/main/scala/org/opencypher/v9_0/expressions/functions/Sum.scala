@@ -16,20 +16,19 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.FunctionTypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTDuration
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 
-case object Sum extends AggregatingFunction with TypeSignatures {
+case object Sum extends AggregatingFunction {
   def name = "sum"
 
   override val signatures: Vector[FunctionTypeSignature] = Vector(
-    FunctionTypeSignature(functionName = name, names = Vector("input"), argumentTypes = Vector(CTInteger), outputType = CTInteger,
+     FunctionTypeSignature(function = this, names = Vector("input"), argumentTypes = Vector(CTInteger), outputType = CTInteger,
       description = "Returns the sum of a set of integers", category = Category.AGGREGATING),
-    FunctionTypeSignature(functionName = name, names = Vector("input"), argumentTypes = Vector(CTFloat), outputType = CTFloat,
+     FunctionTypeSignature(function = this, names = Vector("input"), argumentTypes = Vector(CTFloat), outputType = CTFloat,
       description = "Returns the sum of a set of floats", category = Category.AGGREGATING),
-    FunctionTypeSignature(functionName = name, names = Vector("input"), argumentTypes = Vector(CTDuration), outputType = CTDuration,
+     FunctionTypeSignature(function = this, names = Vector("input"), argumentTypes = Vector(CTDuration), outputType = CTDuration,
       description = "Returns the sum of a set of durations", category = Category.AGGREGATING)
   )
 }

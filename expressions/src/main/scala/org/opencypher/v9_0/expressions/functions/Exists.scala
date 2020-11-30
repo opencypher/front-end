@@ -16,21 +16,14 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 
-case object Exists extends Function with FunctionWithInfo with TypeSignatures {
+case object Exists extends Function {
   def name = "exists"
-
-  override def getSignatureAsString: String = name + "(input :: ANY?) :: (BOOLEAN?)"
-
-  override def getDescription: String =
-    "Returns true if a match for the pattern exists in the graph, or if the specified property exists in the node, relationship or map."
-
-  override def getCategory: String = Category.PREDICATE
-
   override val signatures = Vector(
-    TypeSignature(name, CTAny, CTBoolean, getDescription, getCategory)
+    TypeSignature(this, CTAny, CTBoolean,
+      "Returns true if a match for the pattern exists in the graph, or if the specified property exists in the node, relationship or map.",
+      Category.PREDICATE)
   )
 }

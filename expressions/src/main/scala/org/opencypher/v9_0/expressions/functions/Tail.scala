@@ -15,12 +15,14 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-case object Tail extends Function with FunctionWithInfo {
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTList
+
+case object Tail extends Function {
   def name = "tail"
-
-  override def getSignatureAsString: String = name + "(input :: LIST? OF ANY?) :: (LIST? OF ANY?)"
-
-  override def getDescription: String = "Returns all but the first element in a list."
-
-  override def getCategory: String = Category.LIST
+  override val signatures = Vector(
+    TypeSignature(this, CTList(CTAny),  CTList(CTAny),
+      description =  "Returns all but the first element in a list.", category = Category.LIST)
+  )
 }

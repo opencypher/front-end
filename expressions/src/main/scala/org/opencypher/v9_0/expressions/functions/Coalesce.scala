@@ -15,12 +15,13 @@
  */
 package org.opencypher.v9_0.expressions.functions
 
-case object Coalesce extends Function with FunctionWithInfo {
+import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.util.symbols.CTAny
+
+case object Coalesce extends Function {
   def name = "coalesce"
-
-  override def getSignatureAsString: String = name + "(input :: ANY?) :: (ANY?)"
-
-  override def getDescription: String = "Returns the first non-null value in a list of expressions."
-
-  override def getCategory: String = Category.SCALAR
+  override val signatures = Vector(
+    TypeSignature(this, CTAny, outputType = CTAny,
+      description = "Returns the first non-null value in a list of expressions.", category = Category.SCALAR)
+  )
 }

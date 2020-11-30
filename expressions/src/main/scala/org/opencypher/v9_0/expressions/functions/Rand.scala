@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Rand extends Function with TypeSignatures {
+case object Rand extends Function {
   val name = "rand"
 
   override val signatures = Vector(
-    TypeSignature.noArg(name, CTFloat, "Returns a random floating point number in the range from 0 (inclusive) to 1 (exclusive); i.e. [0,1).", Category.NUMERIC)
+    TypeSignature.noArg(this, CTFloat, "Returns a random floating point number in the range from 0 (inclusive) to 1 (exclusive); i.e. [0,1).", Category.NUMERIC)
   )
 }

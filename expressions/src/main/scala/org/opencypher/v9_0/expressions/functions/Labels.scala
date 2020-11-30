@@ -16,15 +16,14 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.expressions.TypeSignatures
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object Labels extends Function with TypeSignatures {
+case object Labels extends Function {
   override def name = "labels"
 
   override val signatures = Vector(
-    TypeSignature(name, CTNode, CTList(CTString), "Returns a list containing the string representations for all the labels of a node.", Category.LIST)
+    TypeSignature(this, CTNode, CTList(CTString), "Returns a list containing the string representations for all the labels of a node.", Category.LIST)
   )
 }
