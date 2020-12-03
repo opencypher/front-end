@@ -39,6 +39,7 @@ import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.HasLabelsOrTypes
+import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
@@ -119,6 +120,9 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def hasLabels(v: String, label: String): HasLabels =
     hasLabels(varFor(v), label)
+
+  def hasTypes(v: String, types: String*): HasTypes =
+    HasTypes(varFor(v), types.map(relTypeName))(pos)
 
   def hasLabels(v: LogicalVariable, labels: String*): HasLabels =
     HasLabels(v, labels.map(labelName))(pos)
