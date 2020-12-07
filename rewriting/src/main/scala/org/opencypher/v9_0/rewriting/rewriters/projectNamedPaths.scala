@@ -17,6 +17,7 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.ProjectionClause
+import org.opencypher.v9_0.ast.SubQuery
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.AnonymousPatternPart
 import org.opencypher.v9_0.expressions.EveryPath
@@ -119,7 +120,6 @@ case object projectNamedPaths extends Rewriter {
     //
     // plan rewriter for pushing projections up the tree
 
-    // TODO: Project for use in WHERE
     // TODO: Pull out common subexpressions for path expr using WITH *, ... and run expand star again
     // TODO: Plan level rewriting to delay computation of unused projections
 
@@ -129,6 +129,10 @@ case object projectNamedPaths extends Rewriter {
           (acc, expr) => acc.withVariableRewritesForExpression(expr)
         }
         TraverseChildrenNewAccForSiblings(projectedAcc, _.withoutNamedPaths)
+
+    case _: SubQuery =>
+      acc =>
+        TraverseChildrenNewAccForSiblings(acc, insideAcc => insideAcc.copy(paths = acc.paths))
 
     case NamedPatternPart(_, _: ShortestPaths) =>
       acc => TraverseChildren(acc)
