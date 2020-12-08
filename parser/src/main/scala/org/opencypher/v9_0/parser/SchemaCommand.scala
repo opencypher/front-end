@@ -45,7 +45,8 @@ trait SchemaCommand extends Parser
   with Literals
   with Base
   with ProcedureCalls
-  with GraphSelection {
+  with GraphSelection
+  with CommandHelper {
 
   def SchemaCommand: Rule1[ast.SchemaCommand] = rule(
     optional(UseGraph) ~~ (
@@ -133,8 +134,6 @@ trait SchemaCommand extends Parser
     keyword("BTREE") ~~~> (_ => false) |
       optional(keyword("ALL")) ~~~> (_ => true)
   }
-
-  def IndexKeyword: Rule0 = keyword("INDEXES") | keyword("INDEX")
 
   def CreateUniqueConstraint: Rule1[ast.CreateUniquePropertyConstraint] = rule {
     // without name
@@ -272,8 +271,6 @@ trait SchemaCommand extends Parser
     ExistsKeyword ~~~> (_ => ExistsConstraints) |
     optional(keyword("ALL")) ~~~> (_ => AllConstraints)
   }
-
-  def ConstraintKeyword: Rule0 = keyword("CONSTRAINTS") | keyword("CONSTRAINT")
 
   private def ExistsKeyword: Rule0 = keyword("EXISTS") | keyword("EXIST")
 

@@ -35,7 +35,7 @@ import org.parboiled.scala.group
 trait AdministrationCommand extends Parser
                             with GraphSelection
                             with Query
-                            with SchemaCommand
+                            with CommandHelper
                             with Base {
 
   def AdministrationCommand: Rule1[ast.AdministrationCommand] = rule("Administration statement") {
