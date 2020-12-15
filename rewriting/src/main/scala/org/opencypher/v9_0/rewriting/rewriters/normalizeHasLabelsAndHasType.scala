@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter

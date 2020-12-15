@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.functions
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory

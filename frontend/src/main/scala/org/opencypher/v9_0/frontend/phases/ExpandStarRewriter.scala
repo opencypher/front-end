@@ -20,7 +20,7 @@ import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.util.StepSequencer
 
-object ExpandStarRewriter extends Phase[BaseContext, BaseState, BaseState] {
+case object ExpandStarRewriter extends Phase[BaseContext, BaseState, BaseState] {
 
   def phase: CompilationPhaseTracer.CompilationPhase = AST_REWRITE
 

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.rewriting.ValidatingCondition
+import org.opencypher.v9_0.util.StepSequencer
 
 case class StatementCondition(inner: ValidatingCondition) extends ValidatingCondition {
   override def apply(state: Any): Seq[String] = state match {
@@ -24,4 +25,17 @@ case class StatementCondition(inner: ValidatingCondition) extends ValidatingCond
   }
 
   override def name: String = productPrefix
+}
+
+object StatementCondition {
+  /**
+   * Conditions that during Rewriting check the statement need to be checked on the Statement only.
+   * When checking these same conditions during higher-level phases, we need to wrap ValidatingCondition in StatementCondition.
+   */
+  def wrap(condition: StepSequencer.Condition): StepSequencer.Condition = {
+    condition match {
+      case vc: ValidatingCondition => StatementCondition(vc)
+      case _ => condition
+    }
+  }
 }

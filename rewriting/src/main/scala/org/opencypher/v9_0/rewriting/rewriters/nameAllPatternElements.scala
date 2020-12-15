@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory

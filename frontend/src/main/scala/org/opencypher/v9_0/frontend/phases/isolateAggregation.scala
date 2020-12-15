@@ -23,6 +23,7 @@ import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.expressions.DesugaredMapProjection
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.IsAggregate
@@ -30,6 +31,8 @@ import org.opencypher.v9_0.expressions.IterablePredicateExpression
 import org.opencypher.v9_0.expressions.ListComprehension
 import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
+import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.conditions.aggregationsAreIsolated
 import org.opencypher.v9_0.rewriting.conditions.hasAggregateButIsNotAggregate
 import org.opencypher.v9_0.util.AggregationNameGenerator
@@ -55,13 +58,11 @@ import org.opencypher.v9_0.util.topDown
  * WITH n.name AS x1, count(*) AS x2, n.foo as X3
  * RETURN { name: x1, count: x2 }
  */
-case object isolateAggregation extends StatementRewriter {
+case object isolateAggregation extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
   override def instance(context: BaseContext): Rewriter = bottomUp(rewriter, _.isInstanceOf[Expression])
 
   override def description: String = "Makes sure that aggregations are on their own in RETURN/WITH clauses"
-
-  override def postConditions: Set[StepSequencer.Condition] = Set(StatementCondition(aggregationsAreIsolated))
 
   private val rewriter = Rewriter.lift {
     case q@SingleQuery(clauses) =>
@@ -139,4 +140,20 @@ case object isolateAggregation extends StatementRewriter {
   private def clauseNeedingWork(c: Clause): Boolean = c.treeExists {
     case e: Expression => hasAggregateButIsNotAggregate(e)
   }
+
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    // Otherwise it might rewrite ambiguous symbols incorrectly, e.g. when a grouping variable is shadowed in for-comprehension.
+    AmbiguousNamesDisambiguated
+  )
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(StatementCondition(aggregationsAreIsolated))
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set(
+    // Can introduces new ambiguous variable names itself.
+    AmbiguousNamesDisambiguated,
+  ) ++ SemanticInfoAvailable // Adds a WITH clause with no SemanticInfo
+
+  override def getTransformer(pushdownPropertyReads: Boolean,
+                              semanticFeatures: Seq[SemanticFeature]): Transformer[BaseContext, BaseState, BaseState] = this
+
 }

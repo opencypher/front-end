@@ -15,22 +15,17 @@
  */
 package org.opencypher.v9_0.rewriting.conditions
 
+import org.opencypher.v9_0.expressions.NamedPatternPart
+import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.rewriting.ValidatingCondition
-import org.opencypher.v9_0.util.ASTNode
 
-import scala.reflect.ClassTag
+case object containsNamedPathOnlyForShortestPath extends ValidatingCondition {
+  private val matcher = containsNoMatchingNodes({
+    case namedPart@NamedPatternPart(_, part) if !part.isInstanceOf[ShortestPaths] =>
+      namedPart.toString
+  })
 
-case class containsNoNodesOfType[T <: ASTNode](implicit tag: ClassTag[T]) extends ValidatingCondition {
-  def apply(that: Any): Seq[String] = collectNodesOfType[T].apply(that).map {
-    node => s"Expected none but found ${node.getClass.getSimpleName} at position ${node.position}"
-  }
+  def apply(that: Any): Seq[String] = matcher(that)
 
-  override def name = s"$productPrefix[${tag.runtimeClass.getSimpleName}]"
-
-  override def hashCode(): Int = tag.hashCode()
-
-  override def equals(obj: Any): Boolean = obj match {
-    case cc:containsNoNodesOfType[_] => tag.equals(cc.tag)
-    case  _ => false
-  }
+  override def name: String = productPrefix
 }

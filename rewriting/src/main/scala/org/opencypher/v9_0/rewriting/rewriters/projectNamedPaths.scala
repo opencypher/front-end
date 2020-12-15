@@ -41,6 +41,9 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.SingleRelationshipPathStep
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
+import org.opencypher.v9_0.rewriting.conditions.containsNamedPathOnlyForShortestPath
+import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
@@ -48,11 +51,12 @@ import org.opencypher.v9_0.util.Foldable.TraverseChildrenNewAccForSiblings
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.topDown
 
 import scala.annotation.tailrec
 
-case object projectNamedPaths extends Rewriter {
+case object projectNamedPaths extends Rewriter with StepSequencer.Step {
 
   case class Projectibles(paths: Map[Variable, PathExpression] = Map.empty,
                           protectedVariables: Set[Ref[LogicalVariable]] = Set.empty,
@@ -209,4 +213,15 @@ case object projectNamedPaths extends Rewriter {
       }
     }
   }
+
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    // This rewriter needs to know the expanded return items
+    containsNoReturnAll
+  )
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(
+    containsNamedPathOnlyForShortestPath
+  )
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = SemanticInfoAvailable // Introduces new AST nodes
 }

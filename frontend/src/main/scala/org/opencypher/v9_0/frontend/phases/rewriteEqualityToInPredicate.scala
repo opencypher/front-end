@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.In
@@ -22,14 +23,14 @@ import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.functions
+import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
+import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
+import org.opencypher.v9_0.rewriting.rewriters.EqualityRewrittenToIn
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
-/*
-TODO: This should implement Rewriter instead
- */
-case object rewriteEqualityToInPredicate extends StatementRewriter {
+case object rewriteEqualityToInPredicate extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
   override def description: String = "normalize equality predicates into IN comparisons"
 
@@ -48,5 +49,15 @@ case object rewriteEqualityToInPredicate extends StatementRewriter {
       In(prop, ListLiteral(Seq(idValueExpr))(idValueExpr.position))(predicate.position)
   })
 
-  override def postConditions: Set[StepSequencer.Condition] = Set.empty
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    // transitiveClosure does not work correctly if Equals has been rewritten to In, so this rewriter needs to go after.
+    TransitiveClosureAppliedToWhereClauses
+  )
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(EqualityRewrittenToIn)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = SemanticInfoAvailable // Introduces new AST nodes
+
+  override def getTransformer(pushdownPropertyReads: Boolean,
+                              semanticFeatures: Seq[SemanticFeature]): Transformer[BaseContext, BaseState, BaseState] = this
 }

@@ -15,20 +15,36 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
+import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.rewriters.collapseMultipleInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
 import org.opencypher.v9_0.util.inSequence
 
-object LateAstRewriting extends StatementRewriter {
-  override def instance(context: BaseContext): Rewriter = inSequence(
+case object LateAstRewriting extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
+
+  private val steps: Set[StepSequencer.Step with Rewriter] = Set(
     collapseMultipleInPredicates,
     projectNamedPaths
-//    enableCondition(containsNamedPathOnlyForShortestPath), // TODO Re-enable
   )
+
+  private val AccumulatedSteps(orderedSteps, accumulatedConditions) = StepSequencer(ListStepAccumulator[StepSequencer.Step with Rewriter]()).orderSteps(steps, initialConditions = steps.flatMap(_.preConditions))
+  private val rewriter = inSequence(orderedSteps: _*)
+
+  override def instance(context: BaseContext): Rewriter = rewriter
 
   override def description: String = "normalize the AST"
 
-  override def postConditions: Set[StepSequencer.Condition] = Set.empty
+  override def preConditions: Set[StepSequencer.Condition] = steps.flatMap(_.preConditions).map(StatementCondition.wrap)
+
+  override def postConditions: Set[StepSequencer.Condition] = steps.flatMap(_.postConditions).intersect(accumulatedConditions).map(StatementCondition.wrap)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = (steps.flatMap(_.invalidatedConditions) -- accumulatedConditions).map(StatementCondition.wrap)
+
+  override def getTransformer(pushdownPropertyReads: Boolean,
+                              semanticFeatures: Seq[SemanticFeature]): Transformer[BaseContext, BaseState, BaseState] = this
 }

@@ -24,6 +24,8 @@ import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Size
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionAreWrappedInExists
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
@@ -33,8 +35,7 @@ import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols
 import org.opencypher.v9_0.util.symbols.CypherType
 
-case object PatternExpressionsHaveSemanticInfo extends Condition
-case object PatternExpressionAreWrappedInExists extends Condition
+
 
 /**
  * Adds an exist around any pattern expression that is expected to produce a boolean e.g.

@@ -24,7 +24,7 @@ import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.StepSequencer
 
-object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, BaseState] {
+case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, BaseState] {
 
   override def phase: CompilationPhaseTracer.CompilationPhase = METADATA_COLLECTION
 

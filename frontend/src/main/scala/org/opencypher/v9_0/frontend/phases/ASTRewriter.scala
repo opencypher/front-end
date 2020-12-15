@@ -19,9 +19,9 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.RewriterStep
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
-import org.opencypher.v9_0.rewriting.rewriters.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar

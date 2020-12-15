@@ -15,11 +15,12 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
+import org.opencypher.v9_0.util.Rewriter
 
 trait StatementRewriter extends Phase[BaseContext, BaseState, BaseState] {
+  self: Product =>
   override def phase: CompilationPhase = AST_REWRITE
 
   def instance(context: BaseContext): Rewriter

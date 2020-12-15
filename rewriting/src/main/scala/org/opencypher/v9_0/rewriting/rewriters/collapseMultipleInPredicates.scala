@@ -20,16 +20,21 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Ors
+import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
 import scala.collection.immutable.Iterable
+
+case object EqualityRewrittenToIn extends StepSequencer.Condition
+case object InPredicatesCollapsed extends StepSequencer.Condition
 
 /*
 This class merges multiple IN predicates into larger ones.
 These can later be turned into index lookups or node-by-id ops
  */
-case object collapseMultipleInPredicates extends Rewriter {
+case object collapseMultipleInPredicates extends Rewriter with StepSequencer.Step {
 
   override def apply(that: AnyRef) = instance(that)
 
@@ -63,4 +68,10 @@ case object collapseMultipleInPredicates extends Rewriter {
         case l => Ors(l)(predicate.position)
       }
   })
+
+  override def preConditions: Set[StepSequencer.Condition] = Set(EqualityRewrittenToIn)
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(InPredicatesCollapsed)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = SemanticInfoAvailable // Introduces new AST nodes
 }

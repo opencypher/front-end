@@ -15,7 +15,10 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
+import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.rewriters.deMorganRewriter
 import org.opencypher.v9_0.rewriting.rewriters.distributeLawsRewriter
 import org.opencypher.v9_0.rewriting.rewriters.flattenBooleanOperators
@@ -26,7 +29,9 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.inSequence
 
-case object CNFNormalizer extends StatementRewriter {
+case object BooleanPredicatesInCNF extends StepSequencer.Condition
+
+case object CNFNormalizer extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
   override def description: String = "normalize boolean predicates into conjunctive normal form"
 
@@ -43,5 +48,18 @@ case object CNFNormalizer extends StatementRewriter {
     )
   }
 
-  override def postConditions: Set[StepSequencer.Condition] = Set.empty
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    // transitiveClosure does not work correctly if And has been rewritten to Ands, so this rewriter needs to go after.
+    TransitiveClosureAppliedToWhereClauses
+  ) ++ flattenBooleanOperators.preConditions ++ normalizeSargablePredicates.preConditions
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(BooleanPredicatesInCNF) ++ flattenBooleanOperators.postConditions ++ normalizeSargablePredicates.postConditions
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] =
+    normalizeSargablePredicates.invalidatedConditions ++
+      flattenBooleanOperators.invalidatedConditions ++
+      SemanticInfoAvailable // Introduces new AST nodes
+
+  override def getTransformer(pushdownPropertyReads: Boolean,
+                              semanticFeatures: Seq[SemanticFeature]): Transformer[BaseContext, BaseState, BaseState] = this
 }

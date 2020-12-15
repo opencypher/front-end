@@ -26,6 +26,7 @@ import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.FoldableAny
@@ -37,6 +38,8 @@ import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
+
+case object AndRewrittenToAnds extends StepSequencer.Condition
 
 case class deMorganRewriter()(implicit monitor: AstRewritingMonitor) extends Rewriter {
 
@@ -83,7 +86,7 @@ case class distributeLawsRewriter()(implicit monitor: AstRewritingMonitor) exten
   private val instance: Rewriter = repeatWithSizeLimit(bottomUp(step))(monitor)
 }
 
-object flattenBooleanOperators extends Rewriter {
+case object flattenBooleanOperators extends Rewriter with StepSequencer.Step {
   def apply(that: AnyRef): AnyRef = instance.apply(that)
 
   private val firstStep: Rewriter = Rewriter.lift {
@@ -103,6 +106,12 @@ object flattenBooleanOperators extends Rewriter {
   }
 
   private val instance = inSequence(bottomUp(firstStep), fixedPoint(bottomUp(secondStep)))
+
+  override def preConditions: Set[StepSequencer.Condition] = Set.empty
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(AndRewrittenToAnds)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 }
 
 object simplifyPredicates extends Rewriter {

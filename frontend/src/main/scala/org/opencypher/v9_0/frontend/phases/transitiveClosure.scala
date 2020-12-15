@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.ExistsSubClause
@@ -23,6 +24,9 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
+import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
+import org.opencypher.v9_0.rewriting.rewriters.EqualityRewrittenToIn
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Rewriter
@@ -30,21 +34,20 @@ import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
 
+
+case object TransitiveClosureAppliedToWhereClauses extends StepSequencer.Condition
+
 /**
- * TODO: This should instead implement Rewriter
- *
  * Transitive closure of where clauses.
  *
  * Given a where clause, `WHERE a.prop = b.prop AND b.prop = 42` we rewrite the query
  * into `WHERE a.prop = 42 AND b.prop = 42`
  */
-case object transitiveClosure extends StatementRewriter {
+case object transitiveClosure extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
   override def description: String = "transitive closure in where clauses"
 
   override def instance(ignored: BaseContext): Rewriter = transitiveClosureRewriter
-
-  override def postConditions: Set[StepSequencer.Condition] = Set.empty
 
   private case object transitiveClosureRewriter extends Rewriter {
 
@@ -110,7 +113,24 @@ case object transitiveClosure extends StatementRewriter {
   }
 
   object Closures {
-    def empty = Closures()
+    def empty: Closures = Closures()
   }
 
+  override def preConditions: Set[StepSequencer.Condition] = Set(
+    //!EqualityRewrittenToIn,
+    //!AndRewrittenToAnds
+    // Only matching on Equals and And, this rewriter does not work correctly if these have already been rewritten to In and Ands.
+    // There is currently no way of specifying negated conditions.
+    // Instead, this is modelled with preConditions in the other direction.
+  )
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(TransitiveClosureAppliedToWhereClauses)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set(
+    // This Rewriter creates Equals AST nodes.
+    EqualityRewrittenToIn
+  ) ++ SemanticInfoAvailable // Introduces new AST nodes
+
+  override def getTransformer(pushdownPropertyReads: Boolean,
+                              semanticFeatures: Seq[SemanticFeature]): Transformer[BaseContext, BaseState, BaseState] = this
 }
