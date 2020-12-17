@@ -25,10 +25,10 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.StringLiteral
-import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.StorableType
 
 class PatternComprehensionTest extends SemanticFunSuite {
 
@@ -46,7 +46,7 @@ class PatternComprehensionTest extends SemanticFunSuite {
     val result = SemanticExpressionCheck.simple(expression)(SemanticState.clean)
 
     result.errors shouldBe empty
-    types(expression)(result.state) should equal(CTList(CTAny).covariant)
+    types(expression)(result.state) should equal(StorableType.storableType.wrapInList)
   }
 
   test("pattern comprehension with literal string projection has correct type") {

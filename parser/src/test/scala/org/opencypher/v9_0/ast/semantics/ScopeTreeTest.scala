@@ -16,14 +16,15 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.StatementHelper.RichStatement
-import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.allSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intCollectionCollectionSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intCollectionSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.nodeSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.pathCollectionSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.scope
+import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.typedSymbol
 import org.opencypher.v9_0.parser.ParserFixture.parse
+import org.opencypher.v9_0.util.symbols.StorableType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 /*
@@ -205,9 +206,9 @@ class ScopeTreeTest extends CypherFunSuite {
         scope(nodeSymbol("liker", 7, 19, 38))()
       ),
       scope(pathCollectionSymbol("isNew", 54, 65), nodeSymbol("liker", 83, 19, 7, 28))(
-        scope(allSymbol("freshId", 97, 116), pathCollectionSymbol("isNew", 54, 65, 74))()
+        scope(typedSymbol("freshId", StorableType.storableType, 97, 116), pathCollectionSymbol("isNew", 54, 65, 74))()
       ),
-      scope(allSymbol("freshId", 97), pathCollectionSymbol("isNew", 54, 65, 74, 133))(),
+      scope(typedSymbol("freshId", StorableType.storableType, 97), pathCollectionSymbol("isNew", 54, 65, 74, 133))(),
       scope(pathCollectionSymbol("isNew", 54, 74, 65, 142, 133))()
     ))
   }

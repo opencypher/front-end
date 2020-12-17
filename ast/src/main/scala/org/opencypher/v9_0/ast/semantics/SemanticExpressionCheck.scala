@@ -114,6 +114,7 @@ import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.CTTime
 import org.opencypher.v9_0.util.symbols.CypherType
+import org.opencypher.v9_0.util.symbols.StorableType.storableType
 import org.opencypher.v9_0.util.symbols.TypeSpec
 
 import scala.annotation.tailrec
@@ -282,11 +283,17 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
       case x:CoerceTo =>
         check(ctx, x.expr, x +: parents) chain expectType(x.typ.covariant, x.expr)
 
-      case x:Property =>
+      case x: Property =>
+        val allowedTypes = CTNode.covariant | CTRelationship.covariant | CTMap.covariant | CTPoint.covariant | CTDate.covariant | CTTime.covariant |
+          CTLocalTime.covariant | CTLocalDateTime.covariant | CTDateTime.covariant | CTDuration.covariant
+
         check(ctx, x.map, x +: parents) chain
-          expectType(CTMap.covariant | CTNode.covariant | CTRelationship.covariant | CTPoint.covariant | CTDate.covariant | CTTime.covariant |
-            CTLocalTime.covariant | CTLocalDateTime.covariant | CTDateTime.covariant | CTDuration.covariant, x.map) chain
-          specifyType(CTAny.covariant, x)
+          expectType(allowedTypes, x.map) chain
+          typeSwitch(x.map) {
+            // Maybe we can do even more here - Point / Dates probably have type implications too
+            case CTNode.invariant | CTRelationship.invariant => specifyType(storableType, x)
+            case _ => specifyType(CTAny.covariant, x)
+          }
 
       case x:CachedProperty =>
         specifyType(CTAny.covariant, x)
