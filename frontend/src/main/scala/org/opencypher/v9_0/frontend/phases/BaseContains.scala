@@ -21,7 +21,7 @@ import org.opencypher.v9_0.rewriting.ValidatingCondition
 
 import scala.reflect.ClassTag
 
-case class BaseContains[T: ClassTag](implicit manifest: Manifest[T]) extends ValidatingCondition {
+case class BaseContains[T: ClassTag]()(implicit manifest: Manifest[T]) extends ValidatingCondition {
   private val acceptableTypes: Set[Class[_]] = Set(
     classOf[Statement],
     classOf[SemanticState]
