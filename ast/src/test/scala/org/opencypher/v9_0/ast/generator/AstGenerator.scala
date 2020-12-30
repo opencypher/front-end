@@ -224,6 +224,7 @@ import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.UserAllQualifier
+import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
@@ -1295,7 +1296,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     suspended             <- option(boolean)
     ifExistsDo            <- _ifExistsDo
     defaultDatabase       <- option(_nameAsEither)
-  } yield CreateUser(userName, isEncryptedPassword, password, requirePasswordChange, suspended, ifExistsDo, defaultDatabase)(pos)
+  } yield CreateUser(userName, isEncryptedPassword, password, UserOptions(Some(requirePasswordChange), suspended, defaultDatabase), ifExistsDo)(pos)
 
   def _dropUser: Gen[DropUser] = for {
     userName <- _nameAsEither
@@ -1309,7 +1310,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     isEncryptedPassword   <- if (password.isEmpty) const(None) else some(boolean)
     suspended             <- if (password.isEmpty && requirePasswordChange.isEmpty) some(boolean) else option(boolean) // All three are not allowed to be None
     defaultDatabase       <- option(_nameAsEither)
-  } yield AlterUser(userName, isEncryptedPassword, password, requirePasswordChange, suspended, defaultDatabase)(pos)
+  } yield AlterUser(userName, isEncryptedPassword, password, UserOptions(requirePasswordChange, suspended, defaultDatabase))(pos)
 
   def _setOwnPassword: Gen[SetOwnPassword] = for {
     newPassword <- _password
