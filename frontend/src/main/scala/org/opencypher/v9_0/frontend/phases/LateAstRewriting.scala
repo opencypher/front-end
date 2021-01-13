@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
 import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.rewriters.collapseMultipleInPredicates
-import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
@@ -28,8 +27,7 @@ import org.opencypher.v9_0.util.inSequence
 case object LateAstRewriting extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
   private val steps: Set[StepSequencer.Step with Rewriter] = Set(
-    collapseMultipleInPredicates,
-    projectNamedPaths
+    collapseMultipleInPredicates
   )
 
   private val AccumulatedSteps(orderedSteps, accumulatedConditions) = StepSequencer(ListStepAccumulator[StepSequencer.Step with Rewriter]()).orderSteps(steps, initialConditions = steps.flatMap(_.preConditions))

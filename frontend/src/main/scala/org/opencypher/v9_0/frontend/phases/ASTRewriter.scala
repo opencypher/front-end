@@ -38,6 +38,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
+import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.StepSequencer
@@ -64,6 +65,7 @@ class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
     replaceLiteralDynamicPropertyLookups,
     inlineNamedPathsInPatternComprehensions,
     parameterValueTypeReplacement,
+    projectNamedPaths,
   ), initialConditions = Set(ProjectionClausesHaveSemanticInfo, PatternExpressionsHaveSemanticInfo))
 
   def rewrite(statement: Statement,

@@ -23,6 +23,7 @@ import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.SubQuery
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.AnonymousPatternPart
 import org.opencypher.v9_0.expressions.EveryPath
@@ -44,6 +45,8 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.conditions.containsNamedPathOnlyForShortestPath
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
+import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
@@ -52,11 +55,12 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
 import scala.annotation.tailrec
 
-case object projectNamedPaths extends Rewriter with StepSequencer.Step {
+case object projectNamedPaths extends Rewriter with StepSequencer.Step with ASTRewriterFactory {
 
   case class Projectibles(paths: Map[Variable, PathExpression] = Map.empty,
                           protectedVariables: Set[Ref[LogicalVariable]] = Set.empty,
@@ -93,7 +97,9 @@ case object projectNamedPaths extends Rewriter with StepSequencer.Step {
     val empty: Projectibles = Projectibles()
   }
 
-  def apply(input: AnyRef): AnyRef = {
+  def apply(input: AnyRef): AnyRef = instance(input)
+
+  private val instance: Rewriter = input => {
     val Projectibles(_, protectedVariables, variableRewrites, insertedWiths) = collectProjectibles(input)
     val applicator = Rewriter.lift {
 
@@ -216,7 +222,8 @@ case object projectNamedPaths extends Rewriter with StepSequencer.Step {
 
   override def preConditions: Set[StepSequencer.Condition] = Set(
     // This rewriter needs to know the expanded return items
-    containsNoReturnAll
+    containsNoReturnAll,
+    NoNamedPathsInPatternComprehensions
   )
 
   override def postConditions: Set[StepSequencer.Condition] = Set(
@@ -224,4 +231,9 @@ case object projectNamedPaths extends Rewriter with StepSequencer.Step {
   )
 
   override def invalidatedConditions: Set[StepSequencer.Condition] = SemanticInfoAvailable // Introduces new AST nodes
+
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
 }

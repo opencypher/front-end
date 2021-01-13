@@ -20,7 +20,6 @@ import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPha
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.conditions.noDuplicatesInReturnItems
-import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
@@ -45,7 +44,6 @@ case class AstRewriting(innerVariableNamer: InnerVariableNamer,
 
   override def postConditions: Set[StepSequencer.Condition] = {
     val rewriterConditions = Set(
-      noReferenceEqualityAmongVariables,
       noDuplicatesInReturnItems,
       containsNoReturnAll,
       noUnnamedPatternElementsInMatch,
