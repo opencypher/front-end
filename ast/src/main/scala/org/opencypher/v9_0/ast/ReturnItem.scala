@@ -23,7 +23,6 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
-import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable

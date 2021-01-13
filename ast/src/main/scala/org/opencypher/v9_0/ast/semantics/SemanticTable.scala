@@ -18,7 +18,6 @@ package org.opencypher.v9_0.ast.semantics
 import org.opencypher.v9_0.ast.ASTAnnotationMap
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LabelName
-import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.Variable

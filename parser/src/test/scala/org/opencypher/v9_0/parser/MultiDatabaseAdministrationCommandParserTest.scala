@@ -24,10 +24,7 @@ import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.IndefiniteWait
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NoWait
-import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.TimeoutAfter
-import org.opencypher.v9_0.ast.Where
-import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.YieldOrWhere
 
 class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommandParserTestBase {

@@ -15,14 +15,10 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.ReturnItems
-import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticFeature.CorrelatedSubQueries
 import org.opencypher.v9_0.ast.semantics.SemanticFeature.MultipleDatabases
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotification
@@ -32,8 +28,6 @@ import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.opencypher.v9_0.util.RecordingNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-
-import scala.collection.mutable.ArrayBuffer
 
 class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest {
   private val exceptionFactory = OpenCypherExceptionFactory(None)
