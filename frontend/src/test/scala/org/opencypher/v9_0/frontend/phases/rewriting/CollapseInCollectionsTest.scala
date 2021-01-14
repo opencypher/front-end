@@ -15,53 +15,44 @@
  */
 package org.opencypher.v9_0.frontend.phases.rewriting
 
-import org.opencypher.v9_0.rewriting.rewriters.collapseMultipleInPredicates
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.CNFNormalizer
+import org.opencypher.v9_0.frontend.phases.RewritePhaseTest
+import org.opencypher.v9_0.frontend.phases.Transformer
+import org.opencypher.v9_0.frontend.phases.collapseMultipleInPredicates
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
-import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class CollapseInCollectionsTest extends CypherFunSuite with AstRewritingTestSupport {
+class CollapseInCollectionsTest extends CypherFunSuite with AstRewritingTestSupport with RewritePhaseTest {
+
+  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] = CNFNormalizer andThen collapseMultipleInPredicates
 
   test("should collapse collection containing ConstValues for id function") {
-    val original = parse("MATCH (a) WHERE id(a) IN [42] OR id(a) IN [13]")
-    val expected = parse("MATCH (a) WHERE id(a) IN [42, 13]")
-
-    val result = original.rewrite(collapseMultipleInPredicates)
-
-    result should equal(expected)
+    assertRewritten(
+      "MATCH (a) WHERE id(a) IN [42] OR id(a) IN [13] RETURN a",
+      "MATCH (a) WHERE id(a) IN [42, 13] RETURN a"
+    )
   }
 
   test("should not collapse collections containing ConstValues and nonConstValues for id function") {
-    val original = parse("MATCH (a) WHERE id(a) IN [42] OR id(a) IN [rand()]")
-    val expected = parse("MATCH (a) WHERE id(a) IN [42, rand()]")
-
-    val result = original.rewrite(collapseMultipleInPredicates)
-
-    result should equal(expected)
+    assertRewritten(
+      "MATCH (a) WHERE id(a) IN [42] OR id(a) IN [rand()] RETURN a",
+      "MATCH (a) WHERE id(a) IN [42, rand()] RETURN a"
+    )
   }
 
   test("should collapse collection containing ConstValues for property") {
-    val original = parse("MATCH (a) WHERE a.prop IN [42] OR a.prop IN [13]")
-    val expected = parse("MATCH (a) WHERE a.prop IN [42, 13]")
-
-    val result = original.rewrite(collapseMultipleInPredicates)
-
-    result should equal(expected)
+    assertRewritten(
+      "MATCH (a) WHERE a.prop IN [42] OR a.prop IN [13] RETURN a",
+      "MATCH (a) WHERE a.prop IN [42, 13] RETURN a"
+    )
   }
 
   test("should not collapse collections containing ConstValues and nonConstValues for property") {
-    val original = parse("MATCH (a) WHERE a.prop IN [42] OR a.prop IN [rand()]")
-    val expected = parse("MATCH (a) WHERE a.prop IN [42, rand()]")
-
-    val result = original.rewrite(collapseMultipleInPredicates)
-
-    result should equal(expected)
-  }
-
-  private def parse(query: String) = {
-    val parsed = parser.parse(query, OpenCypherExceptionFactory(None))
-    val rewriter = CNFNormalizer.instance(TestContext())
-    parsed.endoRewrite(rewriter)
+    assertRewritten(
+      "MATCH (a) WHERE a.prop IN [42] OR a.prop IN [rand()] RETURN a",
+      "MATCH (a) WHERE a.prop IN [42, rand()] RETURN a"
+    )
   }
 }

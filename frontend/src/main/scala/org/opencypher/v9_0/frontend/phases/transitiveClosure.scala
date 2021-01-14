@@ -27,7 +27,6 @@ import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.rewriters.AndRewrittenToAnds
-import org.opencypher.v9_0.rewriting.rewriters.EqualityRewrittenToIn
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Rewriter

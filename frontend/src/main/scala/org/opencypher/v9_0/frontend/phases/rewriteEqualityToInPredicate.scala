@@ -25,7 +25,6 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
-import org.opencypher.v9_0.rewriting.rewriters.EqualityRewrittenToIn
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
