@@ -26,6 +26,7 @@ import org.opencypher.v9_0.ast.AllNodes
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
 import org.opencypher.v9_0.ast.AllRelationships
+import org.opencypher.v9_0.ast.AlterRole
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
@@ -358,6 +359,9 @@ case class Prettifier(
           case IfExistsDoNothing | IfExistsInvalidSyntax => s"${x.name} ${Prettifier.escapeName(roleName)} IF NOT EXISTS AS COPY OF ${Prettifier.escapeName(fromRole)}"
           case _                    => s"${x.name} ${Prettifier.escapeName(roleName)} AS COPY OF ${Prettifier.escapeName(fromRole)}"
         }
+
+      case x @ AlterRole(fromRoleName, toRoleName) =>
+        s"${x.name} ${Prettifier.escapeName(fromRoleName)} SET NAME ${Prettifier.escapeName(toRoleName)}"
 
       case x @ DropRole(roleName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(roleName)} IF EXISTS"

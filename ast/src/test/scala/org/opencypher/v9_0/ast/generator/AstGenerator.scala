@@ -40,6 +40,7 @@ import org.opencypher.v9_0.ast.AllRoleActions
 import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
+import org.opencypher.v9_0.ast.AlterRole
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -1358,6 +1359,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     ifExistsDo   <- _ifExistsDo
   } yield CreateRole(roleName, fromRoleName, ifExistsDo)(pos)
 
+  def _alterRole: Gen[AlterRole] = for {
+    fromRoleName     <- _nameAsEither
+    toRoleName       <- _nameAsEither
+  } yield AlterRole(fromRoleName, toRoleName)(pos)
+
   def _dropRole: Gen[DropRole] = for {
     roleName <- _nameAsEither
     ifExists <- boolean
@@ -1376,6 +1382,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _roleCommand: Gen[AdministrationCommand] = oneOf(
     _showRoles,
     _createRole,
+    _alterRole,
     _dropRole,
     _grantRole,
     _revokeRole

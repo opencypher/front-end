@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AlterRole
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateNodeIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
@@ -146,6 +147,9 @@ object Additions {
 
       case c: AlterUser if c.ifExists =>
         throw cypherExceptionFactory.syntaxException("Updating a user with `IF EXISTS` is not supported in this Cypher version.", c.position)
+
+      case c: AlterRole =>
+        throw cypherExceptionFactory.syntaxException("Changing a role name is not supported in this Cypher version.", c.position)
 
       case c: ShowIndexesClause if c.where.isDefined || c.hasYield =>
         throw cypherExceptionFactory.syntaxException("Using YIELD or WHERE to list indexes is not supported in this Cypher version.", c.position)
