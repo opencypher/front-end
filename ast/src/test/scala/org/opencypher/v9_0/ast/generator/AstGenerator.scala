@@ -15,8 +15,6 @@
  */
 package org.opencypher.v9_0.ast.generator
 
-import java.nio.charset.StandardCharsets
-
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
@@ -356,6 +354,8 @@ import org.scalacheck.Gen.posNum
 import org.scalacheck.Gen.sequence
 import org.scalacheck.Gen.some
 import org.scalacheck.util.Buildable
+
+import java.nio.charset.StandardCharsets
 
 object AstGenerator {
   val OR_MORE_UPPER_BOUND = 3
@@ -1296,6 +1296,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     suspended             <- option(boolean)
     ifExistsDo            <- _ifExistsDo
     defaultDatabase       <- option(_nameAsEither)
+    // requirePasswordChange is parsed as 'Some(true)' if omitted in query,
+    // prettifier explicitly adds it so 'None' would be prettified and re-parsed to 'Some(true)'
+    // hence the explicit 'Some(requirePasswordChange)'
   } yield CreateUser(userName, isEncryptedPassword, password, UserOptions(Some(requirePasswordChange), suspended, defaultDatabase), ifExistsDo)(pos)
 
   def _dropUser: Gen[DropUser] = for {
