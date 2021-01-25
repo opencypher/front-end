@@ -15,9 +15,8 @@
  */
 package org.opencypher.v9_0.expressions
 
+import org.opencypher.v9_0.expressions.ASTCachedProperty.RuntimeKey
 import org.opencypher.v9_0.util.InputPosition
-
-import scala.util.hashing.MurmurHash3
 
 sealed trait EntityType
 
@@ -57,14 +56,30 @@ trait ASTCachedProperty extends LogicalProperty {
    */
   def propertyAccessString: String = s"$entityName.${propertyKey.name}"
 
-  // CachedProperties are stored as keys in `MapExecutionContext`. The lookup is by original entity name and property key.
-  // Therefore, we need to override equality and hashCode to disregard `entityVariable`
-  override final def equals(obj: Any): Boolean = obj match {
-    case other:ASTCachedProperty => Seq(originalEntityName, propertyKey, entityType) == Seq(other.originalEntityName, other.propertyKey, other.entityType)
-    case _ => false
-  }
+  /**
+   * @return the runtime key to be used when using this cached property in maps or sets at runtime,
+   *         if different cached properties (different implementation or different current variable name)
+   *         should be treated as if they were equal.
+   */
+  def runtimeKey: RuntimeKey = RuntimeKey(originalEntityName, propertyKey, entityType)(entityName)
+}
 
-  override final def hashCode(): Int = MurmurHash3.seqHash(Seq(originalEntityName, propertyKey, entityType))
+object ASTCachedProperty {
+
+  /**
+   * Used to match equivalanet cached properties at runtime.
+   */
+  case class RuntimeKey(originalEntityName: String,
+                        propertyKey: PropertyKeyName,
+                        entityType: EntityType)
+                       (val entityName: String) {
+    /**
+     * @return a textual representation of the entity and the property in the form `n.prop`
+     */
+    def propertyAccessString: String = s"$entityName.${propertyKey.name}"
+
+    def asCanonicalStringVal: String = s"cache[$propertyAccessString]"
+  }
 }
 
 /**
