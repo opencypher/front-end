@@ -62,7 +62,6 @@ import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
-import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FunctionAllQualifier
 import org.opencypher.v9_0.ast.FunctionQualifier
@@ -89,10 +88,8 @@ import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
-import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
-import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
@@ -111,7 +108,6 @@ import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
-import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveLabelItem
@@ -275,12 +271,7 @@ case class Prettifier(
         s"DROP CONSTRAINT ${backtick(name)}$ifExistsString"
 
       case ShowConstraints(constraintType, verbose, _) =>
-        val output = constraintType match {
-          case ExistsConstraints(NewSyntax) => ""
-          case NodeExistsConstraints(NewSyntax) => ""
-          case RelExistsConstraints(NewSyntax) => ""
-          case _ => if (verbose) " VERBOSE" else " BRIEF"
-        }
+        val output = verbose.map(v => if (v) " VERBOSE" else " BRIEF").getOrElse("")
         s"SHOW ${constraintType.prettyPrint} CONSTRAINTS$output"
 
       case _ => throw new IllegalStateException(s"Unknown command: $command")
