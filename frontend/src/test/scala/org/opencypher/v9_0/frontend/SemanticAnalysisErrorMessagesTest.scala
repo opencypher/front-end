@@ -790,7 +790,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
 
     val resultState = pipeline.transform(startState, context)
 
-    resultState.semantics().notifications should equal(Set(DeprecatedRepeatedRelVarInPatternExpression(InputPosition(33, 1, 33), "r")))
+    resultState.semantics().notifications should equal(Set(DeprecatedRepeatedRelVarInPatternExpression(InputPosition(33, 1, 34), "r")))
     context.errors should be(empty)
   }
 
@@ -802,7 +802,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
 
     val resultState = pipeline.transform(startState, context)
 
-    resultState.semantics().notifications should equal(Set(DeprecatedRepeatedRelVarInPatternExpression(InputPosition(29, 1, 29), "r")))
+    resultState.semantics().notifications should equal(Set(DeprecatedRepeatedRelVarInPatternExpression(InputPosition(29, 1, 30), "r")))
     context.errors should be(empty)
   }
 

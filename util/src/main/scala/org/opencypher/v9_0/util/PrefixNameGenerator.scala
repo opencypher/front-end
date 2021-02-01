@@ -44,7 +44,7 @@ object PrefixNameGenerator {
 case class PrefixNameGenerator(generatorName: String) {
   val prefix = s"  $generatorName"
 
-  def name(position: InputPosition): String = s"$prefix${position.toOffsetString}"
+  def name(position: InputPosition): String = s"$prefix${position.toUniqueOffsetString}"
 
   def isNamed(x: String): Boolean = !notNamed(x)
   def notNamed(x: String): Boolean = x.startsWith(prefix)

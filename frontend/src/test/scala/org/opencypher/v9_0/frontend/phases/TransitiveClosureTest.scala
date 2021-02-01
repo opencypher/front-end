@@ -15,13 +15,21 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.helpers.NameDeduplicator.removeGeneratedNamesAndParamsOnTree
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class TransitiveClosureTest extends CypherFunSuite with AstRewritingTestSupport with RewritePhaseTest {
+class TransitiveClosureTest extends CypherFunSuite with AstConstructionTestSupport with RewritePhaseTest {
 
-  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] = transitiveClosure andThen CNFNormalizer
-  override def rewriterPhaseForExpected: Transformer[BaseContext, BaseState, BaseState] = CNFNormalizer
+  private val removeGeneratedNames = new Transformer[BaseContext, BaseState, BaseState] {
+    override def transform(from: BaseState, context: BaseContext): BaseState = from.withStatement(removeGeneratedNamesAndParamsOnTree(from.statement()))
+    override def name: String = "do nothing"
+    override def postConditions: Set[StepSequencer.Condition] = Set.empty
+  }
+
+  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] = transitiveClosure andThen CNFNormalizer andThen removeGeneratedNames
+  override def rewriterPhaseForExpected: Transformer[BaseContext, BaseState, BaseState] = CNFNormalizer andThen removeGeneratedNames
 
   test("MATCH (a)-->(b) WHERE a.prop = b.prop AND b.prop = 42") {
     assertRewritten(
