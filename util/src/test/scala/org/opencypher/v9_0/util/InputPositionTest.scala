@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.util
 
+import org.opencypher.v9_0.util.InputPosition.byOffset
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class InputPositionTest extends CypherFunSuite {
@@ -46,5 +47,11 @@ class InputPositionTest extends CypherFunSuite {
   test("should print offset") {
     InputPosition(2, 1, 1).toUniqueOffsetString should startWith("2")
     InputPosition(2, 1, 1).newUniquePos().toUniqueOffsetString should startWith("2")
+  }
+
+  test("implicit ordering should put the original before any unique copies") {
+    val original = InputPosition(1, 2, 3)
+    val all = (Seq.fill(25)(original.newUniquePos()) :+ original) ++ Seq.fill(25)(original.newUniquePos())
+    all.min should be(original)
   }
 }
