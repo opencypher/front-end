@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ case object TransitiveClosureAppliedToWhereClauses extends StepSequencer.Conditi
  * into `WHERE a.prop = 42 AND b.prop = 42`
  */
 case object transitiveClosure extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
+
+  override def description: String = "transitive closure in where clauses"
 
   override def instance(ignored: BaseContext): Rewriter = transitiveClosureRewriter
 

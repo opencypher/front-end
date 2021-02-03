@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -456,7 +456,8 @@ trait AdministrationCommand extends Parser
   private def ScopeForShowDatabase: Rule1[ast.DatabaseScope] = rule("show database scope") {
     group(keyword("DATABASE") ~~ SymbolicDatabaseNameOrStringParameter) ~~>> (ast.NamedDatabaseScope(_)) |
     keyword("DATABASES") ~~~> ast.AllDatabasesScope() |
-    keyword("DEFAULT DATABASE") ~~~> ast.DefaultDatabaseScope()
+    keyword("DEFAULT DATABASE") ~~~> ast.DefaultDatabaseScope() |
+    keyword("DEFAULT DBMS DATABASE") ~~~> ast.DefaultDBMSDatabaseScope()
   }
 
   def CreateDatabase: Rule1[ast.CreateDatabase] = rule("CREATE DATABASE") {

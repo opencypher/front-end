@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,13 +41,12 @@ import org.opencypher.v9_0.util.inSequence
 
 case object AmbiguousNamesDisambiguated extends StepSequencer.Condition
 
-/**
- * Rename variables so they are all unique.
- */
 case object Namespacer extends Phase[BaseContext, BaseState, BaseState] with StepSequencer.Step with PlanPipelineTransformerFactory {
   type VariableRenamings = Map[Ref[Variable], Variable]
 
   override def phase: CompilationPhase = AST_REWRITE
+
+  override def description: String = "rename variables so they are all unique"
 
   override def process(from: BaseState, ignored: BaseContext): BaseState = {
     val withProjectedUnions = from.statement().endoRewrite(projectUnions)

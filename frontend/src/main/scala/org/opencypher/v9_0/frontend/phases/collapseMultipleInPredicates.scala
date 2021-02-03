@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,13 @@ import scala.collection.immutable.Iterable
 case object EqualityRewrittenToIn extends StepSequencer.Condition
 case object InPredicatesCollapsed extends StepSequencer.Condition
 
-/**
- * This class merges multiple IN predicates into larger ones.
- * These can later be turned into index lookups or node-by-id ops.
+/*
+This class merges multiple IN predicates into larger ones.
+These can later be turned into index lookups or node-by-id ops
  */
 case object collapseMultipleInPredicates extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
+  override def description: String = "merge multiple IN predicates into larger ones"
+
   case class InValue(lhs: Expression, expr: Expression)
 
   override def instance(ignored: BaseContext): Rewriter = bottomUp(Rewriter.lift {

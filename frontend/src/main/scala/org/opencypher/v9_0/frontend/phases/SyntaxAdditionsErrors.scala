@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.ADDITION_ERRORS
 import org.opencypher.v9_0.rewriting.Additions
 
-/**
- * Find Cypher constructs added after this version and generate errors for them.
- */
 case class SyntaxAdditionsErrors(additions: Additions) extends VisitorPhase[BaseContext, BaseState] {
   override def visit(state: BaseState, context: BaseContext): Unit =
     additions.check(state.statement(), context.cypherExceptionFactory)
 
   override def phase = ADDITION_ERRORS
+
+  override def description = "find Cypher constructs added after this version and generate errors for them"
 }
 

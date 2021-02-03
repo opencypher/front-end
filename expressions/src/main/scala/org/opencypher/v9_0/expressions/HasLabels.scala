@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,16 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
 
-/*
- * Checks if expression has all labels
- */
 case class HasLabels(expression: Expression, labels: Seq[LabelName])(val position: InputPosition) extends BooleanExpression {
 
   override def asCanonicalStringVal = s"${expression.asCanonicalStringVal}${labels.map(_.asCanonicalStringVal).mkString(":", ":", "")}"
 }
 
-/*
- * Checks if expression has all labels OR all types
- */
 case class HasLabelsOrTypes(expression: Expression, labelsOrTypes: Seq[LabelOrRelTypeName])(val position: InputPosition) extends BooleanExpression {
 
   override def asCanonicalStringVal = s"${expression.asCanonicalStringVal}${labelsOrTypes.map(_.asCanonicalStringVal).mkString(":", ":", "")}"
 }
 
-/*
- * Checks if expression has all types
- */
 case class HasTypes(expression: Expression, types: Seq[RelTypeName])(val position: InputPosition) extends BooleanExpression {
 
   override def asCanonicalStringVal = s"${expression.asCanonicalStringVal}${types.map(_.asCanonicalStringVal).mkString(":", ":", "")}"

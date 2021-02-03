@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
@@ -25,10 +27,10 @@ object CompilationPhases {
   def parsing(literalExtractionStrategy: LiteralExtractionStrategy = IfNoParameter,
               deprecations: Deprecations = Deprecations.V1
              ): Transformer[BaseContext, BaseState, BaseState] =
-    Parsing andThen
+    Parsing.adds(BaseContains[Statement]) andThen
       SyntaxDeprecationWarnings(deprecations) andThen
       PreparatoryRewriting(deprecations) andThen
-      SemanticAnalysis(warn = true) andThen
+      SemanticAnalysis(warn = true).adds(BaseContains[SemanticState]) andThen
       AstRewriting(innerVariableNamer = SameNameNamer) andThen
       LiteralExtraction(literalExtractionStrategy)
 

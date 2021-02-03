@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,12 @@ import org.opencypher.v9_0.util.inSequence
 
 case object BooleanPredicatesInCNF extends StepSequencer.Condition
 
-/**
- * Normalize boolean predicates into conjunctive normal form.
- */
 case object CNFNormalizer extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
+  override def description: String = "normalize boolean predicates into conjunctive normal form"
+
   override def instance(context: BaseContext): Rewriter = {
-    implicit val monitor: AstRewritingMonitor = context.monitors.newMonitor[AstRewritingMonitor]()
+    implicit val monitor = context.monitors.newMonitor[AstRewritingMonitor]()
     inSequence(
       deMorganRewriter(),
       distributeLawsRewriter(),

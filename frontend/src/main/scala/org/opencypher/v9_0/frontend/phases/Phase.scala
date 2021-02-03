@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.frontend.helpers.closing
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
-import org.opencypher.v9_0.macros.AssertMacros.checkOnlyWhenAssertionsAreEnabled
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PIPE_BUILDING
 import org.opencypher.v9_0.util.StepSequencer
 
 /*
@@ -29,12 +29,11 @@ trait Phase[-C <: BaseContext, FROM, +TO] extends Transformer[C, FROM, TO] {
 
   def phase: CompilationPhase
 
+  def description: String
+
   override def transform(from: FROM, context: C): TO =
     closing(context.tracer.beginPhase(phase)) {
-      val result = process(from, context)
-      // Checking conditions inside assert so they are not run in production
-      checkOnlyWhenAssertionsAreEnabled(checkConditions(result, postConditions))
-      result
+      process(from, context)
     }
 
   def process(from: FROM, context: C): TO
@@ -58,4 +57,14 @@ trait VisitorPhase[-C <: BaseContext, STATE] extends Phase[C, STATE, STATE] {
   def visit(value: STATE, context: C): Unit
 
   override def postConditions: Set[StepSequencer.Condition] = Set.empty
+}
+
+case class AddCondition[-C <: BaseContext, STATE](postCondition: StepSequencer.Condition) extends Phase[C, STATE, STATE] {
+  override def phase: CompilationPhase = PIPE_BUILDING
+
+  override def description: String = "adds a condition"
+
+  override def process(from: STATE, context: C): STATE = from
+
+  override def postConditions = Set(postCondition)
 }

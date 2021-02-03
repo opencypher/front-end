@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,6 @@ import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
 
-/**
- * Normalize the AST into a form easier for the planner to work with.
- */
 case class AstRewriting(innerVariableNamer: InnerVariableNamer,
                         parameterTypeMapping : Map[String, CypherType] = Map.empty
 ) extends Phase[BaseContext, BaseState, BaseState] {
@@ -42,6 +39,8 @@ case class AstRewriting(innerVariableNamer: InnerVariableNamer,
   }
 
   override def phase = AST_REWRITE
+
+  override def description = "normalize the AST into a form easier for the planner to work with"
 
   override def postConditions: Set[StepSequencer.Condition] = {
     val rewriterConditions = Set(

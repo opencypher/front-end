@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,11 @@ import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.StepSequencer
 
-/**
- * Collect sensitive literals and parameters.
- */
 case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, BaseState] {
 
   override def phase: CompilationPhaseTracer.CompilationPhase = METADATA_COLLECTION
+
+  override def description: String = "collect sensitive literals and parameters"
 
   override def postConditions: Set[StepSequencer.Condition] = Set.empty
 

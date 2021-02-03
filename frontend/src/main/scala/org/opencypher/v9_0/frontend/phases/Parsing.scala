@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,9 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
 import org.opencypher.v9_0.parser.CypherParser
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
 
-/**
- * Parse text into an AST object.
- */
 case object Parsing extends Phase[BaseContext, BaseState, BaseState] {
   private val parser = new CypherParser
 
@@ -29,6 +26,8 @@ case object Parsing extends Phase[BaseContext, BaseState, BaseState] {
     in.withStatement(parser.parse(in.queryText, context.cypherExceptionFactory, in.startPosition))
 
   override val phase = PARSING
+
+  override val description = "parse text into an AST object"
 
   override def postConditions = Set(BaseContains[Statement])
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,8 @@ import org.opencypher.v9_0.util.topDown
 case object isolateAggregation extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
   override def instance(context: BaseContext): Rewriter = bottomUp(rewriter, _.isInstanceOf[Expression])
+
+  override def description: String = "Makes sure that aggregations are on their own in RETURN/WITH clauses"
 
   private val rewriter = Rewriter.lift {
     case q@SingleQuery(clauses) =>

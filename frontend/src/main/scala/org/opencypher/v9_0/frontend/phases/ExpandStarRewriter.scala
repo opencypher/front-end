@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,11 @@ import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.util.StepSequencer
 
-/**
- * Expands `WITH *` or `RETURN *` by enumerating all columns instead of the `*`.
- */
 case object ExpandStarRewriter extends Phase[BaseContext, BaseState, BaseState] {
 
   def phase: CompilationPhaseTracer.CompilationPhase = AST_REWRITE
+
+  def description: String = "expand *"
 
   def process(from: BaseState, context: BaseContext): BaseState =
     from.withStatement(from.statement().endoRewrite(expandStar(from.semantics())))

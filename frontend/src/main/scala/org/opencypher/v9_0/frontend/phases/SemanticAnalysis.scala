@@ -1,5 +1,5 @@
 /*
- * Copyright © 2002-2020 Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,6 @@ import org.opencypher.v9_0.util.StepSequencer
 
 case object TokensResolved extends StepSequencer.Condition
 
-/**
- * Do variable binding, typing, type checking and other semantic checks.
- */
 case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
   extends Phase[BaseContext, BaseState, BaseState] {
 
@@ -74,6 +71,8 @@ case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
   }
 
   override def phase: CompilationPhaseTracer.CompilationPhase = SEMANTIC_CHECK
+
+  override def description = "do variable binding, typing, type checking and other semantic checks"
 
   override def postConditions = Set(BaseContains[SemanticState], StatementCondition(containsNoNodesOfType[UnaliasedReturnItem]))
 }
