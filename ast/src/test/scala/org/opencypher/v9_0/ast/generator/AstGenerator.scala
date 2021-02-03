@@ -68,6 +68,7 @@ import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DbmsAction
+import org.opencypher.v9_0.ast.DefaultDBMSDatabaseScope
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
@@ -1525,7 +1526,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _showDatabase: Gen[ShowDatabase] = for {
     dbName <- _nameAsEither
-    scope  <- oneOf(NamedDatabaseScope(dbName)(pos), AllDatabasesScope()(pos), DefaultDatabaseScope()(pos))
+    scope  <- oneOf(NamedDatabaseScope(dbName)(pos), AllDatabasesScope()(pos), DefaultDatabaseScope()(pos), DefaultDBMSDatabaseScope()(pos))
     yields <- option(_eitherYieldOrWhere)
   } yield ShowDatabase(scope, yields)(pos)
 

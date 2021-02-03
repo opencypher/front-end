@@ -917,6 +917,9 @@ class PrettifierIT extends CypherFunSuite {
       "catalog show default database" ->
         "SHOW DEFAULT DATABASE",
 
+      "catalog show default dbms database" ->
+        "SHOW DEFAULT DBMS DATABASE",
+
       "catalog show database foO_Bar_42" ->
         "SHOW DATABASE foO_Bar_42",
 

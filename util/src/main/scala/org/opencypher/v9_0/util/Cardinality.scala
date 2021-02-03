@@ -19,7 +19,7 @@ case class Cardinality(amount: Double) extends Ordered[Cardinality] {
 
   self =>
 
-  def compare(that: Cardinality): Int = amount.compare(that.amount)
+  def compare(that: Cardinality) = amount.compare(that.amount)
   def *(that: Multiplier): Cardinality = amount * that.coefficient
   def *(that: Selectivity): Cardinality = if ( that.factor == 0 ) Cardinality.EMPTY else amount * that.factor
   def +(that: Cardinality): Cardinality = amount + that.amount
@@ -33,12 +33,13 @@ case class Cardinality(amount: Double) extends Ordered[Cardinality] {
   def map(f: Double => Double): Cardinality = f(amount)
 
   def inverse: Multiplier = Multiplier(1.0d / amount)
+
 }
 
 object Cardinality {
 
-  val EMPTY: Cardinality = Cardinality(0)
-  val SINGLE: Cardinality = Cardinality(1)
+  val EMPTY = Cardinality(0)
+  val SINGLE = Cardinality(1)
 
   implicit def lift(amount: Double): Cardinality = Cardinality(amount)
 
@@ -63,17 +64,6 @@ object Cardinality {
     def minus(x: Cardinality, y: Cardinality): Cardinality = x.amount - y.amount
     def compare(x: Cardinality, y: Cardinality): Int = x.compare(y)
   }
-}
-
-/**
- * An EffectiveCardinality is the resulting cardinality of a plan when the surrounding plan is taken into account. For instance, when a LIMIT is present, that
- * could in some cases reduce how many rows some children plans need to produce. That will "effectively" reduce the cardinality of those plans.
- * @param amount The cardinality of a plan when the surrounding plan is taken into account.
- * @param originalCardinality The cardinality of a plan without considering the surrounding plan.
- */
-case class EffectiveCardinality(amount: Double, originalCardinality: Option[Cardinality] = None) extends Ordered[EffectiveCardinality] {
-  def compare(that: EffectiveCardinality): Int = amount.compare(that.amount)
-  def +(that: EffectiveCardinality): EffectiveCardinality = EffectiveCardinality(amount + that.amount, originalCardinality)
 }
 
 case class Cost(gummyBears: Double) extends Ordered[Cost] {
@@ -122,9 +112,7 @@ object Multiplier {
   def max(l: Multiplier, r: Multiplier): Multiplier =
     Multiplier(Math.max(l.coefficient, r.coefficient))
 
-  def ofDivision(dividend: Cardinality, divisor: Cardinality): Option[Multiplier] = if (divisor.amount == 0) None else Multiplier.of(dividend.amount / divisor.amount)
-
-  def of(value: Double): Option[Multiplier] = if (value.isInfinite || value.isNaN || value < 0.0) None else Some(Multiplier(value))
+  def ofDivision(dividend: Cardinality, divisor: Cardinality): Multiplier = Multiplier(dividend.amount / divisor.amount)
 
   object NumericMultiplier extends Numeric[Multiplier] {
     def toDouble(x: Multiplier): Double = x.coefficient
