@@ -20,12 +20,11 @@ import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.util.StepSequencer
 
-/**
- * Expands `WITH *` or `RETURN *` by enumerating all columns instead of the `*`.
- */
 case object ExpandStarRewriter extends Phase[BaseContext, BaseState, BaseState] {
 
   def phase: CompilationPhaseTracer.CompilationPhase = AST_REWRITE
+
+  def description: String = "expand *"
 
   def process(from: BaseState, context: BaseContext): BaseState =
     from.withStatement(from.statement().endoRewrite(expandStar(from.semantics())))

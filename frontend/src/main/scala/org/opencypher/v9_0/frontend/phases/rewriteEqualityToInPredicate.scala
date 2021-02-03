@@ -29,10 +29,9 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
-/**
- * Normalize equality predicates into IN comparisons.
- */
 case object rewriteEqualityToInPredicate extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
+
+  override def description: String = "normalize equality predicates into IN comparisons"
 
   override def instance(ignored: BaseContext): Rewriter = bottomUp(Rewriter.lift {
     // id(a) = value => id(a) IN [value]

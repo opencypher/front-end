@@ -17,6 +17,7 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AllDatabasesScope
+import org.opencypher.v9_0.ast.DefaultDBMSDatabaseScope
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DumpData
@@ -34,6 +35,7 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   Seq(
     ("DATABASES", ast.ShowDatabase.apply(AllDatabasesScope()(pos), _: YieldOrWhere) _),
     ("DEFAULT DATABASE", ast.ShowDatabase.apply(DefaultDatabaseScope()(pos), _: YieldOrWhere) _),
+    ("DEFAULT DBMS DATABASE", ast.ShowDatabase.apply(DefaultDBMSDatabaseScope()(pos), _: YieldOrWhere) _),
     ("DATABASE $db", ast.ShowDatabase.apply(NamedDatabaseScope(param("db"))(pos), _: YieldOrWhere) _),
     ("DATABASE neo4j", ast.ShowDatabase.apply(NamedDatabaseScope(literal("neo4j"))(pos), _: YieldOrWhere) _)
   ).foreach { case (dbType, privilege) =>

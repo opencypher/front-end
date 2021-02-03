@@ -15,26 +15,14 @@ It is also the shared front end for Neo4j and Morpheus.
 * AST
 ** Contains the AST classes (except expressions), and the semantic analysis.
 
-* Cypher AST factory
-** Contains AST classes used by the JavaCC based parser.
-
-* Cypher macros
-** Contains macros asserts, exception translation etc.  
-
 * Expressions
 ** This contains all expressions.
 
 * Front End
 ** This module contains a prettifier for the AST, and infrastructure data structures for compiler pipelines.
 
-* JavaCC parser
-** Contains a JavaCC based parser for the Cypher Query Language
-
-* OpenCypher AST factory
-** Contains AST classes used by the JavaCC based parser.
-
 * Parser
-** Contains a parboiled based parser for the Cypher Query Language.
+** Contains a parser for the Cypher Query Language.
 
 * Rewriting
 ** This contains a set of AST rewriters that simplify and canonicalize the tree before further processing.

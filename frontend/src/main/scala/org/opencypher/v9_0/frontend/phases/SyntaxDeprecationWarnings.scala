@@ -20,9 +20,6 @@ import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPha
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.InternalNotification
 
-/**
- * Find deprecated Cypher constructs and generate warnings for them.
- */
 case class SyntaxDeprecationWarnings(deprecations: Deprecations) extends VisitorPhase[BaseContext, BaseState] {
   override def visit(state: BaseState, context: BaseContext): Unit = {
     val warnings = findDeprecations(state.statement())
@@ -42,4 +39,6 @@ case class SyntaxDeprecationWarnings(deprecations: Deprecations) extends Visitor
   }
 
   override def phase = DEPRECATION_WARNINGS
+
+  override def description = "find deprecated Cypher constructs and generate warnings for them"
 }

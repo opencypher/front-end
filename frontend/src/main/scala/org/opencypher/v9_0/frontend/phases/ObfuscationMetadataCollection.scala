@@ -24,12 +24,11 @@ import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.StepSequencer
 
-/**
- * Collect sensitive literals and parameters.
- */
 case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, BaseState] {
 
   override def phase: CompilationPhaseTracer.CompilationPhase = METADATA_COLLECTION
+
+  override def description: String = "collect sensitive literals and parameters"
 
   override def postConditions: Set[StepSequencer.Condition] = Set.empty
 
