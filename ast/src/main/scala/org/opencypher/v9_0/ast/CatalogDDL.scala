@@ -156,8 +156,7 @@ object ShowUsers {
   def apply(yieldOrWhere: YieldOrWhere)(position: InputPosition): ShowUsers =
     ShowUsers(yieldOrWhere, List(ShowColumn("user")(position), ShowColumn(Variable("roles")(position), CTList(CTString), "roles"),
       ShowColumn(Variable("passwordChangeRequired")(position), CTBoolean, "passwordChangeRequired"),
-      ShowColumn(Variable("suspended")(position), CTBoolean,"suspended"),
-      ShowColumn("defaultDatabase")(position)))(position)
+      ShowColumn(Variable("suspended")(position), CTBoolean,"suspended")))(position)
 }
 
 final case class ShowCurrentUser(override val yieldOrWhere: YieldOrWhere, override val defaultColumnSet: List[ShowColumn])(val position: InputPosition) extends ReadAdministrationCommand {
@@ -172,8 +171,7 @@ object ShowCurrentUser {
   def apply(yieldOrWhere: YieldOrWhere)(position: InputPosition): ShowCurrentUser =
     ShowCurrentUser(yieldOrWhere, List(ShowColumn("user")(position), ShowColumn(Variable("roles")(position), CTList(CTString), "roles"),
       ShowColumn(Variable("passwordChangeRequired")(position), CTBoolean, "passwordChangeRequired"),
-      ShowColumn(Variable("suspended")(position), CTBoolean,"suspended"),
-      ShowColumn("defaultDatabase")(position)))(position)
+      ShowColumn(Variable("suspended")(position), CTBoolean,"suspended")))(position)
 }
 
 trait EitherAsString {
@@ -444,10 +442,6 @@ final case class AllDatabasesScope()(val position: InputPosition) extends Databa
 
 final case class DefaultDatabaseScope()(val position: InputPosition) extends DatabaseScope {
   override val showCommandName: String = "ShowDefaultDatabase"
-}
-
-final case class DefaultDBMSDatabaseScope()(val position: InputPosition) extends DatabaseScope {
-  override val showCommandName: String = "ShowDBMSDefaultDatabase"
 }
 
 sealed trait ShowPrivilegeScope extends Rewritable {
@@ -781,7 +775,6 @@ final case class ShowDatabase(scope: DatabaseScope, override val yieldOrWhere: Y
     case _: NamedDatabaseScope => "SHOW DATABASE"
     case _: AllDatabasesScope => "SHOW DATABASES"
     case _: DefaultDatabaseScope => "SHOW DEFAULT DATABASE"
-    case _: DefaultDBMSDatabaseScope => "SHOW DEFAULT DBMS DATABASE"
   }
 
   override def semanticCheck: SemanticCheck =
@@ -795,8 +788,7 @@ object ShowDatabase{
       ShowColumn("name")(position), ShowColumn("address")(position), ShowColumn("role")(position), ShowColumn("requestedStatus")(position),
       ShowColumn("currentStatus")(position), ShowColumn("error")(position)) ++ (scope match {
       case _: DefaultDatabaseScope => List.empty
-      case _: DefaultDBMSDatabaseScope => List.empty
-      case _ => List(ShowColumn(Variable("default")(position), CTBoolean, "default"), ShowColumn(Variable("systemDefault")(position), CTBoolean, "systemDefault"))})
+      case _ => List(ShowColumn(Variable("default")(position), CTBoolean, "default"))})
     ShowDatabase(scope, yieldOrWhere, columns)(position)
   }
 }
