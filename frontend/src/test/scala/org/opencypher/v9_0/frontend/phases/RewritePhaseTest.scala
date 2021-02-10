@@ -28,6 +28,7 @@ import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.SameNameNamer
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.devNullLogger
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -41,6 +42,8 @@ trait RewritePhaseTest {
     new Transformer[BaseContext, BaseState, BaseState] {
       override def transform(from: BaseState,
                              context: BaseContext): BaseState = from
+
+      override def postConditions: Set[StepSequencer.Condition] = Set.empty
 
       override def name: String = "do nothing"
     }
