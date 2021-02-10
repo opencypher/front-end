@@ -18,6 +18,7 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.frontend.helpers.closing
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PIPE_BUILDING
+import org.opencypher.v9_0.macros.AssertMacros.checkOnlyWhenAssertionsAreEnabled
 import org.opencypher.v9_0.util.StepSequencer
 
 /*
@@ -33,7 +34,10 @@ trait Phase[-C <: BaseContext, FROM, +TO] extends Transformer[C, FROM, TO] {
 
   override def transform(from: FROM, context: C): TO =
     closing(context.tracer.beginPhase(phase)) {
-      process(from, context)
+      val result = process(from, context)
+      // Checking conditions inside assert so they are not run in production
+      checkOnlyWhenAssertionsAreEnabled(checkConditions(result, postConditions))
+      result
     }
 
   def process(from: FROM, context: C): TO
