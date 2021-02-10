@@ -17,7 +17,6 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.frontend.helpers.closing
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
-import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PIPE_BUILDING
 import org.opencypher.v9_0.macros.AssertMacros.checkOnlyWhenAssertionsAreEnabled
 import org.opencypher.v9_0.util.StepSequencer
 
@@ -59,15 +58,4 @@ trait VisitorPhase[-C <: BaseContext, STATE] extends Phase[C, STATE, STATE] {
   def visit(value: STATE, context: C): Unit
 
   override def postConditions: Set[StepSequencer.Condition] = Set.empty
-}
-
-/**
- * Adds a condition.
- */
-case class AddCondition[-C <: BaseContext, STATE](postCondition: StepSequencer.Condition) extends Phase[C, STATE, STATE] {
-  override def phase: CompilationPhase = PIPE_BUILDING
-
-  override def process(from: STATE, context: C): STATE = from
-
-  override def postConditions = Set(postCondition)
 }
