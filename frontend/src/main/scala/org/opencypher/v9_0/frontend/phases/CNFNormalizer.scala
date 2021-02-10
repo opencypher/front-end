@@ -31,9 +31,10 @@ import org.opencypher.v9_0.util.inSequence
 
 case object BooleanPredicatesInCNF extends StepSequencer.Condition
 
+/**
+ * Normalize boolean predicates into conjunctive normal form.
+ */
 case object CNFNormalizer extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
-
-  override def description: String = "normalize boolean predicates into conjunctive normal form"
 
   override def instance(context: BaseContext): Rewriter = {
     implicit val monitor: AstRewritingMonitor = context.monitors.newMonitor[AstRewritingMonitor]()

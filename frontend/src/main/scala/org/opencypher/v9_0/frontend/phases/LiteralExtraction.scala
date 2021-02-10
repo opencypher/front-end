@@ -26,6 +26,9 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Step
 
+/**
+ * Replace literals with parameters.
+ */
 case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) extends Phase[BaseContext, BaseState, BaseState] with Step {
 
   override def process(in: BaseState, context: BaseContext): BaseState = {
@@ -41,8 +44,6 @@ case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) exten
   }
 
   override def phase = AST_REWRITE
-
-  override def description = "replace literals with parameters"
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
