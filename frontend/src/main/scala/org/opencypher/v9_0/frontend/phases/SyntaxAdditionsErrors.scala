@@ -18,12 +18,13 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.ADDITION_ERRORS
 import org.opencypher.v9_0.rewriting.Additions
 
+/**
+ * Find Cypher constructs added after this version and generate errors for them.
+ */
 case class SyntaxAdditionsErrors(additions: Additions) extends VisitorPhase[BaseContext, BaseState] {
   override def visit(state: BaseState, context: BaseContext): Unit =
     additions.check(state.statement(), context.cypherExceptionFactory)
 
   override def phase = ADDITION_ERRORS
-
-  override def description = "find Cypher constructs added after this version and generate errors for them"
 }
 

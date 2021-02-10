@@ -37,6 +37,9 @@ import org.parboiled.scala.Parser
 import org.parboiled.scala.Rule1
 import org.parboiled.scala.group
 
+/**
+ * Parse text into an AST object.
+ */
 case object InputDataStreamTestParsing extends Phase[BaseContext, BaseState, BaseState] {
   private val parser = new InputDataStreamTestCypherParser
 
@@ -46,8 +49,6 @@ case object InputDataStreamTestParsing extends Phase[BaseContext, BaseState, Bas
   }
 
   override val phase = PARSING
-
-  override val description = "parse text into an AST object"
 
   override def postConditions = Set(BaseContains[ast.Statement])
 
