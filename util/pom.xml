@@ -14,7 +14,6 @@
   <name>openCypher Utils</name>
 
   <description>Cypher utilities</description>
-  <url>http://components.neo4j.org/${project.artifactId}/${project.version}</url>
 
   <scm>
     <connection>scm:git:git://github.com/openCypher/front-end.git</connection>

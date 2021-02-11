@@ -41,7 +41,7 @@ PARSER_BEGIN(Cypher)
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.neo4j.cypher.internal.parser.javacc;
+package org.opencypher.v9_0.parser.javacc;
 
 import scala.util.Either;
 import scala.util.Left;
@@ -49,9 +49,9 @@ import scala.util.Right;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.neo4j.cypher.internal.ast.factory.ASTExceptionFactory;
-import org.neo4j.cypher.internal.ast.factory.ASTFactory;
-import org.neo4j.cypher.internal.ast.factory.ASTFactory.StringPos;
+import org.opencypher.v9_0.ast.factory.ASTExceptionFactory;
+import org.opencypher.v9_0.ast.factory.ASTFactory;
+import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos;
 
 /** Simple brace matcher. */
 public class Cypher<STATEMENT,

@@ -37,10 +37,14 @@
     <licensing.prepend.text>ASL-2-header.txt</licensing.prepend.text>
     <scala.version>2.12.7</scala.version>
     <scala.binary.version>2.12</scala.binary.version>
+    <scala.test.version>3.0.5</scala.test.version>
+    <scala.check.version>1.14.0</scala.check.version>
+    <opencypher.version>1.0.0-M15</opencypher.version>
     <scala.target.vm>1.8</scala.target.vm>
     <scala.java9.arg/>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <junit.version>5.6.2</junit.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -54,6 +58,9 @@
     <module>util</module>
     <module>expressions</module>
     <module>cypher-macros</module>
+    <module>ast-factory</module>
+    <module>javacc-parser</module>
+    <module>neo4j-ast-factory</module>
   </modules>
 
   <dependencies>
@@ -92,7 +99,7 @@
     <dependency>
       <groupId>org.scalatest</groupId>
       <artifactId>scalatest_${scala.binary.version}</artifactId>
-      <version>3.0.5</version>
+      <version>${scala.test.version}</version>
       <scope>test</scope>
     </dependency>
 

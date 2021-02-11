@@ -26,17 +26,11 @@
     See https://www.opencypher.org for more information on the openCypher project and query language.
   </description>
 
-  <url>http://components.neo4j.org/${project.artifactId}/${project.version}</url>
-
   <scm>
-    <connection>scm:git:git://github.com/neo4j/neo4j.git</connection>
-    <developerConnection>scm:git:git@github.com:neo4j/neo4j.git</developerConnection>
-    <url>https://github.com/neo4j/neo4j</url>
+    <connection>scm:git:git://github.com/openCypher/front-end.git</connection>
+    <developerConnection>scm:git:git@github.com:openCypher/front-end.git</developerConnection>
+    <url>https://github.com/openCypher/front-end</url>
   </scm>
-
-  <properties>
-    <moduleName>org.neo4j.cypher.internal.frontend.v3_5</moduleName>
-  </properties>
 
   <licenses>
     <license>
@@ -123,6 +117,13 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>cypher-ast-factory-9.0</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- scala -->
 
     <dependency>
@@ -142,7 +143,7 @@
     <dependency>
       <groupId>org.scalacheck</groupId>
       <artifactId>scalacheck_${scala.binary.version}</artifactId>
-      <version>1.14.0</version>
+     <version>${scala.check.version}</version>
       <scope>test</scope>
     </dependency>
 
