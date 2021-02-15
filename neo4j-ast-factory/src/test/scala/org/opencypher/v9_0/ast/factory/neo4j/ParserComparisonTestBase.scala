@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
-import org.opencypher.v9_0.parser.JavaCCParser
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.scalatest.Assertion
