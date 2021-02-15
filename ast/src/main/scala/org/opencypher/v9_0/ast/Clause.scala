@@ -88,8 +88,7 @@ import org.opencypher.v9_0.util.symbols.CTString
 sealed trait Clause extends ASTNode with SemanticCheckable {
   def name: String
 
-  def returnColumns: List[LogicalVariable] =
-    throw new IllegalStateException("This clause is not allowed as a last clause and hence does not declare return columns")
+  def returnColumns: List[LogicalVariable] = List.empty
 }
 
 sealed trait UpdateClause extends Clause with SemanticAnalysisTooling {
