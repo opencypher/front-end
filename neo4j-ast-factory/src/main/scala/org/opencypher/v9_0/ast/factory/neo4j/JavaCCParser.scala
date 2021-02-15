@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.parser
+package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.factory.neo4j.Neo4jASTExceptionFactory
-import org.opencypher.v9_0.ast.factory.neo4j.Neo4jASTFactory
 import org.opencypher.v9_0.parser.javacc.Cypher
 import org.opencypher.v9_0.parser.javacc.CypherCharStream
 import org.opencypher.v9_0.util.CypherExceptionFactory
