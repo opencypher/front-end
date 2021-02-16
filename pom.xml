@@ -9,7 +9,6 @@
   <packaging>pom</packaging>
   <name>openCypher Front End Parent</name>
   <description>Project that builds the openCypher front end modules</description>
-  <inceptionYear>2002-2020</inceptionYear>
 
   <url>https://www.opencypher.org</url>
 
@@ -205,7 +204,7 @@
           <version>3.0</version>
           <configuration>
             <strictCheck>true</strictCheck>
-            <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+            <header>build/configs/ASL-2-header.txt</header>
             <properties>
               <owner>Neo4j Sweden AB</owner> <!-- TODO  -->
               <email>http://neo4j.com</email>
