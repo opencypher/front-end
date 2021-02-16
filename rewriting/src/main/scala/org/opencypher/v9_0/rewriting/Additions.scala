@@ -28,6 +28,7 @@ import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowIndexes
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.util.CypherExceptionFactory
@@ -128,6 +129,9 @@ object Additions {
 
       case c@AlterUser(_, _, _, userOptions) if userOptions.defaultDatabase.isDefined =>
         throw cypherExceptionFactory.syntaxException("Updating a user with a default database is not supported in this Cypher version.", c.position)
+
+      case c: UnresolvedCall if c.yieldAll =>
+        throw cypherExceptionFactory.syntaxException("Procedure call using `YIELD *` is not supported in this Cypher version.", c.position)
     }
   }
 

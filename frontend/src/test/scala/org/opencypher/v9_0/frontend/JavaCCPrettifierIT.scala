@@ -30,7 +30,11 @@ class JavaCCPrettifierIT extends CypherFunSuite {
 
   val parboiledPrettifier = new ParboiledPrettifierIT()
   val tests: Seq[(String, String)] = parboiledPrettifier.tests
-  val javaCcOnlyTests: Seq[(String, String)] = Seq[(String, String)]()
+  val javaCcOnlyTests: Seq[(String, String)] = Seq[(String, String)](
+    "CALL nsp.proc() yield *" ->
+      """CALL nsp.proc()
+        |  YIELD *""".stripMargin,
+  )
 
   (tests ++ javaCcOnlyTests) foreach {
     case (inputString, expected) =>
@@ -51,7 +55,7 @@ class JavaCCPrettifierIT extends CypherFunSuite {
     (parboiledPrettifier.queryTests() ++ javaCcOnlyTests) foreach {
       case (inputString, _) if JavaCCParser.shouldFallBack(inputString) =>
         fail(s"should not use fallback strings in tests: $inputString")
-      case _                                                            =>
+      case _ =>
     }
   }
 }
