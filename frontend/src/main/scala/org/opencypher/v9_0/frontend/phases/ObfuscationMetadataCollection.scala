@@ -17,10 +17,12 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.SensitiveAutoParameter
+import org.opencypher.v9_0.expressions.SensitiveLiteral
 import org.opencypher.v9_0.expressions.SensitiveParameter
-import org.opencypher.v9_0.expressions.SensitiveString
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.METADATA_COLLECTION
 import org.opencypher.v9_0.util.Foldable.SkipChildren
+import org.opencypher.v9_0.util.LiteralOffset
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.StepSequencer
 
@@ -44,13 +46,14 @@ case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, 
     from.withObfuscationMetadata(ObfuscationMetadata(offsets, sensitiveParams))
   }
 
-  private def collectSensitiveLiteralOffsets(statement: Statement, extractedParamNames: Set[String], preParserOffset: Int): Vector[Int] =
-    statement.treeFold(Vector.empty[Int]) {
-      case literal: SensitiveString =>
-        acc => SkipChildren(acc :+ literal.position.offset)
-      case parameter: SensitiveParameter if extractedParamNames.contains(parameter.name) =>
-        acc => SkipChildren(acc :+ parameter.position.offset)
-    }.distinct.sorted.map(_ + preParserOffset)
+  private def collectSensitiveLiteralOffsets(statement: Statement, extractedParamNames: Set[String], preParserOffset: Int): Vector[LiteralOffset] =
+    statement.treeFold(Vector.empty[LiteralOffset]) {
+      case literal: SensitiveLiteral =>
+        acc => SkipChildren(acc :+ LiteralOffset(preParserOffset + literal.position.offset, literal.literalLength))
+      case p: SensitiveAutoParameter if extractedParamNames.contains(p.name) =>
+        acc => SkipChildren(acc :+ LiteralOffset(preParserOffset + p.position.offset, None))
+
+    }.distinct.sortBy(_.start)
 
   private def collectSensitiveParameterNames(queryParams: Seq[Parameter], extractedParamNames: Set[String]): Set[String] =
     queryParams.findByAllClass[SensitiveParameter].map(_.name).toSet -- extractedParamNames

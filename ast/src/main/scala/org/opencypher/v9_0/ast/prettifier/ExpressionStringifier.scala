@@ -76,7 +76,7 @@ import org.opencypher.v9_0.expressions.ReduceScope
 import org.opencypher.v9_0.expressions.RegexMatch
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SensitiveAutoParameter
-import org.opencypher.v9_0.expressions.SensitiveString
+import org.opencypher.v9_0.expressions.SensitiveLiteral
 import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.SingleIterablePredicate
 import org.opencypher.v9_0.expressions.StartsWith
@@ -409,8 +409,8 @@ case class ExpressionStringifier(
   }
 
   def escapePassword(password: Expression): String = password match {
-    case _: SensitiveString => "'******'"
     case _: SensitiveAutoParameter if !sensitiveParamsAsParams => "'******'"
+    case _: SensitiveLiteral => "'******'"
     case param: Parameter => s"$$${ExpressionStringifier.backtick(param.name)}"
   }
 }
