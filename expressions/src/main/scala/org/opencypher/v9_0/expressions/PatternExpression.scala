@@ -15,8 +15,12 @@
  */
 package org.opencypher.v9_0.expressions
 
-case class PatternExpression(pattern: RelationshipsPattern)(override val outerScope: Set[Variable]) extends ScopeExpression with ExpressionWithOuterScope {
-  override def position = pattern.position
+import org.opencypher.v9_0.util.InputPosition
+
+case class PatternExpression(pattern: RelationshipsPattern)(override val outerScope: Set[Variable])
+  extends ScopeExpression with ExpressionWithOuterScope with RollupApplySolvable {
+
+  override def position: InputPosition = pattern.position
 
   override def introducedVariables: Set[LogicalVariable] = pattern.element.allVariables -- outerScope
 
