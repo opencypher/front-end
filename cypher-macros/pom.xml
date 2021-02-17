@@ -21,6 +21,10 @@
         <url>https://github.com/openCypher/front-end</url>
     </scm>
 
+    <properties>
+        <root.dir>${parent.relativePath}</root.dir>
+    </properties>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>

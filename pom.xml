@@ -46,6 +46,8 @@
     <junit.version>5.6.2</junit.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <root.dir>${basedir}</root.dir>
   </properties>
 
   <modules>
@@ -204,7 +206,7 @@
           <version>3.0</version>
           <configuration>
             <strictCheck>true</strictCheck>
-            <header>build/configs/ASL-2-header.txt</header>
+            <header>${root.dir}/build/configs/ASL-2-header.txt</header>
             <properties>
               <owner>Neo4j Sweden AB</owner> <!-- TODO  -->
               <email>http://neo4j.com</email>
