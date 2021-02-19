@@ -1024,8 +1024,13 @@ List<STATEMENT> Statements() throws Exception :
     { return stmts; }
   } catch (ParseException e) {
     Token t = e.currentToken.next;
-    throw exceptionFactory.syntaxException(t.image, ParseExceptions.expected(e.expectedTokenSequences, e.tokenImage), e,
-                                           t.beginOffset, t.beginLine, t.beginColumn);
+    if (e.getMessage().contains( "Encountered \"<EOF>\"" )) {
+        throw exceptionFactory.syntaxException(t.image, ParseExceptions.expected(e.expectedTokenSequences, e.tokenImage), e,
+                                               t.endOffset + 1, t.endLine, t.endColumn + 1);
+    } else  {
+        throw exceptionFactory.syntaxException(t.image, ParseExceptions.expected(e.expectedTokenSequences, e.tokenImage), e,
+                                               t.beginOffset, t.beginLine, t.beginColumn);
+    }
   } catch (InvalidUnicodeLiteral e) {
     throw exceptionFactory.syntaxException(e, e.offset, e.line, e.column);
   }
@@ -1053,8 +1058,8 @@ STATEMENT SingleQueryOrAdministrationCommand(USE_CLAUSE useClause):
 }
 {
     (
-        LOOKAHEAD(2)
-        statement=AdministrationCommand(useClause)
+        LOOKAHEAD(2) statement=CreateAdministrationCommand(useClause)
+        | statement=AdministrationCommand(useClause)
         | query=SingleQuery(useClause) ( query=Union(query) )*
     )
     {
@@ -2369,6 +2374,20 @@ List<String> SymbolicNameList1() :
   }
 }
 
+STATEMENT CreateAdministrationCommand(USE_CLAUSE useClause):
+{
+    ADMINISTRATION_COMMAND s;
+}
+{
+    (<CATALOG>)?
+    (
+        s = CreateRole()
+    )
+    {
+        return astFactory.useGraph( s, useClause );
+    }
+}
+
 STATEMENT AdministrationCommand(USE_CLAUSE useClause):
 {
     ADMINISTRATION_COMMAND s;
@@ -2377,7 +2396,6 @@ STATEMENT AdministrationCommand(USE_CLAUSE useClause):
     (<CATALOG>)?
     (
         s = ShowRoles()
-        | s = CreateRole()
         | s = DropRole()
         | s = GrantRole()
         | s = RevokeRole()
