@@ -156,6 +156,7 @@ import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.UserAllQualifier
+import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
@@ -308,11 +309,17 @@ case class Prettifier(
         val password = expr.escapePassword(initialPassword)
         val passwordString = s"$setPasswordString $password CHANGE ${if (userOptions.requirePasswordChange.getOrElse(true)) "" else "NOT "}REQUIRED"
         val statusString = if (userOptions.suspended.isDefined) s" SET STATUS ${if (userOptions.suspended.get) "SUSPENDED" else "ACTIVE"}" else ""
-        s"${x.name} $userNameString$ifNotExists $passwordString$statusString"
+        val homeDatabaseString = userOptions.homeDatabase.map(dbName => s" SET HOME DATABASE ${Prettifier.escapeName(dbName)}").getOrElse("")
+        s"${x.name} $userNameString$ifNotExists $passwordString$statusString$homeDatabaseString"
 
       case x @ DropUser(userName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(userName)} IF EXISTS"
         else s"${x.name} ${Prettifier.escapeName(userName)}"
+
+      case x @ AlterUser(userName, _, _, UserOptions(_, _, Some(Left(null))), ifExists) =>
+        val userNameString = Prettifier.escapeName(userName)
+        val ifExistsString = if (ifExists) " IF EXISTS" else ""
+        s"${x.name} $userNameString$ifExistsString REMOVE HOME DATABASE"
 
       case x @ AlterUser(userName, isEncryptedPassword, initialPassword, userOptions, ifExists) =>
         val userNameString = Prettifier.escapeName(userName)
@@ -325,7 +332,8 @@ case class Prettifier(
         val setPasswordString = if(isEncryptedPassword.getOrElse(false)) "SET ENCRYPTED PASSWORD" else "SET PASSWORD"
         val passwordPrefix = if (passwordString.nonEmpty || passwordModeString.nonEmpty) s" $setPasswordString" else ""
         val statusString = if (userOptions.suspended.isDefined) s" SET STATUS ${if (userOptions.suspended.get) "SUSPENDED" else "ACTIVE"}" else ""
-        s"${x.name} $userNameString$ifExistsString$passwordPrefix$passwordString$passwordModeString$statusString"
+        val homeDatabaseString = userOptions.homeDatabase.map(dbName => s" SET HOME DATABASE ${Prettifier.escapeName(dbName)}").getOrElse("")
+        s"${x.name} $userNameString$ifExistsString$passwordPrefix$passwordString$passwordModeString$statusString$homeDatabaseString"
 
       case x @ SetOwnPassword(newPassword, currentPassword) =>
         s"${x.name} FROM ${expr.escapePassword(currentPassword)} TO ${expr.escapePassword(newPassword)}"

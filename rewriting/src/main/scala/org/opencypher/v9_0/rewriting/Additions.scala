@@ -22,10 +22,17 @@ import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
+import org.opencypher.v9_0.ast.DbmsPrivilege
+import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.GrantPrivilege
+import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.IfExistsDoNothing
+import org.opencypher.v9_0.ast.RevokePrivilege
+import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.ShowConstraints
+import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.UnresolvedCall
@@ -124,11 +131,11 @@ object Additions {
       case c: CreateRelationshipPropertyExistenceConstraint if !c.oldSyntax =>
         throw cypherExceptionFactory.syntaxException("Creating relationship existence constraint using `IS NOT NULL` is not supported in this Cypher version.", c.position)
 
-      case c: CreateUser if c.userOptions.defaultDatabase.isDefined =>
-        throw cypherExceptionFactory.syntaxException("Creating a user with a default database is not supported in this Cypher version.", c.position)
+      case c: CreateUser if c.userOptions.homeDatabase.isDefined =>
+        throw cypherExceptionFactory.syntaxException("Creating a user with a home database is not supported in this Cypher version.", c.position)
 
-      case c: AlterUser if c.userOptions.defaultDatabase.isDefined =>
-        throw cypherExceptionFactory.syntaxException("Updating a user with a default database is not supported in this Cypher version.", c.position)
+      case c: AlterUser if c.userOptions.homeDatabase.isDefined =>
+        throw cypherExceptionFactory.syntaxException("Updating a user with a home database is not supported in this Cypher version.", c.position)
 
       case c: UnresolvedCall if c.yieldAll =>
         throw cypherExceptionFactory.syntaxException("Procedure call using `YIELD *` is not supported in this Cypher version.", c.position)
@@ -138,6 +145,17 @@ object Additions {
 
       case c:ShowIndexesClause if c.where.isDefined || c.hasYield =>
         throw cypherExceptionFactory.syntaxException("Using YIELD or WHERE to list indexes is not supported in this Cypher version.", c.position)
+
+      case c: ShowDatabase if c.scope.isInstanceOf[HomeDatabaseScope] =>
+        throw cypherExceptionFactory.syntaxException("`SHOW HOME DATABASE` is not supported in this Cypher version.", c.position)
+
+      // GRANT/DENY/REVOKE SET HOME DATABASE ...
+      case p@GrantPrivilege(DbmsPrivilege(SetUserHomeDatabaseAction), _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("SET USER HOME DATABASE privilege is not supported in this Cypher version.", p.position)
+      case p@DenyPrivilege(DbmsPrivilege(SetUserHomeDatabaseAction), _, _, _)   =>
+        throw cypherExceptionFactory.syntaxException("SET USER HOME DATABASE privilege is not supported in this Cypher version.", p.position)
+      case p@RevokePrivilege(DbmsPrivilege(SetUserHomeDatabaseAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("SET USER HOME DATABASE privilege is not supported in this Cypher version.", p.position)
     }
   }
 

@@ -653,8 +653,20 @@ class ParboiledPrettifierIT extends CypherFunSuite {
     "alter user abc set plaintext password $password" ->
       "ALTER USER abc SET PASSWORD $password",
 
+    "alter user abc set status active set home database db1 set password change not required" ->
+      "ALTER USER abc SET PASSWORD CHANGE NOT REQUIRED SET STATUS ACTIVE SET HOME DATABASE db1",
+
     "alter user abc set status active set password change not required" ->
       "ALTER USER abc SET PASSWORD CHANGE NOT REQUIRED SET STATUS ACTIVE",
+
+    "alter user abc set home database null" ->
+      "ALTER USER abc SET HOME DATABASE null", // this is the string "null"
+
+    "alter user abc remove home database" ->
+      "ALTER USER abc REMOVE HOME DATABASE",
+
+    "alter user abc if exists remove home database" ->
+      "ALTER USER abc IF EXISTS REMOVE HOME DATABASE",
 
     "drop user abc" ->
       "DROP USER abc",
@@ -1005,6 +1017,9 @@ class ParboiledPrettifierIT extends CypherFunSuite {
         |    SKIP 1
         |    LIMIT 1
         |    WHERE name = "neo4j"""".stripMargin,
+
+    "show home database" ->
+      "SHOW HOME DATABASE",
 
     "catalog create database foO_Bar_42" ->
       "CREATE DATABASE foO_Bar_42",
@@ -1505,6 +1520,9 @@ class ParboiledPrettifierIT extends CypherFunSuite {
 
           s"$action set user status on dbms $preposition role" ->
             s"$action SET USER STATUS ON DBMS $preposition role",
+
+          s"$action set user home database on dbms $preposition role" ->
+            s"$action SET USER HOME DATABASE ON DBMS $preposition role",
 
           s"$action alter user on dbms $preposition role" ->
             s"$action ALTER USER ON DBMS $preposition role",
