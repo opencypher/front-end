@@ -18,10 +18,15 @@ Third-party licenses
 
 Apache Software License, Version 2.0
   openCypher - Cypher AST factory
+  scalactic
+  scalatest
 
 BSD - Scala License
   Scala Library
 
 BSD License
   Scala Compiler
+  scala-xml
+  scalacheck
+  test-interface
 
