@@ -44,6 +44,20 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationCom
         yields(func(ast.GraphPrivilege(AllGraphAction, List(graphScopeFoo))(_), List(ast.AllQualifier()(_)), Seq(literalRole)))
       }
 
+      // Home graph should be allowed
+
+      test(s"$verb ALL ON HOME GRAPH $preposition role") {
+        yields(func(ast.GraphPrivilege(AllGraphAction, List(ast.HomeGraphScope()(_)))(_), List(ast.AllQualifier()(_)), Seq(literalRole)))
+      }
+
+      test(s"$verb ALL PRIVILEGES ON HOME GRAPH $preposition role") {
+        yields(func(ast.GraphPrivilege(AllGraphAction, List(ast.HomeGraphScope()(_)))(_), List(ast.AllQualifier()(_)), Seq(literalRole)))
+      }
+
+      test(s"$verb ALL GRAPH PRIVILEGES ON HOME GRAPH $preposition role") {
+        yields(func(ast.GraphPrivilege(AllGraphAction, List(ast.HomeGraphScope()(_)))(_), List(ast.AllQualifier()(_)), Seq(literalRole)))
+      }
+
       // Default graph should be allowed
 
       test(s"$verb ALL ON DEFAULT GRAPH $preposition role") {
@@ -123,6 +137,10 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationCom
       }
 
       test(s"$verb ALL GRAPH PRIVILEGES ON DATABASE foo $preposition role") {
+        failsToParse
+      }
+
+      test(s"$verb ALL GRAPH PRIVILEGES ON HOME DATABASE $preposition role") {
         failsToParse
       }
 

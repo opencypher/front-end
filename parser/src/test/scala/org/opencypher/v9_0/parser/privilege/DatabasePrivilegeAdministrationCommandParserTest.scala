@@ -121,6 +121,14 @@ class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCom
             yields(privilegeFunc(action, List(databaseScopeFoo, databaseScopeParamBar), Seq(literalRole)))
           }
 
+          test(s"$verb $privilege ON HOME DATABASE $preposition role") {
+            yields(privilegeFunc(action, List(ast.HomeDatabaseScope() _), Seq(literalRole)))
+          }
+
+          test(s"$verb $privilege ON HOME DATABASE $preposition $$role1, role2") {
+            yields(privilegeFunc(action, List(ast.HomeDatabaseScope() _), Seq(paramRole1, literalRole2)))
+          }
+
           test(s"$verb $privilege ON DEFAULT DATABASE $preposition role") {
             yields(privilegeFunc(action, List(ast.DefaultDatabaseScope() _), Seq(literalRole)))
           }
@@ -178,6 +186,21 @@ class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCom
 
           test(s"$verb $privilege DATABASE foo $preposition role") {
             // Missing ON keyword
+            failsToParse
+          }
+
+          test(s"$verb $privilege ON HOME DATABASES $preposition role") {
+            // 'databases' instead of 'database'
+            failsToParse
+          }
+
+          test(s"$verb $privilege ON HOME DATABASE foo $preposition role") {
+            // both home and database name
+            failsToParse
+          }
+
+          test(s"$verb $privilege ON HOME DATABASE * $preposition role") {
+            // both home and *
             failsToParse
           }
 
@@ -248,6 +271,14 @@ class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCom
         yields(privilegeFunc(ast.ShowTransactionAction, List(databaseScopeParamFoo), List(ast.UserAllQualifier() _), Seq(paramRole1, paramRole2)))
       }
 
+      test(s"$verb SHOW TRANSACTION (user) ON HOME DATABASE $preposition role") {
+        yields(privilegeFunc(ast.ShowTransactionAction, List(ast.HomeDatabaseScope() _), List(ast.UserQualifier(literalUser)_), Seq(literalRole)))
+      }
+
+      test(s"$verb SHOW TRANSACTION ($$user) ON HOME DATABASE $preposition role") {
+        yields(privilegeFunc(ast.ShowTransactionAction, List(ast.HomeDatabaseScope() _), List(ast.UserQualifier(paramUser)_),Seq(literalRole)))
+      }
+
       test(s"$verb SHOW TRANSACTION (user) ON DEFAULT DATABASE $preposition role") {
         yields(privilegeFunc(ast.ShowTransactionAction, List(ast.DefaultDatabaseScope() _), List(ast.UserQualifier(literalUser)_), Seq(literalRole)))
       }
@@ -282,6 +313,10 @@ class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCom
 
       test(s"$verb TERMINATE TRANSACTIONS (*) ON DATABASES $$foo $preposition role") {
         yields(privilegeFunc(ast.TerminateTransactionAction, List(databaseScopeParamFoo), List(ast.UserAllQualifier() _), Seq(literalRole)))
+      }
+
+      test(s"$verb TERMINATE TRANSACTION (user) ON HOME DATABASE $preposition role") {
+        yields(privilegeFunc(ast.TerminateTransactionAction, List(ast.HomeDatabaseScope() _), List(ast.UserQualifier(literalUser)_), Seq(literalRole)))
       }
 
       test(s"$verb TERMINATE TRANSACTION (user) ON DEFAULT DATABASE $preposition role") {
@@ -330,6 +365,10 @@ class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCom
 
       test(s"$verb TRANSACTION (user) ON DATABASES foo, $$bar $preposition role") {
         yields(privilegeFunc(ast.AllTransactionActions, List(databaseScopeFoo, databaseScopeParamBar), List(ast.UserQualifier(literalUser)_), Seq(literalRole)))
+      }
+
+      test(s"$verb TRANSACTION MANAGEMENT ON HOME DATABASE $preposition role") {
+        yields(privilegeFunc(ast.AllTransactionActions, List(ast.HomeDatabaseScope() _), List(ast.UserAllQualifier() _), Seq(literalRole)))
       }
 
       test(s"$verb TRANSACTION MANAGEMENT ON DEFAULT DATABASE $preposition role") {

@@ -107,6 +107,7 @@ import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.GraphAction
 import org.opencypher.v9_0.ast.GraphPrivilegeQualifier
 import org.opencypher.v9_0.ast.HomeDatabaseScope
+import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDo
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
@@ -1509,7 +1510,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _databasePrivilege: Gen[PrivilegeCommand] = for {
     databaseAction      <- _databaseAction
     namedScope          <- _listOfNameOfEither.map(_.map(n => NamedDatabaseScope(n)(pos)))
-    databaseScope       <- oneOf(namedScope, List(AllDatabasesScope()(pos)), List(DefaultDatabaseScope()(pos)))
+    databaseScope       <- oneOf(namedScope, List(AllDatabasesScope()(pos)), List(DefaultDatabaseScope()(pos)), List(HomeDatabaseScope()(pos)))
     databaseQualifier   <- _databaseQualifier(databaseAction.isInstanceOf[TransactionManagementAction])
     roleNames           <- _listOfNameOfEither
     revokeType          <- _revokeType
@@ -1522,7 +1523,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _graphPrivilege: Gen[PrivilegeCommand] = for {
     graphAction                 <- _graphAction
     namedScope                  <- _listOfNameOfEither.map(_.map(n => NamedGraphScope(n)(pos)))
-    graphScope                  <- oneOf(namedScope, List(AllGraphsScope()(pos)), List(DefaultGraphScope()(pos)))
+    graphScope                  <- oneOf(namedScope, List(AllGraphsScope()(pos)), List(DefaultGraphScope()(pos)), List(HomeGraphScope()(pos)))
     (qualifier, maybeResource)  <- _graphQualifierAndResource(graphAction)
     roleNames                   <- _listOfNameOfEither
     revokeType                  <- _revokeType

@@ -39,6 +39,8 @@ import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
+import org.opencypher.v9_0.util.DeprecatedDefaultDatabaseSyntax
+import org.opencypher.v9_0.util.DeprecatedDefaultGraphSyntax
 import org.opencypher.v9_0.util.DeprecatedDropConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDropIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedFunctionNotification
@@ -167,6 +169,42 @@ object Deprecations {
         Deprecation(
           () => s,
           () => Some(DeprecatedShowSchemaSyntax(s.position))
+        )
+
+      case c@ast.GrantPrivilege(ast.DatabasePrivilege(_, List(ast.DefaultDatabaseScope())), _, _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDefaultDatabaseSyntax(c.position))
+        )
+
+      case c@ast.DenyPrivilege(ast.DatabasePrivilege(_, List(ast.DefaultDatabaseScope())), _, _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDefaultDatabaseSyntax(c.position))
+        )
+
+      case c@ast.RevokePrivilege(ast.DatabasePrivilege(_, List(ast.DefaultDatabaseScope())), _, _, _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDefaultDatabaseSyntax(c.position))
+        )
+
+      case c@ast.GrantPrivilege(ast.GraphPrivilege(_, List(ast.DefaultGraphScope())), _, _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDefaultGraphSyntax(c.position))
+        )
+
+      case c@ast.DenyPrivilege(ast.GraphPrivilege(_, List(ast.DefaultGraphScope())), _, _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDefaultGraphSyntax(c.position))
+        )
+
+      case c@ast.RevokePrivilege(ast.GraphPrivilege(_, List(ast.DefaultGraphScope())), _, _, _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedDefaultGraphSyntax(c.position))
         )
     }
   }
