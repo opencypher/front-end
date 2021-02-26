@@ -22,6 +22,7 @@ import org.opencypher.v9_0.rewriting.RewriterStep
 import org.opencypher.v9_0.rewriting.rewriters.LiteralsAreAvailable
 import org.opencypher.v9_0.rewriting.rewriters.expandCallWhere
 import org.opencypher.v9_0.rewriting.rewriters.expandShowWhere
+import org.opencypher.v9_0.rewriting.rewriters.rewriteShowQuery
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAndMatch
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
@@ -41,6 +42,7 @@ case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseCo
     insertWithBetweenOptionalMatchAndMatch,
     expandCallWhere,
     expandShowWhere,
+    rewriteShowQuery,
     replaceDeprecatedCypherSyntax,
     mergeInPredicates), initialConditions = Set(LiteralsAreAvailable))
 

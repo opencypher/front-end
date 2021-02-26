@@ -15,13 +15,21 @@
  */
 package org.opencypher.v9_0.parser
 
+import org.opencypher.v9_0.ast
 import org.parboiled.scala.Parser
 import org.parboiled.scala.Rule0
+import org.parboiled.scala.Rule1
 
 // Common methods for schema and administration commands
 trait CommandHelper extends Parser
-                    with Base {
+                    with Base
+                    with Query {
   def IndexKeyword: Rule0 = keyword("INDEXES") | keyword("INDEX")
 
   def ConstraintKeyword: Rule0 = keyword("CONSTRAINTS") | keyword("CONSTRAINT")
+
+  def ShowCommandClauses: Rule1[Either[(ast.Yield, Option[ast.Return]), ast.Where]] = rule("YIELD, WHERE") {
+    (Yield ~~ optional(ReturnWithoutGraph)) ~~> ((y,r) => Left(y,r)) |
+      (Where ~~>> (where => _ => Right(where)))
+  }
 }

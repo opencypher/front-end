@@ -42,6 +42,10 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
       yields(privilege(None))
     }
 
+    test(s"USE system SHOW $dbType") {
+      yields(privilege(None))
+    }
+
     test(s"SHOW $dbType WHERE access = 'GRANTED'") {
       yields(privilege(Some(Right(where(equals(accessVar, grantedString))))))
     }

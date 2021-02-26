@@ -37,7 +37,6 @@ import org.opencypher.v9_0.ast.RevokeBothType
 import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
@@ -204,28 +203,9 @@ class AdministrationCommandParserTestBase
   def revokeExecuteFunctionPrivilege(a: AdminAction, q: List[FunctionPrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
     ast.RevokePrivilege.dbmsAction(a, r, RevokeBothType()(pos), q)
 
-  def variableReturnItem(text: String): ast.UnaliasedReturnItem = returnItem(varFor(text), text)
-
-  def returnItem(expr: Expression, text: String): ast.UnaliasedReturnItem = ast.UnaliasedReturnItem(expr, text)(pos)
-
-  def aliasedReturnItem(variable: Variable): ast.AliasedReturnItem = ast.AliasedReturnItem(variable)
-
-  def returnAllItems: ast.ReturnItems = ast.ReturnItems(includeExisting = true, Seq.empty)(pos)
-
-  def returnItems(items: ast.ReturnItem*): ast.ReturnItems = ast.ReturnItems(includeExisting = false, items)(pos)
-
-  def where(expr: Expression): ast.Where = ast.Where(expr)(pos)
-
   def skip(value: Long): ast.Skip = ast.Skip(literalInt(value))(pos)
 
   def limit(value: Long): ast.Limit = ast.Limit(literalInt(value))(pos)
-
-  def yieldClause(returnItems: ast.ReturnItems,
-                  orderBy: Option[ast.OrderBy] = None,
-                  skip: Option[ast.Skip] = None,
-                  limit: Option[ast.Limit] = None,
-                  where: Option[ast.Where] = None): ast.Yield =
-    ast.Yield(returnItems, orderBy, skip, limit, where)(pos)
 
   // Can't use the `return_` methods in `AstConstructionTestSupport`
   // since that results in `Cannot resolve overloaded method 'return_'` for unknown reasons

@@ -22,6 +22,7 @@ import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 
 case object JavaCCParser {
+  // Triggers to fallback to parboiled parser
   private val FALLBACK_TRIGGERS = Seq(
     // Schema commands
     "INDEX",

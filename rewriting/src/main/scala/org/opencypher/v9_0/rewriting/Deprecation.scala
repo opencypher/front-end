@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractExpression
@@ -47,6 +48,7 @@ import org.opencypher.v9_0.util.DeprecatedParameterSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
+import org.opencypher.v9_0.util.DeprecatedShowSchemaSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.InternalNotification
@@ -159,6 +161,12 @@ object Deprecations {
         Deprecation(
           () => e,
           () => Some(DeprecatedPropertyExistenceSyntax(e.position))
+        )
+
+      case s: ShowIndexesClause if s.verbose || s.brief =>
+        Deprecation(
+          () => s,
+          () => Some(DeprecatedShowSchemaSyntax(s.position))
         )
     }
   }
