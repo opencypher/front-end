@@ -40,7 +40,6 @@ import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
-import org.opencypher.v9_0.ast.CreateView
 import org.opencypher.v9_0.ast.DatabasePrivilege
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DbmsPrivilege
@@ -61,7 +60,6 @@ import org.opencypher.v9_0.ast.DropRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
-import org.opencypher.v9_0.ast.DropView
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
@@ -462,15 +460,6 @@ case class Prettifier(
     case x @ DropGraph(catalogName) =>
       val graphName = catalogName.parts.mkString(".")
       s"${x.name} $graphName"
-
-    case CreateView(catalogName, params, query, _) =>
-      val graphName = catalogName.parts.mkString(".")
-      val paramString = params.map(p => "$" + p.name).mkString("(", ", ", ")")
-      s"CATALOG CREATE VIEW $graphName$paramString {$NL${base.indented().queryPart(query)}$NL}"
-
-    case DropView(catalogName) =>
-      val graphName = catalogName.parts.mkString(".")
-      s"CATALOG DROP VIEW $graphName"
   }
 
   private def asString(use: Option[GraphSelection]) = {
