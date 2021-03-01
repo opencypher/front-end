@@ -31,7 +31,6 @@ import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
-import org.opencypher.v9_0.ast.CreateGraph
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
@@ -51,7 +50,6 @@ import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
-import org.opencypher.v9_0.ast.DropGraph
 import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.DropNodeKeyConstraint
@@ -88,7 +86,6 @@ import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAction
-import org.opencypher.v9_0.ast.MultiGraphDDL
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NodeByIds
@@ -194,7 +191,6 @@ case class Prettifier(
     case q: Query                 => base.query(q)
     case c: SchemaCommand         => asString(c)
     case c: AdministrationCommand => asString(c)
-    case c: MultiGraphDDL         => asString(c)
     case _ => throw new IllegalStateException(s"Unknown statement: $statement")
   }
 
@@ -450,16 +446,6 @@ case class Prettifier(
         s"${x.name} ${Prettifier.escapeName(dbName)}${waitUntilComplete.name}"
     }
     useString + commandString
-  }
-
-  def asString(multiGraph: MultiGraphDDL): String = multiGraph match {
-    case x @ CreateGraph(catalogName, query) =>
-      val graphName = catalogName.parts.mkString(".")
-      s"${x.name} $graphName {$NL${base.indented().queryPart(query)}$NL}"
-
-    case x @ DropGraph(catalogName) =>
-      val graphName = catalogName.parts.mkString(".")
-      s"${x.name} $graphName"
   }
 
   private def asString(use: Option[GraphSelection]) = {

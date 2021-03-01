@@ -18,7 +18,6 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.ast
 import org.parboiled.scala.Parser
 import org.parboiled.scala.Rule1
-import org.parboiled.scala.group
 
 //noinspection ConvertibleToMethodValue
 // Can't convert since that breaks parsing
@@ -29,22 +28,5 @@ trait Statement extends Parser
   with AdministrationCommand
   with Base {
 
-  def Statement: Rule1[ast.Statement] = ShowIndexes | AdministrationCommand | MultiGraphCommand | SchemaCommand | Query
-
-  // Graph/View commands
-
-  def MultiGraphCommand: Rule1[ast.MultiGraphDDL] = rule("Multi graph DDL statement") {
-    CreateGraph | DropGraph
-  }
-
-  def CreateGraph: Rule1[ast.CreateGraph] = rule("CATALOG CREATE GRAPH") {
-    group(keyword("CATALOG CREATE GRAPH") ~~ CatalogName ~~ "{" ~~
-      RegularQuery ~~
-      "}") ~~>> (ast.CreateGraph(_, _))
-  }
-
-  def DropGraph: Rule1[ast.DropGraph] = rule("CATALOG DROP GRAPH") {
-    group(keyword("CATALOG DROP GRAPH") ~~ CatalogName) ~~>> (ast.DropGraph(_))
-  }
-
+  def Statement: Rule1[ast.Statement] = ShowIndexes | AdministrationCommand | SchemaCommand | Query
 }
