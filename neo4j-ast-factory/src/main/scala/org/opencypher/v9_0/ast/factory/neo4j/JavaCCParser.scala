@@ -37,9 +37,6 @@ case object JavaCCParser {
     "ALTER",
     "USER",
     "REVOKE",
-    // Graph commands
-    "CONSTRUCT",
-    "CATALOG",
     "~")
 
   def shouldFallBack(errorMsg: String): Boolean = {
