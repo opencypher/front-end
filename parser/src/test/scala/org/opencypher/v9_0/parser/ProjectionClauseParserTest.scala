@@ -18,7 +18,6 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.Clause
-import org.opencypher.v9_0.expressions
 import org.parboiled.scala.Rule1
 
 class ProjectionClauseParserTest
@@ -43,11 +42,6 @@ class ProjectionClauseParserTest
 
   test("WITH ") {
     failsToParse
-  }
-
-  test("WITH * WHERE a ~ b") {
-    val where = ast.Where(expressions.Equivalent(varFor("a"), varFor("b"))(pos))(pos)
-    yields(ast.With(distinct = false, ast.ReturnItems(includeExisting = true, Seq.empty)(pos), None, None, None, Some(where)))
   }
 
   test("RETURN *") {

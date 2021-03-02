@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.ast.generator
 
+import java.nio.charset.StandardCharsets
+
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
@@ -100,7 +102,6 @@ import org.opencypher.v9_0.ast.ExecuteFunctionAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
-import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.FunctionQualifier
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GrantRolesToUsers
@@ -188,6 +189,7 @@ import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexAction
+import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
@@ -239,7 +241,6 @@ import org.opencypher.v9_0.ast.generator.AstGenerator.char
 import org.opencypher.v9_0.ast.generator.AstGenerator.oneOrMore
 import org.opencypher.v9_0.ast.generator.AstGenerator.tuple
 import org.opencypher.v9_0.ast.generator.AstGenerator.zeroOrMore
-import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -256,7 +257,6 @@ import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
 import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.Equals
-import org.opencypher.v9_0.expressions.Equivalent
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.ExplicitParameter
@@ -356,8 +356,6 @@ import org.scalacheck.Gen.posNum
 import org.scalacheck.Gen.sequence
 import org.scalacheck.Gen.some
 import org.scalacheck.util.Buildable
-
-import java.nio.charset.StandardCharsets
 
 object AstGenerator {
   val OR_MORE_UPPER_BOUND = 3
@@ -532,7 +530,6 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     LessThanOrEqual(l, r)(pos),
     LessThan(l, r)(pos),
     Equals(l, r)(pos),
-    Equivalent(l, r)(pos),
     NotEquals(l, r)(pos),
     InvalidNotEquals(l, r)(pos)
   )

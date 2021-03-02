@@ -33,7 +33,6 @@ import org.opencypher.v9_0.expressions.DesugaredMapProjection
 import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.Equals
-import org.opencypher.v9_0.expressions.Equivalent
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
@@ -189,11 +188,6 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
 
       case x:Equals =>
         check(ctx, x.arguments, x +: parents) chain checkTypes(x, x.signatures)
-
-      case x:Equivalent =>
-        requireCypher10Support("`~` (equivalence)", x.position) chain
-          check(ctx, x.arguments, x +: parents) chain
-          checkTypes(x, x.signatures)
 
       case x:NotEquals =>
         check(ctx, x.arguments, x +: parents) chain checkTypes(x, x.signatures)
