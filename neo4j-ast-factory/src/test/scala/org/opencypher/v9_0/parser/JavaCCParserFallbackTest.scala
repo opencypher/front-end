@@ -16,10 +16,9 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class JavaCCParserFallbackTest extends FunSuiteLike with Matchers {
+class JavaCCParserFallbackTest extends CypherFunSuite {
 
   test("should fall back") {
     Seq(
