@@ -32,9 +32,6 @@ object SemanticFeature {
   case object MultipleGraphs extends SemanticFeature with FeatureToString {
     override def name: String = "multiple graphs"
   }
-  case object FromGraphSelector extends SemanticFeature with FeatureToString {
-    override def name: String = "FROM graph selector"
-  }
   case object UseGraphSelector extends SemanticFeature with FeatureToString {
     override def name: String = "USE graph selector"
   }

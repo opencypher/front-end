@@ -105,8 +105,7 @@ object InputDataStreamTestCypherParser extends Parser with Statement with Expres
   }
 
   override def Clause: Rule1[ast.Clause] = (
-    FromGraph
-      | Unwind
+    Unwind
       | With
       | Match
       | Call

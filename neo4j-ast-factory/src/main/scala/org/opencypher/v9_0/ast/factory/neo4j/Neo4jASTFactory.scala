@@ -15,6 +15,9 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
+import java.util
+import java.util.stream.Collectors
+
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
@@ -34,7 +37,6 @@ import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.Foreach
-import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.IfExistsDo
@@ -191,8 +193,6 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTString
 
-import java.util
-import java.util.stream.Collectors
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.Either
 
@@ -258,9 +258,6 @@ class Neo4jASTFactory(query: String)
       SingleQuery(loadCsv +: queryBody.asScala)(p)
     )(p)
 
-  override def fromClause(p: InputPosition,
-                          e: Expression): Clause = FromGraph(e)(p)
-
   override def useClause(p: InputPosition,
                          e: Expression): UseGraph = UseGraph(e)(p)
 
@@ -277,10 +274,6 @@ class Neo4jASTFactory(query: String)
       if (order.isEmpty) None else Some(OrderBy(order.asScala.toList)(p)),
       Option(skip).map(e => Skip(e)(p)),
       Option(limit).map(e => Limit(e)(p)))(p)
-  }
-
-  override def newReturnGraphClause(p: InputPosition): Return = {
-    throw new UnsupportedOperationException("The `RETURN GRAPH` clause is not available in this implementation of Cypher due to lack of support for multiple graphs.")
   }
 
   override def newReturnItem(p: InputPosition, e: Expression, v: Variable): ReturnItem = AliasedReturnItem(e, v)(p)
