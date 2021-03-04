@@ -16,6 +16,11 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.DeprecatedSyntax
+import org.opencypher.v9_0.ast.ExistsConstraints
+import org.opencypher.v9_0.ast.NodeExistsConstraints
+import org.opencypher.v9_0.ast.RelExistsConstraints
+import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticTable
@@ -52,6 +57,7 @@ import org.opencypher.v9_0.util.DeprecatedParameterSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
+import org.opencypher.v9_0.util.DeprecatedShowExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedShowSchemaSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.SkipChildren
@@ -210,6 +216,24 @@ object Deprecations {
         Deprecation(
           () => c,
           () => Some(DeprecatedDefaultGraphSyntax(c.position))
+        )
+
+      case c@ShowConstraints(ExistsConstraints(DeprecatedSyntax), _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedShowExistenceConstraintSyntax(c.position))
+        )
+
+      case c@ShowConstraints(NodeExistsConstraints(DeprecatedSyntax), _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedShowExistenceConstraintSyntax(c.position))
+        )
+
+      case c@ShowConstraints(RelExistsConstraints(DeprecatedSyntax), _, _) =>
+        Deprecation(
+          () => c,
+          () => Some(DeprecatedShowExistenceConstraintSyntax(c.position))
         )
     }
   }

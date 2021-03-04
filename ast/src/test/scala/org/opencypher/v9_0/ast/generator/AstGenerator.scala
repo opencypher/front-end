@@ -75,6 +75,7 @@ import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
+import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropConstraintAction
@@ -100,6 +101,7 @@ import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteFunctionAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
+import org.opencypher.v9_0.ast.ExistenceConstraintSyntax
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FunctionQualifier
@@ -127,11 +129,13 @@ import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
+import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
@@ -1169,8 +1173,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     props <- oneOrMore(_variableProperty)
   } yield props
 
-  def _constraintType: Gen[ShowConstraintType] =
-    oneOf(AllConstraints, UniqueConstraints, ExistsConstraints, NodeExistsConstraints, RelExistsConstraints, NodeKeyConstraints)
+  def _existenceSyntax: Gen[ExistenceConstraintSyntax] = oneOf(NewSyntax, DeprecatedSyntax, OldValidSyntax)
+
+  def _constraintType: Gen[ShowConstraintType] = for {
+    exists <- _existenceSyntax
+    types  <- oneOf(AllConstraints, UniqueConstraints, ExistsConstraints(exists), NodeExistsConstraints(exists), RelExistsConstraints(exists), NodeKeyConstraints)
+  } yield types
 
   def _createIndex: Gen[CreateIndex] = for {
     variable   <- _variable
