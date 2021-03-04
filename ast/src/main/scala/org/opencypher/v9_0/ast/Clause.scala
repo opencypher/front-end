@@ -390,7 +390,7 @@ case class Match(
       }
       case None => Seq.empty
     }) ++ pattern.treeFold(Seq.empty[String]) {
-      case NodePattern(Some(Variable(id)), _, Some(MapExpression(prop)), _) if variable == id =>
+      case NodePattern(Some(Variable(id)), _, Some(MapExpression(prop))) if variable == id =>
         acc => SkipChildren(acc ++ prop.map(_._1.name))
     }
 
@@ -412,7 +412,7 @@ case class Match(
 
   private def containsLabelPredicate(variable: String, label: String): Boolean = {
     var labels = pattern.fold(Seq.empty[String]) {
-      case NodePattern(Some(Variable(id)), nodeLabels, _, _) if variable == id =>
+      case NodePattern(Some(Variable(id)), nodeLabels, _) if variable == id =>
         list => list ++ nodeLabels.map(_.name)
     }
     labels = where match {
