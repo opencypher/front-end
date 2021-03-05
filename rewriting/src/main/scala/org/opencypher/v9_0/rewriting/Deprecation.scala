@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractExpression
 import org.opencypher.v9_0.expressions.ExtractScope
@@ -37,6 +38,7 @@ import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDefaultDatabaseSyntax
@@ -55,6 +57,9 @@ import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.LengthOnNonPathNotification
+import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTList
 
 import scala.collection.immutable.TreeMap
 
@@ -216,9 +221,8 @@ object Deprecations {
   case object deprecatedFeaturesIn4_3AfterRewrite extends Deprecations {
     override def find: PartialFunction[Any, Deprecation] = PartialFunction.empty
 
-    override def findWithContext(statement: Statement): Set[Deprecation] = {
-      statement.treeFold[Set[Deprecation]](Set.empty) {
-
+    override def findWithContext(statement: Statement, semanticTable: Option[SemanticTable]): Set[Deprecation] = {
+      val deprecationsOfPatternExpressionsOutsideExists = statement.treeFold[Set[Deprecation]](Set.empty) {
         case FunctionInvocation(_, FunctionName(name), _, _) if name.toLowerCase.equals("exists") =>
           // Don't look inside exists()
           deprecations => SkipChildren(deprecations)
@@ -230,6 +234,23 @@ object Deprecations {
           )
           deprecations => SkipChildren(deprecations + deprecation)
       }
+
+      val deprecationsOfCoercingListToBoolean = semanticTable.map { table =>
+          def isListCoercedToBoolean(e: Expression) = table.types.get(e).exists(
+            typeInfo => CTList(CTAny).covariant.containsAll(typeInfo.specified) && CTBoolean.covariant.containsAll(typeInfo.actual)
+          )
+
+          statement.treeFold[Set[Deprecation]](Set.empty) {
+            case e: Expression if isListCoercedToBoolean(e) =>
+              val deprecation = Deprecation(
+                () => e,
+                () => Some(DeprecatedCoercionOfListToBoolean(e.position))
+              )
+              deprecations => SkipChildren(deprecations + deprecation)
+          }
+      }.getOrElse(Set.empty)
+
+      deprecationsOfPatternExpressionsOutsideExists ++ deprecationsOfCoercingListToBoolean
     }
   }
 
@@ -324,5 +345,5 @@ case class Deprecation(generateReplacement: () => ASTNode, generateNotification:
 
 trait Deprecations extends {
   def find: PartialFunction[Any, Deprecation]
-  def findWithContext(statement: Statement): Set[Deprecation] = Set.empty
+  def findWithContext(statement: Statement, semanticTable: Option[SemanticTable]): Set[Deprecation] = Set.empty
 }

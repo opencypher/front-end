@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.DEPRECATION_WARNINGS
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.InternalNotification
@@ -25,18 +26,18 @@ import org.opencypher.v9_0.util.InternalNotification
  */
 case class SyntaxDeprecationWarnings(deprecations: Deprecations) extends VisitorPhase[BaseContext, BaseState] {
   override def visit(state: BaseState, context: BaseContext): Unit = {
-    val warnings = findDeprecations(state.statement())
+    val warnings = findDeprecations(state.statement(), state.maybeSemanticTable)
 
     warnings.foreach(context.notificationLogger.log)
   }
 
-  private def findDeprecations(statement: Statement): Set[InternalNotification] = {
+  private def findDeprecations(statement: Statement, semanticTable: Option[SemanticTable]): Set[InternalNotification] = {
 
     val foundWithoutContext = statement.fold(Set.empty[InternalNotification])(
       deprecations.find.andThen(deprecation => acc => acc ++ deprecation.generateNotification())
     )
 
-    val foundWithContext = deprecations.findWithContext(statement).map(_.generateNotification()).collect{case Some(n) => n}
+    val foundWithContext = deprecations.findWithContext(statement, semanticTable).map(_.generateNotification()).collect{case Some(n) => n}
 
     foundWithoutContext ++ foundWithContext
   }
