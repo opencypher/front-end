@@ -61,7 +61,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   }
 
   test("SHOW ALL ROLES YIELD role RETURN") {
-    assertJavaCCException(testName, "Invalid input '': expected \"DISTINCT\", \"*\" or an expression (line 1, column 33 (offset: 32))")
+    assertJavaCCException(testName, "Invalid input '': expected \"*\", \"DISTINCT\" or an expression (line 1, column 33 (offset: 32))")
   }
 
   test("SHOW POPULATED ROLES YIELD role WHERE role='PUBLIC' RETURN role") {
@@ -81,7 +81,16 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   }
 
   test("CATALOG SHOW ROLE") {
-    assertJavaCCException(testName, "Invalid input 'ROLE': expected \"ALL\", \"POPULATED\" or \"ROLES\" (line 1, column 14 (offset: 13))")
+    val exceptionMessage =
+      s"""Invalid input 'ROLE': expected
+         |  "ALL"
+         |  "DATABASE"
+         |  "DATABASES"
+         |  "DEFAULT"
+         |  "POPULATED"
+         |  "ROLES" (line 1, column 14 (offset: 13))""".stripMargin
+
+    assertJavaCCException(testName, exceptionMessage)
   }
 
   test("SHOW ALL ROLE") {
@@ -93,11 +102,29 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   }
 
   test("SHOW ROLE role") {
-    assertJavaCCException(testName, "Invalid input 'ROLE': expected \"ALL\", \"POPULATED\" or \"ROLES\" (line 1, column 6 (offset: 5))")
+    val exceptionMessage =
+      s"""Invalid input 'ROLE': expected
+         |  "ALL"
+         |  "DATABASE"
+         |  "DATABASES"
+         |  "DEFAULT"
+         |  "POPULATED"
+         |  "ROLES" (line 1, column 6 (offset: 5))""".stripMargin
+
+    assertJavaCCException(testName, exceptionMessage)
   }
 
   test("SHOW ROLE WITH USERS") {
-    assertJavaCCException(testName, "Invalid input 'ROLE': expected \"ALL\", \"POPULATED\" or \"ROLES\" (line 1, column 6 (offset: 5))")
+    val exceptionMessage =
+      s"""Invalid input 'ROLE': expected
+         |  "ALL"
+         |  "DATABASE"
+         |  "DATABASES"
+         |  "DEFAULT"
+         |  "POPULATED"
+         |  "ROLES" (line 1, column 6 (offset: 5))""".stripMargin
+
+    assertJavaCCException(testName, exceptionMessage)
   }
 
   test("CATALOG SHOW ROLES WITH USER") {
@@ -105,7 +132,16 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   }
 
   test("SHOW ROLE WITH USER") {
-    assertJavaCCException(testName, "Invalid input 'ROLE': expected \"ALL\", \"POPULATED\" or \"ROLES\" (line 1, column 6 (offset: 5))")
+    val exceptionMessage =
+      s"""Invalid input 'ROLE': expected
+         |  "ALL"
+         |  "DATABASE"
+         |  "DATABASES"
+         |  "DEFAULT"
+         |  "POPULATED"
+         |  "ROLES" (line 1, column 6 (offset: 5))""".stripMargin
+
+    assertJavaCCException(testName, exceptionMessage)
   }
 
   test("SHOW ALL ROLE WITH USERS") {
@@ -153,9 +189,14 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   }
 
   test("SHOW POPULATED ROLES YIELD *,blah RETURN role") {
-    val newline = System.getProperty("line.separator")
     val exceptionMessage =
-      s"""Invalid input ',': expected $newline  <EOF>$newline  "RETURN"$newline  "WHERE"$newline  "ORDER"$newline  "SKIP"$newline  "LIMIT" (line 1, column 29 (offset: 28))"""
+      s"""Invalid input ',': expected
+         |  "LIMIT"
+         |  "ORDER"
+         |  "RETURN"
+         |  "SKIP"
+         |  "WHERE"
+         |  <EOF> (line 1, column 29 (offset: 28))""".stripMargin
     assertJavaCCException(testName, exceptionMessage)
   }
 
@@ -250,7 +291,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   }
 
   test("CREATE ROLE foo UNION CREATE ROLE foo2") {
-    assertJavaCCException(testName, "Invalid input 'UNION': expected <EOF>, \"AS\" or \"IF\" (line 1, column 17 (offset: 16))")
+    assertJavaCCException(testName, "Invalid input 'UNION': expected \"AS\", \"IF\" or <EOF> (line 1, column 17 (offset: 16))")
   }
 
   //  Dropping role
@@ -339,7 +380,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
           }
 
           test(s"$verb $roleKeyword foo") {
-            assertJavaCCExceptionStart(testName, s"""Invalid input '': expected "$preposition" or ","""")
+            assertJavaCCExceptionStart(testName, s"""Invalid input '': expected "," or "$preposition"""")
           }
 
           test(s"$verb $roleKeyword foo $preposition") {
@@ -374,7 +415,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
       // ROLES TO USER only have GRANT and REVOKE and not DENY
 
       test(s"DENY $roleKeyword foo TO abc") {
-        // temporary error message until remaining administration commmands are ported
+        // temporary error message until remaining administration commands are ported
         assertJavaCCExceptionStart(testName, "Invalid input 'DENY'")
       }
   }

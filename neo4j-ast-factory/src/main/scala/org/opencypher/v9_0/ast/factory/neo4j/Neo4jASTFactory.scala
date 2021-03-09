@@ -18,24 +18,36 @@ package org.opencypher.v9_0.ast.factory.neo4j
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AllDatabasesScope
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
+import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateRole
+import org.opencypher.v9_0.ast.DatabaseScope
+import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DescSortItem
+import org.opencypher.v9_0.ast.DestroyData
+import org.opencypher.v9_0.ast.DropDatabase
+import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
 import org.opencypher.v9_0.ast.DropRole
+import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantRolesToUsers
+import org.opencypher.v9_0.ast.IfExistsDo
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.IfExistsReplace
 import org.opencypher.v9_0.ast.IfExistsThrowError
+import org.opencypher.v9_0.ast.IndefiniteWait
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
+import org.opencypher.v9_0.ast.NamedDatabaseScope
+import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
@@ -59,12 +71,16 @@ import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetItem
 import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.SortItem
+import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.SubQuery
+import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.UnionAll
 import org.opencypher.v9_0.ast.UnionDistinct
@@ -74,6 +90,7 @@ import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingJoinHint
 import org.opencypher.v9_0.ast.UsingScanHint
+import org.opencypher.v9_0.ast.WaitUntilComplete
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.Yield
@@ -201,6 +218,8 @@ class Neo4jASTFactory(query: String)
     UseGraph,
     AdministrationCommand,
     Yield,
+    DatabaseScope,
+    WaitUntilComplete,
     InputPosition] {
 
   override def newSingleQuery(clauses: util.List[Clause]): Query = {
@@ -777,23 +796,34 @@ class Neo4jASTFactory(query: String)
                           roleName: Either[String, Parameter],
                           from: Either[String, Parameter],
                           ifNotExists: Boolean): CreateRole = {
+    CreateRole(roleName, Option(from), ifExistsDo(replace, ifNotExists))(p)
+  }
 
-    val ifExistsDo =
-      if (ifNotExists) {
-        if (replace) {
-          IfExistsInvalidSyntax
-        } else {
-          IfExistsDoNothing
-        }
-      } else {
-        if (replace) {
-          IfExistsReplace
-        } else {
-          IfExistsThrowError
-        }
-      }
+  override def createDatabase(p: InputPosition,
+                              replace: Boolean,
+                              databaseName: Either[String, Parameter],
+                              ifNotExists: Boolean,
+                              wait: WaitUntilComplete): CreateDatabase = {
+    CreateDatabase(databaseName, ifExistsDo(replace, ifNotExists), wait)(p)
+  }
 
-    CreateRole(roleName, Option(from), ifExistsDo)(p)
+  private def ifExistsDo(replace: Boolean, ifNotExists: Boolean): IfExistsDo = {
+    (replace, ifNotExists) match {
+      case (true, true) => IfExistsInvalidSyntax
+      case (true, false) => IfExistsReplace
+      case (false, true) => IfExistsDoNothing
+      case (false, false) => IfExistsThrowError
+    }
+  }
+
+  override def wait(wait: Boolean, seconds: Long): WaitUntilComplete = {
+    if (!wait) {
+      NoWait
+    } else if (seconds > 0) {
+      TimeoutAfter(seconds)
+    } else {
+      IndefiniteWait
+    }
   }
 
   override def dropRole(p: InputPosition, roleName: Either[String, Parameter], ifExists: Boolean): DropRole = {
@@ -814,6 +844,40 @@ class Neo4jASTFactory(query: String)
       None
     }
     ShowRoles(WithUsers, showAll, yieldOrWhere)(p)
+  }
+
+  def dropDatabase(p:InputPosition, databaseName: Either[String, Parameter], ifExists: Boolean, dumpData: Boolean, wait: WaitUntilComplete): DropDatabase = {
+    val action: DropDatabaseAdditionalAction = if (dumpData) {
+      DumpData
+    } else {
+      DestroyData
+    }
+
+    DropDatabase(databaseName, ifExists, action, wait)(p)
+  }
+
+  override def showDatabase(p: InputPosition,
+                            scope: DatabaseScope,
+                            yieldExpr: Yield,
+                            returnWithoutGraph: Return,
+                            where: Expression): ShowDatabase = {
+    if (yieldExpr != null) {
+      ShowDatabase(scope, Some(Left((yieldExpr, Option(returnWithoutGraph)))))(p)
+    } else {
+      ShowDatabase(scope, Option(where).map(e => Right(Where(e)(e.position))))(p)
+    }
+  }
+
+  override def databaseScope(p: InputPosition,
+                             databaseName: Either[String, Parameter],
+                             isDefault: Boolean): DatabaseScope = {
+    if (databaseName != null) {
+      NamedDatabaseScope(databaseName)(p)
+    } else if (isDefault) {
+      DefaultDatabaseScope()(p)
+    } else {
+      AllDatabasesScope()(p)
+    }
   }
 
   override def yieldClause(p: InputPosition,
@@ -844,6 +908,18 @@ class Neo4jASTFactory(query: String)
                            roles: util.List[Either[String, Parameter]],
                            users: util.List[Either[String, Parameter]]): RevokeRolesFromUsers = {
     RevokeRolesFromUsers(roles.asScala, users.asScala)(p)
+  }
+
+  override def startDatabase(p: InputPosition,
+                             databaseName: Either[String, Parameter],
+                             wait: WaitUntilComplete): StartDatabase = {
+    StartDatabase(databaseName, wait)(p)
+  }
+
+  override def stopDatabase(p: InputPosition,
+                             databaseName: Either[String, Parameter],
+                             wait: WaitUntilComplete): StopDatabase = {
+    StopDatabase(databaseName, wait)(p)
   }
 
   override def inputPosition(offset: Int, line: Int, column: Int): InputPosition = InputPosition(offset, line, column)
