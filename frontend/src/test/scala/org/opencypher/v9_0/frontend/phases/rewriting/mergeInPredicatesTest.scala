@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.frontend.phases.CNFNormalizer
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
@@ -136,7 +137,8 @@ class mergeInPredicatesTest extends CypherFunSuite with AstRewritingTestSupport 
     val exceptionFactory = OpenCypherExceptionFactory(None)
     val original = parser.parse(from, exceptionFactory).asInstanceOf[Query]
     val expected = parser.parse(to, exceptionFactory).asInstanceOf[Query]
-    val common = CNFNormalizer.instance(TestContext())
+    val checkResults = original.semanticCheck(SemanticState.clean)
+    val common = CNFNormalizer.instance(checkResults.state, TestContext())
     val result = mergeInPredicates(original)
 
     common(result) should equal(common(expected))

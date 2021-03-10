@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Ands
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.False
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.Not
@@ -25,6 +26,7 @@ import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.logical.plans.CoerceToPredicate
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
@@ -36,6 +38,7 @@ import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.helpers.fixedPoint
 import org.opencypher.v9_0.util.inSequence
+import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
@@ -114,14 +117,24 @@ case object flattenBooleanOperators extends Rewriter with StepSequencer.Step {
   override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 }
 
-object simplifyPredicates extends Rewriter {
-  def apply(that: AnyRef): AnyRef = instance.apply(that)
-
+case class simplifyPredicates(semanticState: SemanticState) extends Rewriter {
   private val T = True()(null)
   private val F = False()(null)
 
-  private val step: Rewriter = Rewriter.lift {
-    case Not(Not(exp))                    => exp
+  private val step: Rewriter = Rewriter.lift({ case e: Expression => computeReplacement(e) })
+
+  private val instance = fixedPoint(topDown(step))
+
+  def apply(that: AnyRef): AnyRef = instance.apply(that)
+
+  private def computeReplacement(e: Expression): Expression = e match {
+    case n@Not(Not(innerExpression))  => {
+      val newExp = computeReplacement(innerExpression)
+      if (needsToBeExplicitlyCoercedToBoolean(n, newExp))
+        CoerceToPredicate(newExp)
+      else
+        newExp
+    }
     case Ands(exps) if exps.isEmpty     =>  throw new IllegalStateException("Found an instance of Ands with empty expressions")
     case Ors(exps) if exps.isEmpty      =>  throw new IllegalStateException("Found an instance of Ors with empty expressions")
     case p@Ands(exps) if exps.contains(T) =>
@@ -132,9 +145,26 @@ object simplifyPredicates extends Rewriter {
       if (nonFalse.isEmpty) False()(p.position) else Ors(nonFalse)(p.position)
     case p@Ors(exps) if exps.contains(T)  => True()(p.position)
     case p@Ands(exps) if exps.contains(F) => False()(p.position)
+    case a => a
   }
 
-  private val instance = fixedPoint(bottomUp(step))
+  /**
+   * We intend to remove {@code not} from the AST and replace it with {@code exp}.
+   *
+   * While {@code not} would have converted the value to boolean, we check here whether that information would be lost.
+   */
+  private def needsToBeExplicitlyCoercedToBoolean(not: Not, exp: Expression) = {
+    val expectedToBeBoolean = semanticState.expressionType(not).expected.exists(_.contains(CTBoolean))
+    val specifiedToBeBoolean = semanticState.expressionType(exp).specified.contains(CTBoolean)
+    !expectedToBeBoolean && !specifiedToBeBoolean
+  }
+}
+
+object simplifyPredicates extends ASTRewriterFactory {
+  override def getRewriter(innerVariableNamer: InnerVariableNamer,
+                           semanticState: SemanticState,
+                           parameterTypeMapping: Map[String, CypherType],
+                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = simplifyPredicates(semanticState)
 }
 
 case object NoInequalityInsideNot extends StepSequencer.Condition
