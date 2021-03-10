@@ -22,6 +22,8 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.ANY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.AS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ASC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ASSERT
+import org.opencypher.v9_0.parser.javacc.CypherConstants.BRIEF
+import org.opencypher.v9_0.parser.javacc.CypherConstants.BTREE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.BY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CALL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CASE
@@ -62,6 +64,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.HEADERS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.IF
 import org.opencypher.v9_0.parser.javacc.CypherConstants.IN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.INDEX
+import org.opencypher.v9_0.parser.javacc.CypherConstants.INDEXES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.IS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.JOIN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.KEY
@@ -79,6 +82,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.ON
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OPTIONAL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ORDER
+import org.opencypher.v9_0.parser.javacc.CypherConstants.OUTPUT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PERIODIC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.POPULATED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REDUCE
@@ -110,6 +114,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.UNWIND
 import org.opencypher.v9_0.parser.javacc.CypherConstants.USE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.USERS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.USING
+import org.opencypher.v9_0.parser.javacc.CypherConstants.VERBOSE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.WAIT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.WHEN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.WHERE
@@ -129,6 +134,8 @@ object IdentifierTokens {
     AS,
     ASC,
     ASSERT,
+    BRIEF,
+    BTREE,
     BY,
     CALL,
     CASE,
@@ -168,6 +175,7 @@ object IdentifierTokens {
     IF,
     IN,
     INDEX,
+    INDEXES,
     IS,
     JOIN,
     KEY,
@@ -185,6 +193,7 @@ object IdentifierTokens {
     OPTIONAL,
     OR,
     ORDER,
+    OUTPUT,
     PERIODIC,
     POPULATED,
     REDUCE,
@@ -216,6 +225,7 @@ object IdentifierTokens {
     USE,
     USERS,
     USING,
+    VERBOSE,
     WAIT,
     WHEN,
     WHERE,

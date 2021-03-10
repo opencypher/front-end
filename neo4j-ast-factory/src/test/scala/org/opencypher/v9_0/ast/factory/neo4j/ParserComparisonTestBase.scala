@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.junit.runner.RunWith
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.scalatest.Assertion
@@ -58,6 +59,14 @@ abstract class ParserComparisonTestBase() extends Assertions with Matchers {
       JavaCCParser.parse(query, exceptionFactory)
     }
     exception.getMessage should startWith(fixLineSeparator(expectedMessage))
+  }
+
+  /**
+   * Tests that the JavaCC parser produce correct AST.
+   */
+  protected def assertJavaCCAST(query: String, expected: Statement): Assertion = {
+    val ast = JavaCCParser.parse(query, exceptionFactory)
+    ast shouldBe expected
   }
 
   /**
