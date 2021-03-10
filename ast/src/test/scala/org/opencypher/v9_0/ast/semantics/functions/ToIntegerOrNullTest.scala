@@ -21,11 +21,12 @@ import org.opencypher.v9_0.util.symbols.CTDate
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
-import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTNumber
+import org.opencypher.v9_0.util.symbols.CTPoint
 import org.opencypher.v9_0.util.symbols.CTString
 
-class ToIntegerTest extends FunctionTestBase("toInteger")  {
+class ToIntegerOrNullTest extends FunctionTestBase("toIntegerOrNull")  {
 
   test("shouldAcceptCorrectTypes") {
     testValidTypes(CTString)(CTInteger)
@@ -34,31 +35,17 @@ class ToIntegerTest extends FunctionTestBase("toInteger")  {
     testValidTypes(CTNumber.covariant)(CTInteger)
     testValidTypes(CTAny.covariant)(CTInteger)
     testValidTypes(CTBoolean)(CTInteger)
-  }
-
-  // Currently we coerce CTList to boolean. This is going away and when it does we should reinstate this test
-  ignore("shouldFailTypeCheckForIncompatibleListArgument") {
-    testInvalidApplication(CTList(CTAny).covariant)(
-      "Type mismatch: expected Boolean, Float, Integer, Number or String but was List<T>"
-    )
-  }
-
-  test("shouldFailTypeCheckForIncompatibleArguments") {
-    testInvalidApplication(CTNode)(
-      "Type mismatch: expected Boolean, Float, Integer, Number or String but was Node"
-    )
-
-    testInvalidApplication(CTDate)(
-      "Type mismatch: expected Boolean, Float, Integer, Number or String but was Date"
-    )
+    testValidTypes(CTMap)(CTInteger)
+    testValidTypes(CTDate)(CTInteger)
+    testValidTypes(CTPoint)(CTInteger)
   }
 
   test("shouldFailIfWrongNumberOfArguments") {
     testInvalidApplication()(
-      "Insufficient parameters for function 'toInteger'"
+      "Insufficient parameters for function 'toIntegerOrNull'"
     )
-    testInvalidApplication(CTString, CTString)(
-      "Too many parameters for function 'toInteger'"
+    testInvalidApplication(CTString, CTMap)(
+      "Too many parameters for function 'toIntegerOrNull'"
     )
   }
 }
