@@ -114,6 +114,7 @@ import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
 import org.opencypher.v9_0.ast.Remove
+import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.Return
@@ -125,6 +126,7 @@ import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
+import org.opencypher.v9_0.ast.SetHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
@@ -311,17 +313,15 @@ case class Prettifier(
         val password = expr.escapePassword(initialPassword)
         val passwordString = s"$setPasswordString $password CHANGE ${if (userOptions.requirePasswordChange.getOrElse(true)) "" else "NOT "}REQUIRED"
         val statusString = if (userOptions.suspended.isDefined) s" SET STATUS ${if (userOptions.suspended.get) "SUSPENDED" else "ACTIVE"}" else ""
-        val homeDatabaseString = userOptions.homeDatabase.map(dbName => s" SET HOME DATABASE ${Prettifier.escapeName(dbName)}").getOrElse("")
+        val homeDatabaseString = userOptions.homeDatabase.map {
+          case SetHomeDatabaseAction(name) => s" SET HOME DATABASE ${Prettifier.escapeName(name)}"
+          case _ => None
+        }.getOrElse("")
         s"${x.name} $userNameString$ifNotExists $passwordString$statusString$homeDatabaseString"
 
       case x @ DropUser(userName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(userName)} IF EXISTS"
         else s"${x.name} ${Prettifier.escapeName(userName)}"
-
-      case x @ AlterUser(userName, _, _, UserOptions(_, _, Some(Left(null))), ifExists) =>
-        val userNameString = Prettifier.escapeName(userName)
-        val ifExistsString = if (ifExists) " IF EXISTS" else ""
-        s"${x.name} $userNameString$ifExistsString REMOVE HOME DATABASE"
 
       case x @ AlterUser(userName, isEncryptedPassword, initialPassword, userOptions, ifExists) =>
         val userNameString = Prettifier.escapeName(userName)
@@ -334,7 +334,10 @@ case class Prettifier(
         val setPasswordString = if(isEncryptedPassword.getOrElse(false)) "SET ENCRYPTED PASSWORD" else "SET PASSWORD"
         val passwordPrefix = if (passwordString.nonEmpty || passwordModeString.nonEmpty) s" $setPasswordString" else ""
         val statusString = if (userOptions.suspended.isDefined) s" SET STATUS ${if (userOptions.suspended.get) "SUSPENDED" else "ACTIVE"}" else ""
-        val homeDatabaseString = userOptions.homeDatabase.map(dbName => s" SET HOME DATABASE ${Prettifier.escapeName(dbName)}").getOrElse("")
+        val homeDatabaseString = userOptions.homeDatabase.map {
+          case SetHomeDatabaseAction(name) => s" SET HOME DATABASE ${Prettifier.escapeName(name)}"
+          case RemoveHomeDatabaseAction => " REMOVE HOME DATABASE"
+        }.getOrElse("")
         s"${x.name} $userNameString$ifExistsString$passwordPrefix$passwordString$passwordModeString$statusString$homeDatabaseString"
 
       case x @ SetOwnPassword(newPassword, currentPassword) =>

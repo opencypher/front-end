@@ -170,6 +170,7 @@ import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
+import org.opencypher.v9_0.ast.SetHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetItem
 import org.opencypher.v9_0.ast.SetLabelAction
@@ -1308,7 +1309,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     password              <- _password
     requirePasswordChange <- boolean
     suspended             <- option(boolean)
-    homeDatabase          <- option(_nameAsEither)
+    homeDatabase          <- option(_setHomeDatabaseAction)
     ifExistsDo            <- _ifExistsDo
     // requirePasswordChange is parsed as 'Some(true)' if omitted in query,
     // prettifier explicitly adds it so 'None' would be prettified and re-parsed to 'Some(true)'
@@ -1328,8 +1329,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     isEncryptedPassword   <- if (password.isEmpty) const(None) else some(boolean)
     suspended             <- option(boolean)
     // All four are not allowed to be None and REMOVE HOME DATABASE is only valid by itself
-    homeDatabase          <- if (password.isEmpty && requirePasswordChange.isEmpty && suspended.isEmpty) oneOf(some(_nameAsEither), some(Left(null))) else option(_nameAsEither)
+    homeDatabase          <- if (password.isEmpty && requirePasswordChange.isEmpty && suspended.isEmpty) oneOf(some(_setHomeDatabaseAction), some(ast.RemoveHomeDatabaseAction)) else option(_setHomeDatabaseAction)
   } yield AlterUser(userName, isEncryptedPassword, password, UserOptions(requirePasswordChange, suspended, homeDatabase), ifExists)(pos)
+
+  def _setHomeDatabaseAction: Gen[SetHomeDatabaseAction] = _nameAsEither.map(db => SetHomeDatabaseAction(db))
 
   def _setOwnPassword: Gen[SetOwnPassword] = for {
     newPassword <- _password
