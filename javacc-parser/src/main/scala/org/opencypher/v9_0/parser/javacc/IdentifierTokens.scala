@@ -61,6 +61,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.FROM
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRANT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRAPH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.HEADERS
+import org.opencypher.v9_0.parser.javacc.CypherConstants.HOME
 import org.opencypher.v9_0.parser.javacc.CypherConstants.IF
 import org.opencypher.v9_0.parser.javacc.CypherConstants.IN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.INDEX
@@ -172,6 +173,7 @@ object IdentifierTokens {
     GRANT,
     GRAPH,
     HEADERS,
+    HOME,
     IF,
     IN,
     INDEX,

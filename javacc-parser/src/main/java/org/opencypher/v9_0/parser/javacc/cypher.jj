@@ -304,6 +304,7 @@ TOKEN [IGNORE_CASE] :
     | < GRAPH: "GRAPH" >
     | < GT: ">" >
     | < HEADERS: "HEADERS" >
+    | < HOME: "HOME">
     | < IF: "IF" >
     | < IN: "IN" >
     | < INDEX: "INDEX" >
@@ -2587,6 +2588,7 @@ DATABASE_SCOPE DatabaseScope():
   Token start = null;
   Either<String, PARAMETER> name = null;
   boolean isDefault = false;
+  boolean isHome = false;
 }
 {
 
@@ -2594,9 +2596,10 @@ DATABASE_SCOPE DatabaseScope():
         start=<DATABASE> name=SymbolicDatabaseNameStringOrParameter()
       | start=<DATABASES>
       | start=<DEFAULT_TOKEN> <DATABASE> { isDefault = true; }
+      | start=<HOME> <DATABASE> { isHome = true; }
   )
   {
-    return astFactory.databaseScope(pos(start), name, isDefault);
+    return astFactory.databaseScope(pos(start), name, isDefault, isHome);
   }
 }
 
@@ -2838,6 +2841,7 @@ Token SymbolicNameString() :
     | t=<GRANT>
     | t=<GRAPH>
     | t=<HEADERS>
+    | t=<HOME>
     | t=<IF>
     | t=<IN>
     | t=<INDEX>

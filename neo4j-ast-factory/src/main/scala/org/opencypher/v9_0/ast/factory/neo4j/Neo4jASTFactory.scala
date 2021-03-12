@@ -36,6 +36,7 @@ import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FromGraph
 import org.opencypher.v9_0.ast.GrantRolesToUsers
+import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.IfExistsDo
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
@@ -900,13 +901,13 @@ class Neo4jASTFactory(query: String)
     }
   }
 
-  override def databaseScope(p: InputPosition,
-                             databaseName: Either[String, Parameter],
-                             isDefault: Boolean): DatabaseScope = {
+  override def databaseScope(p: InputPosition, databaseName: Either[String, Parameter], isDefault: Boolean, isHome: Boolean): DatabaseScope = {
     if (databaseName != null) {
       NamedDatabaseScope(databaseName)(p)
     } else if (isDefault) {
       DefaultDatabaseScope()(p)
+    } else if (isHome) {
+      HomeDatabaseScope()(p)
     } else {
       AllDatabasesScope()(p)
     }
