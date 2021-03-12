@@ -531,7 +531,7 @@ class ParboiledPrettifierIT extends CypherFunSuite {
       "SHOW EXIST CONSTRAINTS BRIEF",
 
     "show property existence constraint" ->
-      "SHOW EXISTENCE CONSTRAINTS BRIEF",
+      "SHOW EXISTENCE CONSTRAINTS",
 
     "SHOW NODE EXISTS constraint BRIEF output" ->
       "SHOW NODE EXISTS CONSTRAINTS BRIEF",
@@ -540,7 +540,7 @@ class ParboiledPrettifierIT extends CypherFunSuite {
       "SHOW NODE EXIST CONSTRAINTS BRIEF",
 
     "SHOW NODE property EXIST constraint" ->
-      "SHOW NODE EXISTENCE CONSTRAINTS BRIEF",
+      "SHOW NODE EXISTENCE CONSTRAINTS",
 
     "show relationship EXISTS cOnStRaInTs VERBOSE" ->
       "SHOW RELATIONSHIP EXISTS CONSTRAINTS VERBOSE",
@@ -549,13 +549,13 @@ class ParboiledPrettifierIT extends CypherFunSuite {
       "SHOW RELATIONSHIP EXIST CONSTRAINTS BRIEF",
 
     "show relationship EXISTENCE cOnStRaInTs" ->
-      "SHOW RELATIONSHIP EXISTENCE CONSTRAINTS BRIEF",
+      "SHOW RELATIONSHIP EXISTENCE CONSTRAINTS",
 
-    "show rel EXIST cOnStRaInTs brief" ->
-      "SHOW RELATIONSHIP EXISTENCE CONSTRAINTS BRIEF",
+    "show rel EXIST cOnStRaInTs" ->
+      "SHOW RELATIONSHIP EXISTENCE CONSTRAINTS",
 
     "show rel property EXISTence cOnStRaInTs" ->
-      "SHOW RELATIONSHIP EXISTENCE CONSTRAINTS BRIEF",
+      "SHOW RELATIONSHIP EXISTENCE CONSTRAINTS",
 
     "show unique constraint VERBOSE output" ->
       "SHOW UNIQUE CONSTRAINTS VERBOSE",
