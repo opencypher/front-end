@@ -20,7 +20,7 @@ import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.RelExistsConstraints
-import org.opencypher.v9_0.ast.ShowConstraints
+import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticTable
@@ -218,25 +218,25 @@ object Deprecations {
           () => Some(DeprecatedDefaultGraphSyntax(c.position))
         )
 
-      case c@ShowConstraints(ExistsConstraints(DeprecatedSyntax), _, _) =>
+      case c@ShowConstraintsClause(_, ExistsConstraints(DeprecatedSyntax), _, _, _, _) =>
         Deprecation(
           () => c,
           () => Some(DeprecatedShowExistenceConstraintSyntax(c.position))
         )
 
-      case c@ShowConstraints(NodeExistsConstraints(DeprecatedSyntax), _, _) =>
+      case c@ShowConstraintsClause(_, NodeExistsConstraints(DeprecatedSyntax), _, _, _, _) =>
         Deprecation(
           () => c,
           () => Some(DeprecatedShowExistenceConstraintSyntax(c.position))
         )
 
-      case c@ShowConstraints(RelExistsConstraints(DeprecatedSyntax), _, _) =>
+      case c@ShowConstraintsClause(_, RelExistsConstraints(DeprecatedSyntax), _, _, _, _) =>
         Deprecation(
           () => c,
           () => Some(DeprecatedShowExistenceConstraintSyntax(c.position))
         )
 
-      case s: ShowConstraints if s.verbose.isDefined =>
+      case s: ShowConstraintsClause if s.verbose || s.brief =>
         Deprecation(
           () => s,
           () => Some(DeprecatedShowSchemaSyntax(s.position))

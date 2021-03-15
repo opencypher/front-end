@@ -129,7 +129,7 @@ import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.ShowAllPrivileges
-import org.opencypher.v9_0.ast.ShowConstraints
+import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexesClause
@@ -269,10 +269,6 @@ case class Prettifier(
       case DropConstraintOnName(name, ifExists, _) =>
         val ifExistsString = if (ifExists) " IF EXISTS" else ""
         s"DROP CONSTRAINT ${backtick(name)}$ifExistsString"
-
-      case ShowConstraints(constraintType, verbose, _) =>
-        val output = verbose.map(v => if (v) " VERBOSE" else " BRIEF").getOrElse("")
-        s"SHOW ${constraintType.prettyPrint} CONSTRAINTS$output"
 
       case _ => throw new IllegalStateException(s"Unknown command: $command")
     }
@@ -502,23 +498,24 @@ case class Prettifier(
     def asString(clause: Clause): String = dispatch(clause)
 
     def dispatch(clause: Clause): String = clause match {
-      case u: UseGraph          => asString(u)
-      case e: Return            => asString(e)
-      case m: Match             => asString(m)
-      case c: SubQuery          => asString(c)
-      case w: With              => asString(w)
-      case y: Yield             => asString(y)
-      case c: Create            => asString(c)
-      case u: Unwind            => asString(u)
-      case u: UnresolvedCall    => asString(u)
-      case s: ShowIndexesClause => asString(s)
-      case s: SetClause         => asString(s)
-      case r: Remove            => asString(r)
-      case d: Delete            => asString(d)
-      case m: Merge             => asString(m)
-      case l: LoadCSV           => asString(l)
-      case f: Foreach           => asString(f)
-      case s: Start             => asString(s)
+      case u: UseGraph              => asString(u)
+      case e: Return                => asString(e)
+      case m: Match                 => asString(m)
+      case c: SubQuery              => asString(c)
+      case w: With                  => asString(w)
+      case y: Yield                 => asString(y)
+      case c: Create                => asString(c)
+      case u: Unwind                => asString(u)
+      case u: UnresolvedCall        => asString(u)
+      case s: ShowIndexesClause     => asString(s)
+      case s: ShowConstraintsClause => asString(s)
+      case s: SetClause             => asString(s)
+      case r: Remove                => asString(r)
+      case d: Delete                => asString(d)
+      case m: Merge                 => asString(m)
+      case l: LoadCSV               => asString(l)
+      case f: Foreach               => asString(f)
+      case s: Start                 => asString(s)
       case c =>
         val ext = extension.asString(this)
         ext.applyOrElse(c, fallback)
@@ -672,6 +669,17 @@ case class Prettifier(
       val ind = indented()
       val where = s.where.map(ind.asString).map(asNewLine).getOrElse("")
       s"SHOW $indexType INDEXES$indexOutput$where"
+    }
+
+    def asString(s: ShowConstraintsClause): String = {
+      val constraintOutput = s match {
+        case ShowConstraintsClause(_, _, true, _, _, false) => " BRIEF"
+        case ShowConstraintsClause(_, _, _, true, _, false) => " VERBOSE"
+        case _ => ""
+      }
+      val ind = indented()
+      val where = s.where.map(ind.asString).map(asNewLine).getOrElse("")
+      s"SHOW ${s.constraintType.prettyPrint} CONSTRAINTS$constraintOutput$where"
     }
 
     def asString(s: SetClause): String = {
