@@ -45,6 +45,16 @@ import scala.util.Right;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.opencypher.v9_0.ast.AllConstraints;
+import org.opencypher.v9_0.ast.DeprecatedSyntax;
+import org.opencypher.v9_0.ast.ExistsConstraints;
+import org.opencypher.v9_0.ast.NewSyntax;
+import org.opencypher.v9_0.ast.NodeExistsConstraints;
+import org.opencypher.v9_0.ast.NodeKeyConstraints;
+import org.opencypher.v9_0.ast.OldValidSyntax;
+import org.opencypher.v9_0.ast.RelExistsConstraints;
+import org.opencypher.v9_0.ast.ShowConstraintType;
+import org.opencypher.v9_0.ast.UniqueConstraints;
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory;
 import org.opencypher.v9_0.ast.factory.ASTFactory;
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos;
@@ -286,6 +296,7 @@ TOKEN [IGNORE_CASE] :
     | < CHANGE: "CHANGE">
     | < COMMIT: "COMMIT" >
     | < CONSTRAINT: "CONSTRAINT" >
+    | < CONSTRAINTS: "CONSTRAINTS" >
     | < CONTAINS: "CONTAINS" >
     | < COPY: "COPY" >
     | < COUNT: "count" >
@@ -312,6 +323,8 @@ TOKEN [IGNORE_CASE] :
     | < END: "END" >
     | < ENDS: "ENDS" >
     | < EQ: "=" >
+    | < EXIST: "EXIST" >
+    | < EXISTENCE: "EXISTENCE" >
     | < EXISTS: "EXISTS" >
     | < EXTRACT: "EXTRACT" >
     | < FALSE: "false">
@@ -362,11 +375,14 @@ TOKEN [IGNORE_CASE] :
     | < PLUS: "+" >
     | < POPULATED: "POPULATED">
     | < POW: "^" >
+    | < PROPERTY: "PROPERTY" >
     | < RBRACKET: "]" >
     | < RCURLY: "}" >
     | < REDUCE: "REDUCE" >
     | < RENAME: "RENAME" >
     | < REGEQ: "=~" >
+    | < REL: "REL" >
+    | < RELATIONSHIP: "RELATIONSHIP" >
     | < REMOVE: "REMOVE" >
     | < REPLACE: "REPLACE" >
     | < REQUIRED: "REQUIRED" >
@@ -2420,14 +2436,22 @@ STATEMENT ShowCommand(USE_CLAUSE useClause) :
   ( <ALL> statement = ShowAllCommand(start, useClause)
     | <POPULATED> statement = ShowRoles(start, useClause, false)
     | <BTREE> statement = ShowIndexes(start, useClause, false)
+    | <UNIQUE> statement = ShowConstraintsAllowBriefAndYield(start, useClause, UniqueConstraints.instance())
+    | <NODE> statement = ShowNodeCommand(start, useClause)
+    | <PROPERTY> statement = ShowPropertyCommand(start, useClause, new ExistsConstraints(NewSyntax.instance()))
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new ExistsConstraints(NewSyntax.instance()))
+    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, new ExistsConstraints(DeprecatedSyntax.instance()))
+    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, new ExistsConstraints(OldValidSyntax.instance()))
+    | <RELATIONSHIP> statement = ShowRelationshipCommand(start, useClause)
+    | <REL> statement = ShowRelCommand(start, useClause)
     | statement = ShowRoles(start, useClause, true)
     | statement = ShowIndexes(start, useClause, true)
     | statement = ShowDatabase(start, useClause)
     | statement = ShowUsers(start, useClause)
     | statement = ShowCurrentUser(start, useClause)
+    | statement = ShowConstraintsAllowBriefAndYield(start, useClause, AllConstraints.instance())
   ) { return statement; }
 }
-
 
 STATEMENT ShowAllCommand(Token start, USE_CLAUSE useClause) :
 {
@@ -2436,10 +2460,61 @@ STATEMENT ShowAllCommand(Token start, USE_CLAUSE useClause) :
 }
 {
     (statement = ShowRoles(start, useClause, true)
-    | statement = ShowIndexes(start, useClause, true))
+    | statement = ShowIndexes(start, useClause, true)
+    | statement = ShowConstraintsAllowBriefAndYield(start, useClause, AllConstraints.instance()))
     {
         return statement;
     }
+}
+
+STATEMENT ShowNodeCommand(Token start, USE_CLAUSE useClause) :
+{
+
+  STATEMENT statement = null;
+}
+{
+    ( <KEY> statement = ShowConstraintsAllowBriefAndYield(start, useClause, NodeKeyConstraints.instance())
+    | <PROPERTY> statement = ShowPropertyCommand(start, useClause, new NodeExistsConstraints(NewSyntax.instance()))
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new NodeExistsConstraints(NewSyntax.instance()))
+    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, new NodeExistsConstraints(DeprecatedSyntax.instance()))
+    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, new NodeExistsConstraints(OldValidSyntax.instance()))
+    ) { return statement; }
+}
+
+STATEMENT ShowRelationshipCommand(Token start, USE_CLAUSE useClause) :
+{
+
+  STATEMENT statement = null;
+}
+{
+    ( <PROPERTY> statement = ShowPropertyCommand(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
+    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, new RelExistsConstraints(DeprecatedSyntax.instance()))
+    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, new RelExistsConstraints(OldValidSyntax.instance()))
+    ) { return statement; }
+}
+
+STATEMENT ShowRelCommand(Token start, USE_CLAUSE useClause) :
+{
+
+  STATEMENT statement = null;
+}
+{
+    ( <PROPERTY> statement = ShowPropertyCommand(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
+    | <EXIST> statement = ShowConstraintsAllowYield(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
+    ) { return statement; }
+}
+
+STATEMENT ShowPropertyCommand(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType) :
+{
+
+  STATEMENT statement = null;
+}
+{
+    ( <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, constraintType)
+    | <EXIST> statement = ShowConstraintsAllowYield(start, useClause, constraintType)
+    ) { return statement; }
 }
 
 YIELD YieldClause():
@@ -2494,6 +2569,91 @@ STATEMENT ShowIndexes(Token start, USE_CLAUSE useClause, boolean all):
         else
         {
             clauses.add( astFactory.showIndexClause( pos( start ), all, brief, verbose, where, false ) );
+        }
+        return astFactory.newSingleQuery( clauses );
+    }
+}
+
+STATEMENT ShowConstraintsAllowBriefAndYield(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType):
+{
+  // all, node key, uniqueness and old valid existence constraints
+  List<CLAUSE> clauses = new ArrayList<>();
+  if (useClause != null) {
+      clauses.add( useClause );
+  }
+  boolean brief = false;
+  boolean verbose = false;
+  EXPRESSION where = null;
+  YIELD yieldClause = null;
+  RETURN_CLAUSE returnClause = null;
+}
+{
+    (<CONSTRAINT>|<CONSTRAINTS>)
+    ( ( ( <BRIEF> { brief = true; } | <VERBOSE> { verbose = true; }) (<OUTPUT>)? ) | (yieldClause = YieldClause() ( returnClause=ReturnClause() )?) | where = Where() )?
+    {
+        if ( yieldClause != null )
+        {
+            clauses.add( astFactory.showConstraintClause( pos( start ), constraintType, brief, verbose, where, true ) );
+            clauses.add( yieldClause );
+            if ( returnClause != null )
+            {
+                clauses.add( returnClause );
+            }
+        }
+        else
+        {
+            clauses.add( astFactory.showConstraintClause( pos( start ), constraintType, brief, verbose, where, false ) );
+        }
+        return astFactory.newSingleQuery( clauses );
+    }
+}
+
+STATEMENT ShowConstraintsAllowBrief(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType):
+{
+  // old deprecated existence constraints
+  List<CLAUSE> clauses = new ArrayList<>();
+  if (useClause != null) {
+      clauses.add( useClause );
+  }
+  boolean brief = false;
+  boolean verbose = false;
+}
+{
+    (<CONSTRAINT>|<CONSTRAINTS>)
+    ( ( <BRIEF> { brief = true; } | <VERBOSE> { verbose = true; }) (<OUTPUT>)? )?
+    {
+        clauses.add( astFactory.showConstraintClause( pos( start ), constraintType, brief, verbose, null, false ) );
+        return astFactory.newSingleQuery( clauses );
+    }
+}
+
+STATEMENT ShowConstraintsAllowYield(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType):
+{
+  // new existence constraints
+  List<CLAUSE> clauses = new ArrayList<>();
+  if (useClause != null) {
+      clauses.add( useClause );
+  }
+  EXPRESSION where = null;
+  YIELD yieldClause = null;
+  RETURN_CLAUSE returnClause = null;
+}
+{
+    (<CONSTRAINT>|<CONSTRAINTS>)
+    ( (yieldClause = YieldClause() ( returnClause=ReturnClause() )?) | where = Where() )?
+    {
+        if ( yieldClause != null )
+        {
+            clauses.add( astFactory.showConstraintClause( pos( start ), constraintType, false, false, where, true ) );
+            clauses.add( yieldClause );
+            if ( returnClause != null )
+            {
+                clauses.add( returnClause );
+            }
+        }
+        else
+        {
+            clauses.add( astFactory.showConstraintClause( pos( start ), constraintType, false, false, where, false ) );
         }
         return astFactory.newSingleQuery( clauses );
     }
@@ -3058,6 +3218,7 @@ Token SymbolicNameString() :
     | t=<CHANGE>
     | t=<COMMIT>
     | t=<CONSTRAINT>
+    | t=<CONSTRAINTS>
     | t=<CONTAINS>
     | t=<COPY>
     | t=<COUNT>
@@ -3080,6 +3241,8 @@ Token SymbolicNameString() :
     | t=<ENCRYPTED>
     | t=<END>
     | t=<ENDS>
+    | t=<EXIST>
+    | t=<EXISTENCE>
     | t=<EXISTS>
     | t=<EXTRACT>
     | t=<FALSE>
@@ -3117,7 +3280,10 @@ Token SymbolicNameString() :
     | t=<PERIODIC>
     | t=<PLAINTEXT>
     | t=<POPULATED>
+    | t=<PROPERTY>
     | t=<REDUCE>
+    | t=<REL>
+    | t=<RELATIONSHIP>
     | t=<REMOVE>
     | t=<RENAME>
     | t=<REPLACE>

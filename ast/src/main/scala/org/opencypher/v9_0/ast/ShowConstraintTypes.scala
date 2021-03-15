@@ -25,12 +25,14 @@ case object AllConstraints extends ShowConstraintType {
   override val output: String = "ALL"
   override val prettyPrint: String = "ALL"
   override val description: String = "allConstraints"
+  def instance: ShowConstraintType = this // to reach from Java
 }
 
 case object UniqueConstraints extends ShowConstraintType {
   override val output: String = "UNIQUENESS"
   override val prettyPrint: String = "UNIQUE"
   override val description: String = "uniquenessConstraints"
+  def instance: ShowConstraintType = this // to reach from Java
 }
 
 case class ExistsConstraints(syntax: ExistenceConstraintSyntax) extends ShowConstraintType {
@@ -55,6 +57,7 @@ case object NodeKeyConstraints extends ShowConstraintType {
   override val output: String = "NODE_KEY"
   override val prettyPrint: String = "NODE KEY"
   override val description: String = "nodeKeyConstraints"
+  def instance: ShowConstraintType = this // to reach from Java
 }
 
 sealed trait ExistenceConstraintSyntax {
@@ -63,12 +66,15 @@ sealed trait ExistenceConstraintSyntax {
 
 case object DeprecatedSyntax extends ExistenceConstraintSyntax {
   override val keyword: String = "EXISTS"
+  def instance: ExistenceConstraintSyntax = this // to reach from Java
 }
 
 case object OldValidSyntax extends ExistenceConstraintSyntax {
   override val keyword: String = "EXIST"
+  def instance: ExistenceConstraintSyntax = this // to reach from Java
 }
 
 case object NewSyntax extends ExistenceConstraintSyntax {
   override val keyword: String = "EXISTENCE"
+  def instance: ExistenceConstraintSyntax = this // to reach from Java
 }

@@ -113,6 +113,8 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.factory.ASTFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
+import org.opencypher.v9_0.ast.ShowConstraintsClause
+import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -830,6 +832,15 @@ class Neo4jASTFactory(query: String)
                                where: Expression,
                                hasYield: Boolean): Clause = {
     ShowIndexesClause(all, brief, verbose, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
+  }
+
+  override def showConstraintClause(p: InputPosition,
+                                    constraintType: ShowConstraintType,
+                                    brief: Boolean,
+                                    verbose: Boolean,
+                                    where: Expression,
+                                    hasYield: Boolean): Clause = {
+    ShowConstraintsClause(constraintType, brief, verbose, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
   }
 
   // Administration Commands
