@@ -26,7 +26,6 @@ import org.opencypher.v9_0.ast.AllNodes
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
 import org.opencypher.v9_0.ast.AllRelationships
-import org.opencypher.v9_0.ast.AlterRole
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
@@ -113,6 +112,7 @@ import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
+import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
@@ -156,7 +156,6 @@ import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.UserAllQualifier
-import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
@@ -360,8 +359,8 @@ case class Prettifier(
           case _                    => s"${x.name} ${Prettifier.escapeName(roleName)} AS COPY OF ${Prettifier.escapeName(fromRole)}"
         }
 
-      case x @ AlterRole(fromRoleName, toRoleName) =>
-        s"${x.name} ${Prettifier.escapeName(fromRoleName)} SET NAME ${Prettifier.escapeName(toRoleName)}"
+      case x @ RenameRole(fromRoleName, toRoleName) =>
+        s"${x.name} ${Prettifier.escapeName(fromRoleName)} TO ${Prettifier.escapeName(toRoleName)}"
 
       case x @ DropRole(roleName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(roleName)} IF EXISTS"

@@ -40,7 +40,6 @@ import org.opencypher.v9_0.ast.AllRoleActions
 import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
-import org.opencypher.v9_0.ast.AlterRole
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -158,6 +157,8 @@ import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePrivilegeAction
 import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.RemoveRoleAction
+import org.opencypher.v9_0.ast.RenameRole
+import org.opencypher.v9_0.ast.RenameRoleAction
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
@@ -1359,10 +1360,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     ifExistsDo   <- _ifExistsDo
   } yield CreateRole(roleName, fromRoleName, ifExistsDo)(pos)
 
-  def _alterRole: Gen[AlterRole] = for {
+  def _renameRole: Gen[RenameRole] = for {
     fromRoleName     <- _nameAsEither
     toRoleName       <- _nameAsEither
-  } yield AlterRole(fromRoleName, toRoleName)(pos)
+  } yield RenameRole(fromRoleName, toRoleName)(pos)
 
   def _dropRole: Gen[DropRole] = for {
     roleName <- _nameAsEither
@@ -1382,7 +1383,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _roleCommand: Gen[AdministrationCommand] = oneOf(
     _showRoles,
     _createRole,
-    _alterRole,
+    _renameRole,
     _dropRole,
     _grantRole,
     _revokeRole
@@ -1397,7 +1398,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     ExecuteProcedureAction, ExecuteBoostedProcedureAction, ExecuteAdminProcedureAction,
     ExecuteFunctionAction, ExecuteBoostedFunctionAction,
     AllUserActions, ShowUserAction, CreateUserAction, SetUserStatusAction, SetUserHomeDatabaseAction, SetPasswordsAction, AlterUserAction, DropUserAction,
-    AllRoleActions, ShowRoleAction, CreateRoleAction, DropRoleAction, AssignRoleAction, RemoveRoleAction,
+    AllRoleActions, ShowRoleAction, CreateRoleAction, RenameRoleAction, DropRoleAction, AssignRoleAction, RemoveRoleAction,
     AllDatabaseManagementActions, CreateDatabaseAction, DropDatabaseAction,
     AllPrivilegeActions, ShowPrivilegeAction, AssignPrivilegeAction, RemovePrivilegeAction
   )

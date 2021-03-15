@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast.AlterRole
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateNodeIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
@@ -34,6 +33,7 @@ import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDoNothing
+import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.ShowConstraints
@@ -148,7 +148,7 @@ object Additions {
       case c: AlterUser if c.ifExists =>
         throw cypherExceptionFactory.syntaxException("Updating a user with `IF EXISTS` is not supported in this Cypher version.", c.position)
 
-      case c: AlterRole =>
+      case c: RenameRole =>
         throw cypherExceptionFactory.syntaxException("Changing a role name is not supported in this Cypher version.", c.position)
 
       case c: ShowIndexesClause if c.where.isDefined || c.hasYield =>
