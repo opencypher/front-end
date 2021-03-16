@@ -15,8 +15,6 @@
  */
 package org.opencypher.v9_0.ast.generator
 
-import java.nio.charset.StandardCharsets
-
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
@@ -56,10 +54,12 @@ import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
+import org.opencypher.v9_0.ast.CreateNodeIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreatePropertyKeyAction
+import org.opencypher.v9_0.ast.CreateRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
 import org.opencypher.v9_0.ast.CreateRole
@@ -127,11 +127,11 @@ import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
-import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
+import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
@@ -145,11 +145,11 @@ import org.opencypher.v9_0.ast.PropertiesResource
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.QueryPart
 import org.opencypher.v9_0.ast.ReadAction
-import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
+import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveItem
 import org.opencypher.v9_0.ast.RemoveLabelAction
@@ -184,8 +184,8 @@ import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintAction
-import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.ast.ShowConstraints
+import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexAction
@@ -311,10 +311,10 @@ import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.ReduceScope
 import org.opencypher.v9_0.expressions.RegexMatch
-import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.SensitiveAutoParameter
 import org.opencypher.v9_0.expressions.SensitiveParameter
@@ -356,6 +356,8 @@ import org.scalacheck.Gen.posNum
 import org.scalacheck.Gen.sequence
 import org.scalacheck.Gen.some
 import org.scalacheck.util.Buildable
+
+import java.nio.charset.StandardCharsets
 
 object AstGenerator {
   val OR_MORE_UPPER_BOUND = 3
@@ -1169,12 +1171,16 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _createIndex: Gen[CreateIndex] = for {
     variable   <- _variable
     labelName  <- _labelName
+    relType    <- _relTypeName
     props      <- _listOfProperties
     name       <- option(_identifier)
     ifExistsDo <- _ifExistsDo
     options    <- _mapStringKeys
     use        <- option(_use)
-  } yield CreateIndex(variable, labelName, props, name, ifExistsDo, options, use)(pos)
+    nodeIndex  = CreateNodeIndex(variable, labelName, props, name, ifExistsDo, options, use)(pos)
+    relIndex   = CreateRelationshipIndex(variable, relType, props, name, ifExistsDo, options, use)(pos)
+    command    <- oneOf(nodeIndex, relIndex)
+  } yield command
 
   def _dropIndex: Gen[DropIndexOnName] = for {
     name     <- _identifier
