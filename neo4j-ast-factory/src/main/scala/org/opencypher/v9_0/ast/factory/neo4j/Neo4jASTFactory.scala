@@ -23,6 +23,7 @@ import java.util.stream.Collectors
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AllDatabasesScope
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
@@ -34,6 +35,7 @@ import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.Delete
+import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropDatabase
@@ -41,6 +43,7 @@ import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DumpData
+import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.HomeDatabaseScope
@@ -55,7 +58,11 @@ import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.NamedDatabaseScope
+import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NoWait
+import org.opencypher.v9_0.ast.NodeExistsConstraints
+import org.opencypher.v9_0.ast.NodeKeyConstraints
+import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
@@ -63,6 +70,7 @@ import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
 import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveItem
@@ -115,6 +123,7 @@ import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowConstraintType
+import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -835,11 +844,25 @@ class Neo4jASTFactory(query: String)
   }
 
   override def showConstraintClause(p: InputPosition,
-                                    constraintType: ShowConstraintType,
+                                    constraintTypeString: String,
                                     brief: Boolean,
                                     verbose: Boolean,
                                     where: Expression,
                                     hasYield: Boolean): Clause = {
+    val constraintType: ShowConstraintType = constraintTypeString match {
+      case "all" => AllConstraints
+      case "unique" => UniqueConstraints
+      case "node_key" => NodeKeyConstraints
+      case "exists_new" => ExistsConstraints(NewSyntax)
+      case "exists_deprecated" => ExistsConstraints(DeprecatedSyntax)
+      case "exists_old" => ExistsConstraints(OldValidSyntax)
+      case "node_exists_new" => NodeExistsConstraints(NewSyntax)
+      case "node_exists_deprecated" => NodeExistsConstraints(DeprecatedSyntax)
+      case "node_exists_old" => NodeExistsConstraints(OldValidSyntax)
+      case "rel_exists_new" => RelExistsConstraints(NewSyntax)
+      case "rel_exists_deprecated" => RelExistsConstraints(DeprecatedSyntax)
+      case "rel_exists_old" => RelExistsConstraints(OldValidSyntax)
+    }
     ShowConstraintsClause(constraintType, brief, verbose, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
   }
 

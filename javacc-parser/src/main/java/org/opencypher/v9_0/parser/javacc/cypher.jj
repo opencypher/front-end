@@ -45,16 +45,6 @@ import scala.util.Right;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.opencypher.v9_0.ast.AllConstraints;
-import org.opencypher.v9_0.ast.DeprecatedSyntax;
-import org.opencypher.v9_0.ast.ExistsConstraints;
-import org.opencypher.v9_0.ast.NewSyntax;
-import org.opencypher.v9_0.ast.NodeExistsConstraints;
-import org.opencypher.v9_0.ast.NodeKeyConstraints;
-import org.opencypher.v9_0.ast.OldValidSyntax;
-import org.opencypher.v9_0.ast.RelExistsConstraints;
-import org.opencypher.v9_0.ast.ShowConstraintType;
-import org.opencypher.v9_0.ast.UniqueConstraints;
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory;
 import org.opencypher.v9_0.ast.factory.ASTFactory;
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos;
@@ -2436,12 +2426,12 @@ STATEMENT ShowCommand(USE_CLAUSE useClause) :
   ( <ALL> statement = ShowAllCommand(start, useClause)
     | <POPULATED> statement = ShowRoles(start, useClause, false)
     | <BTREE> statement = ShowIndexes(start, useClause, false)
-    | <UNIQUE> statement = ShowConstraintsAllowBriefAndYield(start, useClause, UniqueConstraints.instance())
+    | <UNIQUE> statement = ShowConstraintsAllowBriefAndYield(start, useClause, "unique")
     | <NODE> statement = ShowNodeCommand(start, useClause)
-    | <PROPERTY> statement = ShowPropertyCommand(start, useClause, new ExistsConstraints(NewSyntax.instance()))
-    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new ExistsConstraints(NewSyntax.instance()))
-    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, new ExistsConstraints(DeprecatedSyntax.instance()))
-    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, new ExistsConstraints(OldValidSyntax.instance()))
+    | <PROPERTY> statement = ShowPropertyCommand(start, useClause, "exists_new")
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, "exists_new")
+    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, "exists_deprecated")
+    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, "exists_old")
     | <RELATIONSHIP> statement = ShowRelationshipCommand(start, useClause)
     | <REL> statement = ShowRelCommand(start, useClause)
     | statement = ShowRoles(start, useClause, true)
@@ -2449,7 +2439,7 @@ STATEMENT ShowCommand(USE_CLAUSE useClause) :
     | statement = ShowDatabase(start, useClause)
     | statement = ShowUsers(start, useClause)
     | statement = ShowCurrentUser(start, useClause)
-    | statement = ShowConstraintsAllowBriefAndYield(start, useClause, AllConstraints.instance())
+    | statement = ShowConstraintsAllowBriefAndYield(start, useClause, "all")
   ) { return statement; }
 }
 
@@ -2461,7 +2451,7 @@ STATEMENT ShowAllCommand(Token start, USE_CLAUSE useClause) :
 {
     (statement = ShowRoles(start, useClause, true)
     | statement = ShowIndexes(start, useClause, true)
-    | statement = ShowConstraintsAllowBriefAndYield(start, useClause, AllConstraints.instance()))
+    | statement = ShowConstraintsAllowBriefAndYield(start, useClause, "all"))
     {
         return statement;
     }
@@ -2473,11 +2463,11 @@ STATEMENT ShowNodeCommand(Token start, USE_CLAUSE useClause) :
   STATEMENT statement = null;
 }
 {
-    ( <KEY> statement = ShowConstraintsAllowBriefAndYield(start, useClause, NodeKeyConstraints.instance())
-    | <PROPERTY> statement = ShowPropertyCommand(start, useClause, new NodeExistsConstraints(NewSyntax.instance()))
-    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new NodeExistsConstraints(NewSyntax.instance()))
-    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, new NodeExistsConstraints(DeprecatedSyntax.instance()))
-    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, new NodeExistsConstraints(OldValidSyntax.instance()))
+    ( <KEY> statement = ShowConstraintsAllowBriefAndYield(start, useClause, "node_key")
+    | <PROPERTY> statement = ShowPropertyCommand(start, useClause, "node_exists_new")
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, "node_exists_new")
+    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, "node_exists_deprecated")
+    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, "node_exists_old")
     ) { return statement; }
 }
 
@@ -2487,10 +2477,10 @@ STATEMENT ShowRelationshipCommand(Token start, USE_CLAUSE useClause) :
   STATEMENT statement = null;
 }
 {
-    ( <PROPERTY> statement = ShowPropertyCommand(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
-    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
-    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, new RelExistsConstraints(DeprecatedSyntax.instance()))
-    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, new RelExistsConstraints(OldValidSyntax.instance()))
+    ( <PROPERTY> statement = ShowPropertyCommand(start, useClause, "rel_exists_new")
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, "rel_exists_new")
+    | <EXISTS> statement = ShowConstraintsAllowBrief(start, useClause, "rel_exists_deprecated")
+    | <EXIST> statement = ShowConstraintsAllowBriefAndYield(start, useClause, "rel_exists_old")
     ) { return statement; }
 }
 
@@ -2500,13 +2490,13 @@ STATEMENT ShowRelCommand(Token start, USE_CLAUSE useClause) :
   STATEMENT statement = null;
 }
 {
-    ( <PROPERTY> statement = ShowPropertyCommand(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
-    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
-    | <EXIST> statement = ShowConstraintsAllowYield(start, useClause, new RelExistsConstraints(NewSyntax.instance()))
+    ( <PROPERTY> statement = ShowPropertyCommand(start, useClause, "rel_exists_new")
+    | <EXISTENCE> statement = ShowConstraintsAllowYield(start, useClause, "rel_exists_new")
+    | <EXIST> statement = ShowConstraintsAllowYield(start, useClause, "rel_exists_new")
     ) { return statement; }
 }
 
-STATEMENT ShowPropertyCommand(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType) :
+STATEMENT ShowPropertyCommand(Token start, USE_CLAUSE useClause, String constraintType) :
 {
 
   STATEMENT statement = null;
@@ -2574,7 +2564,7 @@ STATEMENT ShowIndexes(Token start, USE_CLAUSE useClause, boolean all):
     }
 }
 
-STATEMENT ShowConstraintsAllowBriefAndYield(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType):
+STATEMENT ShowConstraintsAllowBriefAndYield(Token start, USE_CLAUSE useClause, String constraintType):
 {
   // all, node key, uniqueness and old valid existence constraints
   List<CLAUSE> clauses = new ArrayList<>();
@@ -2608,7 +2598,7 @@ STATEMENT ShowConstraintsAllowBriefAndYield(Token start, USE_CLAUSE useClause, S
     }
 }
 
-STATEMENT ShowConstraintsAllowBrief(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType):
+STATEMENT ShowConstraintsAllowBrief(Token start, USE_CLAUSE useClause, String constraintType):
 {
   // old deprecated existence constraints
   List<CLAUSE> clauses = new ArrayList<>();
@@ -2627,7 +2617,7 @@ STATEMENT ShowConstraintsAllowBrief(Token start, USE_CLAUSE useClause, ShowConst
     }
 }
 
-STATEMENT ShowConstraintsAllowYield(Token start, USE_CLAUSE useClause, ShowConstraintType constraintType):
+STATEMENT ShowConstraintsAllowYield(Token start, USE_CLAUSE useClause, String constraintType):
 {
   // new existence constraints
   List<CLAUSE> clauses = new ArrayList<>();
