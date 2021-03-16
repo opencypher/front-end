@@ -127,11 +127,11 @@ import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
-import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OrderBy
@@ -145,11 +145,11 @@ import org.opencypher.v9_0.ast.PropertiesResource
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.QueryPart
 import org.opencypher.v9_0.ast.ReadAction
+import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
-import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveItem
 import org.opencypher.v9_0.ast.RemoveLabelAction
@@ -186,8 +186,8 @@ import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintAction
-import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowConstraintType
+import org.opencypher.v9_0.ast.ShowConstraints
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexAction
@@ -313,10 +313,10 @@ import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.ReduceScope
 import org.opencypher.v9_0.expressions.RegexMatch
+import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
-import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.SensitiveAutoParameter
 import org.opencypher.v9_0.expressions.SensitiveParameter
@@ -1361,9 +1361,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield CreateRole(roleName, fromRoleName, ifExistsDo)(pos)
 
   def _renameRole: Gen[RenameRole] = for {
-    fromRoleName     <- _nameAsEither
-    toRoleName       <- _nameAsEither
-  } yield RenameRole(fromRoleName, toRoleName)(pos)
+    fromRoleName <- _nameAsEither
+    toRoleName   <- _nameAsEither
+    ifExists     <- boolean
+  } yield RenameRole(fromRoleName, toRoleName, ifExists)(pos)
 
   def _dropRole: Gen[DropRole] = for {
     roleName <- _nameAsEither
