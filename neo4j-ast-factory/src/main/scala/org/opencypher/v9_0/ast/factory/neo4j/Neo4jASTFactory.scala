@@ -15,15 +15,22 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
+import java.lang
+import java.nio.charset.StandardCharsets
+import java.util
+import java.util.stream.Collectors
+
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllDatabasesScope
+import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateRole
+import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.Delete
@@ -32,6 +39,7 @@ import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
 import org.opencypher.v9_0.ast.DropRole
+import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.GrantRolesToUsers
@@ -56,6 +64,7 @@ import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.Remove
+import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveItem
 import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
@@ -68,13 +77,17 @@ import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
+import org.opencypher.v9_0.ast.SetHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetItem
 import org.opencypher.v9_0.ast.SetLabelItem
+import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.SortItem
@@ -89,6 +102,7 @@ import org.opencypher.v9_0.ast.UnionDistinct
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
+import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingJoinHint
 import org.opencypher.v9_0.ast.UsingScanHint
@@ -116,6 +130,7 @@ import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractExpression
 import org.opencypher.v9_0.expressions.False
@@ -171,6 +186,8 @@ import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.SensitiveParameter
+import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
@@ -191,8 +208,6 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTString
 
-import java.util
-import java.util.stream.Collectors
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.Either
 
@@ -492,6 +507,10 @@ class Neo4jASTFactory(query: String)
   override def newStringParameter(p: InputPosition, v: Variable): Parameter = Parameter(v.name, CTString)(p)
 
   override def newStringParameter(p: InputPosition, offset: String): Parameter = Parameter(offset, CTString)(p)
+
+  override def newSensitiveStringParameter(p: InputPosition, v: Variable): Parameter = new ExplicitParameter(v.name, CTString)(p) with SensitiveParameter
+
+  override def newSensitiveStringParameter(p: InputPosition, offset: String): Parameter = new ExplicitParameter(offset, CTString)(p) with SensitiveParameter
 
   override def oldParameter(p: InputPosition, v: Variable): Expression = ParameterWithOldSyntax(v.name, CTAny)(p)
 
@@ -825,21 +844,64 @@ class Neo4jASTFactory(query: String)
     CreateRole(roleName, Option(from), ifExistsDo(replace, ifNotExists))(p)
   }
 
+  override def createUser(p: InputPosition,
+                          replace: Boolean,
+                          ifNotExists: Boolean,
+                          username: Either[String, Parameter],
+                          password: Either[String, Parameter],
+                          encrypted: Boolean,
+                          changeRequired: Boolean,
+                          suspended: lang.Boolean,
+                          homeDatabase: Either[String, Parameter]): AdministrationCommand = {
+    val passwordExpression = convertToSensitive(p, password)
+    val homeAction = if (homeDatabase == null) None else Some(SetHomeDatabaseAction(homeDatabase))
+    val userOptions = UserOptions(Some(changeRequired), asBooleanOption(suspended), homeAction)
+    CreateUser(username, encrypted, passwordExpression, userOptions, ifExistsDo(replace, ifNotExists))(p)
+  }
+
+  override def dropUser(p: InputPosition, ifExists: Boolean, username: Either[String, Parameter]): DropUser = {
+    DropUser(username, ifExists)(p)
+  }
+
+  override def setOwnPassword(p: InputPosition,
+                              currentPassword: Either[String, Parameter],
+                              newPassword: Either[String, Parameter]): SetOwnPassword = {
+    SetOwnPassword(convertToSensitive(p, newPassword), convertToSensitive(p, currentPassword))(p)
+  }
+
+  override def alterUser(p: InputPosition,
+                         ifExists: Boolean,
+                         username: Either[String, Parameter],
+                         password: Either[String, Parameter],
+                         encrypted: Boolean,
+                         changeRequired: lang.Boolean,
+                         suspended: lang.Boolean,
+                         homeDatabase: Either[String, Parameter],
+                         removeHome: Boolean): AlterUser = {
+    val (passwordExpression, isEncrypted) = Option(password) match {
+      case Some(Left(value))  => (Some(SensitiveStringLiteral(value.getBytes(StandardCharsets.UTF_8))(p)), Some(encrypted))
+      case Some(Right(value)) => (Some(new ExplicitParameter(value.name, CTString)(value.position) with SensitiveParameter), Some(encrypted))
+      case None               => (None, None)
+    }
+    val homeAction = if (removeHome) Some(RemoveHomeDatabaseAction) else if (homeDatabase == null) None else Some(SetHomeDatabaseAction(homeDatabase))
+    val userOptions = UserOptions(asBooleanOption(changeRequired), asBooleanOption(suspended), homeAction)
+    AlterUser(username, isEncrypted, passwordExpression, userOptions, ifExists)(p)
+  }
+
+  override def showUsers(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Expression): ShowUsers = {
+    ShowUsers(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+  }
+
+  override def showCurrentUser(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Expression): ShowCurrentUser = {
+    ShowCurrentUser(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+  }
+
   override def createDatabase(p: InputPosition,
                               replace: Boolean,
                               databaseName: Either[String, Parameter],
                               ifNotExists: Boolean,
                               wait: WaitUntilComplete): CreateDatabase = {
     CreateDatabase(databaseName, ifExistsDo(replace, ifNotExists), wait)(p)
-  }
-
-  private def ifExistsDo(replace: Boolean, ifNotExists: Boolean): IfExistsDo = {
-    (replace, ifNotExists) match {
-      case (true, true) => IfExistsInvalidSyntax
-      case (true, false) => IfExistsReplace
-      case (false, true) => IfExistsDoNothing
-      case (false, false) => IfExistsThrowError
-    }
   }
 
   override def wait(wait: Boolean, seconds: Long): WaitUntilComplete = {
@@ -866,14 +928,7 @@ class Neo4jASTFactory(query: String)
                          yieldExpr: Yield,
                          returnWithoutGraph: Return,
                          where: Expression): ShowRoles = {
-    val yieldOrWhere = if (yieldExpr != null) {
-      Some(Left(yieldExpr, Option(returnWithoutGraph)))
-    } else if (where != null) {
-      Some(Right(Where(where)(where.position)))
-    } else {
-      None
-    }
-    ShowRoles(WithUsers, showAll, yieldOrWhere)(p)
+    ShowRoles(WithUsers, showAll, yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
   }
 
   def dropDatabase(p:InputPosition, databaseName: Either[String, Parameter], ifExists: Boolean, dumpData: Boolean, wait: WaitUntilComplete): DropDatabase = {
@@ -935,6 +990,36 @@ class Neo4jASTFactory(query: String)
   }
 
   override def inputPosition(offset: Int, line: Int, column: Int): InputPosition = InputPosition(offset, line, column)
+
+  private def ifExistsDo(replace: Boolean, ifNotExists: Boolean): IfExistsDo = {
+    (replace, ifNotExists) match {
+      case (true, true) => IfExistsInvalidSyntax
+      case (true, false) => IfExistsReplace
+      case (false, true) => IfExistsDoNothing
+      case (false, false) => IfExistsThrowError
+    }
+  }
+
+  private def yieldOrWhere(yieldExpr: Yield,
+                           returnWithoutGraph: Return,
+                           where: Expression): Option[Either[(Yield, Option[Return]), Where]] = {
+    if (yieldExpr != null) {
+      Some(Left(yieldExpr, Option(returnWithoutGraph)))
+    } else if (where != null) {
+      Some(Right(Where(where)(where.position)))
+    } else {
+      None
+    }
+  }
+
+  private def convertToSensitive(p: InputPosition, password: Either[String, Parameter]): Expression = {
+    password match {
+      case Left(value) => SensitiveStringLiteral(value.getBytes(StandardCharsets.UTF_8))(p)
+      case Right(value) => new ExplicitParameter(value.name, CTString)(value.position) with SensitiveParameter
+    }
+  }
+
+  private def asBooleanOption(bool: lang.Boolean): Option[Boolean] = if (bool == null) None else Some(bool.booleanValue())
 
   private def pretty[T <: AnyRef](ts: util.List[T]): String = {
     ts.stream().map[String](t => t.toString).collect(Collectors.joining(","))

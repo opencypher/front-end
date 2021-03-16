@@ -15,8 +15,10 @@
  */
 package org.opencypher.v9_0.parser.javacc
 
+import org.opencypher.v9_0.parser.javacc.CypherConstants.ACTIVE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ALL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ALL_SHORTEST_PATH
+import org.opencypher.v9_0.parser.javacc.CypherConstants.ALTER
 import org.opencypher.v9_0.parser.javacc.CypherConstants.AND
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ANY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.AS
@@ -28,6 +30,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.BY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CALL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CASE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CATALOG
+import org.opencypher.v9_0.parser.javacc.CypherConstants.CHANGE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.COMMIT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CONSTRAINT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CONTAINS
@@ -35,6 +38,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.COPY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.COUNT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CREATE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CSV
+import org.opencypher.v9_0.parser.javacc.CypherConstants.CURRENT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DATA
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DATABASE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DATABASES
@@ -48,6 +52,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.DISTINCT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DROP
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DUMP
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ELSE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.ENCRYPTED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.END
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ENDS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ESCAPED_SYMBOLIC_NAME
@@ -84,12 +89,15 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.OPTIONAL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ORDER
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OUTPUT
+import org.opencypher.v9_0.parser.javacc.CypherConstants.PASSWORD
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PERIODIC
+import org.opencypher.v9_0.parser.javacc.CypherConstants.PLAINTEXT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.POPULATED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REDUCE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REMOVE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.RENAME
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REPLACE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.REQUIRED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.RETURN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REVOKE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ROLE
@@ -106,7 +114,9 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.SINGLE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.SKIPROWS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.START
 import org.opencypher.v9_0.parser.javacc.CypherConstants.STARTS
+import org.opencypher.v9_0.parser.javacc.CypherConstants.STATUS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.STOP
+import org.opencypher.v9_0.parser.javacc.CypherConstants.SUSPENDED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.THEN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.TO
 import org.opencypher.v9_0.parser.javacc.CypherConstants.TRUE
@@ -114,6 +124,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.UNION
 import org.opencypher.v9_0.parser.javacc.CypherConstants.UNIQUE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.UNWIND
 import org.opencypher.v9_0.parser.javacc.CypherConstants.USE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.USER
 import org.opencypher.v9_0.parser.javacc.CypherConstants.USERS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.USING
 import org.opencypher.v9_0.parser.javacc.CypherConstants.VERBOSE
@@ -129,8 +140,10 @@ object IdentifierTokens {
   val tokens = Set(
     ESCAPED_SYMBOLIC_NAME,
     //keywords
+    ACTIVE,
     ALL_SHORTEST_PATH,
     ALL,
+    ALTER,
     AND,
     ANY,
     AS,
@@ -142,6 +155,7 @@ object IdentifierTokens {
     CALL,
     CASE,
     CATALOG,
+    CHANGE,
     COMMIT,
     CONSTRAINT,
     CONTAINS,
@@ -149,6 +163,7 @@ object IdentifierTokens {
     COUNT,
     CREATE,
     CSV,
+    CURRENT,
     DATA,
     DATABASE,
     DATABASES,
@@ -162,6 +177,7 @@ object IdentifierTokens {
     DROP,
     DUMP,
     ELSE,
+    ENCRYPTED,
     END,
     ENDS,
     EXISTS,
@@ -197,12 +213,15 @@ object IdentifierTokens {
     OR,
     ORDER,
     OUTPUT,
+    PASSWORD,
     PERIODIC,
+    PLAINTEXT,
     POPULATED,
     REDUCE,
     REMOVE,
     RENAME,
     REPLACE,
+    REQUIRED,
     RETURN,
     REVOKE,
     ROLE,
@@ -219,7 +238,9 @@ object IdentifierTokens {
     SKIPROWS,
     START,
     STARTS,
+    STATUS,
     STOP,
+    SUSPENDED,
     THEN,
     TO,
     TRUE,
@@ -227,6 +248,7 @@ object IdentifierTokens {
     UNIQUE,
     UNWIND,
     USE,
+    USER,
     USERS,
     USING,
     VERBOSE,
