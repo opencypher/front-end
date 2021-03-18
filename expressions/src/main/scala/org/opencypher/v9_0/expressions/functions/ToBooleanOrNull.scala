@@ -16,16 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
+import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
-import org.opencypher.v9_0.util.symbols.CTInteger
-import org.opencypher.v9_0.util.symbols.CTString
 
-case object ToBoolean extends Function {
-  override def name = "toBoolean"
+case object ToBooleanOrNull extends Function {
+  override def name = "toBooleanOrNull"
 
   override val signatures = Vector(
-    TypeSignature(this, CTString, CTBoolean, "Converts a string value to a boolean value.", Category.SCALAR),
-    TypeSignature(this, CTBoolean, CTBoolean, "Converts a boolean value to a boolean value.", Category.SCALAR),
-    TypeSignature(this, CTInteger, CTBoolean, "Converts a integer value to a boolean value. 0 is defined to be FALSE and any other integer is defined to be TRUE.", Category.SCALAR)
+    TypeSignature(this, CTAny, CTBoolean, "Converts a value to a boolean value, or null if the value cannot be converted", Category.SCALAR)
   )
 }

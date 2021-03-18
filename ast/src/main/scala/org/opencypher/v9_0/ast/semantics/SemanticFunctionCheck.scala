@@ -52,6 +52,7 @@ import org.opencypher.v9_0.util.LengthOnNonPathNotification
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTFloat
+import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTPath
 import org.opencypher.v9_0.util.symbols.CTString
@@ -177,7 +178,7 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
 
       case ToBoolean =>
         checkArgs(invocation, 1) ifOkChain
-          checkToSpecifiedTypeOfArgument(invocation, Seq(CTString, CTBoolean, CTAny)) ifOkChain
+          checkToSpecifiedTypeOfArgument(invocation, Seq(CTString, CTBoolean, CTInteger)) ifOkChain
           specifyType(CTBoolean, invocation)
 
       case ToString =>
@@ -286,6 +287,8 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
         val msg = invocation.function match {
           case ToString =>
             s"Type mismatch: expected Boolean, Float, Integer, Point, String, Duration, Date, Time, LocalTime, LocalDateTime or DateTime but was ${specifiedType.mkString(", ")}"
+          case ToBoolean =>
+            s"Type mismatch: expected Boolean, Integer or String but was ${specifiedType.mkString(", ")}"
           case _ =>
             s"Type mismatch: expected Boolean or String but was ${specifiedType.mkString(", ")}"
         }
