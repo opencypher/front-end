@@ -34,6 +34,7 @@ import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.RenameRole
+import org.opencypher.v9_0.ast.RenameUser
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.ShowConstraints
@@ -150,6 +151,9 @@ object Additions {
 
       case c: RenameRole =>
         throw cypherExceptionFactory.syntaxException("Changing a role name is not supported in this Cypher version.", c.position)
+
+      case c: RenameUser =>
+        throw cypherExceptionFactory.syntaxException("Changing a username is not supported in this Cypher version.", c.position)
 
       case c: ShowIndexesClause if c.where.isDefined || c.hasYield =>
         throw cypherExceptionFactory.syntaxException("Using YIELD or WHERE to list indexes is not supported in this Cypher version.", c.position)

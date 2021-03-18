@@ -47,7 +47,7 @@ trait AdministrationCommand extends Parser
   }
 
   def UserAndRoleAdministrationCommand: Rule1[ast.AdministrationCommand] = rule("Security role and user administration statement") {
-    optional(keyword("CATALOG")) ~~ (ShowRoles | CreateRole | RenameRole | DropRole | ShowUsers | ShowCurrentUser | CreateUser | DropUser | AlterUser | SetOwnPassword)
+    optional(keyword("CATALOG")) ~~ (ShowRoles | CreateRole | RenameRole | DropRole | ShowUsers | ShowCurrentUser | CreateUser | RenameUser | DropUser | AlterUser | SetOwnPassword)
   }
 
   def PrivilegeAdministrationCommand: Rule1[ast.AdministrationCommand] = rule("Security privilege administration statement") {
@@ -96,6 +96,13 @@ trait AdministrationCommand extends Parser
     group(keyword("CREATE OR REPLACE USER") ~~ SymbolicNameOrStringParameter ~> (_ => ast.IfExistsReplace)) |
     group(keyword("CREATE USER") ~~ SymbolicNameOrStringParameter ~~ keyword("IF NOT EXISTS") ~> (_ => ast.IfExistsDoNothing)) |
     group(keyword("CREATE USER") ~~ SymbolicNameOrStringParameter ~> (_ => ast.IfExistsThrowError))
+  }
+
+  def RenameUser: Rule1[ast.RenameUser] = rule("RENAME USER") {
+    group(keyword("RENAME USER") ~~ SymbolicNameOrStringParameter ~~ keyword("IF EXISTS") ~~ keyword("TO")
+      ~~ SymbolicNameOrStringParameter) ~~>> (ast.RenameUser(_, _, ifExists = true)) |
+    group(keyword("RENAME USER") ~~ SymbolicNameOrStringParameter ~~ keyword("TO")
+      ~~ SymbolicNameOrStringParameter) ~~>> (ast.RenameUser(_, _, ifExists = false))
   }
 
   def DropUser: Rule1[ast.DropUser] = rule("DROP USER") {
@@ -339,6 +346,7 @@ trait AdministrationCommand extends Parser
     keyword("SHOW ROLE") ~~~> (_ => ast.ShowRoleAction) |
     keyword("ROLE MANAGEMENT") ~~~> (_ => ast.AllRoleActions) |
     keyword("CREATE USER") ~~~> (_ => ast.CreateUserAction) |
+    keyword("RENAME USER") ~~~> (_ => ast.RenameUserAction) |
     keyword("DROP USER") ~~~> (_ => ast.DropUserAction) |
     keyword("SHOW USER") ~~~> (_ => ast.ShowUserAction) |
     keyword("SET USER STATUS") ~~~> (_ => ast.SetUserStatusAction) |

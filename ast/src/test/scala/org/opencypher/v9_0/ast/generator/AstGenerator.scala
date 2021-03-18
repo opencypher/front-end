@@ -159,6 +159,7 @@ import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.RemoveRoleAction
 import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.RenameRoleAction
+import org.opencypher.v9_0.ast.RenameUser
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
@@ -1314,6 +1315,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     // hence the explicit 'Some(requirePasswordChange)'
   } yield CreateUser(userName, isEncryptedPassword, password, UserOptions(Some(requirePasswordChange), suspended, homeDatabase), ifExistsDo)(pos)
 
+  def _renameUser: Gen[RenameUser] = for {
+    fromUserName <- _nameAsEither
+    toUserName   <- _nameAsEither
+    ifExists     <- boolean
+  } yield RenameUser(fromUserName, toUserName, ifExists)(pos)
+
   def _dropUser: Gen[DropUser] = for {
     userName <- _nameAsEither
     ifExists <- boolean
@@ -1341,6 +1348,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     _showUsers,
     _showCurrentUser,
     _createUser,
+    _renameUser,
     _dropUser,
     _alterUser,
     _setOwnPassword

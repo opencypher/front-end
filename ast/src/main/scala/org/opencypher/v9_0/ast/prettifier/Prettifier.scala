@@ -31,8 +31,8 @@ import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
-import org.opencypher.v9_0.ast.CreateNodeIndex
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
+import org.opencypher.v9_0.ast.CreateNodeIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipIndex
@@ -113,6 +113,7 @@ import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.RenameRole
+import org.opencypher.v9_0.ast.RenameUser
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
@@ -317,6 +318,9 @@ case class Prettifier(
         }.getOrElse("")
         s"${x.name} $userNameString$ifNotExists $passwordString$statusString$homeDatabaseString"
 
+      case x @ RenameUser(fromUserName, toUserName, ifExists) =>
+        Prettifier.prettifyRename(x.name, fromUserName, toUserName, ifExists)
+
       case x @ DropUser(userName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(userName)} IF EXISTS"
         else s"${x.name} ${Prettifier.escapeName(userName)}"
@@ -360,8 +364,7 @@ case class Prettifier(
         }
 
       case x @ RenameRole(fromRoleName, toRoleName, ifExists) =>
-        val maybeIfExists = if (ifExists) " IF EXISTS" else ""
-        s"${x.name} ${Prettifier.escapeName(fromRoleName)}$maybeIfExists TO ${Prettifier.escapeName(toRoleName)}"
+        Prettifier.prettifyRename(x.name, fromRoleName, toRoleName, ifExists)
 
       case x @ DropRole(roleName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(roleName)} IF EXISTS"
@@ -744,6 +747,11 @@ object Prettifier {
 
   object EmptyExtension extends ClausePrettifier {
     def asString(ctx: QueryPrettifier): PartialFunction[Clause, String] = PartialFunction.empty
+  }
+
+  def prettifyRename(commandName: String, fromName: Either[String, Parameter], toName: Either[String, Parameter], ifExists: Boolean): String = {
+    val maybeIfExists = if (ifExists) " IF EXISTS" else ""
+    s"$commandName ${escapeName(fromName)}$maybeIfExists TO ${escapeName(toName)}"
   }
 
   def extractScope(scope: ShowPrivilegeScope): String = {
