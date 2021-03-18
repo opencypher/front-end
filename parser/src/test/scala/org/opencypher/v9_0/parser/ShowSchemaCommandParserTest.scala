@@ -17,21 +17,15 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AllConstraints
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.UniqueConstraints
-import org.parboiled.scala.Rule1
 
-class ShowSchemaCommandParserTest
-  extends ParserAstTest[ast.Statement]
-    with Statement
-    with AstConstructionTestSupport {
-
-  implicit val parser: Rule1[ast.Statement] = Statement
+/* Tests for listing indexes and constraints */
+class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
 
   // Show indexes
 
