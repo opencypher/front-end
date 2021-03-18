@@ -88,6 +88,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.PERIODIC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.POPULATED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REDUCE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REMOVE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.RENAME
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REPLACE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.RETURN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REVOKE
@@ -200,6 +201,7 @@ object IdentifierTokens {
     POPULATED,
     REDUCE,
     REMOVE,
+    RENAME,
     REPLACE,
     RETURN,
     REVOKE,

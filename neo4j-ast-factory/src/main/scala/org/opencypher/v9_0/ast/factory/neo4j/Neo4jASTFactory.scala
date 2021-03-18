@@ -15,9 +15,6 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
-import java.util
-import java.util.stream.Collectors
-
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
@@ -62,6 +59,7 @@ import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveItem
 import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
+import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
@@ -193,6 +191,8 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTString
 
+import java.util
+import java.util.stream.Collectors
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.Either
 
@@ -854,6 +854,10 @@ class Neo4jASTFactory(query: String)
 
   override def dropRole(p: InputPosition, roleName: Either[String, Parameter], ifExists: Boolean): DropRole = {
     DropRole(roleName, ifExists)(p)
+  }
+
+  override def renameRole(p: InputPosition, fromRoleName: Either[String, Parameter], toRoleName: Either[String, Parameter], ifExists: Boolean): RenameRole = {
+    RenameRole(fromRoleName, toRoleName, ifExists)(p)
   }
 
   override def showRoles(p: InputPosition,
