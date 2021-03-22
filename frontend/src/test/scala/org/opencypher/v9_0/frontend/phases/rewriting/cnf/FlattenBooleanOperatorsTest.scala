@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting
+package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
-import org.opencypher.v9_0.rewriting.rewriters.flattenBooleanOperators
+import org.opencypher.v9_0.rewriting.PredicateTestSupport
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class FlattenBooleanOperatorsTest extends CypherFunSuite with PredicateTestSupport {

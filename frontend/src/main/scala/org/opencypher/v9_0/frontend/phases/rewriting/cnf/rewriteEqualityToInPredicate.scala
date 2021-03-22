@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.frontend.phases
+package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.expressions.Equals
@@ -23,6 +23,11 @@ import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.functions
+import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.BaseState
+import org.opencypher.v9_0.frontend.phases.EqualityRewrittenToIn
+import org.opencypher.v9_0.frontend.phases.StatementRewriter
+import org.opencypher.v9_0.frontend.phases.Transformer
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.util.Rewriter
@@ -41,7 +46,7 @@ case object rewriteEqualityToInPredicate extends StatementRewriter with StepSequ
       In(func, ListLiteral(Seq(idValueExpr))(idValueExpr.position))(predicate.position)
 
     // Equality between two property lookups should not be rewritten
-    case predicate@Equals(_:Property, _:Property) =>
+    case predicate@Equals(_: Property, _: Property) =>
       predicate
 
     // a.prop = value => a.prop IN [value]

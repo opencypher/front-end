@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting.rewriters
+package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.GreaterThan
@@ -21,10 +21,15 @@ import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
 import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.topDown
 
-case object normalizeInequalities extends Rewriter {
+case object InequalitiesNormalized extends StepSequencer.Condition
+
+case object normalizeInequalities extends Rewriter with CnfPhase {
 
   override def apply(that: AnyRef): AnyRef = instance(that)
 
@@ -48,4 +53,13 @@ case object normalizeInequalities extends Rewriter {
   })
 
   override def toString: String = "normalizeInequalities"
+
+  override def getRewriter(from: BaseState,
+                           context: BaseContext): Rewriter = this
+
+  override def preConditions: Set[StepSequencer.Condition] = Set(!AndRewrittenToAnds)
+
+  override def postConditions: Set[StepSequencer.Condition] = Set(InequalitiesNormalized)
+
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 }

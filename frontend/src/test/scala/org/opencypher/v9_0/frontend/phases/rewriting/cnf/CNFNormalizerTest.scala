@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.frontend.phases.rewriting
+package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
-import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.frontend.phases.BaseContext
-import org.opencypher.v9_0.frontend.phases.CNFNormalizer
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
@@ -124,7 +122,7 @@ class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {
     val monitors = mock[Monitors]
     astRewritingMonitor = mock[AstRewritingMonitor]
     when(monitors.newMonitor[AstRewritingMonitor]()).thenReturn(astRewritingMonitor)
-    rewriter = CNFNormalizer.instance(SemanticState.clean, new TestContext(monitors))
+    rewriter = CNFNormalizer.instance(new TestContext(monitors))
   }
 }
 

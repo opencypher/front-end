@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting
+package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.ExplicitParameter
-import org.opencypher.v9_0.expressions.Not
-import org.opencypher.v9_0.expressions.Null
+import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
-import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
-import org.opencypher.v9_0.expressions.StringLiteral
-import org.opencypher.v9_0.expressions.True
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.mergeDuplicateBooleanOperators
 import org.opencypher.v9_0.logical.plans.CoerceToPredicate
-import org.opencypher.v9_0.rewriting.rewriters.flattenBooleanOperators
-import org.opencypher.v9_0.rewriting.rewriters.simplifyPredicates
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -38,39 +36,51 @@ import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class SimplifyPredicatesTest extends CypherFunSuite {
+class MergeBooleanOperatorsTest extends CypherFunSuite {
 
-  test("double negation is removed by keeping an extra not") {
-    // not(not(not(P))) <=> not(P)
-    assertRewrittenMatches("NOT NOT NOT 'P'", { case Not(StringLiteral("P")) => () })
+
+  test("Simplify AND of identical value") {
+    // and(eq($n, 2), eq($n, 2)) => eq($n, 2)
+    assertRewrittenMatches("$n = 2 AND $n = 2", { case Equals(_, _) => () })
   }
 
-  test("repeated double negation is removed") {
-    // not(not(not(not(P)))) <=> bool(P)
-    assertRewrittenMatches("NOT NOT NOT NOT 'P'", { case CoerceToPredicate(StringLiteral("P")) => () })
+  test("Simplify OR of identical value") {
+    // or(eq($n, 2), eq($n, 2)) => eq($n, 2)
+    assertRewrittenMatches("$n = 2 OR $n = 2", { case Equals(_, _) => () })
   }
 
-  test("double negation is removed") {
-    // not(not(P)) <=> bool(P)
-    assertRewrittenMatches("NOT NOT 'P'", { case CoerceToPredicate(StringLiteral("P")) => () })
-
-    // not(not(TRUE)) <=> TRUE
-    assertRewrittenMatches("NOT NOT TRUE", { case True() => () })
+  test("Do not simplify OR of different value") {
+    // or(eq($n, 2), eq($n, 3)) => or(eq($n, 2), eq($n, 3))
+    assertRewrittenMatches("$n = 2 OR $n = 3", { case Or(Equals(_, _), Equals(_, _)) => () })
   }
 
-  test("double negation on pattern comprehension") {
-    // NOT NOT ()--() -> bool(()--())
-    assertRewrittenMatches("NOT NOT ()--()", { case CoerceToPredicate(PatternExpression(_)) => () })
+  ignore("Simplify AND of identical value spread apart") {
+    assertRewrittenMatches("$n = 2 AND $m = 3 AND $n = 2", { case And(Equals(_, _), Equals(_, _)) => () })
   }
 
-  test("double negation on null") {
-    // NOT NOT null -> null
-    assertRewrittenMatches("NOT NOT null", { case Null() => () })
+  ignore("Simplify OR of identical value spread apart") {
+    assertRewrittenMatches("$n = 2 OR $m = 3 OR $n = 2", { case Or(Equals(_, _), Equals(_, _)) => () })
   }
 
-  test("OR + double negation") {
-    // or(not(not(P)), not(not(Q))) <=> or(P, Q)
-    assertRewrittenMatches("NOT NOT 'P' OR NOT NOT 'Q'", { case Ors(List(StringLiteral("P"), StringLiteral("Q"))) => () })
+  ignore("Simplify AND of identical value with parenthesis") {
+    assertRewrittenMatches("$n = 2 AND ($n = 2 AND $m = 3)", { case And(Equals(_, _), Equals(_, _)) => () })
+  }
+
+  test("Simplify AND of lists") {
+    assertRewrittenMatches("[] AND [] AND []", { case CoerceToPredicate(ListLiteral(List())) => () })
+  }
+
+  test("Simplify AND of different data types") {
+    assertRewrittenMatches("$n = 2 AND $n = 2.0", { case And(Equals(_, _), Equals(_, _)) => () })
+  }
+
+  test("Simplify AND of identical value with greater than") {
+    assertRewrittenMatches("$n > 2 AND $n > 2", { case GreaterThan(_, _) => () })
+  }
+
+  test("Simplify AND of identical expressions with function") {
+    // For expressions that are non-idempotent (or not referentially transparent) like rand(), this rewrite can affect semantics
+    assertRewrittenMatches("rand() = 1 AND rand() = 1", { case Equals(_, _) => () })
   }
 
   test("Do not simplify expressions with different auto extracted parameters") {
@@ -80,7 +90,7 @@ class SimplifyPredicatesTest extends CypherFunSuite {
       Equals(ExplicitParameter("n", CTAny)(position), AutoExtractedParameter("AUTOINT0", CTInteger, SignedDecimalIntegerLiteral("2")(position))(position))(position),
       Equals(ExplicitParameter("n", CTAny)(position), AutoExtractedParameter("AUTOINT1", CTInteger, SignedDecimalIntegerLiteral("3")(position))(position))(position)
     ))(position)
-    val rewriter = flattenBooleanOperators andThen simplifyPredicates(SemanticState.clean)
+    val rewriter = mergeDuplicateBooleanOperators(SemanticState.clean)
     val result = ast.rewrite(rewriter)
     ast should equal(result)
   }
@@ -90,7 +100,7 @@ class SimplifyPredicatesTest extends CypherFunSuite {
   private def assertRewrittenMatches(originalQuery: String, matcher: PartialFunction[Any, Unit]): Unit = {
     val original = JavaCCParser.parse("RETURN " +  originalQuery, exceptionFactory)
     val checkResult = original.semanticCheck(SemanticState.clean)
-    val rewriter = flattenBooleanOperators andThen simplifyPredicates(checkResult.state)
+    val rewriter = mergeDuplicateBooleanOperators(checkResult.state)
     val result = original.rewrite(rewriter)
     val maybeReturnExp = result.treeFind ({
       case UnaliasedReturnItem(expression, _) => {
@@ -100,4 +110,5 @@ class SimplifyPredicatesTest extends CypherFunSuite {
     } : PartialFunction[AnyRef, Boolean])
     assert(maybeReturnExp.isDefined, "Could not find return in parsed query!")
   }
+
 }

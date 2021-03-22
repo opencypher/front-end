@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.rewriteEqualityToInPredicate
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

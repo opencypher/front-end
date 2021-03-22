@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.frontend.phases.isolateAggregation
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.TestContext
 import org.opencypher.v9_0.rewriting.RewriteTest
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory

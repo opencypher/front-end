@@ -17,6 +17,8 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.mergeDuplicateBooleanOperators
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.RewriterStep
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
@@ -28,7 +30,6 @@ import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
 import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
-import org.opencypher.v9_0.rewriting.rewriters.mergeDuplicateBooleanOperators
 import org.opencypher.v9_0.rewriting.rewriters.moveWithPastMatch
 import org.opencypher.v9_0.rewriting.rewriters.nameAllPatternElements
 import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
@@ -37,7 +38,6 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
 import org.opencypher.v9_0.rewriting.rewriters.normalizeHasLabelsAndHasType
 import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
-import org.opencypher.v9_0.rewriting.rewriters.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups

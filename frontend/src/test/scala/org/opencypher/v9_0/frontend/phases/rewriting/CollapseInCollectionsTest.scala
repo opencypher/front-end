@@ -17,10 +17,10 @@ package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState
-import org.opencypher.v9_0.frontend.phases.CNFNormalizer
 import org.opencypher.v9_0.frontend.phases.RewritePhaseTest
 import org.opencypher.v9_0.frontend.phases.Transformer
 import org.opencypher.v9_0.frontend.phases.collapseMultipleInPredicates
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

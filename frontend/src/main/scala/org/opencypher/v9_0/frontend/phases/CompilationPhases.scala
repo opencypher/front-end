@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.rewriteEqualityToInPredicate
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy

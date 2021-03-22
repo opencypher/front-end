@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer.PredicatesInCNF
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -68,7 +69,7 @@ case object collapseMultipleInPredicates extends StatementRewriter with StepSequ
       }
   })
 
-  override def preConditions: Set[StepSequencer.Condition] = Set(EqualityRewrittenToIn, BooleanPredicatesInCNF)
+  override def preConditions: Set[StepSequencer.Condition] = Set(EqualityRewrittenToIn) ++ PredicatesInCNF
 
   override def postConditions: Set[StepSequencer.Condition] = Set(InPredicatesCollapsed)
 

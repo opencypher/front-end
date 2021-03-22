@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting
+package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.mockito.Mockito.verify
 import org.opencypher.v9_0.expressions.Or
-import org.opencypher.v9_0.rewriting.rewriters.distributeLawsRewriter
+import org.opencypher.v9_0.rewriting.AstRewritingMonitor
+import org.opencypher.v9_0.rewriting.PredicateTestSupport
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

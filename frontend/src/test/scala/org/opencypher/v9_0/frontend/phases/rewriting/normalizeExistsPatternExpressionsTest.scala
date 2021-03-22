@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting
+package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.simplifyPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
-import org.opencypher.v9_0.rewriting.rewriters.simplifyPredicates
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.helpers.NameDeduplicator.removeGeneratedNamesAndParamsOnTree
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite

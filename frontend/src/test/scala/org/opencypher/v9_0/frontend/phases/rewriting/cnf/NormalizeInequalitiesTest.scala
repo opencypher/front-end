@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting
+package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.Equals
@@ -23,7 +23,6 @@ import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.rewriting.rewriters.normalizeInequalities
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class NormalizeInequalitiesTest extends CypherFunSuite with AstConstructionTestSupport {
