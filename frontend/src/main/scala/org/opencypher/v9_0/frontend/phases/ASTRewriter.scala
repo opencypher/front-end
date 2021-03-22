@@ -28,6 +28,7 @@ import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
 import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
+import org.opencypher.v9_0.rewriting.rewriters.mergeDuplicateBooleanOperators
 import org.opencypher.v9_0.rewriting.rewriters.moveWithPastMatch
 import org.opencypher.v9_0.rewriting.rewriters.nameAllPatternElements
 import org.opencypher.v9_0.rewriting.rewriters.normalizeArgumentOrder
@@ -55,6 +56,7 @@ class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
     moveWithPastMatch,
     normalizeComparisons,
     foldConstants,
+    mergeDuplicateBooleanOperators,
     normalizeExistsPatternExpressions,
     nameAllPatternElements,
     normalizeMatchPredicates,
