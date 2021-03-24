@@ -71,6 +71,7 @@ import org.opencypher.v9_0.ast.GraphAction
 import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.GraphScope
 import org.opencypher.v9_0.ast.GraphSelection
+import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDo
@@ -287,6 +288,10 @@ case class Prettifier(
       }
     }
     val commandString = adminCommand match {
+
+      // Probably not needed for production since it is rewritten away by the deprecation rewriter
+      // but the prettifier tests don't go through that rewriter and will fail with match error without this case
+      case HasCatalog(source) => asString(source)
 
       // User commands
 

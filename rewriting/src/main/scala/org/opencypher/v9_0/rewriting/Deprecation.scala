@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.ExistsConstraints
+import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowConstraintsClause
@@ -43,6 +44,7 @@ import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.DeprecatedCatalogKeywordForAdminCommandSyntax
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
@@ -240,6 +242,12 @@ object Deprecations {
         Deprecation(
           () => s,
           () => Some(DeprecatedShowSchemaSyntax(s.position))
+        )
+
+      case c: HasCatalog =>
+        Deprecation(
+          () => c.source,
+          () => Some(DeprecatedCatalogKeywordForAdminCommandSyntax(c.position))
         )
     }
   }

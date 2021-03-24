@@ -46,6 +46,7 @@ import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.GrantRolesToUsers
+import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.IfExistsDo
 import org.opencypher.v9_0.ast.IfExistsDoNothing
@@ -870,6 +871,10 @@ class Neo4jASTFactory(query: String)
 
   override def useGraph(command: AdministrationCommand, graph: UseGraph): AdministrationCommand = {
     command.withGraph(Option(graph))
+  }
+
+  override def hasCatalog(command: AdministrationCommand): AdministrationCommand = {
+    HasCatalog(command)
   }
 
   // Role commands
