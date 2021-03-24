@@ -160,6 +160,7 @@ import org.opencypher.v9_0.ast.RemoveRoleAction
 import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.RenameRoleAction
 import org.opencypher.v9_0.ast.RenameUser
+import org.opencypher.v9_0.ast.RenameUserAction
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
@@ -1406,7 +1407,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     AllDbmsAction,
     ExecuteProcedureAction, ExecuteBoostedProcedureAction, ExecuteAdminProcedureAction,
     ExecuteFunctionAction, ExecuteBoostedFunctionAction,
-    AllUserActions, ShowUserAction, CreateUserAction, SetUserStatusAction, SetUserHomeDatabaseAction, SetPasswordsAction, AlterUserAction, DropUserAction,
+    AllUserActions, ShowUserAction, CreateUserAction, RenameUserAction, SetUserStatusAction, SetUserHomeDatabaseAction, SetPasswordsAction, AlterUserAction, DropUserAction,
     AllRoleActions, ShowRoleAction, CreateRoleAction, RenameRoleAction, DropRoleAction, AssignRoleAction, RemoveRoleAction,
     AllDatabaseManagementActions, CreateDatabaseAction, DropDatabaseAction,
     AllPrivilegeActions, ShowPrivilegeAction, AssignPrivilegeAction, RemovePrivilegeAction
