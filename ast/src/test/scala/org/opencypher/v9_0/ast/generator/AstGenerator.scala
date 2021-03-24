@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.generator
 
-import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
@@ -101,7 +100,6 @@ import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteFunctionAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
-import org.opencypher.v9_0.ast.ExistenceConstraintSyntax
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FunctionQualifier
@@ -155,6 +153,7 @@ import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
 import org.opencypher.v9_0.ast.Remove
+import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveItem
 import org.opencypher.v9_0.ast.RemoveLabelAction
 import org.opencypher.v9_0.ast.RemoveLabelItem
@@ -244,6 +243,7 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.WriteAction
 import org.opencypher.v9_0.ast.Yield
+import org.opencypher.v9_0.ast.YieldOrWhere
 import org.opencypher.v9_0.ast.generator.AstGenerator.boolean
 import org.opencypher.v9_0.ast.generator.AstGenerator.char
 import org.opencypher.v9_0.ast.generator.AstGenerator.oneOrMore
@@ -1173,15 +1173,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     props <- oneOrMore(_variableProperty)
   } yield props
 
-  def _verboseYieldAndExistenceSyntax: Gen[(ExistenceConstraintSyntax, Option[Boolean], Option[Either[(ast.Yield, Option[ast.Return]), ast.Where]])] = for {
-    // New syntax don't allow BRIEF/VERBOSE, deprecated syntax don't allow YIELD/WHERE
-    verbose <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
-    yields  <- option(_eitherYieldOrWhere)
-    exists  <- oneOf((NewSyntax, None, yields), (DeprecatedSyntax, verbose, None), (OldValidSyntax, verbose, yields))
-  } yield exists
-
-  def _constraintInfo: Gen[(ShowConstraintType, Option[Boolean], Option[Either[(ast.Yield, Option[ast.Return]), ast.Where]])] = for {
-    (exists, verbose, yields) <- _verboseYieldAndExistenceSyntax
+  def _constraintInfo: Gen[(ShowConstraintType, Option[Boolean], YieldOrWhere)] = for {
+    unfilteredVerbose         <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
+    unfilteredYields          <- _eitherYieldOrWhere
+    // For existence constraint: new syntax don't allow BRIEF/VERBOSE, deprecated syntax don't allow YIELD/WHERE
+    (exists, verbose, yields) <- oneOf((NewSyntax, None, unfilteredYields), (DeprecatedSyntax, unfilteredVerbose, None), (OldValidSyntax, unfilteredVerbose, unfilteredYields))
     types                     <- oneOf(AllConstraints, UniqueConstraints, ExistsConstraints(exists), NodeExistsConstraints(exists), RelExistsConstraints(exists), NodeKeyConstraints)
   } yield (types, verbose, yields)
 
@@ -1216,7 +1212,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     all     <- boolean
     verbose <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
     use     <- option(_use)
-    yields  <- option(_eitherYieldOrWhere)
+    yields  <- _eitherYieldOrWhere
   } yield {
     val showClauses = (yields, verbose) match {
       case (Some(Right(w)), _)           => Seq(ShowIndexesClause(all, brief = false, verbose = false, Some(w), hasYield = false)(pos))
@@ -1313,19 +1309,20 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   // User commands
 
   def _showUsers: Gen[ShowUsers] = for {
-    yields <- option(_eitherYieldOrWhere)
+    yields <- _eitherYieldOrWhere
   } yield ShowUsers(yields)(pos)
 
   def _showCurrentUser: Gen[ShowCurrentUser] = for {
-    yields <- option(_eitherYieldOrWhere)
+    yields <- _eitherYieldOrWhere
   } yield ShowCurrentUser(yields)(pos)
 
-  def _eitherYieldOrWhere: Gen[Either[(ast.Yield, Option[ast.Return]), ast.Where]] = for {
-    yields <- _yield
-    where <- _where
+  def _eitherYieldOrWhere: Gen[YieldOrWhere] = for {
+    yields  <- _yield
+    where   <- _where
     returns <- option(_return)
-    eyw <- oneOf(Seq(Left((yields,returns)), Right(where)))
-  } yield eyw
+    eyw     <- oneOf(Seq(Left((yields, returns)), Right(where)))
+    oeyw    <- option(eyw)
+  } yield oeyw
 
   def _createUser: Gen[CreateUser] = for {
     userName              <- _nameAsEither
@@ -1359,7 +1356,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     isEncryptedPassword   <- if (password.isEmpty) const(None) else some(boolean)
     suspended             <- option(boolean)
     // All four are not allowed to be None and REMOVE HOME DATABASE is only valid by itself
-    homeDatabase          <- if (password.isEmpty && requirePasswordChange.isEmpty && suspended.isEmpty) oneOf(some(_setHomeDatabaseAction), some(ast.RemoveHomeDatabaseAction)) else option(_setHomeDatabaseAction)
+    homeDatabase          <- if (password.isEmpty && requirePasswordChange.isEmpty && suspended.isEmpty) oneOf(some(_setHomeDatabaseAction), some(RemoveHomeDatabaseAction)) else option(_setHomeDatabaseAction)
   } yield AlterUser(userName, isEncryptedPassword, password, UserOptions(requirePasswordChange, suspended, homeDatabase), ifExists)(pos)
 
   def _setHomeDatabaseAction: Gen[SetHomeDatabaseAction] = _nameAsEither.map(db => SetHomeDatabaseAction(db))
@@ -1384,7 +1381,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _showRoles: Gen[ShowRoles] = for {
     withUsers <- boolean
     showAll   <- boolean
-    yields <- option(_eitherYieldOrWhere)
+    yields <- _eitherYieldOrWhere
   } yield ShowRoles(withUsers, showAll, yields)(pos)
 
   def _createRole: Gen[CreateRole] = for {
@@ -1523,7 +1520,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     showUser2  = ShowUserPrivileges(None)(pos)
     showAll    = ShowAllPrivileges()(pos)
     scope      <- oneOf(showRole, showUser1, showUser2, showAll)
-    yields     <- option(_eitherYieldOrWhere)
+    yields     <- _eitherYieldOrWhere
   } yield ShowPrivileges(scope, yields)(pos)
 
   def _showPrivilegeCommands: Gen[ShowPrivilegeCommands] = for {
@@ -1534,7 +1531,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     showAll    = ShowAllPrivileges()(pos)
     scope      <- oneOf(showRole, showUser1, showUser2, showAll)
     asRevoke   <- boolean
-    yields     <- option(_eitherYieldOrWhere)
+    yields     <- _eitherYieldOrWhere
   } yield ShowPrivilegeCommands(scope, asRevoke, yields)(pos)
 
   def _dbmsPrivilege: Gen[PrivilegeCommand] = for {
@@ -1587,7 +1584,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _showDatabase: Gen[ShowDatabase] = for {
     dbName <- _nameAsEither
     scope  <- oneOf(NamedDatabaseScope(dbName)(pos), AllDatabasesScope()(pos), DefaultDatabaseScope()(pos), HomeDatabaseScope()(pos))
-    yields <- option(_eitherYieldOrWhere)
+    yields <- _eitherYieldOrWhere
   } yield ShowDatabase(scope, yields)(pos)
 
   def _createDatabase: Gen[CreateDatabase] = for {
