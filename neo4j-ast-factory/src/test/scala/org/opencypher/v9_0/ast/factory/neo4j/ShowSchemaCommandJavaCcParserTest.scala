@@ -197,6 +197,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       """Invalid input 'NODE': expected
         |  "ALL"
         |  "BTREE"
+        |  "CURRENT"
         |  "DATABASE"
         |  "DATABASES"
         |  "DEFAULT"
@@ -204,7 +205,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "INDEX"
         |  "INDEXES"
         |  "POPULATED"
-        |  "ROLES" (line 1, column 6 (offset: 5))""".stripMargin)
+        |  "ROLES"
+        |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
   }
 
   test("SHOW REL INDEXES") {
@@ -212,6 +214,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       """Invalid input 'REL': expected
         |  "ALL"
         |  "BTREE"
+        |  "CURRENT"
         |  "DATABASE"
         |  "DATABASES"
         |  "DEFAULT"
@@ -219,7 +222,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "INDEX"
         |  "INDEXES"
         |  "POPULATED"
-        |  "ROLES" (line 1, column 6 (offset: 5))""".stripMargin)
+        |  "ROLES"
+        |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
   }
 
   test("SHOW RELATIONSHIP INDEXES") {
@@ -227,6 +231,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       """Invalid input 'RELATIONSHIP': expected
         |  "ALL"
         |  "BTREE"
+        |  "CURRENT"
         |  "DATABASE"
         |  "DATABASES"
         |  "DEFAULT"
@@ -234,7 +239,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "INDEX"
         |  "INDEXES"
         |  "POPULATED"
-        |  "ROLES" (line 1, column 6 (offset: 5))""".stripMargin)
+        |  "ROLES"
+        |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
   }
 
 }

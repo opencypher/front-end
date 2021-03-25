@@ -801,9 +801,7 @@ class Neo4jASTFactory(query: String)
     CaseExpression(Option(e), alternatives, Option(elze))(p)
   }
 
-  def useGraph(command: AdministrationCommand, graph: UseGraph): AdministrationCommand = {
-    command.withGraph(Option(graph))
-  }
+  override def inputPosition(offset: Int, line: Int, column: Int): InputPosition = InputPosition(offset, line, column)
 
   // Show Commands
 
@@ -836,82 +834,18 @@ class Neo4jASTFactory(query: String)
 
   // Administration Commands
 
+  override def useGraph(command: AdministrationCommand, graph: UseGraph): AdministrationCommand = {
+    command.withGraph(Option(graph))
+  }
+
+  // Role commands
+
   override def createRole(p: InputPosition,
                           replace: Boolean,
                           roleName: Either[String, Parameter],
                           from: Either[String, Parameter],
                           ifNotExists: Boolean): CreateRole = {
     CreateRole(roleName, Option(from), ifExistsDo(replace, ifNotExists))(p)
-  }
-
-  override def createUser(p: InputPosition,
-                          replace: Boolean,
-                          ifNotExists: Boolean,
-                          username: Either[String, Parameter],
-                          password: Either[String, Parameter],
-                          encrypted: Boolean,
-                          changeRequired: Boolean,
-                          suspended: lang.Boolean,
-                          homeDatabase: Either[String, Parameter]): AdministrationCommand = {
-    val passwordExpression = convertToSensitive(p, password)
-    val homeAction = if (homeDatabase == null) None else Some(SetHomeDatabaseAction(homeDatabase))
-    val userOptions = UserOptions(Some(changeRequired), asBooleanOption(suspended), homeAction)
-    CreateUser(username, encrypted, passwordExpression, userOptions, ifExistsDo(replace, ifNotExists))(p)
-  }
-
-  override def dropUser(p: InputPosition, ifExists: Boolean, username: Either[String, Parameter]): DropUser = {
-    DropUser(username, ifExists)(p)
-  }
-
-  override def setOwnPassword(p: InputPosition,
-                              currentPassword: Either[String, Parameter],
-                              newPassword: Either[String, Parameter]): SetOwnPassword = {
-    SetOwnPassword(convertToSensitive(p, newPassword), convertToSensitive(p, currentPassword))(p)
-  }
-
-  override def alterUser(p: InputPosition,
-                         ifExists: Boolean,
-                         username: Either[String, Parameter],
-                         password: Either[String, Parameter],
-                         encrypted: Boolean,
-                         changeRequired: lang.Boolean,
-                         suspended: lang.Boolean,
-                         homeDatabase: Either[String, Parameter],
-                         removeHome: Boolean): AlterUser = {
-    val (passwordExpression, isEncrypted) = Option(password) match {
-      case Some(Left(value))  => (Some(SensitiveStringLiteral(value.getBytes(StandardCharsets.UTF_8))(p)), Some(encrypted))
-      case Some(Right(value)) => (Some(new ExplicitParameter(value.name, CTString)(value.position) with SensitiveParameter), Some(encrypted))
-      case None               => (None, None)
-    }
-    val homeAction = if (removeHome) Some(RemoveHomeDatabaseAction) else if (homeDatabase == null) None else Some(SetHomeDatabaseAction(homeDatabase))
-    val userOptions = UserOptions(asBooleanOption(changeRequired), asBooleanOption(suspended), homeAction)
-    AlterUser(username, isEncrypted, passwordExpression, userOptions, ifExists)(p)
-  }
-
-  override def showUsers(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Expression): ShowUsers = {
-    ShowUsers(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
-  }
-
-  override def showCurrentUser(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Expression): ShowCurrentUser = {
-    ShowCurrentUser(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
-  }
-
-  override def createDatabase(p: InputPosition,
-                              replace: Boolean,
-                              databaseName: Either[String, Parameter],
-                              ifNotExists: Boolean,
-                              wait: WaitUntilComplete): CreateDatabase = {
-    CreateDatabase(databaseName, ifExistsDo(replace, ifNotExists), wait)(p)
-  }
-
-  override def wait(wait: Boolean, seconds: Long): WaitUntilComplete = {
-    if (!wait) {
-      NoWait
-    } else if (seconds > 0) {
-      TimeoutAfter(seconds)
-    } else {
-      IndefiniteWait
-    }
   }
 
   override def dropRole(p: InputPosition, roleName: Either[String, Parameter], ifExists: Boolean): DropRole = {
@@ -931,7 +865,81 @@ class Neo4jASTFactory(query: String)
     ShowRoles(WithUsers, showAll, yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
   }
 
-  def dropDatabase(p:InputPosition, databaseName: Either[String, Parameter], ifExists: Boolean, dumpData: Boolean, wait: WaitUntilComplete): DropDatabase = {
+  override def grantRoles(p: InputPosition,
+                          roles: util.List[Either[String, Parameter]],
+                          users: util.List[Either[String, Parameter]]): GrantRolesToUsers = {
+    GrantRolesToUsers(roles.asScala, users.asScala)(p)
+  }
+
+  override def revokeRoles(p: InputPosition,
+                           roles: util.List[Either[String, Parameter]],
+                           users: util.List[Either[String, Parameter]]): RevokeRolesFromUsers = {
+    RevokeRolesFromUsers(roles.asScala, users.asScala)(p)
+  }
+
+  // User commands
+
+  override def createUser(p: InputPosition,
+                          replace: Boolean,
+                          ifNotExists: Boolean,
+                          username: Either[String, Parameter],
+                          password: Expression,
+                          encrypted: Boolean,
+                          changeRequired: Boolean,
+                          suspended: lang.Boolean,
+                          homeDatabase: Either[String, Parameter]): AdministrationCommand = {
+    val homeAction = if (homeDatabase == null) None else Some(SetHomeDatabaseAction(homeDatabase))
+    val userOptions = UserOptions(Some(changeRequired), asBooleanOption(suspended), homeAction)
+    CreateUser(username, encrypted, password, userOptions, ifExistsDo(replace, ifNotExists))(p)
+  }
+
+  override def dropUser(p: InputPosition, ifExists: Boolean, username: Either[String, Parameter]): DropUser = {
+    DropUser(username, ifExists)(p)
+  }
+
+  override def setOwnPassword(p: InputPosition, currentPassword: Expression, newPassword: Expression): SetOwnPassword = {
+    SetOwnPassword(newPassword, currentPassword)(p)
+  }
+
+  override def alterUser(p: InputPosition,
+                         ifExists: Boolean,
+                         username: Either[String, Parameter],
+                         password: Expression,
+                         encrypted: Boolean,
+                         changeRequired: lang.Boolean,
+                         suspended: lang.Boolean,
+                         homeDatabase: Either[String, Parameter],
+                         removeHome: Boolean): AlterUser = {
+    val maybePassword = Option(password)
+    val isEncrypted = if (maybePassword.isDefined) Some(encrypted) else None
+    val homeAction = if (removeHome) Some(RemoveHomeDatabaseAction) else if (homeDatabase == null) None else Some(SetHomeDatabaseAction(homeDatabase))
+    val userOptions = UserOptions(asBooleanOption(changeRequired), asBooleanOption(suspended), homeAction)
+    AlterUser(username, isEncrypted, maybePassword, userOptions, ifExists)(p)
+  }
+
+  override def passwordExpression(password: Parameter): Expression = new ExplicitParameter(password.name, CTString)(password.position) with SensitiveParameter
+
+  override def passwordExpression(p: InputPosition, password: String): Expression = SensitiveStringLiteral(password.getBytes(StandardCharsets.UTF_8))(p)
+
+  override def showUsers(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Expression): ShowUsers = {
+    ShowUsers(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+  }
+
+  override def showCurrentUser(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Expression): ShowCurrentUser = {
+    ShowCurrentUser(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+  }
+
+  // Database commands
+
+  override def createDatabase(p: InputPosition,
+                              replace: Boolean,
+                              databaseName: Either[String, Parameter],
+                              ifNotExists: Boolean,
+                              wait: WaitUntilComplete): CreateDatabase = {
+    CreateDatabase(databaseName, ifExistsDo(replace, ifNotExists), wait)(p)
+  }
+
+  override def dropDatabase(p:InputPosition, databaseName: Either[String, Parameter], ifExists: Boolean, dumpData: Boolean, wait: WaitUntilComplete): DropDatabase = {
     val action: DropDatabaseAdditionalAction = if (dumpData) {
       DumpData
     } else {
@@ -965,18 +973,6 @@ class Neo4jASTFactory(query: String)
     }
   }
 
-  override def grantRoles(p: InputPosition,
-                          roles: util.List[Either[String, Parameter]],
-                          users: util.List[Either[String, Parameter]]): GrantRolesToUsers = {
-    GrantRolesToUsers(roles.asScala, users.asScala)(p)
-  }
-
-  override def revokeRoles(p: InputPosition,
-                           roles: util.List[Either[String, Parameter]],
-                           users: util.List[Either[String, Parameter]]): RevokeRolesFromUsers = {
-    RevokeRolesFromUsers(roles.asScala, users.asScala)(p)
-  }
-
   override def startDatabase(p: InputPosition,
                              databaseName: Either[String, Parameter],
                              wait: WaitUntilComplete): StartDatabase = {
@@ -989,7 +985,15 @@ class Neo4jASTFactory(query: String)
     StopDatabase(databaseName, wait)(p)
   }
 
-  override def inputPosition(offset: Int, line: Int, column: Int): InputPosition = InputPosition(offset, line, column)
+  override def wait(wait: Boolean, seconds: Long): WaitUntilComplete = {
+    if (!wait) {
+      NoWait
+    } else if (seconds > 0) {
+      TimeoutAfter(seconds)
+    } else {
+      IndefiniteWait
+    }
+  }
 
   private def ifExistsDo(replace: Boolean, ifNotExists: Boolean): IfExistsDo = {
     (replace, ifNotExists) match {
@@ -1009,13 +1013,6 @@ class Neo4jASTFactory(query: String)
       Some(Right(Where(where)(where.position)))
     } else {
       None
-    }
-  }
-
-  private def convertToSensitive(p: InputPosition, password: Either[String, Parameter]): Expression = {
-    password match {
-      case Left(value) => SensitiveStringLiteral(value.getBytes(StandardCharsets.UTF_8))(p)
-      case Right(value) => new ExplicitParameter(value.name, CTString)(value.position) with SensitiveParameter
     }
   }
 
