@@ -66,6 +66,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.FIELDTERMINATOR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FILTER
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FOREACH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FROM
+import org.opencypher.v9_0.parser.javacc.CypherConstants.FULLTEXT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRANT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRAPH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.HEADERS
@@ -196,6 +197,7 @@ object IdentifierTokens {
     FILTER,
     FOREACH,
     FROM,
+    FULLTEXT,
     GRANT,
     GRAPH,
     HEADERS,

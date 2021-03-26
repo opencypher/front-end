@@ -25,8 +25,10 @@ import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AllDatabasesScope
+import org.opencypher.v9_0.ast.AllIndexes
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
+import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
@@ -45,6 +47,7 @@ import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
+import org.opencypher.v9_0.ast.FulltextIndexes
 import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.HomeDatabaseScope
@@ -92,6 +95,8 @@ import org.opencypher.v9_0.ast.SetItem
 import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.ShowConstraintType
+import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexesClause
@@ -108,6 +113,7 @@ import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.UnionAll
 import org.opencypher.v9_0.ast.UnionDistinct
+import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
@@ -122,9 +128,6 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.factory.ASTFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
-import org.opencypher.v9_0.ast.ShowConstraintsClause
-import org.opencypher.v9_0.ast.ShowConstraintType
-import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -836,12 +839,17 @@ class Neo4jASTFactory(query: String)
   }
 
   override def showIndexClause(p: InputPosition,
-                               all: Boolean,
+                               indexTypeString: String,
                                brief: Boolean,
                                verbose: Boolean,
                                where: Expression,
                                hasYield: Boolean): Clause = {
-    ShowIndexesClause(all, brief, verbose, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
+    val indexType = indexTypeString.toUpperCase match {
+      case "ALL" => AllIndexes
+      case "BTREE" => BtreeIndexes
+      case "FULLTEXT" => FulltextIndexes
+    }
+    ShowIndexesClause(indexType, brief, verbose, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
   }
 
   override def showConstraintClause(p: InputPosition,

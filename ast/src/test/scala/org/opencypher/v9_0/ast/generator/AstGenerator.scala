@@ -29,6 +29,7 @@ import org.opencypher.v9_0.ast.AllDbmsAction
 import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.ast.AllGraphsScope
 import org.opencypher.v9_0.ast.AllIndexActions
+import org.opencypher.v9_0.ast.AllIndexes
 import org.opencypher.v9_0.ast.AllLabelResource
 import org.opencypher.v9_0.ast.AllNodes
 import org.opencypher.v9_0.ast.AllPrivilegeActions
@@ -44,6 +45,7 @@ import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.AssignPrivilegeAction
 import org.opencypher.v9_0.ast.AssignRoleAction
+import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateConstraintAction
@@ -102,6 +104,7 @@ import org.opencypher.v9_0.ast.ExecuteFunctionAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
+import org.opencypher.v9_0.ast.FulltextIndexes
 import org.opencypher.v9_0.ast.FunctionQualifier
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GrantRolesToUsers
@@ -191,11 +194,12 @@ import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetUserStatusAction
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintAction
-import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowConstraintType
+import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexAction
+import org.opencypher.v9_0.ast.ShowIndexType
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
@@ -1181,6 +1185,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     types                     <- oneOf(AllConstraints, UniqueConstraints, ExistsConstraints(exists), NodeExistsConstraints(exists), RelExistsConstraints(exists), NodeKeyConstraints)
   } yield (types, verbose, yields)
 
+  def _indexType: Gen[(ShowIndexType, Option[Boolean])] = for {
+    verbose   <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
+    indexType <- oneOf((AllIndexes, verbose), (BtreeIndexes, verbose), (FulltextIndexes, None))
+  } yield indexType
+
   def _createIndex: Gen[CreateIndex] = for {
     variable   <- _variable
     labelName  <- _labelName
@@ -1209,17 +1218,16 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield command
 
   def _showIndexes: Gen[Query] = for {
-    all     <- boolean
-    verbose <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
-    use     <- option(_use)
-    yields  <- _eitherYieldOrWhere
+    (indexType, verbose) <- _indexType
+    use                  <- option(_use)
+    yields               <- _eitherYieldOrWhere
   } yield {
     val showClauses = (yields, verbose) match {
-      case (Some(Right(w)), _)           => Seq(ShowIndexesClause(all, brief = false, verbose = false, Some(w), hasYield = false)(pos))
-      case (Some(Left((y, Some(r)))), _) => Seq(ShowIndexesClause(all, brief = false, verbose = false, None, hasYield = true)(pos), y, r)
-      case (Some(Left((y, None))), _)    => Seq(ShowIndexesClause(all, brief = false, verbose = false, None, hasYield = true)(pos), y)
-      case (_, Some(v))                  => Seq(ShowIndexesClause(all, !v, v, None, hasYield = false)(pos))
-      case _                             => Seq(ShowIndexesClause(all, brief = false, verbose = false, None, hasYield = false)(pos))
+      case (Some(Right(w)), _)           => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, Some(w), hasYield = false)(pos))
+      case (Some(Left((y, Some(r)))), _) => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = true)(pos), y, r)
+      case (Some(Left((y, None))), _)    => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = true)(pos), y)
+      case (_, Some(v))                  => Seq(ShowIndexesClause(indexType, !v, v, None, hasYield = false)(pos))
+      case _                             => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
     Query(None, SingleQuery(fullClauses)(pos))(pos)

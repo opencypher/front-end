@@ -16,9 +16,12 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.AllConstraints
+import org.opencypher.v9_0.ast.AllIndexes
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.ExistsConstraints
+import org.opencypher.v9_0.ast.FulltextIndexes
 import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
@@ -39,82 +42,86 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
     // No explicit output
 
     test(s"SHOW $indexKeyword") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW ALL $indexKeyword") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW BTREE $indexKeyword") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = false, brief = false, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(BtreeIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
+    }
+
+    test(s"SHOW FULLTEXT $indexKeyword") {
+      assertJavaCCAST(testName, query(ShowIndexesClause(FulltextIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"USE db SHOW $indexKeyword") {
-      assertJavaCCAST(testName, query(use(varFor("db")), ShowIndexesClause(all = true, brief = false, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(use(varFor("db")), ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     // Brief output (deprecated)
 
     test(s"SHOW $indexKeyword BRIEF") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = true, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = true, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW $indexKeyword BRIEF OUTPUT") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = true, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = true, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW ALL $indexKeyword BRIEF") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = true, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = true, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW  ALL $indexKeyword BRIEF OUTPUT") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = true, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = true, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW BTREE $indexKeyword BRIEF") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = false, brief = true, verbose = false, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(BtreeIndexes, brief = true, verbose = false, None, hasYield = false)(pos)))
     }
 
     // Verbose output (deprecated)
 
     test(s"SHOW $indexKeyword VERBOSE") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = true, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = true, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW ALL $indexKeyword VERBOSE") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = true, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = true, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW BTREE $indexKeyword VERBOSE OUTPUT") {
-      assertJavaCCAST(testName, query(ShowIndexesClause(all = false, brief = false, verbose = true, None, hasYield = false)(pos)))
+      assertJavaCCAST(testName, query(ShowIndexesClause(BtreeIndexes, brief = false, verbose = true, None, hasYield = false)(pos)))
     }
   }
 
   // Show indexes filtering
 
   test("SHOW INDEX WHERE uniqueness = 'UNIQUE'") {
-    assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = false, Some(where(equals(varFor("uniqueness"), literalString("UNIQUE")))), hasYield = false)(pos)))
+    assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, Some(where(equals(varFor("uniqueness"), literalString("UNIQUE")))), hasYield = false)(pos)))
   }
 
   test("SHOW INDEXES YIELD populationPercent") {
-    assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("populationPercent")))))
+    assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("populationPercent")))))
   }
 
   test("SHOW BTREE INDEXES YIELD *") {
-    assertJavaCCAST(testName, query(ShowIndexesClause(all = false, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnAllItems)))
+    assertJavaCCAST(testName, query(ShowIndexesClause(BtreeIndexes, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnAllItems)))
   }
 
   test("SHOW INDEXES YIELD * ORDER BY name SKIP 2 LIMIT 5") {
-    assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = false, None, hasYield = true)(pos),
+    assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
       yieldClause(returnAllItems, Some(orderBy(sortItem(varFor("name")))), Some(skip(2)), Some(limit(5)))
     ))
   }
 
-  test("USE db SHOW BTREE INDEXES YIELD name, populationPercent AS pp WHERE pp < 50.0 RETURN name") {
+  test("USE db SHOW FULLTEXT INDEXES YIELD name, populationPercent AS pp WHERE pp < 50.0 RETURN name") {
     assertJavaCCAST(testName, query(
       use(varFor("db")),
-      ShowIndexesClause(all = false, brief = false, verbose = false, None, hasYield = true)(pos),
+      ShowIndexesClause(FulltextIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
       yieldClause(returnItems(variableReturnItem("name"), aliasedReturnItem("populationPercent", "pp")),
         where = Some(where(lessThan(varFor("pp"), literalFloat(50.0))))),
       return_(variableReturnItem("name"))
@@ -124,7 +131,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
   test("USE db SHOW BTREE INDEXES YIELD name, populationPercent AS pp ORDER BY pp SKIP 2 LIMIT 5 WHERE pp < 50.0 RETURN name") {
     assertJavaCCAST(testName, query(
       use(varFor("db")),
-      ShowIndexesClause(all = false, brief = false, verbose = false, None, hasYield = true)(pos),
+      ShowIndexesClause(BtreeIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
       yieldClause(returnItems(variableReturnItem("name"), aliasedReturnItem("populationPercent", "pp")),
         Some(orderBy(sortItem(varFor("pp")))),
         Some(skip(2)),
@@ -135,12 +142,12 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
   }
 
   test("SHOW INDEXES YIELD name AS INDEX, type AS OUTPUT") {
-    assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = false, None, hasYield = true)(pos),
+    assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
       yieldClause(returnItems(aliasedReturnItem("name", "INDEX"), aliasedReturnItem("type", "OUTPUT")))))
   }
 
   test("SHOW INDEXES WHERE name = 'GRANT'") {
-    assertJavaCCAST(testName, query(ShowIndexesClause(all = true, brief = false, verbose = false,
+    assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false,
       Some(where(equals(varFor("name"), literalString("GRANT")))), hasYield = false)(pos)))
   }
 
@@ -236,6 +243,14 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
   }
 
   test("SHOW RELATIONSHIP INDEXES") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW FULLTEXT INDEXES BRIEF") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW FULLTEXT INDEXES VERBOSE") {
     assertSameAST(testName)
   }
 
@@ -381,6 +396,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "EXIST"
         |  "EXISTENCE"
         |  "EXISTS"
+        |  "FULLTEXT"
         |  "HOME"
         |  "INDEX"
         |  "INDEXES"
@@ -416,6 +432,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "EXIST"
         |  "EXISTENCE"
         |  "EXISTS"
+        |  "FULLTEXT"
         |  "HOME"
         |  "INDEX"
         |  "INDEXES"
@@ -451,6 +468,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "EXIST"
         |  "EXISTENCE"
         |  "EXISTS"
+        |  "FULLTEXT"
         |  "HOME"
         |  "INDEX"
         |  "INDEXES"

@@ -29,6 +29,7 @@ import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.ExistsConstraints
+import org.opencypher.v9_0.ast.FulltextIndexes
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.HomeDatabaseScope
@@ -207,6 +208,9 @@ object Additions {
 
       case c: ShowConstraintsClause if c.where.isDefined || c.hasYield =>
         throw cypherExceptionFactory.syntaxException("Using YIELD or WHERE to list constraints is not supported in this Cypher version.", c.position)
+
+      case c@ShowIndexesClause(_, FulltextIndexes, _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("Using `FULLTEXT` when listing indexes is not supported in this Cypher version.", c.position)
     }
   }
 
