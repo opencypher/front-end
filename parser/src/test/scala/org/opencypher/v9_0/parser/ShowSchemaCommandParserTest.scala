@@ -21,6 +21,7 @@ import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.FulltextIndexes
+import org.opencypher.v9_0.ast.LookupIndexes
 import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
@@ -53,6 +54,10 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
 
     test(s"SHOW FULLTEXT $indexKeyword") {
       yields(_ => query(ShowIndexesClause(FulltextIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
+    }
+
+    test(s"SHOW LOOKUP $indexKeyword") {
+      yields(_ => query(ShowIndexesClause(LookupIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"USE db SHOW $indexKeyword") {
@@ -144,8 +149,8 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
       yieldClause(returnItems(aliasedReturnItem("name", "INDEX"), aliasedReturnItem("type", "OUTPUT")))))
   }
 
-  test("SHOW INDEXES WHERE name = 'GRANT'") {
-    yields(_ => query(ShowIndexesClause(AllIndexes, brief = false, verbose = false,
+  test("SHOW LOOKUP INDEXES WHERE name = 'GRANT'") {
+    yields(_ => query(ShowIndexesClause(LookupIndexes, brief = false, verbose = false,
       Some(where(equals(varFor("name"), literalString("GRANT")))), hasYield = false)(pos)))
   }
 
@@ -243,6 +248,14 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
   }
 
   test("SHOW FULLTEXT INDEXES VERBOSE") {
+    failsToParse
+  }
+
+  test("SHOW LOOKUP INDEXES BRIEF") {
+    failsToParse
+  }
+
+  test("SHOW LOOKUP INDEXES VERBOSE") {
     failsToParse
   }
 

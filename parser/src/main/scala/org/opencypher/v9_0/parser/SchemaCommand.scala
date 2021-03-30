@@ -140,6 +140,7 @@ trait SchemaCommand extends Parser
   private def IndexType: Rule1[ast.ShowIndexType] = rule("type of indexes") {
     keyword("BTREE") ~~~> (_ => ast.BtreeIndexes) |
     keyword("FULLTEXT") ~~~> (_ => ast.FulltextIndexes) |
+    keyword("LOOKUP") ~~~> (_ => ast.LookupIndexes) |
     optional(keyword("ALL")) ~~~> (_ => ast.AllIndexes)
   }
 

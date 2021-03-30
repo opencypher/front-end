@@ -123,6 +123,7 @@ import org.opencypher.v9_0.ast.LabelQualifier
 import org.opencypher.v9_0.ast.LabelsResource
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
+import org.opencypher.v9_0.ast.LookupIndexes
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.MatchAction
 import org.opencypher.v9_0.ast.Merge
@@ -1187,7 +1188,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _indexType: Gen[(ShowIndexType, Option[Boolean])] = for {
     verbose   <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
-    indexType <- oneOf((AllIndexes, verbose), (BtreeIndexes, verbose), (FulltextIndexes, None))
+    // BRIEF/VERBOSE is only allowed with ALL and BTREE
+    indexType <- oneOf((AllIndexes, verbose), (BtreeIndexes, verbose), (FulltextIndexes, None), (LookupIndexes, None))
   } yield indexType
 
   def _createIndex: Gen[CreateIndex] = for {

@@ -35,6 +35,7 @@ import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDoNothing
+import org.opencypher.v9_0.ast.LookupIndexes
 import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.RelExistsConstraints
@@ -211,6 +212,9 @@ object Additions {
 
       case c@ShowIndexesClause(_, FulltextIndexes, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("Using `FULLTEXT` when listing indexes is not supported in this Cypher version.", c.position)
+
+      case c@ShowIndexesClause(_, LookupIndexes, _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("Using `LOOKUP` when listing indexes is not supported in this Cypher version.", c.position)
     }
   }
 

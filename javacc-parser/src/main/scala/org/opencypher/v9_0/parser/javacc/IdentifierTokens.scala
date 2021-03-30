@@ -80,6 +80,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.JOIN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.KEY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.LIMITROWS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.LOAD
+import org.opencypher.v9_0.parser.javacc.CypherConstants.LOOKUP
 import org.opencypher.v9_0.parser.javacc.CypherConstants.MATCH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.MERGE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.NODE
@@ -211,6 +212,7 @@ object IdentifierTokens {
     KEY,
     LIMITROWS,
     LOAD,
+    LOOKUP,
     MATCH,
     MERGE,
     NODE,

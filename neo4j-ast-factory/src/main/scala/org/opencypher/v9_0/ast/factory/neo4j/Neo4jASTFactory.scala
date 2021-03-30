@@ -54,6 +54,7 @@ import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.ast.IndefiniteWait
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
+import org.opencypher.v9_0.ast.LookupIndexes
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.NamedDatabaseScope
@@ -848,6 +849,7 @@ class Neo4jASTFactory(query: String)
       case "ALL" => AllIndexes
       case "BTREE" => BtreeIndexes
       case "FULLTEXT" => FulltextIndexes
+      case "LOOKUP" => LookupIndexes
     }
     ShowIndexesClause(indexType, brief, verbose, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
   }
