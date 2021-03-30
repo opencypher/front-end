@@ -20,12 +20,16 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheck
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.expressions.functions.Labels
+import org.opencypher.v9_0.expressions.functions.Type
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
@@ -45,34 +49,59 @@ case class CreateIndexOldSyntax(label: LabelName, properties: List[PropertyKeyNa
   def semanticCheck = Seq()
 }
 
-abstract class CreateIndex(variable: Variable, properties: List[Property], ifExistsDo: IfExistsDo, options: Map[String, Expression])(val position: InputPosition)
+abstract class CreateIndex(variable: Variable, properties: List[Property], ifExistsDo: IfExistsDo, isNodeIndex: Boolean)(val position: InputPosition)
   extends SchemaCommand with SemanticAnalysisTooling {
   override def semanticCheck: SemanticCheck = ifExistsDo match {
-    case IfExistsInvalidSyntax | IfExistsReplace => SemanticError(s"Failed to create index: `OR REPLACE` cannot be used together with this command.", position)
+    case IfExistsInvalidSyntax | IfExistsReplace => SemanticError("Failed to create index: `OR REPLACE` cannot be used together with this command.", position)
     case _ =>
-      // The validation of the values (provider, config keys and config values) are done at runtime.
-      if (options.filterKeys(k => !k.equalsIgnoreCase("indexProvider") && !k.equalsIgnoreCase("indexConfig")).nonEmpty)
-        SemanticError(s"Failed to create index: Invalid option provided, valid options are `indexProvider` and `indexConfig`.", position)
-      else
-        declareVariable(variable, CTNode) chain
-          SemanticExpressionCheck.simple(properties) chain
-          semanticCheckFold(properties) {
-            property =>
-              when(!property.map.isInstanceOf[Variable]) {
-                error("Cannot index nested properties", property.position)
-              }
-          }
+      val ctType = if (isNodeIndex) CTNode else CTRelationship
+      declareVariable(variable, ctType) chain
+        SemanticExpressionCheck.simple(properties) chain
+        semanticCheckFold(properties) {
+          property =>
+            when(!property.map.isInstanceOf[Variable]) {
+              error("Cannot index nested properties", property.position)
+            }
+        }
   }
 }
 
 case class CreateBtreeNodeIndex(variable: Variable, label: LabelName, properties: List[Property], name: Option[String], ifExistsDo: IfExistsDo, options: Map[String, Expression], useGraph: Option[GraphSelection] = None)(override val position: InputPosition)
-  extends CreateIndex(variable, properties, ifExistsDo, options)(position) {
+  extends CreateIndex(variable, properties, ifExistsDo, true)(position) {
   override def withGraph(useGraph: Option[GraphSelection]): SchemaCommand = copy(useGraph = useGraph)(position)
+
+  override def semanticCheck: SemanticCheck =
+      // The validation of the values (provider, config keys and config values) are done at runtime.
+      if (options.filterKeys(k => !k.equalsIgnoreCase("indexProvider") && !k.equalsIgnoreCase("indexConfig")).nonEmpty)
+        SemanticError("Failed to create btree node index: Invalid option provided, valid options are `indexProvider` and `indexConfig`.", position)
+      else super.semanticCheck
 }
 
 case class CreateBtreeRelationshipIndex(variable: Variable, relType: RelTypeName, properties: List[Property], name: Option[String], ifExistsDo: IfExistsDo, options: Map[String, Expression], useGraph: Option[GraphSelection] = None)(override val position: InputPosition)
-  extends CreateIndex(variable, properties, ifExistsDo, options)(position) {
+  extends CreateIndex(variable, properties, ifExistsDo, false)(position) {
   override def withGraph(useGraph: Option[GraphSelection]): SchemaCommand = copy(useGraph = useGraph)(position)
+
+  override def semanticCheck: SemanticCheck =
+      // The validation of the values (provider, config keys and config values) are done at runtime.
+      if (options.filterKeys(k => !k.equalsIgnoreCase("indexProvider") && !k.equalsIgnoreCase("indexConfig")).nonEmpty)
+        SemanticError("Failed to create btree relationship property index: Invalid option provided, valid options are `indexProvider` and `indexConfig`.", position)
+      else super.semanticCheck
+}
+
+case class CreateLookupIndex(variable: Variable, isNodeIndex: Boolean, function: FunctionInvocation, name: Option[String], ifExistsDo: IfExistsDo, options: Map[String, Expression], useGraph: Option[GraphSelection] = None)(override val position: InputPosition)
+  extends CreateIndex(variable, List.empty, ifExistsDo, isNodeIndex)(position) {
+  override def withGraph(useGraph: Option[GraphSelection]): SchemaCommand = copy(useGraph = useGraph)(position)
+
+  private def allowedFunction(name: String): Boolean = if (isNodeIndex) name.equalsIgnoreCase(Labels.name) else name.equalsIgnoreCase(Type.name)
+
+  override def semanticCheck: SemanticCheck = function match {
+    case FunctionInvocation(_, FunctionName(name), _, _) if !allowedFunction(name) =>
+      if (isNodeIndex) SemanticError(s"Failed to create node lookup index: Function '$name' is not allowed, valid function is '${Labels.name}'.", position)
+      else SemanticError(s"Failed to create relationship lookup index: Function '$name' is not allowed, valid function is '${Type.name}'.", position)
+    case _ =>
+      if (options.nonEmpty) SemanticError(s"Failed to create lookup index: No option values available.", position)
+      else super.semanticCheck chain SemanticExpressionCheck.simple(function)
+  }
 }
 
 case class DropIndex(label: LabelName, properties: List[PropertyKeyName], useGraph: Option[GraphSelection] = None)(val position: InputPosition) extends SchemaCommand {

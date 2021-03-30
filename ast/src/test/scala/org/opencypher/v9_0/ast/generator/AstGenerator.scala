@@ -57,6 +57,7 @@ import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
+import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -349,6 +350,8 @@ import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.expressions.functions.Labels
+import org.opencypher.v9_0.expressions.functions.Type
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.AnyType
 import org.opencypher.v9_0.util.symbols.CTString
@@ -1203,7 +1206,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     use             <- option(_use)
     btreeNodeIndex  = CreateBtreeNodeIndex(variable, labelName, props, name, ifExistsDo, options, use)(pos)
     btreeRelIndex   = CreateBtreeRelationshipIndex(variable, relType, props, name, ifExistsDo, options, use)(pos)
-    command         <- oneOf(btreeNodeIndex, btreeRelIndex)
+    lookupNodeIndex = CreateLookupIndex(variable, isNodeIndex = true, FunctionInvocation(FunctionName(Labels.name)(pos), distinct = false, IndexedSeq(variable))(pos), name, ifExistsDo, options, use)(pos)
+    lookupRelIndex  = CreateLookupIndex(variable, isNodeIndex = false, FunctionInvocation(FunctionName(Type.name)(pos), distinct = false, IndexedSeq(variable))(pos), name, ifExistsDo, options, use)(pos)
+    command         <- oneOf(btreeNodeIndex, btreeRelIndex, lookupNodeIndex, lookupRelIndex)
   } yield command
 
   def _dropIndex: Gen[DropIndexOnName] = for {

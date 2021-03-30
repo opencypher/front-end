@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
+import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
@@ -215,6 +216,10 @@ object Additions {
 
       case c@ShowIndexesClause(_, LookupIndexes, _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("Using `LOOKUP` when listing indexes is not supported in this Cypher version.", c.position)
+
+      // CREATE LOOKUP INDEX ...
+      case c: CreateLookupIndex =>
+        throw cypherExceptionFactory.syntaxException("Lookup indexes are not supported in this Cypher version.", c.position)
     }
   }
 
