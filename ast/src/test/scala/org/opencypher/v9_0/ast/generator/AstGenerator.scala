@@ -48,6 +48,8 @@ import org.opencypher.v9_0.ast.AssignRoleAction
 import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
+import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
+import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAction
@@ -55,12 +57,10 @@ import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
-import org.opencypher.v9_0.ast.CreateNodeIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreatePropertyKeyAction
-import org.opencypher.v9_0.ast.CreateRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
 import org.opencypher.v9_0.ast.CreateRole
@@ -1193,17 +1193,17 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield indexType
 
   def _createIndex: Gen[CreateIndex] = for {
-    variable   <- _variable
-    labelName  <- _labelName
-    relType    <- _relTypeName
-    props      <- _listOfProperties
-    name       <- option(_identifier)
-    ifExistsDo <- _ifExistsDo
-    options    <- _mapStringKeys
-    use        <- option(_use)
-    nodeIndex  = CreateNodeIndex(variable, labelName, props, name, ifExistsDo, options, use)(pos)
-    relIndex   = CreateRelationshipIndex(variable, relType, props, name, ifExistsDo, options, use)(pos)
-    command    <- oneOf(nodeIndex, relIndex)
+    variable        <- _variable
+    labelName       <- _labelName
+    relType         <- _relTypeName
+    props           <- _listOfProperties
+    name            <- option(_identifier)
+    ifExistsDo      <- _ifExistsDo
+    options         <- _mapStringKeys
+    use             <- option(_use)
+    btreeNodeIndex  = CreateBtreeNodeIndex(variable, labelName, props, name, ifExistsDo, options, use)(pos)
+    btreeRelIndex   = CreateBtreeRelationshipIndex(variable, relType, props, name, ifExistsDo, options, use)(pos)
+    command         <- oneOf(btreeNodeIndex, btreeRelIndex)
   } yield command
 
   def _dropIndex: Gen[DropIndexOnName] = for {
