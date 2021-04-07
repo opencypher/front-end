@@ -16,13 +16,13 @@
 package org.opencypher.v9_0.expressions.functions
 
 import org.opencypher.v9_0.expressions.TypeSignature
-import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTFloat
 
 case object ToFloatOrNull extends Function {
   override def name = "toFloatOrNull"
 
   override val signatures = Vector(
-    TypeSignature(this, CTAny, CTFloat, "Converts a value to a floating point value, or null if the value cannot be converted", Category.SCALAR)
+    TypeSignature(this, CTAny, CTFloat, "Converts a value to a floating point value, or null if the value cannot be converted.", Category.SCALAR)
   )
 }
