@@ -106,6 +106,8 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 
+import scala.language.implicitConversions
+
 trait AstConstructionTestSupport extends CypherTestSupport {
   protected val pos: InputPosition = DummyPosition(0)
 

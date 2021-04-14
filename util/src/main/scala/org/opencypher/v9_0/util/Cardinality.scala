@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.util
 
+import scala.language.implicitConversions
+
 case class Cardinality(amount: Double) extends Ordered[Cardinality] {
 
   self =>

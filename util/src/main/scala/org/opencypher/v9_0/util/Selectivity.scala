@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.util
 
+import scala.language.implicitConversions
+
 case class Selectivity private(factor: Double) extends Ordered[Selectivity] {
   assert(factor >= 0 && factor <= 1.0, s"selectivity was $factor")
   def *(other: Selectivity): Selectivity = Selectivity(other.factor * factor)

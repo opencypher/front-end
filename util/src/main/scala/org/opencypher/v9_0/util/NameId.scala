@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.util
 
+import scala.language.implicitConversions
+
 sealed trait NameId {
   def id: Int
 }

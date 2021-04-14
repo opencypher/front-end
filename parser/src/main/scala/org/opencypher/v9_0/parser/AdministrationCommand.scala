@@ -32,6 +32,8 @@ import org.parboiled.scala.Rule3
 import org.parboiled.scala.Rule4
 import org.parboiled.scala.group
 
+import scala.language.postfixOps
+
 //noinspection ConvertibleToMethodValue
 // Can't convert since that breaks parsing
 trait AdministrationCommand extends Parser
