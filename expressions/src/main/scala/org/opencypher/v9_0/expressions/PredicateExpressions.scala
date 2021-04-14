@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.expressions
 
+import org.opencypher.v9_0.expressions.CanonicalStringHelper.nodeRelationCanonicalString
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
@@ -242,28 +243,48 @@ case class HasDegreeLessThan(node: Expression,
                              relType: Option[RelTypeName],
                              dir: SemanticDirection,
                              degree: Expression
-                            )(val position: InputPosition) extends BooleanExpression
+                            )(val position: InputPosition) extends BooleanExpression {
+
+  override def asCanonicalStringVal: String =
+    s"size(${nodeRelationCanonicalString(node, relType, dir)}) < ${degree.asCanonicalStringVal}"
+}
 
 case class HasDegreeLessThanOrEqual(node: Expression,
                                     relType: Option[RelTypeName],
                                     dir: SemanticDirection,
                                     degree: Expression
-                                   )(val position: InputPosition) extends BooleanExpression
+                                   )(val position: InputPosition) extends BooleanExpression {
+
+  override def asCanonicalStringVal: String =
+    s"size(${nodeRelationCanonicalString(node, relType, dir)}) <= ${degree.asCanonicalStringVal}"
+}
 
 case class HasDegreeGreaterThan(node: Expression,
                                 relType: Option[RelTypeName],
                                 dir: SemanticDirection,
                                 degree: Expression
-                               )(val position: InputPosition) extends BooleanExpression
+                               )(val position: InputPosition) extends BooleanExpression {
+
+  override def asCanonicalStringVal: String =
+    s"size(${nodeRelationCanonicalString(node, relType, dir)}) > ${degree.asCanonicalStringVal}"
+}
 
 case class HasDegreeGreaterThanOrEqual(node: Expression,
                                        relType: Option[RelTypeName],
                                        dir: SemanticDirection,
                                        degree: Expression
-                                      )(val position: InputPosition) extends BooleanExpression
+                                      )(val position: InputPosition) extends BooleanExpression {
+
+  override def asCanonicalStringVal: String =
+    s"size(${nodeRelationCanonicalString(node, relType, dir)}) >= ${degree.asCanonicalStringVal}"
+}
 
 case class HasDegree(node: Expression,
                      relType: Option[RelTypeName],
                      dir: SemanticDirection,
                      degree: Expression
-                    )(val position: InputPosition) extends BooleanExpression
+                    )(val position: InputPosition) extends BooleanExpression {
+
+  override def asCanonicalStringVal: String =
+    s"size(${nodeRelationCanonicalString(node, relType, dir)}) = ${degree.asCanonicalStringVal}"
+}

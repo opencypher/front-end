@@ -17,10 +17,26 @@ package org.opencypher.v9_0.expressions
 
 sealed trait SemanticDirection {
   def reversed: SemanticDirection
+  def leftArrowCanonicalString: String
+  def rightArrowCanonicalString: String
 }
 
 case object SemanticDirection {
-  case object OUTGOING extends SemanticDirection { override def reversed: SemanticDirection = INCOMING }
-  case object INCOMING extends SemanticDirection { override def reversed: SemanticDirection = OUTGOING }
-  case object BOTH extends SemanticDirection { override def reversed: SemanticDirection = BOTH }
+  case object OUTGOING extends SemanticDirection {
+    override def reversed: SemanticDirection = INCOMING
+    override def leftArrowCanonicalString: String = "-"
+    override def rightArrowCanonicalString: String = "->"
+  }
+
+  case object INCOMING extends SemanticDirection {
+    override def reversed: SemanticDirection = OUTGOING
+    override def leftArrowCanonicalString: String = "<-"
+    override def rightArrowCanonicalString: String = "-"
+  }
+
+  case object BOTH extends SemanticDirection {
+    override def reversed: SemanticDirection = BOTH
+    override def leftArrowCanonicalString: String = "-"
+    override def rightArrowCanonicalString: String = "-"
+  }
 }
