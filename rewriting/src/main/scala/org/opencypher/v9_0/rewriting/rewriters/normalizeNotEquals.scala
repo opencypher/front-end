@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -49,5 +50,6 @@ case object normalizeNotEquals extends Rewriter with StepSequencer.Step with AST
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = instance
 }

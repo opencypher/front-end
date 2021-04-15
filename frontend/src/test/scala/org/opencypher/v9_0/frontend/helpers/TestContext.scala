@@ -18,6 +18,7 @@ package org.opencypher.v9_0.frontend.helpers
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -32,4 +33,6 @@ case class TestContext(override val notificationLogger: InternalNotificationLogg
   override def monitors = mock[Monitors]
 
   override def errorHandler = _ => ()
+
+  override def allNameGenerators: AllNameGenerators = new AllNameGenerators()
 }

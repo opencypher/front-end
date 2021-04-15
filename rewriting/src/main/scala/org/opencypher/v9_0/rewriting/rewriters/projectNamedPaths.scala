@@ -46,6 +46,7 @@ import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.conditions.containsNamedPathOnlyForShortestPath
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
@@ -235,5 +236,6 @@ case object projectNamedPaths extends Rewriter with StepSequencer.Step with ASTR
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = instance
 }

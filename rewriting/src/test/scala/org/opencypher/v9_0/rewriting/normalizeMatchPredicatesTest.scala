@@ -22,27 +22,24 @@ import org.opencypher.v9_0.ast.semantics.SemanticChecker
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.LabelPredicateNormalizer
-import org.opencypher.v9_0.rewriting.rewriters.MatchPredicateNormalization
+import org.opencypher.v9_0.rewriting.rewriters.MatchPredicateNormalizerChain
 import org.opencypher.v9_0.rewriting.rewriters.PropertyPredicateNormalizer
 import org.opencypher.v9_0.rewriting.rewriters.normalizeHasLabelsAndHasType
+import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 
-class MatchPredicateNormalizerTest extends CypherFunSuite {
+class normalizeMatchPredicatesTest extends CypherFunSuite {
 
   private val prettifier = Prettifier(ExpressionStringifier(_.asCanonicalStringVal))
 
-  object PropertyPredicateNormalization extends MatchPredicateNormalization(PropertyPredicateNormalizer)
-
-  object LabelPredicateNormalization extends MatchPredicateNormalization(LabelPredicateNormalizer)
-
   def rewriter(semanticState: SemanticState): Rewriter = inSequence(
     normalizeHasLabelsAndHasType(semanticState),
-    PropertyPredicateNormalization,
-    LabelPredicateNormalization
+    normalizeMatchPredicates(MatchPredicateNormalizerChain(PropertyPredicateNormalizer(new AllNameGenerators), LabelPredicateNormalizer)),
   )
 
   def parseForRewriting(queryText: String): Statement = parser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None))
@@ -156,30 +153,30 @@ class MatchPredicateNormalizerTest extends CypherFunSuite {
   test("move properties and labels from nodes and relationships to WHERE clause") {
     assertRewrite(
       "MATCH (a:A {foo:'v1', bar:'v2'})-[r:R {baz: 'v1'}]->(b:B {foo:'v2', baz:'v2'}) RETURN *",
-      "MATCH (a)-[r:R]->(b) WHERE (a:A AND b:B) AND (a.foo = 'v1' AND a.bar = 'v2' AND r.baz = 'v1' AND b.foo = 'v2' AND b.baz = 'v2') RETURN *")
+      "MATCH (a)-[r:R]->(b) WHERE a.foo = 'v1' AND a.bar = 'v2' AND a:A AND r.baz = 'v1' AND b.foo = 'v2' AND b.baz = 'v2' AND b:B RETURN *")
   }
 
   test("move single property from var length relationship to the where clause") {
     assertRewrite(
       "MATCH (n)-[r* {prop: 42}]->(b) RETURN n",
-      "MATCH (n)-[r*]->(b) WHERE ALL(`  FRESHID9` in r where `  FRESHID9`.prop = 42) RETURN n")
+      "MATCH (n)-[r*]->(b) WHERE ALL(`  FRESHID0` in r where `  FRESHID0`.prop = 42) RETURN n")
   }
 
   test("move multiple properties from var length relationship to the where clause") {
     assertRewrite(
       "MATCH (n)-[r* {prop: 42, p: 'aaa'}]->(b) RETURN n",
-      "MATCH (n)-[r*]->(b) WHERE ALL(`  FRESHID9` in r where `  FRESHID9`.prop = 42 AND `  FRESHID9`.p = 'aaa') RETURN n")
+      "MATCH (n)-[r*]->(b) WHERE ALL(`  FRESHID0` in r where `  FRESHID0`.prop = 42 AND `  FRESHID0`.p = 'aaa') RETURN n")
   }
 
   test("varlength with labels") {
     assertRewrite(
       "MATCH (a:Artist)-[r:WORKED_WITH* { year: 1988 }]->(b:Artist) RETURN *",
-      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE a:Artist AND b:Artist AND ALL(`  FRESHID16` in r where `  FRESHID16`.year = 1988)  RETURN *")
+      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE a:Artist AND ALL(`  FRESHID0` in r where `  FRESHID0`.year = 1988) AND b:Artist  RETURN *")
   }
 
   test("varlength with labels and parameters") {
     assertRewrite(
       "MATCH (a:Artist)-[r:WORKED_WITH* { year: $foo }]->(b:Artist) RETURN *",
-      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE a:Artist AND b:Artist AND ALL(`  FRESHID16` in r where `  FRESHID16`.year = $foo)  RETURN *")
+      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE a:Artist AND ALL(`  FRESHID0` in r where `  FRESHID0`.year = $foo)  AND b:Artist RETURN *")
   }
 }

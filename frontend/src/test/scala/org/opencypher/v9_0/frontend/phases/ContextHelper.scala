@@ -17,6 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.NO_TRACING
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -36,6 +37,8 @@ object ContextHelper extends MockitoSugar {
 
       override def errorHandler: Seq[SemanticErrorDef] => Unit =
         (errors: Seq[SemanticErrorDef]) => errors.foreach(e => throw cypherExceptionFactory.syntaxException(e.msg, e.position))
+
+      override def allNameGenerators: AllNameGenerators = new AllNameGenerators()
     }
   }
 }

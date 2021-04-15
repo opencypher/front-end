@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -54,5 +55,6 @@ object parameterValueTypeReplacement extends Step with ASTRewriterFactory {
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = parameterValueTypeReplacement(parameterTypeMapping)
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = parameterValueTypeReplacement(parameterTypeMapping)
 }

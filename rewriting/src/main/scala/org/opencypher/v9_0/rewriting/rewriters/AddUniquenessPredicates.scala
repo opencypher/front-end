@@ -40,6 +40,7 @@ import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
@@ -158,9 +159,11 @@ object AddUniquenessPredicates extends Step with ASTRewriterFactory {
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = AddUniquenessPredicates(innerVariableNamer)
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = AddUniquenessPredicates(innerVariableNamer)
 }
 
+// TODO move into AllNameGenerators?
 trait InnerVariableNamer {
   def create(outer: LogicalVariable): LogicalVariable
 }

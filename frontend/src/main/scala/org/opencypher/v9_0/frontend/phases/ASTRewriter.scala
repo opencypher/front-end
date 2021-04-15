@@ -41,6 +41,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
@@ -73,9 +74,11 @@ class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
   def rewrite(statement: Statement,
               semanticState: SemanticState,
               parameterTypeMapping: Map[String, CypherType],
-              cypherExceptionFactory: CypherExceptionFactory): Statement = {
+              cypherExceptionFactory: CypherExceptionFactory,
+              allNameGenerators: AllNameGenerators
+             ): Statement = {
     val rewriters = orderedSteps.map { step =>
-      val rewriter = step.getRewriter(innerVariableNamer, semanticState, parameterTypeMapping, cypherExceptionFactory)
+      val rewriter = step.getRewriter(innerVariableNamer, semanticState, parameterTypeMapping, cypherExceptionFactory, allNameGenerators)
       RewriterStep.validatingRewriter(rewriter, step)
     }
 

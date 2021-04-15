@@ -227,6 +227,7 @@ import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTMap
@@ -240,7 +241,7 @@ import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.JavaConverters.mapAsScalaMap
 import scala.util.Either
 
-class Neo4jASTFactory(query: String)
+class Neo4jASTFactory(query: String, allNameGenerators: AllNameGenerators)
   extends ASTFactory[Statement,
     Query,
     Clause,
@@ -740,7 +741,7 @@ class Neo4jASTFactory(query: String)
     PatternComprehension(Option(v),
       RelationshipsPattern(pattern.element.asInstanceOf[RelationshipChain])(p),
       Option(where),
-      projection)(p, Set.empty)
+      projection)(p, Set.empty, allNameGenerators.freshIdNameGenerator.nextName, allNameGenerators.rollupCollectionNameGenerator.nextName)
 
   override def filterExpression(p: InputPosition,
                                 v: Variable,
@@ -792,7 +793,7 @@ class Neo4jASTFactory(query: String)
       case paths: ShortestPaths =>
         ShortestPathExpression(paths)
       case _ =>
-        PatternExpression(RelationshipsPattern(pattern.element.asInstanceOf[RelationshipChain])(p))(Set.empty)
+        PatternExpression(RelationshipsPattern(pattern.element.asInstanceOf[RelationshipChain])(p))(Set.empty, allNameGenerators.freshIdNameGenerator.nextName, allNameGenerators.rollupCollectionNameGenerator.nextName)
     }
 
   override def existsSubQuery(p: InputPosition,

@@ -27,6 +27,7 @@ import org.opencypher.v9_0.frontend.helpers.TestContext
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.SameNameNamer
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.devNullLogger
@@ -91,7 +92,7 @@ trait RewritePhaseTest {
     val parsedAst = parser.parse(queryText, exceptionFactory)
     val cleanedAst = parsedAst.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger)))
     if (astRewriteAndAnalyze) {
-      astRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory)
+      astRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory, new AllNameGenerators())
     } else {
       cleanedAst
     }

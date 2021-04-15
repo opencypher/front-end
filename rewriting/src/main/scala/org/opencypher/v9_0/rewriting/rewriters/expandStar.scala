@@ -27,6 +27,7 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -91,5 +92,6 @@ object expandStar extends StepSequencer.Step with ASTRewriterFactory {
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = expandStar(semanticState)
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = expandStar(semanticState)
 }

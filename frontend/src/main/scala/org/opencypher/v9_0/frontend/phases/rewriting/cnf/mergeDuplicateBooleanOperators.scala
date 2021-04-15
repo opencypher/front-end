@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
-import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Or
@@ -25,6 +24,7 @@ import org.opencypher.v9_0.frontend.phases.rewriting.cnf.simplifyPredicates.coer
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -42,7 +42,8 @@ case object mergeDuplicateBooleanOperators extends ASTRewriterFactory with CnfPh
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = mergeDuplicateBooleanOperators(semanticState)
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = mergeDuplicateBooleanOperators(semanticState)
 
   override def getRewriter(from: BaseState,
                            context: BaseContext): Rewriter = this (from.semantics())

@@ -29,6 +29,7 @@ import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.mergeDuplicateBooleanOperators
 import org.opencypher.v9_0.logical.plans.CoerceToPredicate
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -98,7 +99,7 @@ class MergeBooleanOperatorsTest extends CypherFunSuite {
 
   private val exceptionFactory = new OpenCypherExceptionFactory(None)
   private def assertRewrittenMatches(originalQuery: String, matcher: PartialFunction[Any, Unit]): Unit = {
-    val original = JavaCCParser.parse("RETURN " +  originalQuery, exceptionFactory)
+    val original = JavaCCParser.parse("RETURN " +  originalQuery, exceptionFactory, new AllNameGenerators())
     val checkResult = original.semanticCheck(SemanticState.clean)
     val rewriter = mergeDuplicateBooleanOperators(checkResult.state)
     val result = original.rewrite(rewriter)

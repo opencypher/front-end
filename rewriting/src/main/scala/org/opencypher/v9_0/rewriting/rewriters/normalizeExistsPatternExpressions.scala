@@ -30,6 +30,7 @@ import org.opencypher.v9_0.expressions.functions.Size
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionAreWrappedInExists
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
@@ -123,5 +124,6 @@ object normalizeExistsPatternExpressions extends StepSequencer.Step with ASTRewr
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = normalizeExistsPatternExpressions(semanticState)
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = normalizeExistsPatternExpressions(semanticState)
 }

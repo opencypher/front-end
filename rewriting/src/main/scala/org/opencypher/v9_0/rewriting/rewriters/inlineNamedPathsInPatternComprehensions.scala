@@ -24,6 +24,7 @@ import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -51,7 +52,7 @@ case object inlineNamedPathsInPatternComprehensions extends Rewriter with Step w
         namedPath = None,
         predicate = predicate.map(_.inline(path, patternElement)),
         projection = projection.inline(path, patternElement)
-      )(expr.position, expr.outerScope)
+      )(expr.position, expr.outerScope, expr.variableToCollectName, expr.collectionName)
   })
 
   private implicit final class InliningExpression(val expr: Expression) extends AnyVal {
@@ -66,5 +67,6 @@ case object inlineNamedPathsInPatternComprehensions extends Rewriter with Step w
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = instance
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = instance
 }

@@ -38,6 +38,7 @@ import org.opencypher.v9_0.expressions.UnaryAdd
 import org.opencypher.v9_0.expressions.UnarySubtract
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -158,5 +159,6 @@ object foldConstants extends StepSequencer.Step with ASTRewriterFactory {
   override def getRewriter(innerVariableNamer: InnerVariableNamer,
                            semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory): Rewriter = foldConstants(cypherExceptionFactory)
+                           cypherExceptionFactory: CypherExceptionFactory,
+                           allNameGenerators: AllNameGenerators): Rewriter = foldConstants(cypherExceptionFactory)
 }

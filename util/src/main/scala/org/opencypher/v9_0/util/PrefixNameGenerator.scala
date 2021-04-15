@@ -17,24 +17,31 @@ package org.opencypher.v9_0.util
 
 import org.opencypher.v9_0.util.helpers.NameDeduplicator.nameGeneratorRegex
 
-object FreshIdNameGenerator extends PrefixNameGenerator("FRESHID")
+object FreshIdNameGenerator extends PrefixNameGeneratorCompanion("FRESHID")
+class FreshIdNameGenerator() extends PrefixNameGenerator(FreshIdNameGenerator.prefix)
 
-object AggregationNameGenerator extends PrefixNameGenerator("AGGREGATION")
+object AggregationNameGenerator extends PrefixNameGeneratorCompanion("AGGREGATION")
+class AggregationNameGenerator() extends PrefixNameGenerator(AggregationNameGenerator.prefix)
 
-object NodeNameGenerator extends PrefixNameGenerator("NODE")
+object NodeNameGenerator extends PrefixNameGeneratorCompanion("NODE")
+class NodeNameGenerator() extends PrefixNameGenerator(NodeNameGenerator.prefix)
 
-object RelNameGenerator extends PrefixNameGenerator("REL")
+object RelNameGenerator extends PrefixNameGeneratorCompanion("REL")
+class RelNameGenerator() extends PrefixNameGenerator(RelNameGenerator.prefix)
 
-object PathNameGenerator extends PrefixNameGenerator("PATH")
+object PathNameGenerator extends PrefixNameGeneratorCompanion("PATH")
+class PathNameGenerator() extends PrefixNameGenerator(PathNameGenerator.prefix)
 
-object RollupCollectionNameGenerator extends PrefixNameGenerator("ROLLUP")
+object RollupCollectionNameGenerator extends PrefixNameGeneratorCompanion("ROLLUP")
+class RollupCollectionNameGenerator() extends PrefixNameGenerator(RollupCollectionNameGenerator.prefix)
 
-object UnNamedNameGenerator extends PrefixNameGenerator("UNNAMED") {
-  implicit class NameString(name: String) {
-    def isNamed: Boolean = UnNamedNameGenerator.isNamed(name)
-    def unnamed: Boolean = UnNamedNameGenerator.notNamed(name)
-  }
+object UnNamedNameGenerator extends PrefixNameGeneratorCompanion("UNNAMED"){
+    implicit class NameString(name: String) {
+      def isNamed: Boolean = UnNamedNameGenerator.isNamed(name)
+      def unnamed: Boolean = UnNamedNameGenerator.notNamed(name)
+    }
 }
+class UnNamedNameGenerator() extends PrefixNameGenerator(UnNamedNameGenerator.prefix)
 
 object AllNameGenerators {
   val generators = Seq(
@@ -52,14 +59,8 @@ object AllNameGenerators {
   }
 }
 
-object PrefixNameGenerator {
-  def namePrefix(prefix: String) = s"  $prefix"
-}
-
-case class PrefixNameGenerator(generatorName: String) {
-  val prefix = s"  $generatorName"
-
-  def name(position: InputPosition): String = s"$prefix${position.toUniqueOffsetString}"
+case class PrefixNameGeneratorCompanion(generatorName: String) {
+  val prefix =  s"  $generatorName"
 
   def isNamed(x: String): Boolean = !notNamed(x)
   def notNamed(x: String): Boolean = x.startsWith(prefix)
@@ -70,4 +71,28 @@ case class PrefixNameGenerator(generatorName: String) {
       regex.findPrefixMatchOf(str).map(_ group 2)
     case _ => None
   }
+}
+
+object PrefixNameGenerator {
+  def namePrefix(prefix: String) = s"  $prefix"
+}
+
+class PrefixNameGenerator(prefix: String) {
+  private var counter = 0
+
+  def nextName: String = {
+    val result = s"$prefix$counter"
+    counter += 1
+    result
+  }
+}
+
+class AllNameGenerators() {
+  val freshIdNameGenerator = new FreshIdNameGenerator()
+  val aggregationNameGenerator = new AggregationNameGenerator()
+  val nodeNameGenerator = new NodeNameGenerator()
+  val relNameGenerator = new RelNameGenerator()
+  val pathNameGenerator = new PathNameGenerator()
+  val rollupCollectionNameGenerator = new RollupCollectionNameGenerator()
+  val unNamedNameGenerator = new UnNamedNameGenerator()
 }

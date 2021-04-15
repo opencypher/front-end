@@ -19,10 +19,11 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
+import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.WindowsStringSafe
-import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 
 class JavaCCPrettifierIT extends CypherFunSuite {
   private implicit val windowsSafe: WindowsStringSafe.type = WindowsStringSafe
@@ -40,7 +41,7 @@ class JavaCCPrettifierIT extends CypherFunSuite {
     case (inputString, expected) =>
       test(inputString) {
         try {
-          val parsingResults: Statement = JavaCCParser.parse(inputString, OpenCypherExceptionFactory(None))
+          val parsingResults: Statement = JavaCCParser.parse(inputString, OpenCypherExceptionFactory(None), new AllNameGenerators())
           val str = prettifier.asString(parsingResults)
           str should equal(expected)
         } catch {
