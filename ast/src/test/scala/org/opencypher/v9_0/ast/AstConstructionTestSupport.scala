@@ -120,6 +120,8 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def relTypeName(s: String): RelTypeName = RelTypeName(s)(pos)
 
+  def labelOrRelTypeName(s: String): LabelOrRelTypeName = LabelOrRelTypeName(s)(pos)
+
   def propName(s: String): PropertyKeyName = PropertyKeyName(s)(pos)
 
   def hasLabels(v: String, label: String): HasLabels =

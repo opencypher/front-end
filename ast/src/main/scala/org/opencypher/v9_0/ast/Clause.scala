@@ -47,7 +47,7 @@ import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
-import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.Namespace
@@ -321,12 +321,12 @@ case class Match(
 
   private def checkHints: SemanticCheck = {
     val error: Option[SemanticCheck] = hints.collectFirst {
-      case hint@UsingIndexHint(Variable(variable), LabelName(labelName), properties, _)
+      case hint@UsingIndexHint(Variable(variable), LabelOrRelTypeName(labelName), properties, _)
         if !containsLabelPredicate(variable, labelName) =>
         SemanticError(
           """|Cannot use index hint in this context.
              | Must use label on node that hint is referring to.""".stripLinesAndMargins, hint.position)
-      case hint@UsingIndexHint(Variable(variable), LabelName(labelName), properties, _)
+      case hint@UsingIndexHint(Variable(variable), LabelOrRelTypeName(labelName), properties, _)
         if !containsPropertyPredicates(variable, properties) =>
         SemanticError(
           """|Cannot use index hint in this context.
@@ -337,7 +337,7 @@ case class Match(
              | The comparison cannot be performed between two property values.
              | Note that the label and property comparison must be specified on a
              | non-optional node""".stripLinesAndMargins, hint.position)
-      case hint@UsingScanHint(Variable(variable), LabelName(labelName))
+      case hint@UsingScanHint(Variable(variable), LabelOrRelTypeName(labelName))
         if !containsLabelPredicate(variable, labelName) =>
         SemanticError(
           """|Cannot use label scan hint in this context.

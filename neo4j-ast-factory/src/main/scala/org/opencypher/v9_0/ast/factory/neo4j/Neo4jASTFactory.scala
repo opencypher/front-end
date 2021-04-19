@@ -340,11 +340,11 @@ class Neo4jASTFactory(query: String)
 
   override def usingIndexHint(p: InputPosition,
                               v: Variable,
-                              label: String,
+                              labelOrRelType: String,
                               properties: util.List[String],
                               seekOnly: Boolean): UsingHint =
     ast.UsingIndexHint(v,
-      LabelName(label)(p),
+      LabelOrRelTypeName(labelOrRelType)(p),
       properties.asScala.toList.map(PropertyKeyName(_)(p)),
       if (seekOnly) SeekOnly else SeekOrScan)(p)
 
@@ -353,8 +353,8 @@ class Neo4jASTFactory(query: String)
 
   override def usingScan(p: InputPosition,
                          v: Variable,
-                         label: String): UsingHint =
-    UsingScanHint(v, LabelName(label)(p))(p)
+                         labelOrRelType: String): UsingHint =
+    UsingScanHint(v, LabelOrRelTypeName(labelOrRelType)(p))(p)
 
   override def withClause(p: InputPosition,
                           r: Return,
