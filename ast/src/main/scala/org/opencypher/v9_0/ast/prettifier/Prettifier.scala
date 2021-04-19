@@ -90,10 +90,13 @@ import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
+import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.ProcedureAllQualifier
@@ -197,10 +200,14 @@ case class Prettifier(
     case _ => throw new IllegalStateException(s"Unknown statement: $statement")
   }
 
+  def backtick(s: String) = expr.backtick(s)
+
+  def optionsToString(options: Map[String, Expression]) =
+    if (options.nonEmpty) s" OPTIONS ${options.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}" else ""
+
   def asString(command: SchemaCommand): String = {
-    def backtick(s: String) = ExpressionStringifier.backtick(s)
     def propertiesToString(properties: Seq[Property]): String = properties.map(propertyToString).mkString("(", ", ", ")")
-    def propertyToString(property: Property): String = s"${expr(property.map)}.${ExpressionStringifier.backtick(property.propertyKey.name)}"
+    def propertyToString(property: Property): String = s"${expr(property.map)}.${backtick(property.propertyKey.name)}"
     def propertyToStringExistenceConstraint(property: Property, oldSyntax: Boolean): String =
       if (oldSyntax) s"exists(${propertyToString(property)})" else s"(${propertyToString(property)}) IS NOT NULL"
     def getStartOfCommand(name: Option[String], ifExistsDo: IfExistsDo, schemaType: String): String = {
@@ -212,8 +219,6 @@ case class Prettifier(
         case IfExistsThrowError    => s"CREATE $schemaType $nameString"
       }
     }
-    def optionsToString(options: Map[String, Expression]) =
-      if (options.nonEmpty) s" OPTIONS ${options.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}" else ""
 
     val useString = asString(command.useGraph)
     val commandString = command match {
@@ -445,10 +450,15 @@ case class Prettifier(
         }
         s"${x.name}$optionalName$y$r"
 
-      case x @ CreateDatabase(dbName, ifExistsDo, waitUntilComplete) =>
+      case x @ CreateDatabase(dbName, ifExistsDo, options, waitUntilComplete) =>
+        val formattedOptions = options match {
+          case NoOptions => ""
+          case OptionsParam(parameter) => s" OPTIONS ${expr(parameter)}"
+          case OptionsMap(map) => optionsToString(map)
+        }
         ifExistsDo match {
-          case IfExistsDoNothing | IfExistsInvalidSyntax => s"${x.name} ${Prettifier.escapeName(dbName)} IF NOT EXISTS${waitUntilComplete.name}"
-          case _                                               => s"${x.name} ${Prettifier.escapeName(dbName)}${waitUntilComplete.name}"
+          case IfExistsDoNothing | IfExistsInvalidSyntax => s"${x.name} ${Prettifier.escapeName(dbName)} IF NOT EXISTS$formattedOptions${waitUntilComplete.name}"
+          case _                                               => s"${x.name} ${Prettifier.escapeName(dbName)}$formattedOptions${waitUntilComplete.name}"
         }
 
       case x @ DropDatabase(dbName, ifExists, additionalAction, waitUntilComplete) =>

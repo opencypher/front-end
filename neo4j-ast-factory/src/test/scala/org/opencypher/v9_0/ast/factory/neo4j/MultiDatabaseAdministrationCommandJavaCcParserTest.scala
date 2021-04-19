@@ -15,10 +15,18 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.CreateDatabase
+import org.opencypher.v9_0.ast.IfExistsThrowError
+import org.opencypher.v9_0.ast.IndefiniteWait
+import org.opencypher.v9_0.ast.NoWait
+import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.OptionsParam
+import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.test_helpers.TestName
 import org.scalatest.FunSuiteLike
 
-class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase with FunSuiteLike with TestName {
+class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase with FunSuiteLike with TestName with AstConstructionTestSupport {
   // SHOW DATABASE
 
   Seq(
@@ -235,6 +243,7 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
          |  "."
          |  "IF"
          |  "NOWAIT"
+         |  "OPTIONS"
          |  "WAIT"
          |  <EOF> (line 1, column 21 (offset: 20))""".stripMargin
 
@@ -263,6 +272,23 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
 
   test("CREATE OR REPLACE DATABASE") {
     assertJavaCCException(testName, "Invalid input '': expected a parameter or an identifier (line 1, column 27 (offset: 26))")
+  }
+
+  test("CREATE DATABASE foo OPTIONS {existingData: 'use', existingDataSeedInstance: '84c3ee6f-260e-47db-a4b6-589c807f2c2e'}") {
+    assertJavaCCAST(testName,
+      CreateDatabase(Left("foo"), IfExistsThrowError, OptionsMap(Map("existingData" -> literalString("use"),
+        "existingDataSeedInstance" -> literalString("84c3ee6f-260e-47db-a4b6-589c807f2c2e"))), NoWait)(pos))
+  }
+
+  test("CREATE DATABASE foo OPTIONS {existingData: 'use', existingDataSeedInstance: '84c3ee6f-260e-47db-a4b6-589c807f2c2e'} WAIT") {
+    assertJavaCCAST(testName,
+      CreateDatabase(Left("foo"), IfExistsThrowError, OptionsMap(Map("existingData" -> literalString("use"),
+        "existingDataSeedInstance" -> literalString("84c3ee6f-260e-47db-a4b6-589c807f2c2e"))), IndefiniteWait)(pos))
+  }
+
+  test("CREATE DATABASE foo OPTIONS $param") {
+    assertJavaCCAST(testName,
+      CreateDatabase(Left("foo"), IfExistsThrowError, OptionsParam(parameter("param", CTMap)), NoWait)(pos))
   }
 
   // DROP DATABASE

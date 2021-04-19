@@ -21,11 +21,16 @@ import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.HomeDatabaseScope
+import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.ast.IndefiniteWait
 import org.opencypher.v9_0.ast.NamedDatabaseScope
+import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
+import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.YieldOrWhere
+import org.opencypher.v9_0.util.symbols.CTMap
 
 class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
   private val literalFooBar = literal("foo.bar")
@@ -119,116 +124,130 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommand
   // CREATE DATABASE
 
   test("CREATE DATABASE foo") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsThrowError, NoWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsThrowError, NoOptions, NoWait))
   }
 
   test("USE system CREATE DATABASE foo") {
     // can parse USE clause, but is not included in AST
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsThrowError, NoWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsThrowError, NoOptions, NoWait))
   }
 
   test("CREATE DATABASE $foo") {
-    yields(ast.CreateDatabase(paramFoo, ast.IfExistsThrowError, NoWait))
+    yields(ast.CreateDatabase(paramFoo, ast.IfExistsThrowError, NoOptions, NoWait))
   }
 
   test("CREATE DATABASE `foo.bar`") {
-    yields(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoWait))
+    yields(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoOptions, NoWait))
   }
 
   test("CREATE DATABASE foo WAIT") {
-    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, IndefiniteWait))
+    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, NoOptions, IndefiniteWait))
   }
 
   test("CREATE DATABASE foo WAIT 12") {
-    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, TimeoutAfter(12)))
+    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, NoOptions, TimeoutAfter(12)))
   }
 
   test("CREATE DATABASE foo WAIT 12 SEC") {
-    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, TimeoutAfter(12)))
+    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, NoOptions, TimeoutAfter(12)))
   }
 
   test("CREATE DATABASE foo WAIT 12 SECOND") {
-    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, TimeoutAfter(12)))
+    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, NoOptions, TimeoutAfter(12)))
   }
 
   test("CREATE DATABASE foo WAIT 12 SECONDS") {
-    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, TimeoutAfter(12)))
+    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, NoOptions, TimeoutAfter(12)))
   }
 
   test("CREATE DATABASE foo NOWAIT") {
-    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, NoWait))
+    yields(ast.CreateDatabase(literal("foo"), ast.IfExistsThrowError, NoOptions, NoWait))
   }
 
   test("CATALOG CREATE DATABASE `foo.bar`") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoOptions, NoWait)(pos)))
   }
 
   test("CREATE DATABASE foo.bar") {
-    yields(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoWait))
+    yields(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoOptions, NoWait))
   }
 
   test("CATALOG CREATE DATABASE foo.bar") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literalFooBar, ast.IfExistsThrowError, NoOptions, NoWait)(pos)))
   }
 
   test("CATALOG CREATE DATABASE `graph.db`.`db.db`") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("graph.db.db.db"), ast.IfExistsThrowError, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("graph.db.db.db"), ast.IfExistsThrowError, NoOptions, NoWait)(pos)))
   }
 
   test("CATALOG CREATE DATABASE `foo-bar42`") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("foo-bar42"), ast.IfExistsThrowError, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("foo-bar42"), ast.IfExistsThrowError, NoOptions, NoWait)(pos)))
   }
 
   test("CATALOG CREATE DATABASE `_foo-bar42`") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("_foo-bar42"), ast.IfExistsThrowError, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("_foo-bar42"), ast.IfExistsThrowError, NoOptions, NoWait)(pos)))
   }
 
   test("CATALOG CREATE DATABASE ``") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literalEmpty, ast.IfExistsThrowError, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literalEmpty, ast.IfExistsThrowError, NoOptions, NoWait)(pos)))
   }
 
   test("CREATE DATABASE foo IF NOT EXISTS") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, NoWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, NoOptions, NoWait))
   }
 
   test("CREATE DATABASE foo IF NOT EXISTS WAIT 10 SECONDS") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, TimeoutAfter(10)))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, NoOptions, TimeoutAfter(10)))
   }
 
   test("CREATE DATABASE foo IF NOT EXISTS WAIT") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, IndefiniteWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, NoOptions, IndefiniteWait))
   }
 
   test("CREATE  DATABASE foo IF NOT EXISTS NOWAIT") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, NoWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsDoNothing, NoOptions, NoWait))
   }
 
   test("CATALOG CREATE DATABASE `_foo-bar42` IF NOT EXISTS") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("_foo-bar42"), ast.IfExistsDoNothing, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("_foo-bar42"), ast.IfExistsDoNothing, NoOptions, NoWait)(pos)))
   }
 
   test("CREATE OR REPLACE DATABASE foo") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, NoWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, NoOptions, NoWait))
   }
 
   test("CREATE OR REPLACE DATABASE foo WAIT 10 SECONDS") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, TimeoutAfter(10)))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, NoOptions, TimeoutAfter(10)))
   }
 
   test("CREATE OR REPLACE DATABASE foo WAIT") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, IndefiniteWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, NoOptions, IndefiniteWait))
   }
 
   test("CREATE OR REPLACE DATABASE foo NOWAIT") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, NoWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsReplace, NoOptions, NoWait))
   }
 
   test("CATALOG CREATE OR REPLACE DATABASE `_foo-bar42`") {
-    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("_foo-bar42"), ast.IfExistsReplace, NoWait)(pos)))
+    yields(_ => ast.HasCatalog(ast.CreateDatabase(literal("_foo-bar42"), ast.IfExistsReplace, NoOptions, NoWait)(pos)))
   }
 
   test("CREATE OR REPLACE DATABASE foo IF NOT EXISTS") {
-    yields(ast.CreateDatabase(literalFoo, ast.IfExistsInvalidSyntax, NoWait))
+    yields(ast.CreateDatabase(literalFoo, ast.IfExistsInvalidSyntax, NoOptions, NoWait))
+  }
+
+  test("CREATE DATABASE foo OPTIONS {existingData: 'use', existingDataSeedInstance: '84c3ee6f-260e-47db-a4b6-589c807f2c2e'}") {
+    yields(ast.CreateDatabase(Left("foo"), IfExistsThrowError,  OptionsMap(Map("existingData" -> literalString("use"),
+        "existingDataSeedInstance" -> literalString("84c3ee6f-260e-47db-a4b6-589c807f2c2e"))), NoWait))
+  }
+
+  test("CREATE DATABASE foo OPTIONS {existingData: 'use', existingDataSeedInstance: '84c3ee6f-260e-47db-a4b6-589c807f2c2e'} WAIT") {
+    yields(ast.CreateDatabase(Left("foo"), IfExistsThrowError, OptionsMap(Map("existingData" -> literalString("use"),
+        "existingDataSeedInstance" -> literalString("84c3ee6f-260e-47db-a4b6-589c807f2c2e"))), IndefiniteWait))
+  }
+
+  test("CREATE DATABASE foo OPTIONS $param") {
+    yields(ast.CreateDatabase(Left("foo"), IfExistsThrowError, OptionsParam(parameter("param", CTMap)), NoWait))
   }
 
   test("CREATE DATABASE \"foo.bar\"") {

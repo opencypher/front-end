@@ -91,6 +91,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.NULL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OF
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ON
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OPTIONAL
+import org.opencypher.v9_0.parser.javacc.CypherConstants.OPTIONS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ORDER
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OUTPUT
@@ -222,6 +223,7 @@ object IdentifierTokens {
     NULL,
     OF,
     ON,
+    OPTIONS,
     OPTIONAL,
     OR,
     ORDER,

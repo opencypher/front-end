@@ -59,12 +59,15 @@ import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NewSyntax
+import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
+import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.ProcedureResult
@@ -125,6 +128,7 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.factory.ASTFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
+import org.opencypher.v9_0.ast.factory.ParameterType
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -218,6 +222,7 @@ import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTString
 
 import java.lang
@@ -225,6 +230,7 @@ import java.nio.charset.StandardCharsets
 import java.util
 import java.util.stream.Collectors
 import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.JavaConverters.mapAsScalaMap
 import scala.util.Either
 
 class Neo4jASTFactory(query: String)
@@ -516,14 +522,22 @@ class Neo4jASTFactory(query: String)
 
   override def newVariable(p: InputPosition, name: String): Variable = Variable(name)(p)
 
-  override def newParameter(p: InputPosition, v: Variable): Parameter = Parameter(v.name, CTAny)(p)
+  override def newParameter(p: InputPosition, v: Variable, t: ParameterType): Parameter = {
+    Parameter(v.name, transformParameterType(t))(p)
+  }
 
-  override def newParameter(p: InputPosition, offset: String): Parameter = Parameter(offset, CTAny)(p)
+  override def newParameter(p: InputPosition, offset: String, t: ParameterType): Parameter = {
+    Parameter(offset, transformParameterType(t))(p)
+  }
 
-  override def newStringParameter(p: InputPosition, v: Variable): Parameter = Parameter(v.name, CTString)(p)
-
-  override def newStringParameter(p: InputPosition, offset: String): Parameter = Parameter(offset, CTString)(p)
-
+  private def transformParameterType(t: ParameterType) = {
+    t match {
+      case ParameterType.ANY => CTAny
+      case ParameterType.STRING => CTString
+      case ParameterType.MAP => CTMap
+      case _ => throw new IllegalArgumentException("unknown parameter type: " + t.toString)
+    }
+  }
   override def newSensitiveStringParameter(p: InputPosition, v: Variable): Parameter = new ExplicitParameter(v.name, CTString)(p) with SensitiveParameter
 
   override def newSensitiveStringParameter(p: InputPosition, offset: String): Parameter = new ExplicitParameter(offset, CTString)(p) with SensitiveParameter
@@ -988,8 +1002,14 @@ class Neo4jASTFactory(query: String)
                               replace: Boolean,
                               databaseName: Either[String, Parameter],
                               ifNotExists: Boolean,
-                              wait: WaitUntilComplete): CreateDatabase = {
-    CreateDatabase(databaseName, ifExistsDo(replace, ifNotExists), wait)(p)
+                              wait: WaitUntilComplete,
+                              options: Either[util.Map[String, Expression], Parameter]): CreateDatabase = {
+    val optionsAst = Option(options) match {
+      case Some(Left(map)) => OptionsMap(mapAsScalaMap(map).toMap)
+      case Some(Right(param)) => OptionsParam(param)
+      case None => NoOptions
+    }
+    CreateDatabase(databaseName, ifExistsDo(replace, ifNotExists), optionsAst, wait)(p)
   }
 
   override def dropDatabase(p:InputPosition, databaseName: Either[String, Parameter], ifExists: Boolean, dumpData: Boolean, wait: WaitUntilComplete): DropDatabase = {

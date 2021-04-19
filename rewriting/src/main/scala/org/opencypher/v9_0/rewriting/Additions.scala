@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
+import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -39,6 +40,8 @@ import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.LookupIndexes
 import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
+import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.RenameUser
@@ -220,6 +223,12 @@ object Additions {
       // CREATE LOOKUP INDEX ...
       case c: CreateLookupIndex =>
         throw cypherExceptionFactory.syntaxException("Lookup indexes are not supported in this Cypher version.", c.position)
+
+      // CREATE DATABASE OPTIONS {}
+      case c@CreateDatabase(_, _, OptionsMap(_), _) =>
+        throw cypherExceptionFactory.syntaxException("Using OPTIONS with CREATE DATABASE is not supported in this Cypher version.", c.position)
+      case c@CreateDatabase(_, _, OptionsParam(_), _) =>
+        throw cypherExceptionFactory.syntaxException("Using OPTIONS with CREATE DATABASE is not supported in this Cypher version.", c.position)
     }
   }
 

@@ -18,6 +18,7 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.IndefiniteWait
+import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.WaitUntilComplete
@@ -511,10 +512,14 @@ trait AdministrationCommand extends Parser
   }
 
   private def CreateDatabase: Rule1[ast.CreateDatabase] = rule("CREATE DATABASE") {
-    group(keyword("CREATE OR REPLACE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ keyword("IF NOT EXISTS") ~~ WaitUntilComplete) ~~>> (ast.CreateDatabase(_, ast.IfExistsInvalidSyntax, _)) |
-    group(keyword("CREATE OR REPLACE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ WaitUntilComplete) ~~>> (ast.CreateDatabase(_, ast.IfExistsReplace, _)) |
-    group(keyword("CREATE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ keyword("IF NOT EXISTS") ~~ WaitUntilComplete) ~~>> (ast.CreateDatabase(_, ast.IfExistsDoNothing, _)) |
-    group(keyword("CREATE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ WaitUntilComplete) ~~>> (ast.CreateDatabase(_, ast.IfExistsThrowError, _))
+    group(keyword("CREATE OR REPLACE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ keyword("IF NOT EXISTS") ~~ optional(optionsMapOrParameter)
+      ~~ WaitUntilComplete) ~~>> ((dbName, options, wait) => pos => ast.CreateDatabase(dbName, ast.IfExistsInvalidSyntax, options.getOrElse(NoOptions), wait)(pos)) |
+    group(keyword("CREATE OR REPLACE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ optional(optionsMapOrParameter) ~~ WaitUntilComplete) ~~>>
+      ((dbName, options, wait) => pos => ast.CreateDatabase(dbName, ast.IfExistsReplace, options.getOrElse(NoOptions), wait)(pos)) |
+    group(keyword("CREATE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ keyword("IF NOT EXISTS") ~~ optional(optionsMapOrParameter) ~~ WaitUntilComplete) ~~>>
+      ((dbName, options, wait) => pos => ast.CreateDatabase(dbName, ast.IfExistsDoNothing, options.getOrElse(NoOptions), wait)(pos)) |
+    group(keyword("CREATE DATABASE") ~~ SymbolicDatabaseNameOrStringParameter ~~ optional(optionsMapOrParameter) ~~ WaitUntilComplete) ~~>>
+      ((dbName, options, wait) => pos => ast.CreateDatabase(dbName, ast.IfExistsThrowError, options.getOrElse(NoOptions), wait)(pos))
   }
 
   private def DropDatabase: Rule1[ast.DropDatabase] = rule("DROP DATABASE") {

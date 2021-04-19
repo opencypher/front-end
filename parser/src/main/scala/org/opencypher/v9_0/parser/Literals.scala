@@ -18,6 +18,7 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.SensitiveParameter
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTString
 import org.parboiled.scala.Parser
 import org.parboiled.scala.Rule0
@@ -125,6 +126,9 @@ trait Literals extends Parser
 
   def StringParameter: Rule1[expressions.Parameter] =
     parameterName ~~>> (expressions.ExplicitParameter(_, CTString))
+
+  def MapParameter: Rule1[expressions.Parameter] =
+    parameterName ~~>> (expressions.ExplicitParameter(_, CTMap))
 
   def SensitiveStringParameter: Rule1[expressions.Parameter] =
     parameterName ~~>> (name => pos => new expressions.ExplicitParameter(name, CTString)(pos) with SensitiveParameter)

@@ -133,6 +133,7 @@ import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NewSyntax
+import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeByIds
 import org.opencypher.v9_0.ast.NodeByParameter
@@ -141,6 +142,9 @@ import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
+import org.opencypher.v9_0.ast.Options
+import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.PrivilegeCommand
@@ -374,6 +378,7 @@ import org.scalacheck.Gen.some
 import org.scalacheck.util.Buildable
 
 import java.nio.charset.StandardCharsets
+import org.opencypher.v9_0.util.symbols.CTMap
 
 object AstGenerator {
   val OR_MORE_UPPER_BOUND = 3
@@ -521,6 +526,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     _identifier.map(Parameter(_, AnyType.instance)(pos))
 
   def _stringParameter: Gen[Parameter] = _identifier.map(Parameter(_, CTString)(pos))
+
+  def _mapParameter: Gen[Parameter] = _identifier.map(Parameter(_, CTMap)(pos))
 
   def _sensitiveStringParameter: Gen[Parameter with SensitiveParameter] =
     _identifier.map(new ExplicitParameter(_, CTString)(pos) with SensitiveParameter)
@@ -1313,6 +1320,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     finalName <- oneOf(Left(name), Right(param))
   } yield finalName
 
+  def _optionsMapAsEither: Gen[Options] = for {
+    map  <- oneOrMore(tuple(_identifier, _expression)).map(_.toMap)
+    param <- _mapParameter
+    finalMap <- oneOf(OptionsMap(map), OptionsParam(param), NoOptions)
+  } yield finalMap
+
   def _listOfNameOfEither: Gen[List[Either[String, Parameter]]] = for {
     names <- oneOrMore(_nameAsEither)
   } yield names
@@ -1606,7 +1619,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     dbName <- _nameAsEither
     ifExistsDo <- _ifExistsDo
     wait <- _waitUntilComplete
-  } yield CreateDatabase(dbName, ifExistsDo, wait)(pos)
+    options <- _optionsMapAsEither
+  } yield CreateDatabase(dbName, ifExistsDo, options, wait)(pos)
 
   def _dropDatabase: Gen[DropDatabase] = for {
     dbName <- _nameAsEither

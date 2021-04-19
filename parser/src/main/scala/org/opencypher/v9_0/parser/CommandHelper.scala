@@ -16,9 +16,14 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.Options
+import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.OptionsParam
+import org.opencypher.v9_0.expressions.Expression
 import org.parboiled.scala.Parser
 import org.parboiled.scala.Rule0
 import org.parboiled.scala.Rule1
+import org.parboiled.scala.group
 
 // Common methods for schema and administration commands
 trait CommandHelper extends Parser
@@ -27,6 +32,19 @@ trait CommandHelper extends Parser
   def IndexKeyword: Rule0 = keyword("INDEXES") | keyword("INDEX")
 
   def ConstraintKeyword: Rule0 = keyword("CONSTRAINTS") | keyword("CONSTRAINT")
+
+  def options: Rule1[Map[String, Expression]] = rule {
+    keyword("OPTIONS") ~~ optionsMap
+  }
+
+  def optionsMapOrParameter: Rule1[Options] = rule {
+    keyword("OPTIONS") ~~ optionsMap ~~> (map => OptionsMap(map)) |
+    keyword("OPTIONS") ~~ MapParameter ~~> (mapParam => OptionsParam(mapParam))
+  }
+
+  private def optionsMap: Rule1[Map[String, Expression]] = rule {
+    group(ch('{') ~~ zeroOrMore(SymbolicNameString ~~ ch(':') ~~ Expression, separator = CommaSep) ~~ ch('}')) ~~>> (l => _ => l.toMap)
+  }
 
   def ShowCommandClauses: Rule1[Either[(ast.Yield, Option[ast.Return]), ast.Where]] = rule("YIELD, WHERE") {
     (Yield ~~ optional(Return)) ~~> ((y, r) => Left(y,r)) |

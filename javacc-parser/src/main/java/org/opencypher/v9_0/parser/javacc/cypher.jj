@@ -43,11 +43,14 @@ import scala.util.Left;
 import scala.util.Right;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory;
 import org.opencypher.v9_0.ast.factory.ASTFactory;
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos;
+import org.opencypher.v9_0.ast.factory.ParameterType;
 
 /** Simple brace matcher. */
 public class Cypher<STATEMENT,
@@ -369,6 +372,7 @@ TOKEN [IGNORE_CASE] :
     | < OF: "OF" >
     | < ON: "ON" >
     | < OPTIONAL: "OPTIONAL" >
+    | < OPTIONS: "OPTIONS" >
     | < OR: "OR" >
     | < ORDER: "ORDER" >
     | < OUTPUT: "OUTPUT" >
@@ -1820,7 +1824,7 @@ EXPRESSION Properties() :
 {
     (
         LOOKAHEAD( 3 ) e=MapLiteral()
-        | e=Parameter()
+        | e=Parameter( ParameterType.ANY )
         | e=OldParameter()
     )
     {
@@ -2159,7 +2163,7 @@ EXPRESSION Expression1() :
     (
         e=NumberLiteral()
         | e=StringLiteral()
-        | e=Parameter()
+        | e=Parameter( ParameterType.ANY )
         | t=<TRUE> { e = astFactory.newTrueLiteral( pos( t ) ); }
         | t=<FALSE> { e = astFactory.newFalseLiteral( pos( t ) ); }
         | LOOKAHEAD( 2 ) t=<NULL> { e = astFactory.newNullLiteral( pos( t ) ); }
@@ -2435,7 +2439,7 @@ EXPRESSION Literal() :
     (
         e=NumberLiteral()
         | e=StringLiteral()
-        | e=Parameter()
+        | e=Parameter( ParameterType.ANY )
         | t=<TRUE> { e = astFactory.newTrueLiteral( pos( t ) ); }
         | t=<FALSE> { e = astFactory.newFalseLiteral( pos( t ) ); }
         | LOOKAHEAD( 2 ) t=<NULL> { e = astFactory.newNullLiteral( pos( t ) ); }
@@ -2555,27 +2559,15 @@ StringPos<POS> PropertyKeyName() :
     }
 }
 
-EXPRESSION Parameter() :
+PARAMETER Parameter( ParameterType type ) :
 {
     Token t;
     VARIABLE v;
 }
 {
     t="$" (
-        v=Variable() { return astFactory.newParameter( pos( t ), v ); }
-        | <UNSIGNED_DECIMAL_INTEGER> { return astFactory.newParameter( pos( t ), token.image ); }
-    )
-}
-
-PARAMETER StringParameter() :
-{
-    Token t;
-    VARIABLE v;
-}
-{
-    t="$" (
-        v=Variable() { return astFactory.newStringParameter( pos( t ), v ); }
-        | <UNSIGNED_DECIMAL_INTEGER> { return astFactory.newStringParameter( pos( t ), token.image ); }
+        v=Variable() { return astFactory.newParameter( pos( t ), v, type ); }
+        | <UNSIGNED_DECIMAL_INTEGER> { return astFactory.newParameter( pos( t ), token.image, type ); }
     )
 }
 
@@ -3315,7 +3307,7 @@ EXPRESSION passwordExpression():
     (
         name=<STRING_LITERAL1>
         | name=<STRING_LITERAL2>
-        | parameter=StringParameter()
+        | parameter=Parameter( ParameterType.STRING )
     )
     {
         if ( name != null )
@@ -3406,14 +3398,16 @@ ADMINISTRATION_COMMAND CreateDatabase( Token start, boolean replace ):
     Either<String, PARAMETER> databaseName = null;
     boolean ifNotExists = false;
     WAIT_CLAUSE wait = astFactory.wait( false, -1 );
+    Either<Map<String, EXPRESSION>, PARAMETER> options = null;
 }
 {
     <DATABASE>
     databaseName=SymbolicDatabaseNameStringOrParameter()
     ( <IF> <NOT> <EXISTS> { ifNotExists = true; } )?
+    ( <OPTIONS> options=MapOrParameter() )?
     ( wait = WaitClause() )?
     {
-       return astFactory.createDatabase( pos( start ), replace, databaseName, ifNotExists, wait );
+       return astFactory.createDatabase( pos( start ), replace, databaseName, ifNotExists, wait, options );
     }
 }
 
@@ -3529,7 +3523,7 @@ Either<String, PARAMETER> SymbolicDatabaseNameStringOrParameter():
         {
             return new Left<String, PARAMETER>( nameBuilder.toString() );
         }
-    | parameter=StringParameter() { return new Right<String, PARAMETER>( parameter ); }
+    | parameter=Parameter(ParameterType.STRING) { return new Right<String, PARAMETER>( parameter ); }
 }
 
 List<Either<String, PARAMETER>> SymbolicNamerOrStringParameterList() :
@@ -3552,8 +3546,29 @@ Either<String, PARAMETER> SymbolicNameOrStringParameter():
 }
 {
     name=SymbolicNameString() { return new Left<String, PARAMETER>( name.image ); }
-    | parameter=StringParameter() { return new Right<String, PARAMETER>( parameter ); }
+    | parameter=Parameter(ParameterType.STRING) { return new Right<String, PARAMETER>( parameter ); }
 }
+
+Either<Map<String, EXPRESSION>, PARAMETER> MapOrParameter():
+{
+    Token key;
+    EXPRESSION expr;
+    Map<String, EXPRESSION> map = new LinkedHashMap();
+    PARAMETER parameter;
+}
+{
+    <LCURLY>
+    (
+        key=SymbolicNameString()  ":" expr=Expression() { map.put( key.image, expr ); }
+        ( "," key=SymbolicNameString()  ":" expr=Expression() { map.put( key.image, expr ); } )*
+    )?
+    <RCURLY>
+    {
+        return new Left<Map<String,EXPRESSION>,PARAMETER> ( map );
+    }
+    | parameter=Parameter( ParameterType.MAP ) { return new Right<Map<String,EXPRESSION>,PARAMETER>( parameter ); }
+}
+
 
 Token SymbolicNameString() :
 {
@@ -3640,6 +3655,7 @@ Token SymbolicNameString() :
         | t=<OF>
         | t=<ON>
         | t=<OPTIONAL>
+        | t=<OPTIONS>
         | t=<OR>
         | t=<ORDER>
         | t=<OUTPUT>
