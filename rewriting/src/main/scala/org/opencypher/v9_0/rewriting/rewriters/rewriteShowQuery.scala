@@ -25,7 +25,9 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
+import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
@@ -69,7 +71,10 @@ case object rewriteShowQuery extends Rewriter with Step with PreparatoryRewritin
     // Just a single command clause (with or without WHERE)
     case (commandClause: CommandClause) :: Nil => rewrittenClause ++ rewriteWithYieldAndReturn(commandClause, commandClause.where)
     // Command clause with only a YIELD
-    case (c: CommandClause) :: (yieldClause: Yield) :: Nil => rewrittenClause :+ c :+ yieldClause :+ returnClause(yieldClause.position)
+    case (c: CommandClause) :: (yieldClause: Yield) :: Nil => {
+      val offset = lastPosition(yieldClause)
+      rewrittenClause :+ c :+ yieldClause :+ returnClause(InputPosition(offset, 1, offset + 1))
+    }
     case c :: cs => rewriteClauses(cs, rewrittenClause :+ c)
     case Nil => rewrittenClause
   }
@@ -83,6 +88,12 @@ case object rewriteShowQuery extends Rewriter with Step with PreparatoryRewritin
   }
 
   private def returnClause(position: InputPosition): Return = Return(ReturnItems(includeExisting = true, Seq())(position))(position.newUniquePos())
+
+  private def lastPosition(y: Yield): Int = {
+    y.treeFold(0) {
+      case node: ASTNode => acc => TraverseChildren(if (node.position.offset > acc) node.position.offset else acc)
+    }
+  }
 
   override def getRewriter(deprecations: Deprecations,
                            cypherExceptionFactory: CypherExceptionFactory,
