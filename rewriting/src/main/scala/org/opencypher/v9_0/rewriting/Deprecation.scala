@@ -25,6 +25,7 @@ import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticTable
+import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractExpression
 import org.opencypher.v9_0.expressions.ExtractScope
@@ -173,6 +174,12 @@ object Deprecations {
         )
 
       case e@Exists(Property(_, _)) =>
+        Deprecation(
+          () => e,
+          () => Some(DeprecatedPropertyExistenceSyntax(e.position))
+        )
+
+      case e@Exists(ContainerIndex(_, _)) =>
         Deprecation(
           () => e,
           () => Some(DeprecatedPropertyExistenceSyntax(e.position))
