@@ -33,6 +33,8 @@ import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateDatabase
+import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
+import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
@@ -209,7 +211,8 @@ case class Prettifier(
     if (options.nonEmpty) s" OPTIONS ${options.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}" else ""
 
   def asString(command: SchemaCommand): String = {
-    def propertiesToString(properties: Seq[Property]): String = properties.map(propertyToString).mkString("(", ", ", ")")
+    def btreePropertiesToString(properties: Seq[Property]): String = properties.map(propertyToString).mkString("(", ", ", ")")
+    def fulltextPropertiesToString(properties: Seq[Property]): String = properties.map(propertyToString).mkString("[", ", ", "]")
     def propertyToString(property: Property): String = s"${expr(property.map)}.${backtick(property.propertyKey.name)}"
     def propertyToStringExistenceConstraint(property: Property, oldSyntax: Boolean): String =
       if (oldSyntax) s"exists(${propertyToString(property)})" else s"(${propertyToString(property)}) IS NOT NULL"
@@ -231,11 +234,11 @@ case class Prettifier(
 
       case CreateBtreeNodeIndex(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "INDEX")
-        s"${startOfCommand}FOR (${backtick(variable)}:${backtick(label)}) ON ${propertiesToString(properties)}${optionsToString(options)}"
+        s"${startOfCommand}FOR (${backtick(variable)}:${backtick(label)}) ON ${btreePropertiesToString(properties)}${optionsToString(options)}"
 
       case CreateBtreeRelationshipIndex(Variable(variable), RelTypeName(relType), properties, name, ifExistsDo, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "INDEX")
-        s"${startOfCommand}FOR ()-[${backtick(variable)}:${backtick(relType)}]-() ON ${propertiesToString(properties)}${optionsToString(options)}"
+        s"${startOfCommand}FOR ()-[${backtick(variable)}:${backtick(relType)}]-() ON ${btreePropertiesToString(properties)}${optionsToString(options)}"
 
       case CreateLookupIndex(Variable(variable), isNodeIndex, function, name, ifExistsDo, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "LOOKUP INDEX")
@@ -243,6 +246,16 @@ case class Prettifier(
         // can't use `expr(functions)` since that might add extra () we can't parse: labels((n))
         val functionString = function.name + "(" + function.args.map(e => backtick(e.asCanonicalStringVal)).mkString(", ") + ")"
         s"${startOfCommand}FOR $pattern ON EACH $functionString${optionsToString(options)}"
+
+      case CreateFulltextNodeIndex(Variable(variable), labels, properties, name, ifExistsDo, options, _) =>
+        val startOfCommand = getStartOfCommand(name, ifExistsDo, "FULLTEXT INDEX")
+        val pattern = labels.map(l => backtick(l.name)).mkString(":", "|", "")
+        s"${startOfCommand}FOR (${backtick(variable)}$pattern) ON EACH ${fulltextPropertiesToString(properties)}${optionsToString(options)}"
+
+      case CreateFulltextRelationshipIndex(Variable(variable), relTypes, properties, name, ifExistsDo, options, _) =>
+        val startOfCommand = getStartOfCommand(name, ifExistsDo, "FULLTEXT INDEX")
+        val pattern = relTypes.map(r => backtick(r.name)).mkString(":", "|", "")
+        s"${startOfCommand}FOR ()-[${backtick(variable)}$pattern]-() ON EACH ${fulltextPropertiesToString(properties)}${optionsToString(options)}"
 
       case DropIndex(LabelName(label), properties, _) =>
         s"DROP INDEX ON :${backtick(label)}${properties.map(p => backtick(p.name)).mkString("(", ", ", ")")}"
@@ -253,17 +266,17 @@ case class Prettifier(
 
       case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "CONSTRAINT")
-        s"${startOfCommand}ON (${backtick(variable)}:${backtick(label)}) ASSERT ${propertiesToString(properties)} IS NODE KEY${optionsToString(options)}"
+        s"${startOfCommand}ON (${backtick(variable)}:${backtick(label)}) ASSERT ${btreePropertiesToString(properties)} IS NODE KEY${optionsToString(options)}"
 
       case DropNodeKeyConstraint(Variable(variable), LabelName(label), properties, _) =>
-        s"DROP CONSTRAINT ON (${backtick(variable)}:${backtick(label)}) ASSERT ${propertiesToString(properties)} IS NODE KEY"
+        s"DROP CONSTRAINT ON (${backtick(variable)}:${backtick(label)}) ASSERT ${btreePropertiesToString(properties)} IS NODE KEY"
 
       case CreateUniquePropertyConstraint(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "CONSTRAINT")
-        s"${startOfCommand}ON (${backtick(variable)}:${backtick(label)}) ASSERT ${propertiesToString(properties)} IS UNIQUE${optionsToString(options)}"
+        s"${startOfCommand}ON (${backtick(variable)}:${backtick(label)}) ASSERT ${btreePropertiesToString(properties)} IS UNIQUE${optionsToString(options)}"
 
       case DropUniquePropertyConstraint(Variable(variable), LabelName(label), properties, _) =>
-        s"DROP CONSTRAINT ON (${backtick(variable)}:${backtick(label)}) ASSERT ${propertiesToString(properties)} IS UNIQUE"
+        s"DROP CONSTRAINT ON (${backtick(variable)}:${backtick(label)}) ASSERT ${btreePropertiesToString(properties)} IS UNIQUE"
 
       case CreateNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property, name, ifExistsDo, oldSyntax, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "CONSTRAINT")

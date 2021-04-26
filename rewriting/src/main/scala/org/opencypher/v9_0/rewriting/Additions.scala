@@ -19,6 +19,8 @@ import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateDatabase
+import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
+import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -224,6 +226,12 @@ object Additions {
       // CREATE LOOKUP INDEX ...
       case c: CreateLookupIndex =>
         throw cypherExceptionFactory.syntaxException("Lookup indexes are not supported in this Cypher version.", c.position)
+
+      // CREATE FULLTEXT INDEX ...
+      case c: CreateFulltextNodeIndex =>
+        throw cypherExceptionFactory.syntaxException("Fulltext indexes can only be created using procedures in this Cypher version.", c.position)
+      case c: CreateFulltextRelationshipIndex =>
+        throw cypherExceptionFactory.syntaxException("Fulltext indexes can only be created using procedures in this Cypher version.", c.position)
 
       // CREATE DATABASE OPTIONS {}
       case c@CreateDatabase(_, _, OptionsMap(_), _) =>
