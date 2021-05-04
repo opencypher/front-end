@@ -50,6 +50,7 @@ import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexesClause
+import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.UseGraph
@@ -229,6 +230,10 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Using OPTIONS with CREATE DATABASE is not supported in this Cypher version.", c.position)
       case c@CreateDatabase(_, _, OptionsParam(_), _) =>
         throw cypherExceptionFactory.syntaxException("Using OPTIONS with CREATE DATABASE is not supported in this Cypher version.", c.position)
+
+      // SHOW PROCEDURE[S] [EXECUTABLE [BY {CURRENT USER | username}]] [WHERE clause|YIELD clause]
+      case c: ShowProceduresClause =>
+        throw cypherExceptionFactory.syntaxException("`SHOW PROCEDURES` is not supported in this Cypher version.", c.position)
     }
   }
 

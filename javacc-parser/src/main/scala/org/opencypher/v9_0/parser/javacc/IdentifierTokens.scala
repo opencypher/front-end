@@ -57,6 +57,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.ENCRYPTED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.END
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ENDS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ESCAPED_SYMBOLIC_NAME
+import org.opencypher.v9_0.parser.javacc.CypherConstants.EXECUTABLE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.EXIST
 import org.opencypher.v9_0.parser.javacc.CypherConstants.EXISTENCE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.EXISTS
@@ -99,6 +100,8 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.PASSWORD
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PERIODIC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PLAINTEXT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.POPULATED
+import org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PROPERTY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REDUCE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REL
@@ -190,6 +193,7 @@ object IdentifierTokens {
     ENCRYPTED,
     END,
     ENDS,
+    EXECUTABLE,
     EXIST,
     EXISTENCE,
     EXISTS,
@@ -232,6 +236,8 @@ object IdentifierTokens {
     PERIODIC,
     PLAINTEXT,
     POPULATED,
+    PROCEDURE,
+    PROCEDURES,
     PROPERTY,
     REDUCE,
     REL,

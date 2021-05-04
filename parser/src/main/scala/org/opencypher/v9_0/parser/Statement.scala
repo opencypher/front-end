@@ -24,6 +24,7 @@ import org.parboiled.scala.Rule1
 trait Statement extends Parser
   with GraphSelection
   with Query
+  with ShowCommand
   with SchemaCommand
   with AdministrationCommand
   with Base {

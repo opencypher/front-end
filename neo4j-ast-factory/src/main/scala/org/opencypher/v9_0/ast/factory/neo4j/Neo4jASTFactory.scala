@@ -100,6 +100,9 @@ import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowIndexesClause
+import org.opencypher.v9_0.ast.ShowProceduresClause
+import org.opencypher.v9_0.ast.ShowProceduresClause.CurrentUser
+import org.opencypher.v9_0.ast.ShowProceduresClause.User
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.SingleQuery
@@ -889,6 +892,16 @@ class Neo4jASTFactory(query: String)
       case "RELATIONSHIP EXIST" => RelExistsConstraints(OldValidSyntax)
     }
     ShowConstraintsClause(constraintType, brief, verbose, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
+  }
+
+  override def showProcedureClause(p: InputPosition,
+                                   currentUser: Boolean,
+                                   user: String,
+                                   where: Expression,
+                                   hasYield: Boolean): Clause = {
+    // either we have 'EXECUTABLE BY user', 'EXECUTABLE [BY CURRENT USER]' or nothing
+    val executableBy = if (user != null) Some(User(user)) else if (currentUser) Some(CurrentUser) else None
+    ShowProceduresClause(executableBy, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
   }
 
   // Administration Commands

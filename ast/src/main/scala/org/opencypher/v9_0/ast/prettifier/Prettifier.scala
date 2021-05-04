@@ -141,6 +141,9 @@ import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivilegeScope
 import org.opencypher.v9_0.ast.ShowPrivileges
+import org.opencypher.v9_0.ast.ShowProceduresClause
+import org.opencypher.v9_0.ast.ShowProceduresClause.CurrentUser
+import org.opencypher.v9_0.ast.ShowProceduresClause.User
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowUserPrivileges
@@ -532,6 +535,7 @@ case class Prettifier(
       case u: UnresolvedCall        => asString(u)
       case s: ShowIndexesClause     => asString(s)
       case s: ShowConstraintsClause => asString(s)
+      case s: ShowProceduresClause  => asString(s)
       case s: SetClause             => asString(s)
       case r: Remove                => asString(r)
       case d: Delete                => asString(d)
@@ -703,6 +707,17 @@ case class Prettifier(
       val ind = indented()
       val where = s.where.map(ind.asString).map(asNewLine).getOrElse("")
       s"SHOW ${s.constraintType.prettyPrint} CONSTRAINTS$constraintOutput$where"
+    }
+
+    def asString(s: ShowProceduresClause): String = {
+      val executable = s.executable match {
+        case Some(CurrentUser) => " EXECUTABLE BY CURRENT USER"
+        case Some(User(name))  => s" EXECUTABLE BY ${ExpressionStringifier.backtick(name)}"
+        case None              => ""
+      }
+      val ind = indented()
+      val where = s.where.map(ind.asString).map(asNewLine).getOrElse("")
+      s"${s.name}$executable$where"
     }
 
     def asString(s: SetClause): String = {

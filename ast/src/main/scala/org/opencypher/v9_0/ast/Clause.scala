@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.ShowProceduresClause.ExecutableBy
 import org.opencypher.v9_0.ast.connectedComponents.RichConnectedComponent
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
@@ -79,6 +80,7 @@ import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
@@ -463,6 +465,9 @@ case class DefaultOrAllShowColumns(useAllColumns: Boolean, brief: Set[ShowColumn
   def columns: Set[ShowColumn] = if (useAllColumns) brief ++ verbose else brief
 }
 
+sealed trait FellowshipOfClauseAllowedOnSystem
+sealed trait CommandClauseAllowedOnSystem extends FellowshipOfClauseAllowedOnSystem
+
 case class ShowIndexesClause(unfilteredColumns: DefaultOrAllShowColumns, indexType: ShowIndexType, brief: Boolean, verbose: Boolean, where: Option[Where], hasYield: Boolean)
                             (val position: InputPosition) extends CommandClause {
   override def name: String = "SHOW INDEXES"
@@ -518,6 +523,48 @@ object ShowConstraintsClause {
     )
 
     ShowConstraintsClause(DefaultOrAllShowColumns(hasYield | verbose, briefCols, verboseCols), constraintType, brief, verbose, where, hasYield)(position)
+  }
+}
+
+case class ShowProceduresClause(unfilteredColumns: DefaultOrAllShowColumns, executable: Option[ExecutableBy], where: Option[Where], hasYield: Boolean)
+                               (val position: InputPosition) extends CommandClause with CommandClauseAllowedOnSystem {
+  override def name: String = "SHOW PROCEDURES"
+
+  override def moveWhereToYield: CommandClause = copy(where = None, hasYield = true)(position)
+}
+
+object ShowProceduresClause {
+  def apply(executable: Option[ExecutableBy], where: Option[Where], hasYield: Boolean)(position: InputPosition): ShowProceduresClause = {
+    val briefCols = Set(
+      ShowColumn("name")(position),
+      ShowColumn("description")(position),
+      ShowColumn("mode")(position),
+      ShowColumn("worksOnSystem", CTBoolean)(position),
+    )
+    val verboseCols = Set(
+      ShowColumn("signature")(position),
+      ShowColumn("argumentDescription", CTList(CTMap))(position),
+      ShowColumn("returnDescription", CTList(CTMap))(position),
+      ShowColumn("admin", CTBoolean)(position),
+      ShowColumn("rolesExecution", CTList(CTString))(position),
+      ShowColumn("rolesBoostedExecution", CTList(CTString))(position),
+      ShowColumn("option", CTMap)(position)
+    )
+
+    ShowProceduresClause(DefaultOrAllShowColumns(hasYield, briefCols, verboseCols), executable, where, hasYield)(position)
+  }
+
+  sealed trait ExecutableBy {
+    val description: String
+  }
+  object ExecutableBy {
+    val defaultDescription: String = "proceduresForUser(all)"
+  }
+  case object CurrentUser extends ExecutableBy {
+    override val description: String = "proceduresForUser(current)"
+  }
+  case class User(name: String) extends ExecutableBy {
+    override val description: String = s"proceduresForUser($name)"
   }
 }
 
@@ -850,7 +897,7 @@ case class Return(distinct: Boolean,
                   orderBy: Option[OrderBy],
                   skip: Option[Skip],
                   limit: Option[Limit],
-                  excludedNames: Set[String] = Set.empty)(val position: InputPosition) extends ProjectionClause {
+                  excludedNames: Set[String] = Set.empty)(val position: InputPosition) extends ProjectionClause with FellowshipOfClauseAllowedOnSystem {
 
   override def name = "RETURN"
 
@@ -886,7 +933,7 @@ case class Yield(returnItems: ReturnItems,
                  orderBy: Option[OrderBy],
                  skip: Option[Skip],
                  limit: Option[Limit],
-                 where: Option[Where])(val position: InputPosition) extends ProjectionClause {
+                 where: Option[Where])(val position: InputPosition) extends ProjectionClause with FellowshipOfClauseAllowedOnSystem {
   override def distinct: Boolean = false
 
   override def name: String = "YIELD"
