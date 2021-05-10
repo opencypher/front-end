@@ -26,6 +26,7 @@ import org.opencypher.v9_0.ast.AllDatabaseManagementActions
 import org.opencypher.v9_0.ast.AllDatabasesQualifier
 import org.opencypher.v9_0.ast.AllDatabasesScope
 import org.opencypher.v9_0.ast.AllDbmsAction
+import org.opencypher.v9_0.ast.AllFunctions
 import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.ast.AllGraphsScope
 import org.opencypher.v9_0.ast.AllIndexActions
@@ -46,6 +47,7 @@ import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.AssignPrivilegeAction
 import org.opencypher.v9_0.ast.AssignRoleAction
 import org.opencypher.v9_0.ast.BtreeIndexes
+import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
@@ -71,6 +73,7 @@ import org.opencypher.v9_0.ast.CreateRoleAction
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateUserAction
+import org.opencypher.v9_0.ast.CurrentUser
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DbmsAction
@@ -206,6 +209,7 @@ import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexAction
 import org.opencypher.v9_0.ast.ShowIndexType
 import org.opencypher.v9_0.ast.ShowIndexesClause
@@ -213,8 +217,6 @@ import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowProceduresClause
-import org.opencypher.v9_0.ast.ShowProceduresClause.CurrentUser
-import org.opencypher.v9_0.ast.ShowProceduresClause.User
 import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
@@ -246,7 +248,9 @@ import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
+import org.opencypher.v9_0.ast.User
 import org.opencypher.v9_0.ast.UserAllQualifier
+import org.opencypher.v9_0.ast.UserDefinedFunctions
 import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingHint
@@ -363,6 +367,7 @@ import org.opencypher.v9_0.expressions.functions.Labels
 import org.opencypher.v9_0.expressions.functions.Type
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.AnyType
+import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTString
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
@@ -383,7 +388,6 @@ import org.scalacheck.Gen.some
 import org.scalacheck.util.Buildable
 
 import java.nio.charset.StandardCharsets
-import org.opencypher.v9_0.util.symbols.CTMap
 
 object AstGenerator {
   val OR_MORE_UPPER_BOUND = 3
@@ -1253,7 +1257,24 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     Query(None, SingleQuery(fullClauses)(pos))(pos)
   }
 
-  def _showCommands: Gen[Query] = oneOf(_showIndexes, _showConstraints, _showProcedures)
+  def _showFunctions: Gen[Query] = for {
+    name     <- _identifier
+    funcType <- oneOf(AllFunctions, BuiltInFunctions, UserDefinedFunctions)
+    exec     <- option(oneOf(CurrentUser, User(name)))
+    yields   <- _eitherYieldOrWhere
+    use      <- option(_use)
+  } yield {
+    val showClauses = yields match {
+      case Some(Right(w))           => Seq(ShowFunctionsClause(funcType, exec, Some(w), hasYield = false)(pos))
+      case Some(Left((y, Some(r)))) => Seq(ShowFunctionsClause(funcType, exec, None, hasYield = true)(pos), y, r)
+      case Some(Left((y, None)))    => Seq(ShowFunctionsClause(funcType, exec, None, hasYield = true)(pos), y)
+      case _                        => Seq(ShowFunctionsClause(funcType, exec, None, hasYield = false)(pos))
+    }
+    val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
+    Query(None, SingleQuery(fullClauses)(pos))(pos)
+  }
+
+  def _showCommands: Gen[Query] = oneOf(_showIndexes, _showConstraints, _showProcedures, _showFunctions)
 
   // Schema commands
   // ----------------------------------

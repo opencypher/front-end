@@ -26,6 +26,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.ASC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ASSERT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.BRIEF
 import org.opencypher.v9_0.parser.javacc.CypherConstants.BTREE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.BUILT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.BY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CALL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.CASE
@@ -45,6 +46,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.DATABASE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DATABASES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DBMS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DEFAULT_TOKEN
+import org.opencypher.v9_0.parser.javacc.CypherConstants.DEFINED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DELETE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DESC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DESTROY
@@ -68,6 +70,8 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.FILTER
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FOREACH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FROM
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FULLTEXT
+import org.opencypher.v9_0.parser.javacc.CypherConstants.FUNCTION
+import org.opencypher.v9_0.parser.javacc.CypherConstants.FUNCTIONS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRANT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRAPH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.HEADERS
@@ -163,6 +167,7 @@ object IdentifierTokens {
     ASSERT,
     BRIEF,
     BTREE,
+    BUILT,
     BY,
     CALL,
     CASE,
@@ -182,6 +187,7 @@ object IdentifierTokens {
     DATABASES,
     DBMS,
     DEFAULT_TOKEN,
+    DEFINED,
     DELETE,
     DESC,
     DESTROY,
@@ -204,6 +210,8 @@ object IdentifierTokens {
     FOREACH,
     FROM,
     FULLTEXT,
+    FUNCTION,
+    FUNCTIONS,
     GRANT,
     GRAPH,
     HEADERS,

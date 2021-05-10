@@ -163,6 +163,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       """Invalid input 'BTREE': expected
         |  "CONSTRAINT"
         |  "CONSTRAINTS"
+        |  "FUNCTION"
+        |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)
@@ -385,6 +387,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       """Invalid input 'UNIQUENESS': expected
         |  "ALL"
         |  "BTREE"
+        |  "BUILT"
         |  "CONSTRAINT"
         |  "CONSTRAINTS"
         |  "CURRENT"
@@ -395,6 +398,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "EXISTENCE"
         |  "EXISTS"
         |  "FULLTEXT"
+        |  "FUNCTION"
+        |  "FUNCTIONS"
         |  "HOME"
         |  "INDEX"
         |  "INDEXES"
@@ -408,6 +413,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "RELATIONSHIP"
         |  "ROLES"
         |  "UNIQUE"
+        |  "USER"
         |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
   }
 
@@ -424,6 +430,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       """Invalid input 'NODES': expected
         |  "ALL"
         |  "BTREE"
+        |  "BUILT"
         |  "CONSTRAINT"
         |  "CONSTRAINTS"
         |  "CURRENT"
@@ -434,6 +441,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "EXISTENCE"
         |  "EXISTS"
         |  "FULLTEXT"
+        |  "FUNCTION"
+        |  "FUNCTIONS"
         |  "HOME"
         |  "INDEX"
         |  "INDEXES"
@@ -447,6 +456,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "RELATIONSHIP"
         |  "ROLES"
         |  "UNIQUE"
+        |  "USER"
         |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
   }
 
@@ -463,6 +473,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       """Invalid input 'RELATIONSHIPS': expected
         |  "ALL"
         |  "BTREE"
+        |  "BUILT"
         |  "CONSTRAINT"
         |  "CONSTRAINTS"
         |  "CURRENT"
@@ -473,6 +484,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "EXISTENCE"
         |  "EXISTS"
         |  "FULLTEXT"
+        |  "FUNCTION"
+        |  "FUNCTIONS"
         |  "HOME"
         |  "INDEX"
         |  "INDEXES"
@@ -486,6 +499,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "RELATIONSHIP"
         |  "ROLES"
         |  "UNIQUE"
+        |  "USER"
         |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
   }
 

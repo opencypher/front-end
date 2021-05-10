@@ -43,6 +43,7 @@ import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
+import org.opencypher.v9_0.ast.CurrentUser
 import org.opencypher.v9_0.ast.DatabasePrivilege
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DbmsPrivilege
@@ -65,6 +66,7 @@ import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.ExecutableBy
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FunctionAllQualifier
 import org.opencypher.v9_0.ast.FunctionQualifier
@@ -139,13 +141,12 @@ import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivilegeScope
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowProceduresClause
-import org.opencypher.v9_0.ast.ShowProceduresClause.CurrentUser
-import org.opencypher.v9_0.ast.ShowProceduresClause.User
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowUserPrivileges
@@ -166,6 +167,7 @@ import org.opencypher.v9_0.ast.UnionDistinct
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
+import org.opencypher.v9_0.ast.User
 import org.opencypher.v9_0.ast.UserAllQualifier
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingHint
@@ -549,6 +551,7 @@ case class Prettifier(
       case s: ShowIndexesClause     => asString(s)
       case s: ShowConstraintsClause => asString(s)
       case s: ShowProceduresClause  => asString(s)
+      case s: ShowFunctionsClause  => asString(s)
       case s: SetClause             => asString(s)
       case r: Remove                => asString(r)
       case d: Delete                => asString(d)
@@ -723,14 +726,24 @@ case class Prettifier(
     }
 
     def asString(s: ShowProceduresClause): String = {
-      val executable = s.executable match {
-        case Some(CurrentUser) => " EXECUTABLE BY CURRENT USER"
-        case Some(User(name))  => s" EXECUTABLE BY ${ExpressionStringifier.backtick(name)}"
-        case None              => ""
-      }
+      val executable = getExecutablePart(s.executable)
       val ind = indented()
       val where = s.where.map(ind.asString).map(asNewLine).getOrElse("")
       s"${s.name}$executable$where"
+    }
+
+    def asString(s: ShowFunctionsClause): String = {
+      val functionType = s.functionType.prettyPrint
+      val executable = getExecutablePart(s.executable)
+      val ind = indented()
+      val where = s.where.map(ind.asString).map(asNewLine).getOrElse("")
+      s"SHOW $functionType FUNCTIONS$executable$where"
+    }
+
+    private def getExecutablePart(executable: Option[ExecutableBy]): String = executable match {
+      case Some(CurrentUser) => " EXECUTABLE BY CURRENT USER"
+      case Some(User(name))  => s" EXECUTABLE BY ${ExpressionStringifier.backtick(name)}"
+      case None              => ""
     }
 
     def asString(s: SetClause): String = {

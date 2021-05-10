@@ -116,6 +116,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
       """Invalid input 'ROLE': expected
         |  "CONSTRAINT"
         |  "CONSTRAINTS"
+        |  "FUNCTION"
+        |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)
@@ -130,6 +132,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
       s"""Invalid input 'ROLE': expected
          |  "ALL"
          |  "BTREE"
+         |  "BUILT"
          |  "CONSTRAINT"
          |  "CONSTRAINTS"
          |  "CURRENT"
@@ -140,6 +143,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "EXISTENCE"
          |  "EXISTS"
          |  "FULLTEXT"
+         |  "FUNCTION"
+         |  "FUNCTIONS"
          |  "HOME"
          |  "INDEX"
          |  "INDEXES"
@@ -153,6 +158,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "RELATIONSHIP"
          |  "ROLES"
          |  "UNIQUE"
+         |  "USER"
          |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin
 
     assertJavaCCException(testName, exceptionMessage)
@@ -163,6 +169,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
       s"""Invalid input 'ROLE': expected
          |  "ALL"
          |  "BTREE"
+         |  "BUILT"
          |  "CONSTRAINT"
          |  "CONSTRAINTS"
          |  "CURRENT"
@@ -173,6 +180,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "EXISTENCE"
          |  "EXISTS"
          |  "FULLTEXT"
+         |  "FUNCTION"
+         |  "FUNCTIONS"
          |  "HOME"
          |  "INDEX"
          |  "INDEXES"
@@ -186,6 +195,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "RELATIONSHIP"
          |  "ROLES"
          |  "UNIQUE"
+         |  "USER"
          |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin
 
     assertJavaCCException(testName, exceptionMessage)
@@ -200,6 +210,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
       s"""Invalid input 'ROLE': expected
          |  "ALL"
          |  "BTREE"
+         |  "BUILT"
          |  "CONSTRAINT"
          |  "CONSTRAINTS"
          |  "CURRENT"
@@ -210,6 +221,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "EXISTENCE"
          |  "EXISTS"
          |  "FULLTEXT"
+         |  "FUNCTION"
+         |  "FUNCTIONS"
          |  "HOME"
          |  "INDEX"
          |  "INDEXES"
@@ -223,6 +236,7 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "RELATIONSHIP"
          |  "ROLES"
          |  "UNIQUE"
+         |  "USER"
          |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin
 
     assertJavaCCException(testName, exceptionMessage)
@@ -233,6 +247,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
       """Invalid input 'ROLE': expected
         |  "CONSTRAINT"
         |  "CONSTRAINTS"
+        |  "FUNCTION"
+        |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)
@@ -247,6 +263,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
       """Invalid input 'ROLE': expected
         |  "CONSTRAINT"
         |  "CONSTRAINTS"
+        |  "FUNCTION"
+        |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)

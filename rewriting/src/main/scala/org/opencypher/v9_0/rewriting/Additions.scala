@@ -51,6 +51,7 @@ import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.Statement
@@ -239,9 +240,13 @@ object Additions {
       case c@CreateDatabase(_, _, OptionsParam(_), _) =>
         throw cypherExceptionFactory.syntaxException("Using OPTIONS with CREATE DATABASE is not supported in this Cypher version.", c.position)
 
-      // SHOW PROCEDURE[S] [EXECUTABLE [BY {CURRENT USER | username}]] [WHERE clause|YIELD clause]
+      // SHOW PROCEDURE[S] [EXECUTABLE [BY {CURRENT USER | username}]] [WHERE clause | YIELD clause]
       case c: ShowProceduresClause =>
         throw cypherExceptionFactory.syntaxException("`SHOW PROCEDURES` is not supported in this Cypher version.", c.position)
+
+      // SHOW [ALL | BUILT IN | USER DEFINED] FUNCTION[S] [EXECUTABLE [BY {CURRENT USER | username}]] [WHERE clause | YIELD clause]
+      case c: ShowFunctionsClause =>
+        throw cypherExceptionFactory.syntaxException("`SHOW FUNCTIONS` is not supported in this Cypher version.", c.position)
     }
   }
 

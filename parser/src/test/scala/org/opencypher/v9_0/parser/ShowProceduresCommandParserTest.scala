@@ -31,15 +31,15 @@ class ShowProceduresCommandParserTest  extends ParserAstTest[ast.Statement]
     }
 
     test(s"SHOW $procKeyword EXECUTABLE") {
-      yields(_ => query(ast.ShowProceduresClause(Some(ast.ShowProceduresClause.CurrentUser), None, hasYield = false)(pos)))
+      yields(_ => query(ast.ShowProceduresClause(Some(ast.CurrentUser), None, hasYield = false)(pos)))
     }
 
     test(s"SHOW $procKeyword EXECUTABLE BY CURRENT USER") {
-      yields(_ => query(ast.ShowProceduresClause(Some(ast.ShowProceduresClause.CurrentUser), None, hasYield = false)(pos)))
+      yields(_ => query(ast.ShowProceduresClause(Some(ast.CurrentUser), None, hasYield = false)(pos)))
     }
 
     test(s"SHOW $procKeyword EXECUTABLE BY user") {
-      yields(_ => query(ast.ShowProceduresClause(Some(ast.ShowProceduresClause.User("user")), None, hasYield = false)(pos)))
+      yields(_ => query(ast.ShowProceduresClause(Some(ast.User("user")), None, hasYield = false)(pos)))
     }
 
     test(s"USE db SHOW $procKeyword") {
@@ -59,7 +59,7 @@ class ShowProceduresCommandParserTest  extends ParserAstTest[ast.Statement]
   }
 
   test("SHOW PROCEDURES EXECUTABLE BY user YIELD *") {
-    yields(_ => query(ast.ShowProceduresClause(Some(ast.ShowProceduresClause.User("user")), None, hasYield = true)(pos), yieldClause(returnAllItems)))
+    yields(_ => query(ast.ShowProceduresClause(Some(ast.User("user")), None, hasYield = true)(pos), yieldClause(returnAllItems)))
   }
 
   test("SHOW PROCEDURES YIELD * ORDER BY name SKIP 2 LIMIT 5") {
@@ -81,7 +81,7 @@ class ShowProceduresCommandParserTest  extends ParserAstTest[ast.Statement]
   test("USE db SHOW PROCEDURES EXECUTABLE YIELD name, description AS pp ORDER BY pp SKIP 2 LIMIT 5 WHERE pp < 50.0 RETURN name") {
     yields(_ => query(
       use(varFor("db")),
-      ast.ShowProceduresClause(Some(ast.ShowProceduresClause.CurrentUser), None, hasYield = true)(pos),
+      ast.ShowProceduresClause(Some(ast.CurrentUser), None, hasYield = true)(pos),
       yieldClause(returnItems(variableReturnItem("name"), aliasedReturnItem("description", "pp")),
         Some(orderBy(sortItem(varFor("pp")))),
         Some(skip(2)),

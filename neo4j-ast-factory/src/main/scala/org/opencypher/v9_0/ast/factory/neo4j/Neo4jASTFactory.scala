@@ -20,15 +20,18 @@ import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AllDatabasesScope
+import org.opencypher.v9_0.ast.AllFunctions
 import org.opencypher.v9_0.ast.AllIndexes
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.BtreeIndexes
+import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateUser
+import org.opencypher.v9_0.ast.CurrentUser
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.Delete
@@ -99,10 +102,9 @@ import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowProceduresClause
-import org.opencypher.v9_0.ast.ShowProceduresClause.CurrentUser
-import org.opencypher.v9_0.ast.ShowProceduresClause.User
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.SingleQuery
@@ -120,6 +122,8 @@ import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
+import org.opencypher.v9_0.ast.User
+import org.opencypher.v9_0.ast.UserDefinedFunctions
 import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingJoinHint
@@ -902,6 +906,23 @@ class Neo4jASTFactory(query: String)
     // either we have 'EXECUTABLE BY user', 'EXECUTABLE [BY CURRENT USER]' or nothing
     val executableBy = if (user != null) Some(User(user)) else if (currentUser) Some(CurrentUser) else None
     ShowProceduresClause(executableBy, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
+  }
+
+  override def showFunctionClause(p: InputPosition,
+                                  functionTypeString: String,
+                                  currentUser: Boolean,
+                                  user: String,
+                                  where: Expression,
+                                  hasYield: Boolean): Clause = {
+    val functionType = functionTypeString.toUpperCase match {
+      case "ALL"   => AllFunctions
+      case "BUILT" => BuiltInFunctions
+      case "USER"  => UserDefinedFunctions
+    }
+
+    // either we have 'EXECUTABLE BY user', 'EXECUTABLE [BY CURRENT USER]' or nothing
+    val executableBy = if (user != null) Some(User(user)) else if (currentUser) Some(CurrentUser) else None
+    ShowFunctionsClause(functionType, executableBy, Option(where).map(e => Where(e)(e.position)), hasYield)(p)
   }
 
   // Administration Commands
