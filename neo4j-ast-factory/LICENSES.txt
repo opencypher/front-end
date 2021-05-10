@@ -10,6 +10,7 @@ Apache Software License, Version 2.0
   openCypher AST for the Cypher Query Language
   openCypher Expressions
   openCypher Utils
+  Scala Compiler
   scalactic
   scalatest
 ------------------------------------------------------------------------------
@@ -263,7 +264,6 @@ SUCH DAMAGE.
 
 ------------------------------------------------------------------------------
 BSD License
-  Scala Compiler
   scala-xml
   scalacheck
   test-interface
