@@ -17,46 +17,24 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.SchemaCommand
-import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.Literal
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
 import org.opencypher.v9_0.rewriting.rewriters.LiteralsAreAvailable
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
-import org.opencypher.v9_0.util.Foldable
-import org.opencypher.v9_0.util.Foldable.SkipChildren
-import org.opencypher.v9_0.util.Foldable.TraverseChildren
-import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Step
-import org.opencypher.v9_0.util.bottomUp
+
+
 
 /**
  * Replace literals with parameters.
  */
-case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy,
-                             obfuscateLiterals: Boolean = false) extends Phase[BaseContext, BaseState, BaseState] with Step {
-
-  type LiteralReplacements = IdentityMap[Expression, Expression]
-
-  private val literalMatcher: PartialFunction[Any, LiteralReplacements => Foldable.FoldingBehavior[LiteralReplacements]] = {
-    case l: Literal => acc => SkipChildren(acc + (l -> l.asSensitiveLiteral))
-    case _ => acc => TraverseChildren(acc)
-  }
-
-  def rewriter(replacements: LiteralReplacements): Rewriter = bottomUp(Rewriter.lift {
-    case e: Expression if replacements.contains(e) =>
-      replacements(e)
-  })
+case class LiteralExtraction(literalExtraction: LiteralExtractionStrategy) extends Phase[BaseContext, BaseState, BaseState] with Step {
 
   override def process(in: BaseState, context: BaseContext): BaseState = {
-    val statement =  if (obfuscateLiterals) {
-      val original = in.statement()
-      val replaceableLiterals = original.treeFold(IdentityMap.empty: LiteralReplacements)(literalMatcher)
-     original.endoRewrite(rewriter(replaceableLiterals))
-    } else in.statement()
+    val statement = in.statement()
     val (extractParameters, extractedParameters) = statement match {
       case _ : AdministrationCommand => sensitiveLiteralReplacement(statement)
       case _ : SchemaCommand => Rewriter.noop -> Map.empty[String, Any]
