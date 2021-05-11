@@ -41,6 +41,7 @@ import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.LookupIndexes
 import org.opencypher.v9_0.ast.NewSyntax
+import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.OptionsParam
@@ -87,7 +88,7 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Creating node key constraint using `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
 
       // CREATE CONSTRAINT ... IS NODE KEY OPTIONS {...}
-      case c@CreateNodeKeyConstraint(_, _, _, _, _, options, _) if options.nonEmpty =>
+      case c@CreateNodeKeyConstraint(_, _, _, _, _, options, _) if options != NoOptions =>
         throw cypherExceptionFactory.syntaxException("Creating node key constraint with options is not supported in this Cypher version.", c.position)
 
       // CREATE CONSTRAINT name ON ... IS UNIQUE
@@ -99,7 +100,7 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("Creating uniqueness constraint using `IF NOT EXISTS` is not supported in this Cypher version.", c.position)
 
       // CREATE CONSTRAINT ... IS UNIQUE OPTIONS {...}
-      case c@CreateUniquePropertyConstraint(_, _, _, _, _, options, _) if options.nonEmpty =>
+      case c@CreateUniquePropertyConstraint(_, _, _, _, _, options, _) if options != NoOptions =>
         throw cypherExceptionFactory.syntaxException("Creating uniqueness constraint with options is not supported in this Cypher version.", c.position)
 
       // CREATE CONSTRAINT name ON () ... EXISTS
