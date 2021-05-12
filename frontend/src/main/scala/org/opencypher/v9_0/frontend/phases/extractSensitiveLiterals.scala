@@ -15,14 +15,9 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Literal
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.rewriting.rewriters.LiteralsAreAvailable
-import org.opencypher.v9_0.util.Foldable
-import org.opencypher.v9_0.util.Foldable.SkipChildren
-import org.opencypher.v9_0.util.Foldable.TraverseChildren
-import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Step
@@ -32,22 +27,13 @@ import org.opencypher.v9_0.util.bottomUp
  * Extracts all literals of the query and replaces them with `SensitiveLiteral`
  */
 case object extractSensitiveLiterals extends Phase[BaseContext, BaseState, BaseState] with Step {
-  type LiteralReplacements = IdentityMap[Expression, Expression]
-  private val literalMatcher: PartialFunction[Any, LiteralReplacements => Foldable.FoldingBehavior[LiteralReplacements]] = {
-    case l: Literal => acc => SkipChildren(acc + (l -> l.asSensitiveLiteral))
-    case _ => acc => TraverseChildren(acc)
-  }
-
-  private def rewriter(replacements: LiteralReplacements): Rewriter = bottomUp(Rewriter.lift {
-    case e: Expression if replacements.contains(e) =>
-      replacements(e)
-  })
 
   override def process(from: BaseState,
                        context: BaseContext): BaseState = {
-    val original = from.statement()
-    val replaceableLiterals = original.treeFold(IdentityMap.empty: LiteralReplacements)(literalMatcher)
-    from.withStatement(original.endoRewrite(rewriter(replaceableLiterals)))
+    val rewriter: Rewriter = bottomUp(Rewriter.lift {
+      case l: Literal => l.asSensitiveLiteral
+    })
+    from.withStatement(from.statement().endoRewrite(rewriter))
   }
 
   override def phase = AST_REWRITE
