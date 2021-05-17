@@ -21,7 +21,6 @@ import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
-import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
 import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.AllNameGenerators
@@ -51,8 +50,7 @@ case object normalizeSargablePredicates extends Rewriter with CnfPhase with ASTR
       inequality.negated
   })
 
-  override def getRewriter(innerVariableNamer: InnerVariableNamer,
-                           semanticState: SemanticState,
+  override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
                            cypherExceptionFactory: CypherExceptionFactory,
                            allNameGenerators: AllNameGenerators): Rewriter = instance

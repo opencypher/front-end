@@ -20,7 +20,6 @@ import org.opencypher.v9_0.frontend.phases.rewriting.cnf.rewriteEqualityToInPred
 import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
-import org.opencypher.v9_0.rewriting.rewriters.SameNameNamer
 
 object CompilationPhases {
 
@@ -31,7 +30,7 @@ object CompilationPhases {
       SyntaxDeprecationWarningsAndReplacements(deprecations) andThen
       PreparatoryRewriting andThen
       SemanticAnalysis(warn = true) andThen
-      AstRewriting(innerVariableNamer = SameNameNamer) andThen
+      AstRewriting() andThen
       LiteralExtraction(literalExtractionStrategy)
 
   def lateAstRewriting: Transformer[BaseContext, BaseState, BaseState] =

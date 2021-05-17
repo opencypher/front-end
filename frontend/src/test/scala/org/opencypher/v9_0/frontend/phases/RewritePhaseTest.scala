@@ -25,7 +25,6 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.helpers.TestContext
 import org.opencypher.v9_0.parser.ParserFixture.parser
-import org.opencypher.v9_0.rewriting.rewriters.SameNameNamer
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.AllNameGenerators
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -59,7 +58,6 @@ trait RewritePhaseTest {
     override def version: String = "fake"
   }
 
-  private val astRewriter = new ASTRewriter(innerVariableNamer = SameNameNamer)
 
   def assertNotRewritten(from: String): Unit = assertRewritten(from, from)
 
@@ -71,8 +69,10 @@ trait RewritePhaseTest {
     val toOutState = prepareFrom(to, rewriterPhaseForExpected, features: _*)
 
     fromOutState.statement() should equal(toOutState.statement())
-    semanticTableExpressions.foreach { e =>
-      fromOutState.semanticTable().types.keys should contain(e)
+    if (astRewriteAndAnalyze) {
+      semanticTableExpressions.foreach { e =>
+        fromOutState.semanticTable().types.keys should contain(e)
+      }
     }
   }
 
@@ -92,7 +92,7 @@ trait RewritePhaseTest {
     val parsedAst = parser.parse(queryText, exceptionFactory)
     val cleanedAst = parsedAst.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger)))
     if (astRewriteAndAnalyze) {
-      astRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory, new AllNameGenerators())
+      ASTRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory, new AllNameGenerators())
     } else {
       cleanedAst
     }

@@ -23,7 +23,6 @@ import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.RewriterStep
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
-import org.opencypher.v9_0.rewriting.rewriters.InnerVariableNamer
 import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
@@ -48,7 +47,7 @@ import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.symbols.CypherType
 
-class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
+object ASTRewriter {
 
   private val AccumulatedSteps(orderedSteps, _) = StepSequencer(ListStepAccumulator[StepSequencer.Step with ASTRewriterFactory]()).orderSteps(Set(
     expandStar,
@@ -78,7 +77,7 @@ class ASTRewriter(innerVariableNamer: InnerVariableNamer) {
               allNameGenerators: AllNameGenerators
              ): Statement = {
     val rewriters = orderedSteps.map { step =>
-      val rewriter = step.getRewriter(innerVariableNamer, semanticState, parameterTypeMapping, cypherExceptionFactory, allNameGenerators)
+      val rewriter = step.getRewriter(semanticState, parameterTypeMapping, cypherExceptionFactory, allNameGenerators)
       RewriterStep.validatingRewriter(rewriter, step)
     }
 

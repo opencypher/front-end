@@ -53,7 +53,7 @@ import org.opencypher.v9_0.util.symbols.CypherType
 
 case object RelationshipUniquenessPredicatesInMatchAndMerge extends StepSequencer.Condition
 
-case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = SameNameNamer) extends Rewriter {
+case class AddUniquenessPredicates(allNameGenerators: AllNameGenerators) extends Rewriter {
 
   override def apply(that: AnyRef): AnyRef = instance(that)
 
@@ -121,16 +121,16 @@ case class AddUniquenessPredicates(innerVariableNamer: InnerVariableNamer = Same
           Not(Equals(x.variable.copyId, y.variable.copyId)(pos))(pos)
 
         case (true, false) =>
-          val innerY = innerVariableNamer.create(y.variable)
+          val innerY = Variable(allNameGenerators.relNameGenerator.nextName)(y.variable.position)
           NoneIterablePredicate(innerY, y.variable.copyId, Some(Equals(x.variable.copyId, innerY.copyId)(pos)))(pos)
 
         case (false, true) =>
-          val innerX = innerVariableNamer.create(x.variable)
+          val innerX = Variable(allNameGenerators.relNameGenerator.nextName)(x.variable.position)
           NoneIterablePredicate(innerX, x.variable.copyId, Some(Equals(innerX.copyId, y.variable.copyId)(pos)))(pos)
 
         case (false, false) =>
-          val innerX = innerVariableNamer.create(x.variable)
-          val innerY = innerVariableNamer.create(y.variable)
+          val innerX = Variable(allNameGenerators.relNameGenerator.nextName)(x.variable.position)
+          val innerY = Variable(allNameGenerators.relNameGenerator.nextName)(y.variable.position)
           NoneIterablePredicate(innerX, x.variable.copyId, Some(AnyIterablePredicate(innerY, y.variable.copyId, Some(Equals(innerX.copyId, innerY.copyId)(pos)))(pos)))(pos)
       }
     }
@@ -156,26 +156,8 @@ object AddUniquenessPredicates extends Step with ASTRewriterFactory {
     PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
   )
 
-  override def getRewriter(innerVariableNamer: InnerVariableNamer,
-                           semanticState: SemanticState,
+  override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
                            cypherExceptionFactory: CypherExceptionFactory,
-                           allNameGenerators: AllNameGenerators): Rewriter = AddUniquenessPredicates(innerVariableNamer)
-}
-
-// TODO move into AllNameGenerators?
-trait InnerVariableNamer {
-  def create(outer: LogicalVariable): LogicalVariable
-}
-
-case object SameNameNamer extends InnerVariableNamer {
-  override def create(outer: LogicalVariable): LogicalVariable = outer.copyId
-}
-
-class GeneratingNamer() extends InnerVariableNamer {
-  private var i = 0
-  override def create(outer: LogicalVariable): LogicalVariable = {
-    i += 1
-    Variable(s"  INNER$i")(outer.position)
-  }
+                           allNameGenerators: AllNameGenerators): Rewriter = AddUniquenessPredicates(allNameGenerators)
 }
