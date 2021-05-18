@@ -17,6 +17,7 @@ package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.SensitiveParameter
+import org.opencypher.v9_0.expressions.UnsignedIntegerLiteral
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTString
@@ -166,7 +167,7 @@ trait Literals extends Parser
         ".." ~
         optional(WS ~ UnsignedIntegerLiteral)
       ) ~~>> (expressions.Range(_, _))
-    | UnsignedIntegerLiteral ~~>> (l => expressions.Range(Some(l), Some(l)))
+    | UnsignedIntegerLiteral ~~>> ((l: UnsignedIntegerLiteral) => expressions.Range(Some(l), Some(l)))
   )
 
   def NodeLabels: Rule1[Seq[expressions.LabelName]] = rule("node labels") {
