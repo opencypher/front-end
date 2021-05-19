@@ -16,18 +16,16 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.RewriterStep
 import org.opencypher.v9_0.rewriting.rewriters.LiteralsAreAvailable
 import org.opencypher.v9_0.rewriting.rewriters.expandCallWhere
 import org.opencypher.v9_0.rewriting.rewriters.expandShowWhere
-import org.opencypher.v9_0.rewriting.rewriters.rewriteShowQuery
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAndMatch
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
-import org.opencypher.v9_0.rewriting.rewriters.replaceDeprecatedCypherSyntax
+import org.opencypher.v9_0.rewriting.rewriters.rewriteShowQuery
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
 import org.opencypher.v9_0.util.inSequence
@@ -35,7 +33,7 @@ import org.opencypher.v9_0.util.inSequence
 /**
  * Rewrite the AST into a shape that semantic analysis can be performed on.
  */
-case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
+case object PreparatoryRewriting extends Phase[BaseContext, BaseState, BaseState] {
 
   val AccumulatedSteps(orderedSteps, _) = new StepSequencer(ListStepAccumulator[StepSequencer.Step with PreparatoryRewritingRewriterFactory]()).orderSteps(Set(
     normalizeWithAndReturnClauses,
@@ -43,13 +41,12 @@ case class PreparatoryRewriting(deprecations: Deprecations) extends Phase[BaseCo
     expandCallWhere,
     expandShowWhere,
     rewriteShowQuery,
-    replaceDeprecatedCypherSyntax,
     mergeInPredicates), initialConditions = Set(LiteralsAreAvailable))
 
   override def process(from: BaseState, context: BaseContext): BaseState = {
 
     val rewriters = orderedSteps.map { step =>
-      val rewriter = step.getRewriter(deprecations, context.cypherExceptionFactory, context.notificationLogger)
+      val rewriter = step.getRewriter(context.cypherExceptionFactory, context.notificationLogger)
       RewriterStep.validatingRewriter(rewriter, step)
     }
 

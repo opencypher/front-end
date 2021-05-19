@@ -22,7 +22,6 @@ import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.Yield
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.conditions.containsNoReturnAll
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.util.ASTNode
@@ -94,7 +93,6 @@ case object rewriteShowQuery extends Rewriter with Step with PreparatoryRewritin
     }
   }
 
-  override def getRewriter(deprecations: Deprecations,
-                           cypherExceptionFactory: CypherExceptionFactory,
+  override def getRewriter(cypherExceptionFactory: CypherExceptionFactory,
                            notificationLogger: InternalNotificationLogger): Rewriter = instance
 }

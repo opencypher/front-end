@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.With
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
@@ -53,7 +52,6 @@ case object insertWithBetweenOptionalMatchAndMatch extends Rewriter with Step wi
       SingleQuery(newClauses)(sq.position)
   })
 
-  override def getRewriter(deprecations: Deprecations,
-                           cypherExceptionFactory: CypherExceptionFactory,
+  override def getRewriter(cypherExceptionFactory: CypherExceptionFactory,
                            notificationLogger: InternalNotificationLogger): Rewriter = instance
 }

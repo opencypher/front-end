@@ -22,14 +22,13 @@ import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.Parsing
 import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SemanticScopeRecordingTest extends CypherFunSuite {
 
   // This test invokes SemanticAnalysis twice because that's what the production pipeline does
   private val pipeline = Parsing andThen
-    PreparatoryRewriting(Deprecations.deprecatedFeaturesIn4_X) andThen
+    PreparatoryRewriting andThen
     SemanticAnalysis(warn = true) andThen
     SemanticAnalysis(warn = false)
 

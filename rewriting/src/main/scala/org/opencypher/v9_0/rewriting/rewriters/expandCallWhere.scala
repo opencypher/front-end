@@ -20,7 +20,6 @@ import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.With
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
@@ -60,7 +59,6 @@ case object expandCallWhere extends Rewriter with Step with PreparatoryRewriting
       query.copy(clauses = newClauses)(query.position)
   })
 
-  override def getRewriter(deprecations: Deprecations,
-                           cypherExceptionFactory: CypherExceptionFactory,
+  override def getRewriter(cypherExceptionFactory: CypherExceptionFactory,
                            notificationLogger: InternalNotificationLogger): Rewriter = instance
 }

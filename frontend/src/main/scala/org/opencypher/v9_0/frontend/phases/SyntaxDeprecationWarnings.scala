@@ -19,17 +19,29 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.DEPRECATION_WARNINGS
 import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.rewriters.replaceDeprecatedCypherSyntax
 import org.opencypher.v9_0.util.InternalNotification
+import org.opencypher.v9_0.util.StepSequencer
 
 /**
  * Find deprecated Cypher constructs and generate warnings for them.
+ *
+ * Replace deprecated syntax.
  */
-case class SyntaxDeprecationWarnings(deprecations: Deprecations) extends VisitorPhase[BaseContext, BaseState] {
-  override def visit(state: BaseState, context: BaseContext): Unit = {
-    val warnings = findDeprecations(state.statement(), state.maybeSemanticTable)
+case class SyntaxDeprecationWarnings(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
 
+  override def process(state: BaseState, context: BaseContext): BaseState = {
+    // generate warnings
+    val warnings = findDeprecations(state.statement(), state.maybeSemanticTable)
     warnings.foreach(context.notificationLogger.log)
+
+    // replace
+    val rewriter = replaceDeprecatedCypherSyntax(deprecations)
+    val newStatement = state.statement().endoRewrite(rewriter)
+    state.withStatement(newStatement)
   }
+
+  override def postConditions: Set[StepSequencer.Condition] = replaceDeprecatedCypherSyntax.postConditions
 
   private def findDeprecations(statement: Statement, semanticTable: Option[SemanticTable]): Set[InternalNotification] = {
 
@@ -37,7 +49,7 @@ case class SyntaxDeprecationWarnings(deprecations: Deprecations) extends Visitor
       deprecations.find.andThen(deprecation => acc => acc ++ deprecation.generateNotification())
     )
 
-    val foundWithContext = deprecations.findWithContext(statement, semanticTable).map(_.generateNotification()).collect{case Some(n) => n}
+    val foundWithContext = deprecations.findWithContext(statement, semanticTable).flatMap(_.generateNotification())
 
     foundWithoutContext ++ foundWithContext
   }

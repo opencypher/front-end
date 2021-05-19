@@ -42,7 +42,6 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
@@ -245,7 +244,7 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
 }
 
 object normalizeWithAndReturnClauses extends Step with PreparatoryRewritingRewriterFactory {
-  override def getRewriter(deprecations: Deprecations, cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotificationLogger): Rewriter = {
+  override def getRewriter(cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotificationLogger): Rewriter = {
     normalizeWithAndReturnClauses(cypherExceptionFactory, notificationLogger)
   }
 

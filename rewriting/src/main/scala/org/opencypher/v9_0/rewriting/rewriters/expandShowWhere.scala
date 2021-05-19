@@ -24,7 +24,6 @@ import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.Yield
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
@@ -60,7 +59,6 @@ case object expandShowWhere extends Rewriter with Step with PreparatoryRewriting
     private def whereToYield(where: Where): Yield =
       Yield(ReturnItems(includeExisting = true, Seq.empty)(where.position), None, None, None, Some(where))(where.position)
 
-  override def getRewriter(deprecations: Deprecations,
-                           cypherExceptionFactory: CypherExceptionFactory,
+  override def getRewriter(cypherExceptionFactory: CypherExceptionFactory,
                            notificationLogger: InternalNotificationLogger): Rewriter = instance
 }

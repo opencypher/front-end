@@ -15,11 +15,10 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters.factories
 
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
 
 trait PreparatoryRewritingRewriterFactory {
-  def getRewriter(deprecations: Deprecations, cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotificationLogger): Rewriter
+  def getRewriter(cypherExceptionFactory: CypherExceptionFactory, notificationLogger: InternalNotificationLogger): Rewriter
 }

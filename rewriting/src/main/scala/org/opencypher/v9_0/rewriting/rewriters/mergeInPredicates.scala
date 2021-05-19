@@ -24,7 +24,6 @@ import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.ScopeExpression
-import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.rewriters.factories.PreparatoryRewritingRewriterFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.SkipChildren
@@ -155,7 +154,6 @@ case object mergeInPredicates extends Rewriter with Step with PreparatoryRewriti
     })
   }
 
-  override def getRewriter(deprecations: Deprecations,
-                           cypherExceptionFactory: CypherExceptionFactory,
+  override def getRewriter(cypherExceptionFactory: CypherExceptionFactory,
                            notificationLogger: InternalNotificationLogger): Rewriter = this
 }
