@@ -20,22 +20,23 @@ import org.opencypher.v9_0.frontend.helpers.TestContext
 import org.opencypher.v9_0.frontend.helpers.TestState
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.Deprecations
-import org.opencypher.v9_0.rewriting.Deprecations.V1
+import org.opencypher.v9_0.rewriting.Deprecations.deprecatedFeaturesIn4_X
+import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
+import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.RecordingNotificationLogger
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SyntaxDeprecationWarningsTest extends CypherFunSuite {
 
-  test("should warn about V1 deprecations") {
-    check(V1, "RETURN timestamp()") shouldBe empty
+  test("should warn about deprecation octal syntax") {
+    check(deprecatedFeaturesIn4_X, "RETURN 01277") should equal(Set(
+      DeprecatedOctalLiteralSyntax(InputPosition(7, 1, 8))
+    ))
   }
 
-  test("should warn about V2 deprecations") {
-    // TODO: add some example here once we have any new V2 deprecations
-  }
-
-  private def check(deprecations: Deprecations, query: String) = {
+  private def check(deprecations: Deprecations, query: String): Set[InternalNotification] = {
     val logger = new RecordingNotificationLogger()
     SyntaxDeprecationWarnings(deprecations).visit(TestState(Some(parse(query))), TestContext(logger))
     logger.notifications
