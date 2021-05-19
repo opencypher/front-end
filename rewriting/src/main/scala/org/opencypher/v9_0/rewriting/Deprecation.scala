@@ -24,7 +24,10 @@ import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.semantics.SemanticTable
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractExpression
@@ -32,8 +35,11 @@ import org.opencypher.v9_0.expressions.ExtractScope
 import org.opencypher.v9_0.expressions.FilterExpression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.ListComprehension
 import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.PatternExpression
@@ -64,6 +70,7 @@ import org.opencypher.v9_0.util.DeprecatedShowExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedShowSchemaSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.SkipChildren
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.LengthOnNonPathNotification
 import org.opencypher.v9_0.util.symbols.CTAny
@@ -161,13 +168,7 @@ object Deprecations {
           Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
         )
 
-      case e@Exists(Property(_, _)) =>
-        Deprecation(
-          None,
-          Some(DeprecatedPropertyExistenceSyntax(e.position))
-        )
-
-      case e@Exists(ContainerIndex(_, _)) =>
+      case e@Exists(_: Property | _: ContainerIndex) =>
         Deprecation(
           None,
           Some(DeprecatedPropertyExistenceSyntax(e.position))
@@ -244,6 +245,28 @@ object Deprecations {
           Some(c -> c.source),
           Some(DeprecatedCatalogKeywordForAdminCommandSyntax(c.position))
         )
+    }
+
+    override def findWithContext(statement: Statement,
+                                 semanticTable: Option[SemanticTable]): Set[Deprecation] = {
+      statement.treeFold[Set[Deprecation]](Set.empty) {
+        case w: Where =>
+          val deprecations = w.treeFold[Set[Deprecation]](Set.empty) {
+            case _: Where | _: And | _: Ands | _: Set[_] | _: Seq[_] | _: Or | _: Ors =>
+              acc => TraverseChildren(acc)
+
+            case e@Exists(p@(_: Property | _: ContainerIndex)) =>
+              val deprecation = Deprecation(
+                Some(e -> IsNotNull(p)(e.position)),
+                None
+              )
+              acc => SkipChildren(acc + deprecation)
+
+            case _ =>
+              acc => SkipChildren(acc)
+          }
+          acc => SkipChildren(acc ++ deprecations)
+      }
     }
   }
 
