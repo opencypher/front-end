@@ -15,11 +15,10 @@
  */
 package org.opencypher.v9_0.util
 
-import java.lang.reflect.Method
-
 import org.opencypher.v9_0.util.Foldable.TreeAny
 import org.opencypher.v9_0.util.Rewritable.RewritableAny
 
+import java.lang.reflect.Method
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -28,16 +27,6 @@ object Rewriter {
     f.orElse({ case x => x })
 
   val noop: Rewriter = Rewriter.lift(PartialFunction.empty)
-}
-
-object RewriterWithArgs {
-  def lift(f: PartialFunction[(AnyRef, Seq[AnyRef]), AnyRef]): RewriterWithArgs =
-    f.orElse({
-      // We need to dup anything not matched by f given the children
-      case (p: Product, children) => Rewritable.dupProduct(p, children).asInstanceOf[AnyRef]
-      case (a: AnyRef, children) => Rewritable.dupAny(a, children)
-      case (null, _) => null
-    })
 }
 
 object Rewritable {
@@ -114,12 +103,6 @@ object Rewritable {
       val result = rewriter.apply(that)
       result
     }
-
-    def rewrite(rewriter: RewriterWithArgs, args: Seq[AnyRef]): AnyRef = {
-      val result = rewriter.apply((that, args))
-      result
-    }
-
     def endoRewrite(rewriter: Rewriter): T = rewrite(rewriter).asInstanceOf[T]
   }
 }
@@ -233,48 +216,6 @@ object bottomUp {
 
   def apply(rewriter: Rewriter, stopper: AnyRef => Boolean = _ => false): Rewriter =
     new BottomUpRewriter(rewriter, stopper)
-}
-
-object bottomUpWithArgs {
-
-  private class BottomUpWithArgsRewriter(val rewriter: RewriterWithArgs, val stopper: AnyRef => Boolean)
-    extends RewriterWithArgs {
-    override def apply(tuple: (AnyRef, Seq[AnyRef])): AnyRef = {
-      val (that: AnyRef, _) = tuple
-      val initialStack = mutable.ArrayStack((List(that), new mutable.MutableList[AnyRef]()))
-      val result = rec(initialStack)
-      assert(result.size == 1)
-      result.head
-    }
-
-    @tailrec
-    private def rec(stack: mutable.ArrayStack[(List[AnyRef], mutable.MutableList[AnyRef])]): mutable.MutableList[AnyRef] = {
-      val (currentJobs, _) = stack.top
-      if (currentJobs.isEmpty) {
-        val (_, newChildren) = stack.pop()
-        if (stack.isEmpty) {
-          newChildren
-        } else {
-          val (job :: jobs, doneJobs) = stack.pop()
-          val doneJob = job.rewrite(rewriter, newChildren)
-          stack.push((jobs, doneJobs += doneJob))
-          rec(stack)
-        }
-      } else {
-        val next = currentJobs.head
-        if (stopper(next)) {
-          val (job :: jobs, doneJobs) = stack.pop()
-          stack.push((jobs, doneJobs += job))
-        } else {
-          stack.push((next.treeChildren.toList, new mutable.MutableList()))
-        }
-        rec(stack)
-      }
-    }
-  }
-
-  def apply(rewriter: RewriterWithArgs, stopper: AnyRef => Boolean = _ => false): RewriterWithArgs =
-    new BottomUpWithArgsRewriter(rewriter, stopper)
 }
 
 object bottomUpWithRecorder {
