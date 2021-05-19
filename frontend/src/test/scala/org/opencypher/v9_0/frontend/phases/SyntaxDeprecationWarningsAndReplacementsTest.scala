@@ -28,7 +28,7 @@ import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.RecordingNotificationLogger
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class SyntaxDeprecationWarningsTest extends CypherFunSuite {
+class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
 
   test("should warn about deprecation octal syntax") {
     check(deprecatedFeaturesIn4_X, "RETURN 01277") should equal(Set(
@@ -38,7 +38,7 @@ class SyntaxDeprecationWarningsTest extends CypherFunSuite {
 
   private def check(deprecations: Deprecations, query: String): Set[InternalNotification] = {
     val logger = new RecordingNotificationLogger()
-    SyntaxDeprecationWarnings(deprecations).transform(TestState(Some(parse(query))), TestContext(logger))
+    SyntaxDeprecationWarningsAndReplacements(deprecations).transform(TestState(Some(parse(query))), TestContext(logger))
     logger.notifications
   }
 
