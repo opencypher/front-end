@@ -69,7 +69,6 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.containsAggregate
 import org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.expressions.functions.Distance
-import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.CartesianProductNotification
 import org.opencypher.v9_0.util.DeprecatedStartNotification
@@ -362,9 +361,6 @@ case class Match(
         case Equals(other, Property(Variable(id), PropertyKeyName(name))) if id == variable && applicable(other) =>
           acc => SkipChildren(acc :+ name)
         case In(Property(Variable(id), PropertyKeyName(name)), _) if id == variable =>
-          acc => SkipChildren(acc :+ name)
-        case predicate@FunctionInvocation(_, _, _, IndexedSeq(Property(Variable(id), PropertyKeyName(name))))
-          if id == variable && predicate.function == Exists =>
           acc => SkipChildren(acc :+ name)
         case IsNotNull(Property(Variable(id), PropertyKeyName(name))) if id == variable =>
           acc => SkipChildren(acc :+ name)
