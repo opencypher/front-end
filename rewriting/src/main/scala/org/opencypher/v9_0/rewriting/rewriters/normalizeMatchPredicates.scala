@@ -22,7 +22,7 @@ import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
@@ -45,7 +45,7 @@ object normalizeMatchPredicates extends StepSequencer.Step with ASTRewriterFacto
   override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
                            cypherExceptionFactory: CypherExceptionFactory,
-                           allNameGenerators: AllNameGenerators): Rewriter = normalizeMatchPredicates(MatchPredicateNormalizerChain(PropertyPredicateNormalizer(allNameGenerators), LabelPredicateNormalizer))
+                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = normalizeMatchPredicates(MatchPredicateNormalizerChain(PropertyPredicateNormalizer(anonymousVariableNameGenerator), LabelPredicateNormalizer))
 
 
 }

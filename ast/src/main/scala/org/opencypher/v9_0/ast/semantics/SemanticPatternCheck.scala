@@ -41,7 +41,7 @@ import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedRepeatedRelVarInPatternExpression
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.UnboundedShortestPathNotification
@@ -246,7 +246,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
       checkNotUndirectedWhenCreating
   }
 
-  def variableIsGenerated(variable: LogicalVariable): Boolean = !AllNameGenerators.isNamed(variable.name)
+  def variableIsGenerated(variable: LogicalVariable): Boolean = !AnonymousVariableNameGenerator.isNamed(variable.name)
 
   def declareVariables(ctx: SemanticContext, element: PatternElement): SemanticCheck =
     element match {

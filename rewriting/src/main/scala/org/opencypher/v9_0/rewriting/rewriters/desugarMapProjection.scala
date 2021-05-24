@@ -27,7 +27,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
@@ -87,5 +87,5 @@ object desugarMapProjection extends StepSequencer.Step with ASTRewriterFactory {
   override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
                            cypherExceptionFactory: CypherExceptionFactory,
-                           allNameGenerators: AllNameGenerators): Rewriter = desugarMapProjection(semanticState)
+                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = desugarMapProjection(semanticState)
 }

@@ -24,7 +24,7 @@ import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
@@ -78,5 +78,5 @@ object normalizeHasLabelsAndHasType extends StepSequencer.Step with ASTRewriterF
   override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
                            cypherExceptionFactory: CypherExceptionFactory,
-                           allNameGenerators: AllNameGenerators): Rewriter = normalizeHasLabelsAndHasType(semanticState)
+                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = normalizeHasLabelsAndHasType(semanticState)
 }

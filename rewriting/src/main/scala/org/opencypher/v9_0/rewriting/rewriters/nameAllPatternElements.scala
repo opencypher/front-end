@@ -24,24 +24,24 @@ import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticIn
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols.CypherType
 
-case class nameAllPatternElements(allNameGenerators: AllNameGenerators) extends Rewriter {
+case class nameAllPatternElements(anonymousVariableNameGenerator: AnonymousVariableNameGenerator) extends Rewriter {
 
   override def apply(that: AnyRef): AnyRef = namingRewriter.apply(that)
 
   private def namingRewriter: Rewriter = bottomUp(Rewriter.lift {
     case pattern: NodePattern if pattern.variable.isEmpty =>
-      val syntheticName = allNameGenerators.nodeNameGenerator.nextName
+      val syntheticName = anonymousVariableNameGenerator.nextName
       pattern.copy(variable = Some(Variable(syntheticName)(pattern.position)))(pattern.position)
 
     case pattern: RelationshipPattern if pattern.variable.isEmpty  =>
-      val syntheticName = allNameGenerators.relNameGenerator.nextName
+      val syntheticName = anonymousVariableNameGenerator.nextName
       pattern.copy(variable = Some(Variable(syntheticName)(pattern.position)))(pattern.position)
   }, stopper = {
     case _: ShortestPathExpression => true
@@ -53,7 +53,7 @@ object nameAllPatternElements extends StepSequencer.Step with ASTRewriterFactory
   override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
                            cypherExceptionFactory: CypherExceptionFactory,
-                           allNameGenerators: AllNameGenerators): Rewriter = nameAllPatternElements(allNameGenerators)
+                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = nameAllPatternElements(anonymousVariableNameGenerator)
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 

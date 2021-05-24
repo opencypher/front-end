@@ -24,7 +24,7 @@ import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
@@ -142,5 +142,5 @@ class TestContext(override val monitors: Monitors) extends BaseContext {
 
   override def errorHandler: Seq[SemanticErrorDef] => Unit = ???
 
-  override def allNameGenerators: AllNameGenerators = ???
+  override def anonymousVariableNameGenerator: AnonymousVariableNameGenerator = ???
 }

@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -32,15 +32,15 @@ class AddUniquenessPredicatesTest extends CypherFunSuite with RewriteTest {
   test("uniqueness check is done between relationships of simple and variable pattern lengths") {
     assertRewrite(
       "MATCH (a)-[r1]->(b)-[r2*0..1]->(c) RETURN *",
-      "MATCH (a)-[r1]->(b)-[r2*0..1]->(c) WHERE NONE(`  REL0` IN r2 WHERE r1 = `  REL0`) RETURN *")
+      "MATCH (a)-[r1]->(b)-[r2*0..1]->(c) WHERE NONE(`  UNNAMED0` IN r2 WHERE r1 = `  UNNAMED0`) RETURN *")
 
     assertRewrite(
       "MATCH (a)-[r1*0..1]->(b)-[r2]->(c) RETURN *",
-      "MATCH (a)-[r1*0..1]->(b)-[r2]->(c) WHERE NONE(`  REL0` IN r1 WHERE `  REL0` = r2) RETURN *")
+      "MATCH (a)-[r1*0..1]->(b)-[r2]->(c) WHERE NONE(`  UNNAMED0` IN r1 WHERE `  UNNAMED0` = r2) RETURN *")
 
     assertRewrite(
       "MATCH (a)-[r1*0..1]->(b)-[r2*0..1]->(c) RETURN *",
-      "MATCH (a)-[r1*0..1]->(b)-[r2*0..1]->(c) WHERE NONE(`  REL0` IN r1 WHERE ANY(`  REL1` IN r2 WHERE `  REL0` = `  REL1`)) RETURN *")
+      "MATCH (a)-[r1*0..1]->(b)-[r2*0..1]->(c) WHERE NONE(`  UNNAMED0` IN r1 WHERE ANY(`  UNNAMED1` IN r2 WHERE `  UNNAMED0` = `  UNNAMED1`)) RETURN *")
   }
 
   test("uniqueness check is done between relationships") {
@@ -95,5 +95,5 @@ class AddUniquenessPredicatesTest extends CypherFunSuite with RewriteTest {
       "MATCH (a)-[r1]->(b)-[r2]->(c), allShortestPaths((a)-[r]->(b)) WHERE not(r1 = r2) RETURN *")
   }
 
-  def rewriterUnderTest: Rewriter = AddUniquenessPredicates(new AllNameGenerators)
+  def rewriterUnderTest: Rewriter = AddUniquenessPredicates(new AnonymousVariableNameGenerator)
 }

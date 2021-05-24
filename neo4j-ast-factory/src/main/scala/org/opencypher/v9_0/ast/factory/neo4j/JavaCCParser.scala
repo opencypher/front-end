@@ -18,7 +18,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.parser.javacc.Cypher
 import org.opencypher.v9_0.parser.javacc.CypherCharStream
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 
@@ -45,9 +45,9 @@ case object JavaCCParser {
     FALLBACK_TRIGGERS.exists(upper.contains)
   }
 
-  def parse(queryText: String, cypherExceptionFactory: CypherExceptionFactory, allNameGenerators: AllNameGenerators): Statement = {
+  def parse(queryText: String, cypherExceptionFactory: CypherExceptionFactory, anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Statement = {
     val charStream = new CypherCharStream(queryText)
-    val astFactory = new Neo4jASTFactory(queryText, allNameGenerators)
+    val astFactory = new Neo4jASTFactory(queryText, anonymousVariableNameGenerator)
     val astExceptionFactory = new Neo4jASTExceptionFactory(cypherExceptionFactory)
 
     val statements = new Cypher(astFactory, astExceptionFactory, charStream).Statements()

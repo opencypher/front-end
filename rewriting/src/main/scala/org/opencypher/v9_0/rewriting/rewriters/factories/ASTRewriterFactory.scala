@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.rewriting.rewriters.factories
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.symbols.CypherType
@@ -25,5 +25,5 @@ trait ASTRewriterFactory {
   def getRewriter(semanticState: SemanticState,
                   parameterTypeMapping: Map[String, CypherType],
                   cypherExceptionFactory: CypherExceptionFactory,
-                  allNameGenerators: AllNameGenerators): Rewriter
+                  anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter
 }

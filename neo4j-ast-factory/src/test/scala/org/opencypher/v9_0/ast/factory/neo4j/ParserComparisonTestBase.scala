@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.junit.runner.RunWith
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.scalatest.Assertion
@@ -47,7 +47,7 @@ abstract class ParserComparisonTestBase() extends Assertions with Matchers {
    */
   protected def assertJavaCCException(query: String, expectedMessage: String): Assertion = {
     val exception = the[OpenCypherExceptionFactory.SyntaxException] thrownBy {
-      JavaCCParser.parse(query, exceptionFactory, new AllNameGenerators())
+      JavaCCParser.parse(query, exceptionFactory, new AnonymousVariableNameGenerator())
     }
     exception.getMessage shouldBe fixLineSeparator(expectedMessage)
   }
@@ -57,7 +57,7 @@ abstract class ParserComparisonTestBase() extends Assertions with Matchers {
    */
   protected def assertJavaCCExceptionStart(query: String, expectedMessage: String): Assertion = {
     val exception = the[OpenCypherExceptionFactory.SyntaxException] thrownBy {
-      JavaCCParser.parse(query, exceptionFactory, new AllNameGenerators())
+      JavaCCParser.parse(query, exceptionFactory, new AnonymousVariableNameGenerator())
     }
     exception.getMessage should startWith(fixLineSeparator(expectedMessage))
   }
@@ -66,7 +66,7 @@ abstract class ParserComparisonTestBase() extends Assertions with Matchers {
    * Tests that the JavaCC parser produce correct AST.
    */
   protected def assertJavaCCAST(query: String, expected: Statement): Assertion = {
-    val ast = JavaCCParser.parse(query, exceptionFactory, new AllNameGenerators())
+    val ast = JavaCCParser.parse(query, exceptionFactory, new AnonymousVariableNameGenerator())
     ast shouldBe expected
   }
 
@@ -80,7 +80,7 @@ abstract class ParserComparisonTestBase() extends Assertions with Matchers {
       val parboiledParser = new org.opencypher.v9_0.parser.CypherParser()
       val parboiledAST = Try(parboiledParser.parse(parBoiledQuery, exceptionFactory, None))
 
-      val javaccAST = Try(JavaCCParser.parse(query, exceptionFactory, new AllNameGenerators()))
+      val javaccAST = Try(JavaCCParser.parse(query, exceptionFactory, new AnonymousVariableNameGenerator()))
 
       (javaccAST, parboiledAST) match {
         case (Failure(javaccEx: SyntaxException), Failure(parboiledEx: SyntaxException)) =>

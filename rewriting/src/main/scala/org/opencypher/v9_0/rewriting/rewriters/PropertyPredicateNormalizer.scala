@@ -26,9 +26,9 @@ import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 
-case class PropertyPredicateNormalizer(allNameGenerators: AllNameGenerators) extends MatchPredicateNormalizer {
+case class PropertyPredicateNormalizer(anonymousVariableNameGenerator: AnonymousVariableNameGenerator) extends MatchPredicateNormalizer {
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
     case NodePattern(Some(id), _, Some(props)) if !isParameter(props) =>
       propertyPredicates(id, props)
@@ -63,7 +63,7 @@ case class PropertyPredicateNormalizer(allNameGenerators: AllNameGenerators) ext
   }
 
   private def varLengthPropertyPredicates(id: LogicalVariable, props: Expression): Expression = {
-    val idName = allNameGenerators.freshIdNameGenerator.nextName
+    val idName = anonymousVariableNameGenerator.nextName
     val newId = Variable(idName)(id.position)
     val expressions = propertyPredicates(newId, props)
     val conjunction = conjunct(expressions)

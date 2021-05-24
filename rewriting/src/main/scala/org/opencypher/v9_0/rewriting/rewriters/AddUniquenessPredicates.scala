@@ -40,7 +40,7 @@ import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.AllNameGenerators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
@@ -53,7 +53,7 @@ import org.opencypher.v9_0.util.symbols.CypherType
 
 case object RelationshipUniquenessPredicatesInMatchAndMerge extends StepSequencer.Condition
 
-case class AddUniquenessPredicates(allNameGenerators: AllNameGenerators) extends Rewriter {
+case class AddUniquenessPredicates(anonymousVariableNameGenerator: AnonymousVariableNameGenerator) extends Rewriter {
 
   override def apply(that: AnyRef): AnyRef = instance(that)
 
@@ -121,16 +121,16 @@ case class AddUniquenessPredicates(allNameGenerators: AllNameGenerators) extends
           Not(Equals(x.variable.copyId, y.variable.copyId)(pos))(pos)
 
         case (true, false) =>
-          val innerY = Variable(allNameGenerators.relNameGenerator.nextName)(y.variable.position)
+          val innerY = Variable(anonymousVariableNameGenerator.nextName)(y.variable.position)
           NoneIterablePredicate(innerY, y.variable.copyId, Some(Equals(x.variable.copyId, innerY.copyId)(pos)))(pos)
 
         case (false, true) =>
-          val innerX = Variable(allNameGenerators.relNameGenerator.nextName)(x.variable.position)
+          val innerX = Variable(anonymousVariableNameGenerator.nextName)(x.variable.position)
           NoneIterablePredicate(innerX, x.variable.copyId, Some(Equals(innerX.copyId, y.variable.copyId)(pos)))(pos)
 
         case (false, false) =>
-          val innerX = Variable(allNameGenerators.relNameGenerator.nextName)(x.variable.position)
-          val innerY = Variable(allNameGenerators.relNameGenerator.nextName)(y.variable.position)
+          val innerX = Variable(anonymousVariableNameGenerator.nextName)(x.variable.position)
+          val innerY = Variable(anonymousVariableNameGenerator.nextName)(y.variable.position)
           NoneIterablePredicate(innerX, x.variable.copyId, Some(AnyIterablePredicate(innerY, y.variable.copyId, Some(Equals(innerX.copyId, innerY.copyId)(pos)))(pos)))(pos)
       }
     }
@@ -159,5 +159,5 @@ object AddUniquenessPredicates extends Step with ASTRewriterFactory {
   override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
                            cypherExceptionFactory: CypherExceptionFactory,
-                           allNameGenerators: AllNameGenerators): Rewriter = AddUniquenessPredicates(allNameGenerators)
+                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = AddUniquenessPredicates(anonymousVariableNameGenerator)
 }

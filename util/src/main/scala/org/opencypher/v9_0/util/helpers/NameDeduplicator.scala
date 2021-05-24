@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.util.helpers
 
-import org.opencypher.v9_0.util.AllNameGenerators.generators
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
@@ -27,8 +27,7 @@ object NameDeduplicator {
     s""" {2}($generatorName)(\\d+)""".r
 
   val UNNAMED_PATTERN: Regex = {
-    val gens = generators.map(_.generatorName).mkString("|")
-    nameGeneratorRegex(gens)
+    nameGeneratorRegex(AnonymousVariableNameGenerator.generatorName)
   }
 
   private val UNNAMED_PARAMS_PATTERN = """ {2}(AUTOINT|AUTODOUBLE|AUTOSTRING|AUTOLIST)(\d+)""".r
