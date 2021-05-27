@@ -22,6 +22,7 @@ import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.Parsing
 import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SemanticScopeRecordingTest extends CypherFunSuite {
@@ -58,5 +59,5 @@ class SemanticScopeRecordingTest extends CypherFunSuite {
   }
 
   private def initStartState(query: String) =
-    InitialState(query, None, NoPlannerName)
+    InitialState(query, None, NoPlannerName, new AnonymousVariableNameGenerator)
 }

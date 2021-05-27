@@ -21,6 +21,7 @@ import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestInitialState
 import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestParsing
 import org.opencypher.v9_0.frontend.helpers.NoPlannerName
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -91,5 +92,5 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
   }
 
   private def initStartState(query: String, initialFields: Map[String, CypherType]) =
-    InputDataStreamTestInitialState(query, "RETURN 1", None, NoPlannerName, initialFields)
+    InputDataStreamTestInitialState(query, "RETURN 1", None, NoPlannerName, new AnonymousVariableNameGenerator(), initialFields)
 }

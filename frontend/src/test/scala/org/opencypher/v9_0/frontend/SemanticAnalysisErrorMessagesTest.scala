@@ -22,6 +22,7 @@ import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.Parsing
 import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedRepeatedRelVarInPatternExpression
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.SubqueryVariableShadowing
@@ -1127,5 +1128,5 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
   }
 
   private def initStartState(query: String, initialFields: Map[String, CypherType]) =
-    InitialState(query, None, NoPlannerName, initialFields)
+    InitialState(query, None, NoPlannerName, new AnonymousVariableNameGenerator, initialFields)
 }

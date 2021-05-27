@@ -17,12 +17,12 @@ package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.frontend.helpers.TestState
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.frontend.phases.isolateAggregation
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.TestContext
 import org.opencypher.v9_0.rewriting.RewriteTest
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.devNullLogger
@@ -30,9 +30,7 @@ import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class IsolateAggregationTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {
-  def rewriterUnderTest: Rewriter = isolateAggregation.instance(new TestContext(mock[Monitors]) {
-    override val anonymousVariableNameGenerator: AnonymousVariableNameGenerator = new AnonymousVariableNameGenerator
-  })
+  def rewriterUnderTest: Rewriter = isolateAggregation.instance(TestState(None), new TestContext(mock[Monitors]))
 
   test("refers to renamed variable in where clause") {
     assertRewrite(

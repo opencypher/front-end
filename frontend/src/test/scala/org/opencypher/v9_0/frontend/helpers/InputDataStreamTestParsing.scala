@@ -26,6 +26,7 @@ import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPha
 import org.opencypher.v9_0.frontend.phases.Phase
 import org.opencypher.v9_0.parser.Expressions
 import org.opencypher.v9_0.parser.Statement
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherException
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
@@ -58,6 +59,7 @@ case class InputDataStreamTestInitialState(idsQueryText: String,
                                            queryText: String,
                                            startPosition: Option[InputPosition],
                                            plannerName: PlannerName,
+                                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator,
                                            initialFields: Map[String, CypherType] = Map.empty,
                                            maybeStatement: Option[ast.Statement] = None,
                                            maybeSemantics: Option[SemanticState] = None,

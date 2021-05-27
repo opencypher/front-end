@@ -59,9 +59,9 @@ import org.opencypher.v9_0.util.topDown
  */
 case object isolateAggregation extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
-  override def instance(context: BaseContext): Rewriter = bottomUp(rewriter(context), _.isInstanceOf[Expression])
+  override def instance(from: BaseState, context: BaseContext): Rewriter = bottomUp(rewriter(from), _.isInstanceOf[Expression])
 
-  private def rewriter(context: BaseContext) = Rewriter.lift {
+  private def rewriter(from: BaseState) = Rewriter.lift {
     case q@SingleQuery(clauses) =>
 
       val newClauses = clauses.flatMap {
@@ -73,7 +73,7 @@ case object isolateAggregation extends StatementRewriter with StepSequencer.Step
 
           val withReturnItems: Set[ReturnItem] = expressionsToIncludeInWith.map {
             e =>
-              AliasedReturnItem(e, Variable(context.anonymousVariableNameGenerator.nextName)(e.position))(e.position)
+              AliasedReturnItem(e, Variable(from.anonymousVariableNameGenerator.nextName)(e.position))(e.position)
           }
           val pos = clause.position
           val withClause = With(distinct = false, ReturnItems(includeExisting = false, withReturnItems.toIndexedSeq)(pos), None, None, None, None)(pos)

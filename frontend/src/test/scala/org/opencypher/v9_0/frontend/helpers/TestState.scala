@@ -20,6 +20,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.phases.BaseState
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.symbols.CypherType
 
@@ -62,4 +63,6 @@ case class TestState(override val maybeStatement: Option[ast.Statement]) extends
   override def withObfuscationMetadata(o: ObfuscationMetadata) = fail("not implemented")
 
   override def initialFields: Map[String, CypherType] = Map.empty
+
+  override val anonymousVariableNameGenerator: AnonymousVariableNameGenerator = new AnonymousVariableNameGenerator()
 }

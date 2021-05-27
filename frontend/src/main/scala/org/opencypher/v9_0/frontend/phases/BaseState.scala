@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.PlannerName
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.StepSequencer
@@ -35,6 +36,7 @@ trait BaseState {
   def maybeExtractedParams: Option[Map[String, Any]]
   def maybeSemanticTable: Option[SemanticTable]
   def maybeObfuscationMetadata: Option[ObfuscationMetadata]
+  def anonymousVariableNameGenerator: AnonymousVariableNameGenerator
 
   def accumulatedConditions: Set[StepSequencer.Condition]
 
@@ -61,6 +63,7 @@ trait BaseState {
 case class InitialState(queryText: String,
   startPosition: Option[InputPosition],
   plannerName: PlannerName,
+  anonymousVariableNameGenerator: AnonymousVariableNameGenerator,
   initialFields: Map[String, CypherType] = Map.empty,
   maybeStatement: Option[Statement] = None,
   maybeSemantics: Option[SemanticState] = None,

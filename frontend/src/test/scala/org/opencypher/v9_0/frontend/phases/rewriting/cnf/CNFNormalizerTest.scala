@@ -24,7 +24,6 @@ import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
@@ -123,7 +122,7 @@ class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {
     val monitors = mock[Monitors]
     astRewritingMonitor = mock[AstRewritingMonitor]
     when(monitors.newMonitor[AstRewritingMonitor]()).thenReturn(astRewritingMonitor)
-    rewriter = CNFNormalizer.instance(new TestContext(monitors))
+    rewriter = CNFNormalizer.instance(null, new TestContext(monitors))
   }
 }
 
@@ -141,6 +140,4 @@ class TestContext(override val monitors: Monitors) extends BaseContext {
   override def cypherExceptionFactory: CypherExceptionFactory = ???
 
   override def errorHandler: Seq[SemanticErrorDef] => Unit = ???
-
-  override def anonymousVariableNameGenerator: AnonymousVariableNameGenerator = ???
 }
