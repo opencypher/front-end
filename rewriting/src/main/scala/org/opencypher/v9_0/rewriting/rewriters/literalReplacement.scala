@@ -43,6 +43,7 @@ import org.opencypher.v9_0.util.Foldable
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.IdentityMap
+import org.opencypher.v9_0.util.ListSizeBucket
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols.CTAny
@@ -106,7 +107,8 @@ object literalReplacement {
       acc =>
         if (acc.contains(l)) SkipChildren(acc) else {
           val literals = l.expressions.map(_.asInstanceOf[Literal])
-          val parameter = AutoExtractedParameter(s"  AUTOLIST${acc.size}", CTList(CTAny), ListOfLiteralWriter(literals))(l.position)
+          val bucket = ListSizeBucket.computeBucket(l.expressions.size)
+          val parameter = AutoExtractedParameter(s"  AUTOLIST${acc.size}", CTList(CTAny), ListOfLiteralWriter(literals), Some(bucket))(l.position)
           SkipChildren(acc + (l -> LiteralReplacement(parameter, literals.map(_.value))))
         }
   }
