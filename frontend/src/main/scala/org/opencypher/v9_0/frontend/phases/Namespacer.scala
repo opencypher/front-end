@@ -32,6 +32,7 @@ import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPha
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.Rewriter
@@ -54,6 +55,7 @@ case object Namespacer extends Phase[BaseContext, BaseState, BaseState] with Ste
     val table = from.semanticTable()
 
     val ambiguousNames = shadowedNames(from.semantics().scopeTree)
+    thrownOnAmbiguousAnonymousNames(ambiguousNames)
     val variableDefinitions: Map[SymbolUse, SymbolUse] = from.semantics().scopeTree.allVariableDefinitions
     val renamings = variableRenamings(withProjectedUnions, variableDefinitions, ambiguousNames)
 
@@ -64,6 +66,12 @@ case object Namespacer extends Phase[BaseContext, BaseState, BaseState] with Ste
       val newStatement = withProjectedUnions.endoRewrite(rewriter)
       val newSemanticTable = table.replaceExpressions(rewriter)
       from.withStatement(newStatement).withSemanticTable(newSemanticTable)
+    }
+  }
+
+  private def thrownOnAmbiguousAnonymousNames(ambiguousNames: Set[String]): Unit = {
+    ambiguousNames.filter(AnonymousVariableNameGenerator.notNamed).foreach { n =>
+      throw new IllegalStateException(s"Anonymous variable `$n` is ambiguous. This is a bug.")
     }
   }
 
