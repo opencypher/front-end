@@ -16,53 +16,111 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.AccessDatabaseAction
+import org.opencypher.v9_0.ast.ActionResource
+import org.opencypher.v9_0.ast.AdministrationAction
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AllConstraintActions
 import org.opencypher.v9_0.ast.AllConstraints
+import org.opencypher.v9_0.ast.AllDatabaseAction
+import org.opencypher.v9_0.ast.AllDatabaseManagementActions
+import org.opencypher.v9_0.ast.AllDatabasesQualifier
 import org.opencypher.v9_0.ast.AllDatabasesScope
+import org.opencypher.v9_0.ast.AllDbmsAction
 import org.opencypher.v9_0.ast.AllFunctions
+import org.opencypher.v9_0.ast.AllGraphAction
+import org.opencypher.v9_0.ast.AllGraphsScope
+import org.opencypher.v9_0.ast.AllIndexActions
 import org.opencypher.v9_0.ast.AllIndexes
+import org.opencypher.v9_0.ast.AllLabelResource
+import org.opencypher.v9_0.ast.AllPrivilegeActions
+import org.opencypher.v9_0.ast.AllPropertyResource
+import org.opencypher.v9_0.ast.AllQualifier
+import org.opencypher.v9_0.ast.AllRoleActions
+import org.opencypher.v9_0.ast.AllTokenActions
+import org.opencypher.v9_0.ast.AllTransactionActions
+import org.opencypher.v9_0.ast.AllUserActions
 import org.opencypher.v9_0.ast.AlterUser
+import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
+import org.opencypher.v9_0.ast.AssignPrivilegeAction
+import org.opencypher.v9_0.ast.AssignRoleAction
 import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Create
+import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
+import org.opencypher.v9_0.ast.CreateDatabaseAction
+import org.opencypher.v9_0.ast.CreateElementAction
+import org.opencypher.v9_0.ast.CreateIndexAction
+import org.opencypher.v9_0.ast.CreateNodeLabelAction
+import org.opencypher.v9_0.ast.CreatePropertyKeyAction
+import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
 import org.opencypher.v9_0.ast.CreateRole
+import org.opencypher.v9_0.ast.CreateRoleAction
 import org.opencypher.v9_0.ast.CreateUser
+import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.CurrentUser
+import org.opencypher.v9_0.ast.DatabaseAction
+import org.opencypher.v9_0.ast.DatabasePrivilege
+import org.opencypher.v9_0.ast.DatabaseResource
 import org.opencypher.v9_0.ast.DatabaseScope
+import org.opencypher.v9_0.ast.DbmsAction
+import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
+import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
+import org.opencypher.v9_0.ast.DeleteElementAction
+import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
+import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropDatabase
+import org.opencypher.v9_0.ast.DropDatabaseAction
 import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
+import org.opencypher.v9_0.ast.DropIndexAction
 import org.opencypher.v9_0.ast.DropRole
+import org.opencypher.v9_0.ast.DropRoleAction
 import org.opencypher.v9_0.ast.DropUser
+import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
+import org.opencypher.v9_0.ast.ElementQualifier
+import org.opencypher.v9_0.ast.ElementsAllQualifier
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FulltextIndexes
+import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GrantRolesToUsers
+import org.opencypher.v9_0.ast.GraphAction
+import org.opencypher.v9_0.ast.GraphPrivilege
+import org.opencypher.v9_0.ast.GraphScope
 import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.HomeDatabaseScope
+import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDo
 import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.IfExistsReplace
 import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.ast.IndefiniteWait
+import org.opencypher.v9_0.ast.LabelAllQualifier
+import org.opencypher.v9_0.ast.LabelQualifier
+import org.opencypher.v9_0.ast.LabelsResource
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.LookupIndexes
 import org.opencypher.v9_0.ast.Match
+import org.opencypher.v9_0.ast.MatchAction
 import org.opencypher.v9_0.ast.Merge
+import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
+import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NoOptions
+import org.opencypher.v9_0.ast.NoResource
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
@@ -73,20 +131,35 @@ import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.PeriodicCommitHint
+import org.opencypher.v9_0.ast.PrivilegeQualifier
+import org.opencypher.v9_0.ast.PrivilegeType
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
+import org.opencypher.v9_0.ast.PropertiesResource
 import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.ReadAction
 import org.opencypher.v9_0.ast.RelExistsConstraints
+import org.opencypher.v9_0.ast.RelationshipAllQualifier
+import org.opencypher.v9_0.ast.RelationshipQualifier
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveItem
+import org.opencypher.v9_0.ast.RemoveLabelAction
 import org.opencypher.v9_0.ast.RemoveLabelItem
+import org.opencypher.v9_0.ast.RemovePrivilegeAction
 import org.opencypher.v9_0.ast.RemovePropertyItem
+import org.opencypher.v9_0.ast.RemoveRoleAction
 import org.opencypher.v9_0.ast.RenameRole
+import org.opencypher.v9_0.ast.RenameRoleAction
 import org.opencypher.v9_0.ast.RenameUser
+import org.opencypher.v9_0.ast.RenameUserAction
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.RevokeBothType
+import org.opencypher.v9_0.ast.RevokeDenyType
+import org.opencypher.v9_0.ast.RevokeGrantType
+import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.RevokeRolesFromUsers
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
@@ -95,26 +168,41 @@ import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetItem
+import org.opencypher.v9_0.ast.SetLabelAction
 import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
+import org.opencypher.v9_0.ast.SetPasswordsAction
+import org.opencypher.v9_0.ast.SetPropertyAction
 import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
+import org.opencypher.v9_0.ast.SetUserStatusAction
+import org.opencypher.v9_0.ast.ShowConstraintAction
 import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowFunctionsClause
+import org.opencypher.v9_0.ast.ShowIndexAction
 import org.opencypher.v9_0.ast.ShowIndexesClause
+import org.opencypher.v9_0.ast.ShowPrivilegeAction
 import org.opencypher.v9_0.ast.ShowProceduresClause
+import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowTransactionAction
+import org.opencypher.v9_0.ast.ShowUserAction
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.SortItem
 import org.opencypher.v9_0.ast.StartDatabase
+import org.opencypher.v9_0.ast.StartDatabaseAction
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
+import org.opencypher.v9_0.ast.StopDatabaseAction
 import org.opencypher.v9_0.ast.SubQuery
+import org.opencypher.v9_0.ast.TerminateTransactionAction
 import org.opencypher.v9_0.ast.TimeoutAfter
+import org.opencypher.v9_0.ast.TraverseAction
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.UnionAll
 import org.opencypher.v9_0.ast.UnionDistinct
@@ -123,19 +211,24 @@ import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.User
+import org.opencypher.v9_0.ast.UserAllQualifier
 import org.opencypher.v9_0.ast.UserDefinedFunctions
 import org.opencypher.v9_0.ast.UserOptions
+import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingJoinHint
 import org.opencypher.v9_0.ast.UsingScanHint
 import org.opencypher.v9_0.ast.WaitUntilComplete
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.ast.WriteAction
 import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.factory.ASTFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
+import org.opencypher.v9_0.ast.factory.ActionType
 import org.opencypher.v9_0.ast.factory.ParameterType
+import org.opencypher.v9_0.ast.factory.ScopeType
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -241,6 +334,8 @@ import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.JavaConverters.mapAsScalaMap
 import scala.util.Either
 
+final case class Privilege(privilegeType: PrivilegeType, resource: ActionResource, qualifier: util.List[PrivilegeQualifier])
+
 class Neo4jASTFactory(query: String, allNameGenerators: AllNameGenerators)
   extends ASTFactory[Statement,
     Query,
@@ -267,6 +362,11 @@ class Neo4jASTFactory(query: String, allNameGenerators: AllNameGenerators)
     Yield,
     DatabaseScope,
     WaitUntilComplete,
+    AdministrationAction,
+    GraphScope,
+    Privilege,
+    ActionResource,
+    PrivilegeQualifier,
     InputPosition] {
 
   override def newSingleQuery(clauses: util.List[Clause]): Query = {
@@ -1029,6 +1129,166 @@ class Neo4jASTFactory(query: String, allNameGenerators: AllNameGenerators)
 
   override def showCurrentUser(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Expression): ShowCurrentUser = {
     ShowCurrentUser(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+  }
+
+  // Privilege commands
+
+  override def grantPrivilege(p: InputPosition,
+                              roles: util.List[Either[String, Parameter]],
+                              privilege: Privilege): AdministrationCommand =
+    GrantPrivilege(privilege.privilegeType, Option(privilege.resource), privilege.qualifier.asScala.toList, roles.asScala)(p)
+
+  override def denyPrivilege(p: InputPosition, roles: util.List[Either[String, Parameter]], privilege: Privilege): AdministrationCommand =
+    DenyPrivilege(privilege.privilegeType, Option(privilege.resource), privilege.qualifier.asScala.toList, roles.asScala)(p)
+
+  override def revokePrivilege(p: InputPosition,
+                               roles: util.List[Either[String, Parameter]],
+                               privilege: Privilege,
+                               revokeGrant: Boolean,
+                               revokeDeny: Boolean): AdministrationCommand = (revokeGrant, revokeDeny) match {
+    case (true, false) => RevokePrivilege(privilege.privilegeType, Option(privilege.resource), privilege.qualifier.asScala.toList, roles.asScala, RevokeGrantType()(p))(p)
+    case (false, true) => RevokePrivilege(privilege.privilegeType, Option(privilege.resource), privilege.qualifier.asScala.toList, roles.asScala, RevokeDenyType()(p))(p)
+    case _             => RevokePrivilege(privilege.privilegeType, Option(privilege.resource), privilege.qualifier.asScala.toList, roles.asScala, RevokeBothType()(p))(p)
+  }
+
+  override def databasePrivilege(p: InputPosition, action: AdministrationAction, scope: util.List[DatabaseScope], qualifier: util.List[PrivilegeQualifier]): Privilege =
+    Privilege(DatabasePrivilege(action.asInstanceOf[DatabaseAction], scope.asScala.toList)(p), null, qualifier)
+
+  override def dbmsPrivilege(p: InputPosition, action: AdministrationAction, qualifier: util.List[PrivilegeQualifier]): Privilege =
+    Privilege(DbmsPrivilege(action.asInstanceOf[DbmsAction])(p), null, qualifier)
+
+  override def graphPrivilege(p: InputPosition, action: AdministrationAction, scope: util.List[GraphScope], resource: ActionResource, qualifier: util.List[PrivilegeQualifier]): Privilege =
+    Privilege(GraphPrivilege(action.asInstanceOf[GraphAction], scope.asScala.toList)(p), resource, qualifier)
+
+  override def privilegeAction(action: ActionType): AdministrationAction = action match {
+    case ActionType.DATABASE_ALL => AllDatabaseAction
+    case ActionType.ACCESS => AccessDatabaseAction
+    case ActionType.DATABASE_START => StartDatabaseAction
+    case ActionType.DATABASE_STOP => StopDatabaseAction
+    case ActionType.INDEX_ALL => AllIndexActions
+    case ActionType.INDEX_CREATE => CreateIndexAction
+    case ActionType.INDEX_DROP => DropIndexAction
+    case ActionType.INDEX_SHOW => ShowIndexAction
+    case ActionType.CONSTRAINT_ALL => AllConstraintActions
+    case ActionType.CONSTRAINT_CREATE => CreateConstraintAction
+    case ActionType.CONSTRAINT_DROP => DropConstraintAction
+    case ActionType.CONSTRAINT_SHOW => ShowConstraintAction
+    case ActionType.CREATE_TOKEN =>AllTokenActions
+    case ActionType.CREATE_PROPERTYKEY => CreatePropertyKeyAction
+    case ActionType.CREATE_LABEL => CreateNodeLabelAction
+    case ActionType.CREATE_RELTYPE => CreateRelationshipTypeAction
+    case ActionType.TRANSACTION_ALL => AllTransactionActions
+    case ActionType.TRANSACTION_SHOW => ShowTransactionAction
+    case ActionType.TRANSACTION_TERMINATE => TerminateTransactionAction
+
+    case ActionType.DBMS_ALL => AllDbmsAction
+    case ActionType.USER_ALL => AllUserActions
+    case ActionType.USER_SHOW => ShowUserAction
+    case ActionType.USER_ALTER => AlterUserAction
+    case ActionType.USER_CREATE => CreateUserAction
+    case ActionType.USER_DROP => DropUserAction
+    case ActionType.USER_RENAME => RenameUserAction
+    case ActionType.USER_PASSWORD => SetPasswordsAction
+    case ActionType.USER_STATUS => SetUserStatusAction
+    case ActionType.USER_HOME   => SetUserHomeDatabaseAction
+    case ActionType.ROLE_ALL    => AllRoleActions
+    case ActionType.ROLE_SHOW => ShowRoleAction
+    case ActionType.ROLE_CREATE => CreateRoleAction
+    case ActionType.ROLE_DROP => DropRoleAction
+    case ActionType.ROLE_RENAME => RenameRoleAction
+    case ActionType.ROLE_ASSIGN => AssignRoleAction
+    case ActionType.ROLE_REMOVE => RemoveRoleAction
+    case ActionType.DATABASE_MANAGEMENT => AllDatabaseManagementActions
+    case ActionType.DATABASE_CREATE => CreateDatabaseAction
+    case ActionType.DATABASE_DROP => DropDatabaseAction
+    case ActionType.PRIVILEGE_ALL => AllPrivilegeActions
+    case ActionType.PRIVILEGE_ASSIGN => AssignPrivilegeAction
+    case ActionType.PRIVILEGE_REMOVE => RemovePrivilegeAction
+    case ActionType.PRIVILEGE_SHOW => ShowPrivilegeAction
+
+    case ActionType.GRAPH_ALL => AllGraphAction
+    case ActionType.GRAPH_WRITE => WriteAction
+    case ActionType.GRAPH_CREATE => CreateElementAction
+    case ActionType.GRAPH_MERGE => MergeAdminAction
+    case ActionType.GRAPH_DELETE => DeleteElementAction
+    case ActionType.GRAPH_LABEL_SET => SetLabelAction
+    case ActionType.GRAPH_LABEL_REMOVE => RemoveLabelAction
+    case ActionType.GRAPH_PROPERTY_SET => SetPropertyAction
+    case ActionType.GRAPH_MATCH => MatchAction
+    case ActionType.GRAPH_READ => ReadAction
+    case ActionType.GRAPH_TRAVERSE => TraverseAction
+  }
+
+  // Resources
+
+  override def propertiesResource(p: InputPosition, properties: util.List[String]): ActionResource = PropertiesResource(properties.asScala)(p)
+
+  override def allPropertiesResource(p: InputPosition): ActionResource = AllPropertyResource()(p)
+
+  override def labelsResource(p: InputPosition, labels: util.List[String]): ActionResource = LabelsResource(labels.asScala)(p)
+
+  override def allLabelsResource(p: InputPosition): ActionResource = AllLabelResource()(p)
+
+  override def databaseResource(p: InputPosition): ActionResource = DatabaseResource()(p)
+
+  override def noResource(p: InputPosition): ActionResource = NoResource()(p)
+
+  override def labelQualifier(p: InputPosition, label: String): PrivilegeQualifier = LabelQualifier(label)(p)
+
+  override def relationshipQualifier(p: InputPosition, relationshipType: String): PrivilegeQualifier = RelationshipQualifier(relationshipType)(p)
+
+  override def elementQualifier(p: InputPosition, name: String): PrivilegeQualifier = ElementQualifier(name)(p)
+
+  override def allElementsQualifier(p: InputPosition): PrivilegeQualifier = ElementsAllQualifier()(p)
+
+  override def allLabelsQualifier(p: InputPosition): PrivilegeQualifier = LabelAllQualifier()(p)
+
+  override def allRelationshipsQualifier(p: InputPosition): PrivilegeQualifier = RelationshipAllQualifier()(p)
+
+  override def allQualifier(): util.List[PrivilegeQualifier] = {
+    val list = new util.ArrayList[PrivilegeQualifier]()
+    list.add(AllQualifier()(InputPosition.NONE))
+    list
+  }
+
+  override def allDatabasesQualifier(): util.List[PrivilegeQualifier] = {
+    val list = new util.ArrayList[PrivilegeQualifier]()
+    list.add(AllDatabasesQualifier()(InputPosition.NONE))
+    list
+  }
+
+  override def userQualifier(users: util.List[Either[String, Parameter]]): util.List[PrivilegeQualifier] = {
+    val list = new util.ArrayList[PrivilegeQualifier]()
+    users.forEach(u => list.add(UserQualifier(u)(InputPosition.NONE)))
+    list
+  }
+
+  override def allUsersQualifier(): util.List[PrivilegeQualifier] = {
+    val list = new util.ArrayList[PrivilegeQualifier]()
+    list.add(UserAllQualifier()(InputPosition.NONE))
+    list
+  }
+
+  override def graphScopes(p: InputPosition, graphNames: util.List[Either[String, Parameter]], scopeType: ScopeType): util.List[GraphScope] = {
+    val list = new util.ArrayList[GraphScope]()
+    scopeType match {
+      case ScopeType.ALL     => list.add(AllGraphsScope()(p))
+      case ScopeType.HOME    => list.add(HomeGraphScope()(p))
+      case ScopeType.DEFAULT => list.add(DefaultGraphScope()(p))
+      case ScopeType.NAMED   => graphNames.asScala.foreach(db => list.add(NamedGraphScope(db)(p)))
+    }
+    list
+  }
+
+  override def databaseScopes(p: InputPosition, databaseNames: util.List[Either[String, Parameter]], scopeType: ScopeType): util.List[DatabaseScope] = {
+    val list = new util.ArrayList[DatabaseScope]()
+    scopeType match {
+      case ScopeType.ALL     => list.add(AllDatabasesScope()(p))
+      case ScopeType.HOME    => list.add(HomeDatabaseScope()(p))
+      case ScopeType.DEFAULT => list.add(DefaultDatabaseScope()(p))
+      case ScopeType.NAMED   => databaseNames.asScala.foreach(db => list.add(NamedDatabaseScope(db)(p)))
+    }
+    list
   }
 
   // Database commands

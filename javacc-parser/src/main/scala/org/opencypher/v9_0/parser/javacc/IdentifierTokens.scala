@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.parser.javacc
 
+import org.opencypher.v9_0.parser.javacc.CypherConstants.ACCESS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ACTIVE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ALL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ALL_SHORTEST_PATH
@@ -24,6 +25,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.ANY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.AS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ASC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ASSERT
+import org.opencypher.v9_0.parser.javacc.CypherConstants.ASSIGN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.BRIEF
 import org.opencypher.v9_0.parser.javacc.CypherConstants.BTREE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.BUILT
@@ -48,12 +50,15 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.DBMS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DEFAULT_TOKEN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DEFINED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DELETE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.DENY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DESC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DESTROY
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DETACH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DISTINCT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DROP
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DUMP
+import org.opencypher.v9_0.parser.javacc.CypherConstants.ELEMENT
+import org.opencypher.v9_0.parser.javacc.CypherConstants.ELEMENTS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ELSE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ENCRYPTED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.END
@@ -74,6 +79,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.FUNCTION
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FUNCTIONS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRANT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.GRAPH
+import org.opencypher.v9_0.parser.javacc.CypherConstants.GRAPHS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.HEADERS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.HOME
 import org.opencypher.v9_0.parser.javacc.CypherConstants.IF
@@ -83,12 +89,19 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.INDEXES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.IS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.JOIN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.KEY
+import org.opencypher.v9_0.parser.javacc.CypherConstants.LABEL
+import org.opencypher.v9_0.parser.javacc.CypherConstants.LABELS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.LIMITROWS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.LOAD
 import org.opencypher.v9_0.parser.javacc.CypherConstants.LOOKUP
+import org.opencypher.v9_0.parser.javacc.CypherConstants.MANAGEMENT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.MATCH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.MERGE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.NAME
+import org.opencypher.v9_0.parser.javacc.CypherConstants.NAMES
+import org.opencypher.v9_0.parser.javacc.CypherConstants.NEW
 import org.opencypher.v9_0.parser.javacc.CypherConstants.NODE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.NODES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.NONE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.NOT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.NOWAIT
@@ -101,15 +114,20 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.OR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ORDER
 import org.opencypher.v9_0.parser.javacc.CypherConstants.OUTPUT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PASSWORD
+import org.opencypher.v9_0.parser.javacc.CypherConstants.PASSWORDS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PERIODIC
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PLAINTEXT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.POPULATED
+import org.opencypher.v9_0.parser.javacc.CypherConstants.PRIVILEGE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.PRIVILEGES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.PROPERTY
+import org.opencypher.v9_0.parser.javacc.CypherConstants.READ
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REDUCE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REL
 import org.opencypher.v9_0.parser.javacc.CypherConstants.RELATIONSHIP
+import org.opencypher.v9_0.parser.javacc.CypherConstants.RELATIONSHIPS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REMOVE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.RENAME
 import org.opencypher.v9_0.parser.javacc.CypherConstants.REPLACE
@@ -133,9 +151,15 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.STARTS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.STATUS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.STOP
 import org.opencypher.v9_0.parser.javacc.CypherConstants.SUSPENDED
+import org.opencypher.v9_0.parser.javacc.CypherConstants.TERMINATE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.THEN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.TO
+import org.opencypher.v9_0.parser.javacc.CypherConstants.TRANSACTION
+import org.opencypher.v9_0.parser.javacc.CypherConstants.TRANSACTIONS
+import org.opencypher.v9_0.parser.javacc.CypherConstants.TRAVERSE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.TRUE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.TYPE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.TYPES
 import org.opencypher.v9_0.parser.javacc.CypherConstants.UNION
 import org.opencypher.v9_0.parser.javacc.CypherConstants.UNIQUE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.UNWIND
@@ -148,6 +172,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.WAIT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.WHEN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.WHERE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.WITH
+import org.opencypher.v9_0.parser.javacc.CypherConstants.WRITE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.XOR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.YIELD
 
@@ -156,6 +181,7 @@ object IdentifierTokens {
   val tokens = Set(
     ESCAPED_SYMBOLIC_NAME,
     //keywords
+    ACCESS,
     ACTIVE,
     ALL_SHORTEST_PATH,
     ALL,
@@ -165,6 +191,7 @@ object IdentifierTokens {
     AS,
     ASC,
     ASSERT,
+    ASSIGN,
     BRIEF,
     BTREE,
     BUILT,
@@ -189,12 +216,15 @@ object IdentifierTokens {
     DEFAULT_TOKEN,
     DEFINED,
     DELETE,
+    DENY,
     DESC,
     DESTROY,
     DETACH,
     DISTINCT,
     DROP,
     DUMP,
+    ELEMENT,
+    ELEMENTS,
     ELSE,
     ENCRYPTED,
     END,
@@ -214,6 +244,7 @@ object IdentifierTokens {
     FUNCTIONS,
     GRANT,
     GRAPH,
+    GRAPHS,
     HEADERS,
     HOME,
     IF,
@@ -223,12 +254,19 @@ object IdentifierTokens {
     IS,
     JOIN,
     KEY,
+    LABEL,
+    LABELS,
     LIMITROWS,
     LOAD,
     LOOKUP,
+    MANAGEMENT,
     MATCH,
     MERGE,
+    NAME,
+    NAMES,
+    NEW,
     NODE,
+    NODES,
     NONE,
     NOT,
     NOWAIT,
@@ -241,15 +279,20 @@ object IdentifierTokens {
     ORDER,
     OUTPUT,
     PASSWORD,
+    PASSWORDS,
     PERIODIC,
     PLAINTEXT,
     POPULATED,
+    PRIVILEGE,
+    PRIVILEGES,
     PROCEDURE,
     PROCEDURES,
     PROPERTY,
+    READ,
     REDUCE,
     REL,
     RELATIONSHIP,
+    RELATIONSHIPS,
     REMOVE,
     RENAME,
     REPLACE,
@@ -273,9 +316,15 @@ object IdentifierTokens {
     STATUS,
     STOP,
     SUSPENDED,
+    TERMINATE,
     THEN,
     TO,
+    TRANSACTION,
+    TRANSACTIONS,
+    TRAVERSE,
     TRUE,
+    TYPE,
+    TYPES,
     UNION,
     UNIQUE,
     UNWIND,
@@ -288,6 +337,7 @@ object IdentifierTokens {
     WHEN,
     WHERE,
     WITH,
+    WRITE,
     XOR,
     YIELD
   )
