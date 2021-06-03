@@ -24,6 +24,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
+import org.opencypher.v9_0.rewriting.rewriters.rewriteShowQuery
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.devNullLogger
@@ -105,6 +106,16 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
     )
   }
 
+  test("should rewrite show commands properly") {
+    assertRewrite(
+      "SHOW FUNCTIONS YIELD *",
+      """SHOW FUNCTIONS
+        |YIELD aggregating, argumentDescription, category, description, isBuiltIn, name, returnDescription, rolesBoostedExecution, rolesExecution, signature
+        |RETURN name, category, description, signature, isBuiltIn, argumentDescription, returnDescription, aggregating, rolesExecution, rolesBoostedExecution""".stripMargin,
+      rewriteShowCommand = true
+    )
+  }
+
   test("uses the position of the clause for variables in new return items") {
     // This is quite important. If the position of a variable in new return item is a previous declaration,
     // that can destroy scoping. In a query like
@@ -123,8 +134,8 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
     returnItem.variable.position.offset should equal(expressionPos.offset)
   }
 
-  private def assertRewrite(originalQuery: String, expectedQuery: String) {
-    val original = prepRewrite(originalQuery)
+  private def assertRewrite(originalQuery: String, expectedQuery: String, rewriteShowCommand: Boolean = false) {
+    val original = prepRewrite(originalQuery, rewriteShowCommand)
     val expected = prepRewrite(expectedQuery)
 
     val checkResult = original.semanticCheck(SemanticState.clean)
@@ -134,10 +145,10 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
     assert(result === expected)
   }
 
-  private def prepRewrite(q: String, multipleGraphs: Boolean = false) = {
+  private def prepRewrite(q: String, rewriteShowCommand: Boolean = false) = {
     val exceptionFactory = OpenCypherExceptionFactory(None)
-    val rewriter = if (multipleGraphs)
-      inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger))
+    val rewriter = if (rewriteShowCommand)
+      inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger), rewriteShowQuery)
     else
       inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger))
     parser.parse(q, exceptionFactory).endoRewrite(rewriter)
