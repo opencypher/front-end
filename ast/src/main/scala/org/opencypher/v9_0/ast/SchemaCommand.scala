@@ -150,8 +150,6 @@ trait CompositePropertyConstraintCommand extends SchemaCommand with SemanticAnal
 
   def entityType: CypherType
 
-  def restrictedToSingleProperty: Boolean
-
   override def semanticCheck =
     declareVariable(variable, entityType) chain
       SemanticExpressionCheck.simple(properties) chain
@@ -160,9 +158,6 @@ trait CompositePropertyConstraintCommand extends SchemaCommand with SemanticAnal
           when(!property.map.isInstanceOf[Variable]) {
             error("Cannot index nested properties", property.position)
           }
-      } chain
-      when(restrictedToSingleProperty && properties.size > 1) {
-        error("Only single property uniqueness constraints are supported", properties(1).position)
       }
 }
 
@@ -178,8 +173,6 @@ trait UniquePropertyConstraintCommand extends CompositePropertyConstraintCommand
   val entityType = CTNode
 
   def label: LabelName
-
-  override def restrictedToSingleProperty: Boolean = true
 }
 
 trait NodeKeyConstraintCommand extends CompositePropertyConstraintCommand {
@@ -187,8 +180,6 @@ trait NodeKeyConstraintCommand extends CompositePropertyConstraintCommand {
   val entityType = CTNode
 
   def label: LabelName
-
-  override def restrictedToSingleProperty: Boolean = false
 }
 
 trait RelationshipPropertyConstraintCommand extends PropertyConstraintCommand {
