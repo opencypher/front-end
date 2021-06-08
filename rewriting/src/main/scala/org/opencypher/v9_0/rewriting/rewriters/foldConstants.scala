@@ -17,6 +17,7 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Add
+import org.opencypher.v9_0.expressions.BinaryOperatorExpression
 import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
 import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.DoubleLiteral
@@ -30,6 +31,7 @@ import org.opencypher.v9_0.expressions.Modulo
 import org.opencypher.v9_0.expressions.Multiply
 import org.opencypher.v9_0.expressions.NumberLiteral
 import org.opencypher.v9_0.expressions.Pow
+import org.opencypher.v9_0.expressions.SensitiveLiteral
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedIntegerLiteral
 import org.opencypher.v9_0.expressions.Subtract
@@ -55,7 +57,16 @@ case class foldConstants(cypherExceptionFactory: CypherExceptionFactory) extends
   } catch {
     case e: java.lang.ArithmeticException => throw cypherExceptionFactory.arithmeticException(e.getMessage, e)
   }
+
+  private def containsSensitive(e: BinaryOperatorExpression): Boolean = (e.lhs, e.rhs) match {
+    case (_: SensitiveLiteral, _) => true
+    case (_, _: SensitiveLiteral) => true
+    case _ => false
+  }
+
   private val instance: Rewriter = bottomUp(Rewriter.lift {
+    case e: BinaryOperatorExpression if containsSensitive(e) => e
+
     case e@Add(lhs: SignedIntegerLiteral, rhs: SignedIntegerLiteral) =>
       SignedDecimalIntegerLiteral((lhs.value + rhs.value).toString)(e.position)
     case e@Add(lhs: DecimalDoubleLiteral, rhs: SignedIntegerLiteral) =>
@@ -83,7 +94,7 @@ case class foldConstants(cypherExceptionFactory: CypherExceptionFactory) extends
     case e@Multiply(lhs: DecimalDoubleLiteral, rhs: DecimalDoubleLiteral) =>
       DecimalDoubleLiteral((lhs.value * rhs.value).toString)(e.position)
 
-    case e@Multiply(lhs: NumberLiteral, rhs: NumberLiteral) =>
+    case e@Multiply(_: NumberLiteral, _: NumberLiteral) =>
       e
     case e@Multiply(lhs: NumberLiteral, rhs) =>
       Multiply(rhs, lhs)(e.position).rewrite(instance)
