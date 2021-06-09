@@ -33,7 +33,7 @@ class JavaCCParserFallbackTest extends CypherFunSuite {
       "MATCH (n:Label) WHERE n.cypher = 'SHOW INDEXES' and n.access = 'DENY' RETURN n",
       "CREATE(n:Catalog)"
     ).foreach(t => {
-      withClue(t) { JavaCCParser.shouldFallBack(t) shouldBe true }
+      withClue(t) { JavaCCParser.shouldFallback(t) shouldBe true }
     })
   }
 
@@ -42,7 +42,7 @@ class JavaCCParserFallbackTest extends CypherFunSuite {
       "MATCH (n) RETURN n",
       "CREATE (n:Label)",
     ).foreach(t => {
-      withClue(t) { JavaCCParser.shouldFallBack(t) shouldBe false }
+      withClue(t) { JavaCCParser.shouldFallback(t) shouldBe false }
     })
   }
 

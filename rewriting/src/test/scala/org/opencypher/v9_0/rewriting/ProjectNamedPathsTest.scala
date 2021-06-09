@@ -44,6 +44,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.devNullLogger
 import org.opencypher.v9_0.util.inSequence
@@ -55,7 +56,8 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
   private def projectionInlinedAst(queryText: String) = ast(queryText).endoRewrite(projectNamedPaths)
 
   private def ast(queryText: String) = {
-    val parsed = parser.parse(queryText, OpenCypherExceptionFactory(None))
+    val nameGenerator = new AnonymousVariableNameGenerator
+    val parsed = parser.parse(queryText, OpenCypherExceptionFactory(None), nameGenerator)
     val exceptionFactory = OpenCypherExceptionFactory(Some(pos))
     val normalized = parsed.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger)))
     val checkResult = normalized.semanticCheck(SemanticState.clean)

@@ -16,12 +16,10 @@
 package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.Query
-import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer
-import org.opencypher.v9_0.frontend.phases.rewriting.cnf.TestContext
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.flattenBooleanOperators
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -197,8 +195,9 @@ class mergeInPredicatesTest extends CypherFunSuite with AstRewritingTestSupport 
 
   private def shouldRewrite(from: String, to: String): Unit = {
     val exceptionFactory = OpenCypherExceptionFactory(None)
-    val original = parser.parse(from, exceptionFactory).asInstanceOf[Query]
-    val expected = parser.parse(to, exceptionFactory).asInstanceOf[Query]
+    val nameGenerator = new AnonymousVariableNameGenerator
+    val original = parser.parse(from, exceptionFactory, nameGenerator).asInstanceOf[Query]
+    val expected = parser.parse(to, exceptionFactory, nameGenerator).asInstanceOf[Query]
     val common:Rewriter = flattenBooleanOperators
     val result = mergeInPredicates(original)
 

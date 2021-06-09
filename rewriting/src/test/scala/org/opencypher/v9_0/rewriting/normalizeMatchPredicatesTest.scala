@@ -16,11 +16,11 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticChecker
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.LabelPredicateNormalizer
 import org.opencypher.v9_0.rewriting.rewriters.MatchPredicateNormalizerChain
 import org.opencypher.v9_0.rewriting.rewriters.PropertyPredicateNormalizer
@@ -42,7 +42,7 @@ class normalizeMatchPredicatesTest extends CypherFunSuite {
     normalizeMatchPredicates(MatchPredicateNormalizerChain(PropertyPredicateNormalizer(new AnonymousVariableNameGenerator), LabelPredicateNormalizer)),
   )
 
-  def parseForRewriting(queryText: String): Statement = parser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None))
+  def parseForRewriting(queryText: String): Statement = JavaCCParser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
 
   private def assertRewrite(originalQuery: String, expectedQuery: String) {
     val original = parseForRewriting(originalQuery)

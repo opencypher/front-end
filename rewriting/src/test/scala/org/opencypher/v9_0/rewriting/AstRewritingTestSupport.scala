@@ -16,10 +16,9 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.parser.CypherParser
-import org.opencypher.v9_0.parser.ParserFixture
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 
 trait AstRewritingTestSupport extends CypherTestSupport with AstConstructionTestSupport {
-  val parser: CypherParser = ParserFixture.parser
+  val parser: JavaCCParser.type = JavaCCParser
 }

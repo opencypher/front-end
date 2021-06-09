@@ -16,16 +16,16 @@
 package org.opencypher.v9_0.frontend.phases.rewriting
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.simplifyPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.inSequence
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class normalizeExistsPatternExpressionsTest extends CypherFunSuite with AstConstructionTestSupport {
-
-  import org.opencypher.v9_0.parser.ParserFixture.parser
 
   testRewrite(
     "MATCH (n) WHERE (n)--(m) RETURN n",
@@ -139,8 +139,8 @@ class normalizeExistsPatternExpressionsTest extends CypherFunSuite with AstConst
   }
 
   private def assertRewrite(originalQuery: String, expectedQuery: String): Unit = {
-    val original = parser.parse(originalQuery, OpenCypherExceptionFactory(None))
-    val expected = parser.parse(expectedQuery, OpenCypherExceptionFactory(None))
+    val original = JavaCCParser.parse(originalQuery, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
+    val expected = JavaCCParser.parse(expectedQuery, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
 
     val checkResult = original.semanticCheck(SemanticState.clean)
     val rewriter = inSequence(normalizeExistsPatternExpressions(checkResult.state), simplifyPredicates(checkResult.state))

@@ -45,7 +45,7 @@ class JavaCCPrettifierIT extends CypherFunSuite {
           val str = prettifier.asString(parsingResults)
           str should equal(expected)
         } catch {
-          case _: SyntaxException if JavaCCParser.shouldFallBack(inputString) =>
+          case _: SyntaxException if JavaCCParser.shouldFallback(inputString) =>
           // Should not succeed in new parser so this is correct
         }
       }
@@ -54,7 +54,7 @@ class JavaCCPrettifierIT extends CypherFunSuite {
   test("Ensure tests don't include fallback triggers") {
     // Sanity check
     (parboiledPrettifier.queryTests() ++ javaCcOnlyTests) foreach {
-      case (inputString, _) if JavaCCParser.shouldFallBack(inputString) =>
+      case (inputString, _) if JavaCCParser.shouldFallback(inputString) =>
         fail(s"should not use fallback strings in tests: $inputString")
       case _ =>
     }

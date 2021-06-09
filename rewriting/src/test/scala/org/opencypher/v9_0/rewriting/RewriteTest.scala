@@ -16,10 +16,11 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticChecker
-import org.opencypher.v9_0.parser.ParserFixture.parser
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -39,7 +40,10 @@ trait RewriteTest {
     assert(result === expected, s"\n$originalQuery\nshould be rewritten to:\n$expectedQuery\nbut was rewritten to:\n${prettifier.asString(result.asInstanceOf[Statement])}")
   }
 
-  protected def parseForRewriting(queryText: String): Statement = parser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None))
+  protected def parseForRewriting(queryText: String): Statement = {
+    val preparedQuery = queryText.replace("\r\n", "\n")
+    JavaCCParser.parseWithFallback(preparedQuery, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
+  }
 
   protected def rewrite(original: Statement): AnyRef =
     original.rewrite(rewriterUnderTest)
@@ -48,7 +52,7 @@ trait RewriteTest {
     original.endoRewrite(rewriterUnderTest)
 
   protected def assertIsNotRewritten(query: String) {
-    val original = parser.parse(query, OpenCypherExceptionFactory(None))
+    val original = JavaCCParser.parseWithFallback(query, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
     val result = original.rewrite(rewriterUnderTest)
     assert(result === original, s"\n$query\nshould not have been rewritten but was to:\n${prettifier.asString(result.asInstanceOf[Statement])}")
   }

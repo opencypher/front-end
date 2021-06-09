@@ -16,9 +16,10 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTInteger
@@ -56,7 +57,8 @@ class ParameterTypeValueReplacementTest extends CypherFunSuite {
 
   private def assertRewrite(originalQuery: String, parameterTypes: Map[String, CypherType]) {
     val exceptionFactory = OpenCypherExceptionFactory(None)
-    val original: Statement = parser.parse(originalQuery, exceptionFactory) // Do not use the old parameter syntax here
+    val nameGenerator = new AnonymousVariableNameGenerator
+    val original: Statement = JavaCCParser.parse(originalQuery, exceptionFactory, nameGenerator) // Do not use the old parameter syntax here
 
     original.findByAllClass[Parameter].size should equal(parameterTypes.size) // make sure we use all given parameters in the query
 

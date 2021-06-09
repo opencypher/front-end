@@ -18,7 +18,7 @@ package org.opencypher.v9_0.frontend
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
-import org.opencypher.v9_0.parser.CypherParser
+import org.opencypher.v9_0.parser.ParserFixture
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.WindowsStringSafe
@@ -28,7 +28,7 @@ class ParboiledPrettifierIT extends CypherFunSuite {
 
   val prettifier: Prettifier = Prettifier(ExpressionStringifier())
 
-  val parser = new CypherParser
+  val parser = ParserFixture.parser
   val tests: Seq[(String, String)] = queryTests() ++ schemaTests() ++ showCommandTests() ++ administrationTests()
 
   def queryTests(): Seq[(String, String)] = Seq[(String, String)](

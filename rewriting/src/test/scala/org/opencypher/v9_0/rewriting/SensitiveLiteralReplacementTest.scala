@@ -17,11 +17,12 @@ package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.SetOwnPassword
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.scalatest.matchers.Matcher
@@ -31,6 +32,8 @@ import java.nio.charset.StandardCharsets
 class SensitiveLiteralReplacementTest extends CypherFunSuite {
 
   val exceptionFactory = OpenCypherExceptionFactory(None)
+
+  val nameGenerator = new AnonymousVariableNameGenerator
 
   val passwordBytes = "password".getBytes(StandardCharsets.UTF_8)
   val currentBytes = "current".getBytes(StandardCharsets.UTF_8)
@@ -62,14 +65,14 @@ class SensitiveLiteralReplacementTest extends CypherFunSuite {
   test("should ignore queries with no passwords") {
     val query = "MATCH (n:Node{name:'foo'}) RETURN n"
 
-    val expected = parser.parse(query, exceptionFactory)
+    val expected = JavaCCParser.parse(query, exceptionFactory, nameGenerator)
     val expectedPattern: Matcher[Any] = matchPattern {case `expected` => }
 
     assertRewrite(query, expectedPattern, Map())
   }
 
   private def assertRewrite(originalQuery: String, matchExpectedPattern: Matcher[Any], replacements: Map[String, Any]) {
-    val original = parser.parse(originalQuery, exceptionFactory)
+    val original = JavaCCParser.parse(originalQuery, exceptionFactory, nameGenerator)
 
     val (rewriter, replacedLiterals) = sensitiveLiteralReplacement(original)
 

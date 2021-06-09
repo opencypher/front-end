@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.ast.semantics
+package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StatementHelper.RichStatement
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intCollectionCollectionSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intCollectionSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intSymbol
@@ -23,7 +25,8 @@ import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.nodeSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.pathCollectionSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.scope
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.typedSymbol
-import org.opencypher.v9_0.parser.ParserFixture.parse
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.symbols.StorableType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -241,5 +244,9 @@ class ScopeTreeTest extends CypherFunSuite {
     )
 
     actual should equal(expected)
+  }
+
+  def parse(queryText: String): Statement = {
+    JavaCCParser.parse(queryText, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
   }
 }

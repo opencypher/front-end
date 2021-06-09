@@ -15,13 +15,14 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.ExplicitParameter
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.Forced
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp
@@ -35,7 +36,7 @@ class LiteralReplacementTest extends CypherFunSuite  {
   }
 
   test("should not extract literal dynamic property lookups") {
-    assertDoesNotRewrite("MATCH n RETURN n[\"name\"]")
+    assertDoesNotRewrite("MATCH (n) RETURN n[\"name\"]")
   }
 
   test("should extract literals in return clause") {
@@ -135,8 +136,9 @@ class LiteralReplacementTest extends CypherFunSuite  {
 
   private def assertRewrite(originalQuery: String, expectedQuery: String, replacements: Map[String, Any], extractLiterals: LiteralExtractionStrategy = IfNoParameter) {
     val exceptionFactory = OpenCypherExceptionFactory(None)
-    val original = parser.parse(originalQuery, exceptionFactory)
-    val expected = parser.parse(expectedQuery, exceptionFactory)
+    val nameGenerator = new AnonymousVariableNameGenerator
+    val original = JavaCCParser.parse(originalQuery, exceptionFactory, nameGenerator)
+    val expected = JavaCCParser.parse(expectedQuery, exceptionFactory, nameGenerator)
 
     val (rewriter, replacedLiterals) = literalReplacement(original, extractLiterals)
 

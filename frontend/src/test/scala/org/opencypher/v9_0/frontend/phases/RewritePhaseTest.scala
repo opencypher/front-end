@@ -18,13 +18,13 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StatementHelper.RichStatement
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.helpers.TestContext
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -89,10 +89,11 @@ trait RewritePhaseTest {
 
   private def parseAndRewrite(queryText: String, features: SemanticFeature*): Statement = {
     val exceptionFactory = OpenCypherExceptionFactory(None)
-    val parsedAst = parser.parse(queryText, exceptionFactory)
+    val nameGenerator = new AnonymousVariableNameGenerator
+    val parsedAst = JavaCCParser.parse(queryText, exceptionFactory, nameGenerator)
     val cleanedAst = parsedAst.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger)))
     if (astRewriteAndAnalyze) {
-      ASTRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory, new AnonymousVariableNameGenerator())
+      ASTRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory, nameGenerator)
     } else {
       cleanedAst
     }

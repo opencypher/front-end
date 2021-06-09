@@ -20,11 +20,12 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.rewriteShowQuery
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.devNullLogger
@@ -95,8 +96,8 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("symbol shadowing should be taken into account") {
     assertRewrite(
-      "match a,x,y with a match (b) return *",
-      "match a,x,y with a match (b) return a, b")
+      "match (a),(x),(y) with a match (b) return *",
+      "match (a),(x),(y) with a match (b) return a, b")
   }
 
   test("keeps listed items during expand") {
@@ -147,10 +148,11 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
 
   private def prepRewrite(q: String, rewriteShowCommand: Boolean = false) = {
     val exceptionFactory = OpenCypherExceptionFactory(None)
+    val nameGenerator = new AnonymousVariableNameGenerator
     val rewriter = if (rewriteShowCommand)
       inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger), rewriteShowQuery)
     else
       inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger))
-    parser.parse(q, exceptionFactory).endoRewrite(rewriter)
+    JavaCCParser.parse(q, exceptionFactory, nameGenerator).endoRewrite(rewriter)
   }
 }
