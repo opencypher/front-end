@@ -23,13 +23,11 @@ import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.StepSequencer
-import org.opencypher.v9_0.util.symbols.CypherType
 
 trait BaseState {
   def queryText: String
   def startPosition: Option[InputPosition]
   def plannerName: PlannerName
-  def initialFields: Map[String, CypherType]
   def maybeStatement: Option[Statement]
   def maybeReturnColumns: Option[Seq[String]]
   def maybeSemantics: Option[SemanticState]
@@ -64,7 +62,6 @@ case class InitialState(queryText: String,
   startPosition: Option[InputPosition],
   plannerName: PlannerName,
   anonymousVariableNameGenerator: AnonymousVariableNameGenerator,
-  initialFields: Map[String, CypherType] = Map.empty,
   maybeStatement: Option[Statement] = None,
   maybeSemantics: Option[SemanticState] = None,
   maybeExtractedParams: Option[Map[String, Any]] = None,
