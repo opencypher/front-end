@@ -18,6 +18,7 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.AndedPropertyInequalities
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
 import org.opencypher.v9_0.expressions.CachedProperty
@@ -41,6 +42,7 @@ import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.LabelName
@@ -103,6 +105,7 @@ import org.opencypher.v9_0.expressions.functions.Min
 import org.opencypher.v9_0.expressions.functions.Sum
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.NonEmptyList
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 
@@ -277,6 +280,18 @@ trait AstConstructionTestSupport extends CypherTestSupport {
   def greaterThan(lhs: Expression, rhs: Expression): GreaterThan = GreaterThan(lhs, rhs)(pos)
 
   def greaterThanOrEqual(lhs: Expression, rhs: Expression): GreaterThanOrEqual = GreaterThanOrEqual(lhs, rhs)(pos)
+
+  def andedPropertyInequalities(firstInequality: InequalityExpression, otherInequalities: InequalityExpression*): AndedPropertyInequalities = {
+    val property = firstInequality.lhs match {
+      case p: Property => p
+      case _ => throw new IllegalStateException("Must specify property as LHS of InequalityExpression")
+    }
+    val variable = property.map match {
+      case v: Variable => v
+      case _ => throw new IllegalStateException("Must specify variable as map of property")
+    }
+    AndedPropertyInequalities(variable, property, NonEmptyList(firstInequality, otherInequalities: _*))
+  }
 
   def getDegree(node: Expression, direction: SemanticDirection): GetDegree = GetDegree(node, None, direction)(pos)
 
