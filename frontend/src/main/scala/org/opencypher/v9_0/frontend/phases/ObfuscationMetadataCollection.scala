@@ -38,7 +38,7 @@ case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, 
   override def process(from: BaseState, context: BaseContext): BaseState = {
     val extractedParamNames = from.maybeExtractedParams.map(_.keys.toSet).getOrElse(Set.empty)
     val preParserOffset = from.startPosition.map(_.offset).getOrElse(0)
-    val parameters = from.statement().findByAllClass[Parameter]
+    val parameters = from.statement().findAllByClass[Parameter]
 
     val offsets = collectSensitiveLiteralOffsets(from.statement(), extractedParamNames, preParserOffset)
     val sensitiveParams = collectSensitiveParameterNames(parameters, extractedParamNames)
@@ -56,5 +56,5 @@ case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, 
     }.distinct.sortBy(_.start)
 
   private def collectSensitiveParameterNames(queryParams: Seq[Parameter], extractedParamNames: Set[String]): Set[String] =
-    queryParams.findByAllClass[SensitiveParameter].map(_.name).toSet -- extractedParamNames
+    queryParams.findAllByClass[SensitiveParameter].map(_.name).toSet -- extractedParamNames
 }
