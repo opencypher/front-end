@@ -18,15 +18,35 @@ package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.when
+import org.opencypher.v9_0.ast.Query
+import org.opencypher.v9_0.ast.Return
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.SingleQuery
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
+import org.opencypher.v9_0.ast.semantics.SemanticFeature.CorrelatedSubQueries
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.frontend.helpers.NoPlannerName
 import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
+import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.Monitors
+import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
+import org.opencypher.v9_0.frontend.phases.Transformer
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer.steps
+import org.opencypher.v9_0.frontend.phases.transitiveClosure
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
+import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.StepSequencer.Condition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.scalatest.mockito.MockitoSugar
 
@@ -99,16 +119,29 @@ class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {
           or(
             or(
               and(p1, p2),
-              and(p3, p4)), or(
+              and(p3, p4)
+            ),
+            or(
               and(p5, p6),
-              and(p7, p8))), or(
+              and(p7, p8)
+            )
+          ),
+          or(
             or(
               and(p9, p10),
-              and(p11, p12)), or(
+              and(p11, p12)
+            ),
+            or(
               and(p13, p14),
-              and(p15, p16)))), or(
+              and(p15, p16)
+            )
+          )
+        ),
+        or(
           and(p17, p18),
-          and(p19, p20)))
+          and(p19, p20)
+        )
+      )
 
     // When
     bigPredicate.rewrite(rewriter)
@@ -122,7 +155,55 @@ class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {
     val monitors = mock[Monitors]
     astRewritingMonitor = mock[AstRewritingMonitor]
     when(monitors.newMonitor[AstRewritingMonitor]()).thenReturn(astRewritingMonitor)
-    rewriter = CNFNormalizer.instance(null, new TestContext(monitors))
+    rewriter = {
+      case e: Expression =>
+        val initialState = InitialState("", None, NoPlannerName, new AnonymousVariableNameGenerator()).withStatement(TestStatement(e))
+        val finalState = CNFNormalizerTest.getTransformer.transform(initialState, new TestContext(monitors))
+        val TestStatement(expression) = finalState.statement()
+        expression
+    }
+  }
+}
+
+object CNFNormalizerTest {
+
+  case object SemanticWrapper extends Transformer[BaseContext, BaseState, BaseState] with StepSequencer.Step {
+    private val transformer = SemanticAnalysis.getTransformer(pushdownPropertyReads = false, Seq(CorrelatedSubQueries))
+
+    override def preConditions: Set[Condition] = SemanticAnalysis.preConditions
+
+    override def postConditions: Set[Condition] = SemanticAnalysis.postConditions
+
+    override def invalidatedConditions: Set[Condition] = SemanticAnalysis.invalidatedConditions
+
+    override def transform(from: BaseState,
+                           context: BaseContext): BaseState = transformer.transform(from, context)
+
+    override def name: String = transformer.name
+  }
+
+  val orderedSteps: Seq[Transformer[BaseContext, BaseState, BaseState] with StepSequencer.Step] =
+    StepSequencer(ListStepAccumulator[Transformer[BaseContext, BaseState, BaseState] with StepSequencer.Step]())
+      .orderSteps(Set[Transformer[BaseContext, BaseState, BaseState] with StepSequencer.Step](transitiveClosure, SemanticWrapper) ++ steps, Set.empty)
+      .steps
+
+  def getTransformer: Transformer[BaseContext, BaseState, BaseState] = {
+    orderedSteps.reduceLeft[Transformer[BaseContext, BaseState, BaseState]]((t1, t2) => t1 andThen t2)
+  }
+}
+
+/**
+ * Rewriters work on states, which reference a statement. As we often care about the rewriting of expressions (instead of statements), this object helps to bridge that gap.
+ */
+object TestStatement {
+  def apply(e: Expression): Statement = {
+    val returnClause = Return(ReturnItems(includeExisting = false, Seq(UnaliasedReturnItem(e, "")(InputPosition.NONE)))(InputPosition.NONE))(InputPosition.NONE)
+    Query(None, SingleQuery(Seq(returnClause))(InputPosition.NONE))(InputPosition.NONE)
+  }
+
+  def unapply(s: Statement): Option[Expression] = s match {
+    case Query(_, SingleQuery(Seq(Return(_, ReturnItems(_, Seq(UnaliasedReturnItem(expression, _)), _), _, _, _, _)))) => Some(expression)
+    case _ => None
   }
 }
 
@@ -133,11 +214,11 @@ object TestContext extends MockitoSugar {
 }
 
 class TestContext(override val monitors: Monitors) extends BaseContext {
-  override def tracer: CompilationPhaseTracer = ???
+  override def tracer: CompilationPhaseTracer = CompilationPhaseTracer.NO_TRACING
 
   override def notificationLogger: InternalNotificationLogger = ???
 
   override def cypherExceptionFactory: CypherExceptionFactory = ???
 
-  override def errorHandler: Seq[SemanticErrorDef] => Unit = ???
+  override def errorHandler: Seq[SemanticErrorDef] => Unit = _ => ()
 }

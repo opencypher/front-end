@@ -20,12 +20,9 @@ import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase
 import org.opencypher.v9_0.frontend.phases.Phase
-import org.opencypher.v9_0.frontend.phases.StatementRewriter
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
-import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
-import org.opencypher.v9_0.util.inSequence
 
 /**
  * Helper trait to embed a rewriter as transformation phase in the scope of the normalisation towards CNF.
@@ -49,32 +46,17 @@ trait CnfPhase extends Phase[BaseContext, BaseState, BaseState] with StepSequenc
 /**
  * Normalize boolean predicates into conjunctive normal form.
  */
-case object CNFNormalizer extends StatementRewriter {
-  /* These implementations are here to make org.opencypher.v9_0.frontend.phases.CompilationPhases compile and for tests to pass.
-   * Note, that this current implementation is missing the simplifyPredicates step.
-   */
-  override def instance(from: BaseState, context: BaseContext): Rewriter = {
-    implicit val monitor: AstRewritingMonitor = context.monitors.newMonitor[AstRewritingMonitor]()
-    inSequence(
-      deMorganRewriter(),
-      distributeLawsRewriter(),
-      normalizeInequalities,
-      flattenBooleanOperators,
-      // Redone here since CNF normalization might introduce negated inequalities (which this removes)
-      normalizeSargablePredicates
-    )
-  }
+object CNFNormalizer {
 
-  override def postConditions: Set[StepSequencer.Condition] = Set.empty
-
-  val steps: Set[StepSequencer.Step with PlanPipelineTransformerFactory] = {
+  val steps: Set[CnfPhase] = {
     Set(
       deMorganRewriter,
       distributeLawsRewriter,
       normalizeInequalities,
       simplifyPredicates,
       normalizeSargablePredicates,
-      flattenBooleanOperators)
+      flattenBooleanOperators,
+    )
   }
 
   val PredicatesInCNF: Set[StepSequencer.Condition] = steps.flatMap(_.postConditions)

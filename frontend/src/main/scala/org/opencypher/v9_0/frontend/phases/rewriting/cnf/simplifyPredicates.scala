@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
-import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.BooleanExpression
@@ -83,7 +82,7 @@ case object simplifyPredicates extends StepSequencer.Step with PlanPipelineTrans
 
   def coerceInnerExpressionToBooleanIfNecessary(semanticState: SemanticState,
                                                 outerExpression: BooleanExpression,
-                                                innerExpression: Expression) = {
+                                                innerExpression: Expression): Expression = {
     if (needsToBeExplicitlyCoercedToBoolean(semanticState, outerExpression, innerExpression)) {
       CoerceToPredicate(innerExpression)
     } else {

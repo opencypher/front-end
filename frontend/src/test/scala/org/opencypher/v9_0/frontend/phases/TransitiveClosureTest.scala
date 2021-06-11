@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizerTest
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.helpers.NameDeduplicator.removeGeneratedNamesAndParamsOnTree
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -29,8 +29,8 @@ class TransitiveClosureTest extends CypherFunSuite with AstConstructionTestSuppo
     override def postConditions: Set[StepSequencer.Condition] = Set.empty
   }
 
-  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] = transitiveClosure andThen CNFNormalizer andThen removeGeneratedNames
-  override def rewriterPhaseForExpected: Transformer[BaseContext, BaseState, BaseState] = CNFNormalizer andThen removeGeneratedNames
+  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] = transitiveClosure andThen CNFNormalizerTest.getTransformer andThen removeGeneratedNames
+  override def rewriterPhaseForExpected: Transformer[BaseContext, BaseState, BaseState] = CNFNormalizerTest.getTransformer andThen removeGeneratedNames
 
   test("MATCH (a)-->(b) WHERE a.prop = b.prop AND b.prop = 42") {
     assertRewritten(

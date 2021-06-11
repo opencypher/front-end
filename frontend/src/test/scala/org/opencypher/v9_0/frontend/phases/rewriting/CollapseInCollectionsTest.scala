@@ -20,13 +20,14 @@ import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.RewritePhaseTest
 import org.opencypher.v9_0.frontend.phases.Transformer
 import org.opencypher.v9_0.frontend.phases.collapseMultipleInPredicates
-import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizerTest
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class CollapseInCollectionsTest extends CypherFunSuite with AstRewritingTestSupport with RewritePhaseTest {
 
-  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] = CNFNormalizer andThen collapseMultipleInPredicates
+  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] =
+    CNFNormalizerTest.getTransformer andThen collapseMultipleInPredicates
 
   test("should collapse collection containing ConstValues for id function") {
     assertRewritten(
