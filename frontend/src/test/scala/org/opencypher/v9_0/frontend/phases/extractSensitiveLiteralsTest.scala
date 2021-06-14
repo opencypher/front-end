@@ -16,6 +16,8 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.rewriting.rewriters.foldConstants
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class extractSensitiveLiteralsTest extends CypherFunSuite with AstConstructionTestSupport with RewritePhaseTest {
@@ -45,5 +47,19 @@ class extractSensitiveLiteralsTest extends CypherFunSuite with AstConstructionTe
     test(q) {
       assertRewritten(q, q)
     }
+  }
+
+  test("should not fold sensitive literals") {
+    assertSensitiveNotRewritten("RETURN 1+(5*4)/(2.0*4) AS r")
+    assertSensitiveNotRewritten("MATCH (n) WHERE 1=1 RETURN n AS r")
+    assertSensitiveNotRewritten("MATCH (n) WHERE 1+(5*4)/(3*4)=2 RETURN n AS r")
+    assertSensitiveNotRewritten("MATCH (n) WHERE 2>1 RETURN n AS r")
+    assertSensitiveNotRewritten("MATCH (n) WHERE 2<1 RETURN n AS r")
+  }
+
+  def assertSensitiveNotRewritten(query: String): Unit = {
+    val unfolded: BaseState = prepareFrom(query, rewriterPhaseUnderTest)
+    val folded = unfolded.statement().endoRewrite(foldConstants(OpenCypherExceptionFactory(None)))
+    unfolded.statement() should equal(folded)
   }
 }
