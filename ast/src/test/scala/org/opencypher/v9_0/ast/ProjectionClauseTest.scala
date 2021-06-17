@@ -15,10 +15,12 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.CountStar
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -235,5 +237,44 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
 
     // THEN
     result.errors should be(empty)
+  }
+
+  test("WITH should not care about outer scope") {
+    val returnItems: Seq[AliasedReturnItem] = Seq(
+      AliasedReturnItem(literalInt(1), varFor("x"))_
+    )
+    val listedReturnItems = ReturnItems(includeExisting = false, returnItems)_
+    val withObj = With(distinct = false, listedReturnItems,  None, None, None, None)_
+
+    // WHEN
+    val outerState = SemanticState.clean.newChildScope.declareVariable(varFor("x"), CTNode).right.get
+    val outerScope = outerState.currentScope.scope
+    val beforeState = SemanticState.clean.newChildScope
+    val middleState = withObj.semanticCheck(beforeState).state
+    val result = withObj.semanticCheckContinuation(middleState.currentScope.scope, Some(outerScope))(middleState)
+
+    // THEN
+    result.errors should be(empty)
+  }
+
+  test("RETURN should fail to declare variable existing in outer scope") {
+    val varPosition = InputPosition(100, 4, 10)
+    val returnItems: Seq[AliasedReturnItem] = Seq(
+      AliasedReturnItem(literalInt(1), varFor("x").copy()(varPosition))_
+    )
+    val listedReturnItems = ReturnItems(includeExisting = false, returnItems)_
+    val returnObj = Return(distinct = false, listedReturnItems,  None, None, None)_
+
+    // WHEN
+    val outerState = SemanticState.clean.newChildScope.declareVariable(varFor("x"), CTNode).right.get
+    val outerScope = outerState.currentScope.scope
+    val beforeState = SemanticState.clean.newChildScope
+    val middleState = returnObj.semanticCheck(beforeState).state
+    val result = returnObj.semanticCheckContinuation(middleState.currentScope.scope, Some(outerScope))(middleState)
+
+    // THEN
+    result.errors shouldEqual Seq(
+      SemanticError("Variable `x` already declared in outer scope", varPosition)
+    )
   }
 }
