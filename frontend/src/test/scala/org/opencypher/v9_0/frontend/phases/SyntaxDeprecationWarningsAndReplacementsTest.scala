@@ -16,15 +16,17 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.helpers.TestContext
-import org.opencypher.v9_0.frontend.helpers.TestState
 import org.opencypher.v9_0.parser.ParserFixture.parser
-import org.opencypher.v9_0.rewriting.Deprecations
-import org.opencypher.v9_0.rewriting.Deprecations.deprecatedFeaturesIn4_X
+import org.opencypher.v9_0.rewriting.Deprecations.semanticallyDeprecatedFeaturesIn4_X
+import org.opencypher.v9_0.rewriting.Deprecations.syntacticallyDeprecatedFeaturesIn4_X
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
+import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.RecordingNotificationLogger
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -32,48 +34,93 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
 
   test("should warn about deprecated octal syntax") {
-    check(deprecatedFeaturesIn4_X, "RETURN 01277") should equal(Set(
+    check("RETURN 01277") should equal(Set(
       DeprecatedOctalLiteralSyntax(InputPosition(7, 1, 8))
     ))
   }
 
   test("should warn about deprecated octal syntax (negative literal)") {
-    check(deprecatedFeaturesIn4_X, "RETURN -01277") should equal(Set(
+    check("RETURN -01277") should equal(Set(
       DeprecatedOctalLiteralSyntax(InputPosition(7, 1, 8))
     ))
   }
 
   test("should not warn about correct octal syntax") {
-    check(deprecatedFeaturesIn4_X, "RETURN 0o1277") should equal(Set.empty)
+    check("RETURN 0o1277") should equal(Set.empty)
   }
 
   test("should not warn about correct octal syntax  (negative literal)") {
-    check(deprecatedFeaturesIn4_X, "RETURN -0o1277") should equal(Set.empty)
+    check("RETURN -0o1277") should equal(Set.empty)
   }
 
   test("should warn about deprecated hexadecimal syntax") {
-    check(deprecatedFeaturesIn4_X, "RETURN 0X1277") should equal(Set(
+    check("RETURN 0X1277") should equal(Set(
       DeprecatedHexLiteralSyntax(InputPosition(7, 1, 8))
     ))
   }
 
   test("should warn about deprecated hexadecimal syntax (negative literal)") {
-    check(deprecatedFeaturesIn4_X, "RETURN -0X1277") should equal(Set(
+    check("RETURN -0X1277") should equal(Set(
       DeprecatedHexLiteralSyntax(InputPosition(7, 1, 8))
     ))
   }
 
   test("should not warn about correct hexadecimal syntax") {
-    check(deprecatedFeaturesIn4_X, "RETURN 0x1277") should equal(Set.empty)
+    check("RETURN 0x1277") should equal(Set.empty)
   }
 
   test("should not warn about correct hexadecimal syntax  (negative literal)") {
-    check(deprecatedFeaturesIn4_X, "RETURN -0x1277") should equal(Set.empty)
+    check("RETURN -0x1277") should equal(Set.empty)
   }
 
-  private def check(deprecations: Deprecations, query: String): Set[InternalNotification] = {
+  test("should warn about pattern expression in RETURN clause") {
+    check("RETURN ()--()") should equal(Set(
+      DeprecatedPatternExpressionOutsideExistsSyntax(InputPosition(7, 1, 8))
+    ))
+  }
+
+  test("should not warn about pattern expression in exists function") {
+    check("WITH 1 AS foo WHERE exists(()--()) RETURN *") should equal(Set.empty)
+  }
+
+  test("should only warn about coercion with a pattern expression in WHERE clause") {
+    check("WITH 1 AS foo WHERE ()--() RETURN *") should equal(Set(
+      DeprecatedCoercionOfListToBoolean(InputPosition(20, 1, 21))
+    ))
+  }
+
+  test("should only warn about coercion with a pattern expression in boolean expression") {
+    check("RETURN NOT ()--()") should equal(Set(
+      DeprecatedCoercionOfListToBoolean(InputPosition(11, 1, 12))
+    ))
+    check("RETURN ()--() AND ()--()--()") should equal(Set(
+      DeprecatedCoercionOfListToBoolean(InputPosition(7, 1, 8)),
+      DeprecatedCoercionOfListToBoolean(InputPosition(18, 1, 19)),
+    ))
+    check("RETURN ()--() OR ()--()--()") should equal(Set(
+      DeprecatedCoercionOfListToBoolean(InputPosition(7, 1, 8)),
+      DeprecatedCoercionOfListToBoolean(InputPosition(17, 1, 18)),
+    ))
+  }
+
+  private val plannerName = new PlannerName {
+    override def name: String = "fake"
+    override def toTextOutput: String = "fake"
+    override def version: String = "fake"
+  }
+
+  private def check(query: String) = {
     val logger = new RecordingNotificationLogger()
-    SyntaxDeprecationWarningsAndReplacements(deprecations).transform(TestState(Some(parse(query))), TestContext(logger))
+    val statement = parse(query)
+    val initialState = InitialState(query, None, plannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(statement))
+
+    val pipeline =
+      SyntaxDeprecationWarningsAndReplacements(syntacticallyDeprecatedFeaturesIn4_X) andThen
+        PreparatoryRewriting andThen
+        SemanticAnalysis(warn = true) andThen
+        SyntaxDeprecationWarningsAndReplacements(semanticallyDeprecatedFeaturesIn4_X)
+
+    pipeline.transform(initialState, TestContext(logger))
     logger.notifications
   }
 

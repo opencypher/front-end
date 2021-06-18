@@ -16,12 +16,17 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.Deprecations.semanticallyDeprecatedFeaturesIn4_X
+import org.opencypher.v9_0.rewriting.Deprecations.syntacticallyDeprecatedFeaturesIn4_X
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstructionTestSupport with RewritePhaseTest {
 
-  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] = SyntaxDeprecationWarningsAndReplacements(Deprecations.deprecatedFeaturesIn4_X)
+  override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] =
+    SyntaxDeprecationWarningsAndReplacements(syntacticallyDeprecatedFeaturesIn4_X) andThen
+      PreparatoryRewriting andThen
+      SemanticAnalysis(warn = true) andThen
+      SyntaxDeprecationWarningsAndReplacements(semanticallyDeprecatedFeaturesIn4_X)
 
   test("should rewrite timestamp()") {
     assertRewritten(

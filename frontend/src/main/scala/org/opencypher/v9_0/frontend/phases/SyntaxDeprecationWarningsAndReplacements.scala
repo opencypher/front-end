@@ -18,8 +18,9 @@ package org.opencypher.v9_0.frontend.phases
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.DEPRECATION_WARNINGS
 import org.opencypher.v9_0.rewriting.Deprecation
 import org.opencypher.v9_0.rewriting.Deprecations
+import org.opencypher.v9_0.rewriting.SemanticDeprecations
+import org.opencypher.v9_0.rewriting.SyntacticDeprecations
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Condition
@@ -33,20 +34,26 @@ case object DeprecatedSyntaxReplaced extends Condition
 case class SyntaxDeprecationWarningsAndReplacements(deprecations: Deprecations) extends Phase[BaseContext, BaseState, BaseState] {
 
   override def process(state: BaseState, context: BaseContext): BaseState = {
-    // collect notifications and replacements
-    case class Acc(notifications: Set[InternalNotification], replacements: Map[ASTNode, ASTNode]) {
-      def +(deprecation: Deprecation): Acc = Acc(notifications ++ deprecation.notification, replacements ++ deprecation.replacement)
-      def +(acc: Acc) = Acc(notifications ++ acc.notifications, replacements ++ acc.replacements)
+    val allDeprecations = deprecations match {
+      case syntacticDeprecations: SyntacticDeprecations =>
+        val foundWithoutContext = state.statement().fold(Set.empty[Deprecation]) {
+          syntacticDeprecations.find.andThen(deprecation => acc => acc + deprecation)
+        }
+        val foundWithContext = syntacticDeprecations.findWithContext(state.statement())
+        foundWithoutContext ++ foundWithContext
+      case semanticDeprecations: SemanticDeprecations =>
+        val semanticTable = state.maybeSemanticTable.getOrElse(
+          throw new IllegalStateException(s"Got semantic deprecations ${semanticDeprecations.getClass.getSimpleName} but no SemanticTable")
+        )
+        val foundWithoutContext = state.statement().fold(Set.empty[Deprecation]) {
+          semanticDeprecations.find(semanticTable).andThen(deprecation => acc => acc + deprecation)
+        }
+        val foundWithContext = semanticDeprecations.findWithContext(state.statement(), semanticTable)
+        foundWithoutContext ++ foundWithContext
     }
 
-    val foundWithoutContext = state.statement().fold(Acc(Set.empty, Map.empty)) {
-      deprecations.find.andThen(deprecation => acc => acc + deprecation)
-    }
-    val foundWithContext = deprecations.findWithContext(state.statement(), state.maybeSemanticTable).foldLeft(Acc(Set.empty, Map.empty)) {
-      case (acc, deprecation) => acc + deprecation
-    }
-
-    val Acc(notifications, replacements) = foundWithoutContext + foundWithContext
+    val notifications = allDeprecations.flatMap(_.notification)
+    val replacements = allDeprecations.flatMap(_.replacement).toMap
 
     // issue notifications
     notifications.foreach(context.notificationLogger.log)
