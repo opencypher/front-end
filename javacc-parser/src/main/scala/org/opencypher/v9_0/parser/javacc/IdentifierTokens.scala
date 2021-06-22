@@ -57,6 +57,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.DETACH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DISTINCT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DROP
 import org.opencypher.v9_0.parser.javacc.CypherConstants.DUMP
+import org.opencypher.v9_0.parser.javacc.CypherConstants.EACH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ELEMENT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ELEMENTS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.ELSE
@@ -72,6 +73,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.EXTRACT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FALSE
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FIELDTERMINATOR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FILTER
+import org.opencypher.v9_0.parser.javacc.CypherConstants.FOR
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FOREACH
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FROM
 import org.opencypher.v9_0.parser.javacc.CypherConstants.FULLTEXT
@@ -223,6 +225,7 @@ object IdentifierTokens {
     DISTINCT,
     DROP,
     DUMP,
+    EACH,
     ELEMENT,
     ELEMENTS,
     ELSE,
@@ -237,6 +240,7 @@ object IdentifierTokens {
     FALSE,
     FIELDTERMINATOR,
     FILTER,
+    FOR,
     FOREACH,
     FROM,
     FULLTEXT,
