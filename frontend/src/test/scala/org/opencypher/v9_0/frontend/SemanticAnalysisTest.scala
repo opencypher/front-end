@@ -18,10 +18,17 @@ package org.opencypher.v9_0.frontend
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext.failWith
 import org.opencypher.v9_0.frontend.helpers.NoPlannerName
+import org.opencypher.v9_0.frontend.phases.BaseContext
+import org.opencypher.v9_0.frontend.phases.BaseState
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
+import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.Parsing
+import org.opencypher.v9_0.frontend.phases.Phase
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
+import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SemanticAnalysisTest extends CypherFunSuite {
@@ -179,6 +186,30 @@ class SemanticAnalysisTest extends CypherFunSuite {
     context.errors should be(empty)
   }
 
+  test("Should register reading uses in PathExpressions") {
+    val query = "MATCH p = (a)-[r]-(b) RETURN p AS p"
+
+    val startState = initStartState(query)
+    val context = new ErrorCollectingContext()
+
+    val pipeline = Parsing andThen ProjectNamedPathsPhase andThen SemanticAnalysis(warn = true)
+
+    val result = pipeline.transform(startState, context)
+    val scopeTree = result.semantics().scopeTree
+
+    Set("a", "r", "b").foreach { name =>
+      scopeTree.allSymbols(name).head.readingUses shouldNot be(empty)
+    }
+  }
+
   private def initStartState(query: String) =
     InitialState(query, None, NoPlannerName, new AnonymousVariableNameGenerator)
+
+  final case object ProjectNamedPathsPhase extends Phase[BaseContext, BaseState, BaseState] {
+    override def phase: CompilationPhaseTracer.CompilationPhase = AST_REWRITE
+    override def process(from: BaseState, context: BaseContext): BaseState = {
+      from.withStatement(from.statement().endoRewrite(projectNamedPaths))
+    }
+    override def postConditions: Set[StepSequencer.Condition] = Set.empty
+  }
 }

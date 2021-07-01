@@ -65,7 +65,10 @@ import org.opencypher.v9_0.expressions.LiteralEntry
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.MapProjection
 import org.opencypher.v9_0.expressions.Modulo
+import org.opencypher.v9_0.expressions.MultiRelationshipPathStep
 import org.opencypher.v9_0.expressions.Multiply
+import org.opencypher.v9_0.expressions.NilPathStep
+import org.opencypher.v9_0.expressions.NodePathStep
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.expressions.Null
@@ -87,6 +90,7 @@ import org.opencypher.v9_0.expressions.ReduceExpression.AccumulatorExpressionTyp
 import org.opencypher.v9_0.expressions.ReduceScope
 import org.opencypher.v9_0.expressions.RegexMatch
 import org.opencypher.v9_0.expressions.ShortestPathExpression
+import org.opencypher.v9_0.expressions.SingleRelationshipPathStep
 import org.opencypher.v9_0.expressions.StartsWith
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Subtract
@@ -377,7 +381,25 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         specifyType(CTInteger, x)
 
       case x:PathExpression =>
-        specifyType(CTPath, x)
+        specifyType(CTPath, x) chain
+          check(ctx, x.step)
+
+      case x: NodePathStep =>
+        check(ctx, x.node) chain
+          check(ctx, x.next)
+
+      case x: SingleRelationshipPathStep =>
+        check(ctx, x.rel) chain
+          x.toNode.map(check(ctx, _)).getOrElse(SemanticCheckResult.success) chain
+          check(ctx, x.next)
+
+      case x: MultiRelationshipPathStep =>
+        check(ctx, x.rel) chain
+          x.toNode.map(check(ctx, _)).getOrElse(SemanticCheckResult.success) chain
+          check(ctx, x.next)
+
+      case _: NilPathStep =>
+        SemanticCheckResult.success
 
       case x:ShortestPathExpression =>
         SemanticPatternCheck.declareVariables(Pattern.SemanticContext.Expression)(x.pattern) chain
