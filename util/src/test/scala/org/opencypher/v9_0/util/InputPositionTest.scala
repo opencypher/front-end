@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.util
 
-import org.opencypher.v9_0.util.InputPosition.byOffset
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class InputPositionTest extends CypherFunSuite {

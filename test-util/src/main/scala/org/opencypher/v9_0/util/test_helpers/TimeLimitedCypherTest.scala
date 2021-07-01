@@ -15,7 +15,7 @@
  */
 package org.opencypher.v9_0.util.test_helpers
 
-import org.opencypher.v9_0.util.DumpUtils
+import org.opencypher.v9_0.test.util.DumpUtils
 import org.scalatest.Failed
 import org.scalatest.Outcome
 import org.scalatest.concurrent.Signaler
