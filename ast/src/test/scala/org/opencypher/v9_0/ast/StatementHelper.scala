@@ -19,11 +19,14 @@ import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.Variable
 import org.scalatest.Assertions
 
 object StatementHelper extends Assertions {
 
   implicit class RichStatement(ast: Statement) {
+    private val allVariables = ast.findAllByClass[Variable]
+
     def semanticState(features: SemanticFeature*): SemanticState =
       ast.semanticCheck(SemanticState.clean.withFeatures(features: _*)) match {
         case SemanticCheckResult(state, errors) =>
@@ -34,5 +37,13 @@ object StatementHelper extends Assertions {
       }
 
     def scope: Scope = semanticState().scopeTree
+
+    def varAt(name: String)(offset: Int): Variable =
+      allVariables.find(v => v.name == name && v.position.offset == offset) match {
+        case Some(value) => value
+        case None =>
+          val foundOffsets = allVariables.filter(v => v.name == name).map(_.position.offset)
+          throw new IllegalStateException(s"Variable `$name` not found at position $offset. Found positions: $foundOffsets")
+      }
   }
 }

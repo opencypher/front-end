@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
@@ -28,10 +29,10 @@ case class recordScopes(semanticState: SemanticState) extends Rewriter {
 
   private val instance: Rewriter = topDown(Rewriter.lift {
     case x: PatternExpression =>
-      x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable))
+      x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable.asInstanceOf[Variable])) // FIXME fix casts
     case x: PatternComprehension =>
-      x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable))
+      x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable.asInstanceOf[Variable]))
     case x: ExistsSubClause =>
-      x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable))
+      x.withOuterScope(semanticState.recordedScopes(x).availableSymbolDefinitions.map(_.asVariable.asInstanceOf[Variable]))
   })
 }
