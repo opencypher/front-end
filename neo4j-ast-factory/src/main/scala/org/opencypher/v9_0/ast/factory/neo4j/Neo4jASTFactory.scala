@@ -215,7 +215,7 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StatementWithGraph
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
-import org.opencypher.v9_0.ast.SubQuery
+import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.TerminateTransactionAction
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.TraverseAction
@@ -575,7 +575,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     Foreach(v, list, clauses.asScala.toList)(p)
 
   override def subqueryClause(p: InputPosition, subquery: Query): Clause =
-    SubQuery(subquery.part)(p)
+    SubqueryCall(subquery.part)(p)
 
   // PATTERNS
 

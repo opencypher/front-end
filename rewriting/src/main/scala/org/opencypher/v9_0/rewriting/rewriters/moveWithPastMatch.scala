@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.SingleQuery
-import org.opencypher.v9_0.ast.SubQuery
+import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.LogicalVariable
@@ -64,7 +64,7 @@ case object moveWithPastMatch extends Rewriter with StepSequencer.Step with ASTR
   )
 
   private val subqueryRewriter: Rewriter = topDown(Rewriter.lift {
-    case s: SubQuery =>
+    case s: SubqueryCall =>
       s.copy(part = s.part.endoRewrite(innerRewriter(insideSubquery = true)))(s.position)
   })
 
@@ -126,7 +126,7 @@ case object moveWithPastMatch extends Rewriter with StepSequencer.Step with ASTR
       // Extract individual clauses again
       val newClauses = newSections.flatMap(_.clauses)
       q.copy(clauses = newClauses)(q.position)
-  }, stopper = _.isInstanceOf[SubQuery]))
+  }, stopper = _.isInstanceOf[SubqueryCall]))
 
 
   private def isMovableWith(w: With): Boolean = {

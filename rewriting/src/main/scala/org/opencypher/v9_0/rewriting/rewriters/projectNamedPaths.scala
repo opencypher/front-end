@@ -21,7 +21,7 @@ import org.opencypher.v9_0.ast.ProjectionClause
 import org.opencypher.v9_0.ast.ReturnItem
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
-import org.opencypher.v9_0.ast.SubQuery
+import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions
@@ -146,7 +146,7 @@ case object projectNamedPaths extends Rewriter with StepSequencer.Step with ASTR
         // After this projection, we remove all named paths. They have either been projected here, or they are not available in the rest of the query.
         TraverseChildrenNewAccForSiblings(projectedAcc, _.withoutNamedPaths)
 
-    case subquery: SubQuery =>
+    case subquery: SubqueryCall =>
       acc =>
         // Collect importing WITH clauses to insert into subqueries.
         // Importing with clauses cannot contain PathExpressions, so we need to add an extra WITH clause before those with all the variables from the path.

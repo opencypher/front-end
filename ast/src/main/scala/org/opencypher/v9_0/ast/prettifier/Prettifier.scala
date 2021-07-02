@@ -159,7 +159,7 @@ import org.opencypher.v9_0.ast.Start
 import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
-import org.opencypher.v9_0.ast.SubQuery
+import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Union
 import org.opencypher.v9_0.ast.Union.UnionMapping
@@ -544,9 +544,9 @@ case class Prettifier(
     def dispatch(clause: Clause): String = clause match {
       case u: UseGraph              => asString(u)
       case e: Return                => asString(e)
-      case m: Match                 => asString(m)
-      case c: SubQuery              => asString(c)
-      case w: With                  => asString(w)
+      case m: Match        => asString(m)
+      case c: SubqueryCall => asString(c)
+      case w: With         => asString(w)
       case y: Yield                 => asString(y)
       case c: Create                => asString(c)
       case u: Unwind                => asString(u)
@@ -582,7 +582,7 @@ case class Prettifier(
       s"$INDENT${o}MATCH $p$h$w"
     }
 
-    def asString(c: SubQuery): String = {
+    def asString(c: SubqueryCall): String = {
       s"""${INDENT}CALL {
          |${indented().queryPart(c.part)}
          |$INDENT}""".stripMargin

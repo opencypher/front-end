@@ -235,7 +235,7 @@ import org.opencypher.v9_0.ast.StartItem
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
-import org.opencypher.v9_0.ast.SubQuery
+import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.TerminateTransactionAction
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.TransactionManagementAction
@@ -1126,9 +1126,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     expression <- _expression
   } yield UseGraph(expression)(pos)
 
-  def _subQuery: Gen[SubQuery] = for {
+  def _subqueryCall: Gen[SubqueryCall] = for {
     part <- _queryPart
-  } yield SubQuery(part)(pos)
+  } yield SubqueryCall(part)(pos)
 
   def _clause: Gen[Clause] = oneOf(
     lzy(_use),
@@ -1145,7 +1145,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     lzy(_foreach),
     lzy(_loadCsv),
     lzy(_start),
-    lzy(_subQuery),
+    lzy(_subqueryCall),
   )
 
   def _singleQuery: Gen[SingleQuery] = for {
