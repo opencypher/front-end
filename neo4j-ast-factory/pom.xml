@@ -5,7 +5,7 @@
         <groupId>org.opencypher</groupId>
         <artifactId>front-end-parent-9.0</artifactId>
         <version>9.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -69,15 +69,19 @@
             <groupId>org.opencypher</groupId>
             <artifactId>parser-9.0</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.opencypher</groupId>
-            <artifactId>util-9.0</artifactId>
+            <artifactId>cypher-javacc-parser-9.0</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>test-util-9.0</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-            <type>test-jar</type>
         </dependency>
 
         <dependency>

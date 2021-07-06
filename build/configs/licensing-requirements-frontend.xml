@@ -5,6 +5,9 @@
     <liked-license>BSD License</liked-license>
     <liked-license>BSD License 2-clause</liked-license>
     <liked-license>BSD - Scala License</liked-license>
+    <liked-license>Eclipse Public License - v 1.0</liked-license>
+    <liked-license>Eclipse Public License v2.0</liked-license>
+    <liked-license>MIT License</liked-license>
 
     <override-licenses>
         <artifact id="org.scala-lang:scala-library:">
@@ -46,6 +49,12 @@
         </license>
         <license name="BSD License 2-clause">
             <aka>BSD-2-Clause</aka>
+        </license>
+        <license name="Eclipse Public License - v 1.0">
+           <aka>Eclipse Public License 1.0</aka>
+        </license>
+        <license name="MIT License">
+            <aka>The MIT License</aka>
         </license>
     </coalesced-licenses>
     <dual-licenses>

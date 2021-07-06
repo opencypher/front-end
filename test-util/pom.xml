@@ -2,30 +2,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>org.neo4j</groupId>
-        <artifactId>neo4j-front-end-parent</artifactId>
-        <version>4.4.0-SNAPSHOT</version>
+        <groupId>org.opencypher</groupId>
+        <artifactId>front-end-parent-9.0</artifactId>
+        <version>9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>neo4j-test-util</artifactId>
+    <artifactId>test-util-9.0</artifactId>
     <packaging>jar</packaging>
+    <version>9.0-SNAPSHOT</version>
     <name>openCypher Test Utils</name>
 
     <description>Cypher test utilities</description>
-    <url>http://components.neo4j.org/${project.artifactId}/${project.version}</url>
-
-    <properties>
-        <license-text.header>headers/ASL-2-header.txt</license-text.header>
-        <moduleName>org.neo4j.cypher.internal.test.util</moduleName>
-    </properties>
 
     <scm>
         <connection>scm:git:git://github.com/openCypher/front-end.git</connection>
         <developerConnection>scm:git:git://github.com/openCypher/front-end.git</developerConnection>
         <url>https://github.com/openCypher/front-end</url>
     </scm>
+
+    <properties>
+        <root.dir>${parent.relativePath}</root.dir>
+    </properties>
 
     <licenses>
         <license>
@@ -38,24 +37,29 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>${apache.commons.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <version>${scala.test.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
