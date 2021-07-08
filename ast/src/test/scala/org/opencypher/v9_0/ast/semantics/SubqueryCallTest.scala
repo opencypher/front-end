@@ -103,7 +103,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     //   RETURN 2 AS x
     // }
     // RETURN 1 AS y
-    val varPos = pos.newUniquePos()
+    val varPos = InputPosition(1, 2, 3)
     singleQuery(
       with_(literal(1).as("x")),
       subqueryCall(
@@ -124,7 +124,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     //   RETURN *
     // }
     // RETURN 1 AS y
-    val itemsPos = pos.newUniquePos()
+    val itemsPos = InputPosition(1, 2, 3)
     singleQuery(
       with_(literal(1).as("x")),
       subqueryCall(
@@ -149,8 +149,8 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     //   RETURN *
     // }
     // RETURN 1 AS y
-    val itemsPos1 = pos.newUniquePos()
-    val itemsPos2 = pos.newUniquePos()
+    val itemsPos1 = InputPosition(1, 2, 3)
+    val itemsPos2 = InputPosition(4, 5, 6)
     singleQuery(
       with_(literal(1).as("x")),
       subqueryCall(union(
@@ -367,7 +367,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     //   UNWIND [1] AS x
     // }
     // RETURN count(*) AS count
-    val unwindPos = pos.newUniquePos()
+    val unwindPos = InputPosition(1, 2, 3)
     singleQuery(
       subqueryCall(
         singleQuery(
