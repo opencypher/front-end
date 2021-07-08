@@ -25,6 +25,7 @@ import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -181,7 +182,7 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
 
     val statement = prepareFrom(query, rewriterPhaseUnderTest).statement()
 
-    val outerScope = statement.treeFold(Set.empty[Variable]) {
+    val outerScope = statement.treeFold(Set.empty[LogicalVariable]) {
       case expr: ExistsSubClause =>
         acc => TraverseChildren(acc ++ expr.outerScope)
     }
