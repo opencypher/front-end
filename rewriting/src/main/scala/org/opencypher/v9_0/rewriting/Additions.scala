@@ -15,10 +15,8 @@
  */
 package org.opencypher.v9_0.rewriting
 
-import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
-import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateLookupIndex
@@ -26,36 +24,16 @@ import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
-import org.opencypher.v9_0.ast.CreateUser
-import org.opencypher.v9_0.ast.DatabasePrivilege
-import org.opencypher.v9_0.ast.DbmsPrivilege
-import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
-import org.opencypher.v9_0.ast.ExistsConstraints
-import org.opencypher.v9_0.ast.FulltextIndexes
-import org.opencypher.v9_0.ast.GrantPrivilege
-import org.opencypher.v9_0.ast.GraphPrivilege
-import org.opencypher.v9_0.ast.HomeDatabaseScope
-import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDoNothing
-import org.opencypher.v9_0.ast.LookupIndexes
-import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NoOptions
-import org.opencypher.v9_0.ast.NodeExistsConstraints
-import org.opencypher.v9_0.ast.OptionsMap
-import org.opencypher.v9_0.ast.OptionsParam
-import org.opencypher.v9_0.ast.RelExistsConstraints
-import org.opencypher.v9_0.ast.RenameRole
-import org.opencypher.v9_0.ast.RenameUser
-import org.opencypher.v9_0.ast.RevokePrivilege
-import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.ShowConstraintsClause
-import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UniquePropertyConstraintCommand
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.expressions.ExistsSubClause
@@ -177,7 +155,7 @@ object Additions {
 
     override def check(statement: Statement, cypherExceptionFactory: CypherExceptionFactory): Unit = statement.treeExists {
 
-      case c: CreateUniquePropertyConstraint if c.properties.size > 1 =>
+      case c: UniquePropertyConstraintCommand if c.properties.size > 1 =>
         throw cypherExceptionFactory.syntaxException("Multi-property uniqueness constraints are not supported in this Cypher version.", c.position)
 
     }
