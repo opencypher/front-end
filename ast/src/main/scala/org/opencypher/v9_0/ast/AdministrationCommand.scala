@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
-import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticState
@@ -51,7 +50,7 @@ sealed trait AdministrationCommand extends StatementWithGraph with SemanticAnaly
 
   override def semanticCheck: SemanticCheck =
     requireFeatureSupport(s"The `$name` clause", SemanticFeature.MultipleDatabases, position) chain
-      when(useGraphVar.isDefined)(SemanticError(s"The `USE` clause is not required for Administration Commands. Retry your query omitting the `USE` clause and it will be routed automatically.", position))
+      when(useGraphVar.isDefined)(error(s"The `USE` clause is not required for Administration Commands. Retry your query omitting the `USE` clause and it will be routed automatically.", position))
 }
 
 sealed trait ReadAdministrationCommand extends AdministrationCommand {
@@ -76,9 +75,10 @@ sealed trait ReadAdministrationCommand extends AdministrationCommand {
 
   override def semanticCheck: SemanticCheck = initialState => {
 
-    def checkForDML(where: Where): SemanticCheck = {
+    def checkForDML(where: Where): SemanticCheck = state => {
       val invalid: Option[Expression] = where.expression.treeFind[Expression] { case _: ExistsSubClause => true }
-      invalid.map(exp => SemanticError("The EXISTS clause is not valid on SHOW commands.", exp.position))
+      invalid.map(exp => error("The EXISTS clause is not valid on SHOW commands.", exp.position)(state))
+        .getOrElse(SemanticCheckResult.success(state))
     }
 
     def checkProjection(r: ProjectionClause, prevErrors: Seq[SemanticErrorDef]): SemanticCheck = state => {
@@ -172,7 +172,7 @@ final case class CreateUser(userName: Either[String, Parameter],
   }
 
   override def semanticCheck: SemanticCheck = ifExistsDo match {
-    case IfExistsInvalidSyntax => SemanticError(s"Failed to create the specified user '$userAsString': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
+    case IfExistsInvalidSyntax => error(s"Failed to create the specified user '$userAsString': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
     case _ =>
       super.semanticCheck chain
         SemanticState.recordCurrentScope(this)
@@ -266,7 +266,7 @@ final case class CreateRole(roleName: Either[String, Parameter], from: Option[Ei
     ifExistsDo match {
       case IfExistsInvalidSyntax =>
         val name = Prettifier.escapeName(roleName)
-        SemanticError(s"Failed to create the specified role '$name': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
+        error(s"Failed to create the specified role '$name': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
       case _ =>
         super.semanticCheck chain
           SemanticState.recordCurrentScope(this)
@@ -403,7 +403,7 @@ final case class DenyPrivilege(privilege: PrivilegeType,
 
   override def semanticCheck: SemanticCheck = {
     privilege match {
-      case GraphPrivilege(MergeAdminAction, _) => SemanticError(s"`DENY MERGE` is not supported. Use `DENY SET PROPERTY` and `DENY CREATE` instead.", position)
+      case GraphPrivilege(MergeAdminAction, _) => error(s"`DENY MERGE` is not supported. Use `DENY SET PROPERTY` and `DENY CREATE` instead.", position)
       case _ => super.semanticCheck
     }
   }
@@ -446,7 +446,7 @@ final case class RevokePrivilege(privilege: PrivilegeType,
 
   override def semanticCheck: SemanticCheck = {
     (privilege, revokeType) match {
-      case (GraphPrivilege(MergeAdminAction, _), RevokeDenyType()) => SemanticError(s"`DENY MERGE` is not supported. Use `DENY SET PROPERTY` and `DENY CREATE` instead.", position)
+      case (GraphPrivilege(MergeAdminAction, _), RevokeDenyType()) => error(s"`DENY MERGE` is not supported. Use `DENY SET PROPERTY` and `DENY CREATE` instead.", position)
       case _ => super.semanticCheck
     }
   }
@@ -521,7 +521,7 @@ final case class CreateDatabase(dbName: Either[String, Parameter],
   override def semanticCheck: SemanticCheck = ifExistsDo match {
     case IfExistsInvalidSyntax =>
       val name = Prettifier.escapeName(dbName)
-      SemanticError(s"Failed to create the specified database '$name': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
+      error(s"Failed to create the specified database '$name': cannot have both `OR REPLACE` and `IF NOT EXISTS`.", position)
     case _ =>
       super.semanticCheck chain
         SemanticState.recordCurrentScope(this)
