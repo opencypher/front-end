@@ -87,14 +87,14 @@
         <dependency>
             <groupId>org.opencypher</groupId>
             <artifactId>tck</artifactId>
-            <version>${opencypher.version}</version>
+            <version>${tck.cypher.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.opencypher</groupId>
-            <artifactId>tck-api_2.12</artifactId>
-            <version>${opencypher.version}</version>
+            <artifactId>tck-api_${scala.binary.version}</artifactId>
+            <version>${tck.cypher.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.junit.jupiter</groupId>

@@ -25,13 +25,13 @@ import org.opencypher.v9_0.util.Rewritable
 sealed trait PrivilegeQualifier extends Rewritable {
   def simplify: Seq[PrivilegeQualifier] = Seq(this)
 
-  override def dup(children: Seq[AnyRef]): PrivilegeQualifier.this.type = this
+  override def dup(children: scala.collection.Seq[AnyRef]): PrivilegeQualifier.this.type = this
 }
 
 // Graph qualifiers
 
 sealed trait GraphPrivilegeQualifier extends PrivilegeQualifier {
-  override def dup(children: Seq[AnyRef]): GraphPrivilegeQualifier.this.type = this
+  override def dup(children: scala.collection.Seq[AnyRef]): GraphPrivilegeQualifier.this.type = this
 }
 
 final case class LabelQualifier(label: String)(val position: InputPosition) extends GraphPrivilegeQualifier
@@ -55,7 +55,7 @@ final case class RelationshipAllQualifier()(val position: InputPosition) extends
 // Database qualifiers
 
 sealed trait DatabasePrivilegeQualifier extends PrivilegeQualifier {
-  override def dup(children: Seq[AnyRef]): DatabasePrivilegeQualifier.this.type = this
+  override def dup(children: scala.collection.Seq[AnyRef]): DatabasePrivilegeQualifier.this.type = this
 }
 
 final case class AllDatabasesQualifier()(val position: InputPosition) extends DatabasePrivilegeQualifier
@@ -63,7 +63,7 @@ final case class AllDatabasesQualifier()(val position: InputPosition) extends Da
 final case class UserAllQualifier()(val position: InputPosition) extends DatabasePrivilegeQualifier
 
 final case class UserQualifier(username: Either[String, Parameter])(val position: InputPosition) extends DatabasePrivilegeQualifier {
-  override def dup(children: Seq[AnyRef]): UserQualifier.this.type =
+  override def dup(children: scala.collection.Seq[AnyRef]): UserQualifier.this.type =
     this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
 }
 
@@ -72,7 +72,7 @@ final case class UserQualifier(username: Either[String, Parameter])(val position
 sealed trait ExecutePrivilegeQualifier extends PrivilegeQualifier
 
 sealed trait ProcedurePrivilegeQualifier extends ExecutePrivilegeQualifier {
-  override def dup(children: Seq[AnyRef]): ProcedurePrivilegeQualifier.this.type = this
+  override def dup(children: scala.collection.Seq[AnyRef]): ProcedurePrivilegeQualifier.this.type = this
 }
 
 final case class ProcedureQualifier(nameSpace: Namespace, procedureName: ProcedureName)(val position: InputPosition) extends ProcedurePrivilegeQualifier {
@@ -85,7 +85,7 @@ final case class ProcedureQualifier(nameSpace: Namespace, procedureName: Procedu
 final case class ProcedureAllQualifier()(val position: InputPosition) extends ProcedurePrivilegeQualifier
 
 sealed trait FunctionPrivilegeQualifier extends ExecutePrivilegeQualifier {
-  override def dup(children: Seq[AnyRef]): FunctionPrivilegeQualifier.this.type = this
+  override def dup(children: scala.collection.Seq[AnyRef]): FunctionPrivilegeQualifier.this.type = this
 }
 
 final case class FunctionQualifier(nameSpace: Namespace, functionName: FunctionName)(val position: InputPosition) extends FunctionPrivilegeQualifier {

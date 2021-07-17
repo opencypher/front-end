@@ -34,19 +34,18 @@
 
   <properties>
     <licensing.prepend.text>ASL-2-header.txt</licensing.prepend.text>
-    <scala.version>2.12.13</scala.version>
-    <scala.binary.version>2.12</scala.binary.version>
-    <scala.test.version>3.0.5</scala.test.version>
-    <scala.check.version>1.14.0</scala.check.version>
+    <scala.version>2.13.4</scala.version>
+    <scala.binary.version>2.13</scala.binary.version>
+    <scala.test.version>3.1.4</scala.test.version>
+    <scala.check.version>1.15.4</scala.check.version>
     <opencypher.version>1.0.0-M16</opencypher.version>
     <scala.target.vm>1.8</scala.target.vm>
-    <scala.java9.arg/>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <junit.version>5.7.2</junit.version>
-    <mockito.version>2.18.3</mockito.version>
+    <mockito.version>3.2.4</mockito.version>
     <apache.commons.version>3.7</apache.commons.version>
-
+    <tck.cypher.version>1.0-SNAPSHOT</tck.cypher.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <root.dir>${basedir}</root.dir>
@@ -100,6 +99,25 @@
       <version>${scala.test.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.scalatestplus</groupId>
+      <artifactId>junit-4-12_${scala.binary.version}</artifactId>
+      <version>3.1.4.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.scalatestplus/mockito-3-2 -->
+    <dependency>
+      <groupId>org.scalatestplus</groupId>
+      <artifactId>mockito-3-2_${scala.binary.version}</artifactId>
+      <version>3.1.2.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.scalatest</groupId>
+          <artifactId>scalatest_2.13</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
   </dependencies>
 
@@ -144,16 +162,13 @@
         <plugin>
           <groupId>net.alchim31.maven</groupId>
           <artifactId>scala-maven-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>4.5.3</version>
           <configuration>
             <scalaVersion>${scala.version}</scalaVersion>
             <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
             <args>
-              <arg>-Xmax-classfile-name</arg>
-              <arg>100</arg>
               <arg>-Xlint</arg>
-              <arg>-target:jvm-${scala.target.vm}</arg>
-              <arg>${scala.java9.arg}</arg>
+              <arg>-target:jvm-11</arg>
             </args>
             <jvmArgs>
               <jvmArg>-Xms64m</jvmArg>

@@ -26,7 +26,7 @@ sealed trait PathStep extends Product with Foldable with Rewritable {
 
   def dependencies: Set[LogicalVariable]
 
-  def dup(children: Seq[AnyRef]): this.type =
+  def dup(children: scala.collection.Seq[AnyRef]): this.type =
     if (children.iterator eqElements this.treeChildren)
       this
     else {

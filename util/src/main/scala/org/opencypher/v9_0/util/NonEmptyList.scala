@@ -16,7 +16,7 @@
 package org.opencypher.v9_0.util
 
 import org.opencypher.v9_0.util.NonEmptyList.IteratorConverter
-import org.opencypher.v9_0.util.NonEmptyList.newBuilder
+import org.opencypher.v9_0.util.NonEmptyList.makeNewBuilder
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
@@ -37,14 +37,9 @@ object NonEmptyList {
   def apply[T](first: T, tail: T*): NonEmptyList[T] =
     loop(Last(first), tail.iterator).reverse
 
-  def newBuilder[T]: mutable.Builder[T, Option[NonEmptyList[T]]] =
+  def makeNewBuilder[T]: mutable.Builder[T, Option[NonEmptyList[T]]] =
     new mutable.Builder[T, Option[NonEmptyList[T]]] {
       private val vecBuilder = Vector.newBuilder[T]
-
-      override def +=(elem: T): this.type = {
-        vecBuilder += elem
-        this
-      }
 
       override def result(): Option[NonEmptyList[T]] = {
         vecBuilder.result().toNonEmptyListOption
@@ -53,11 +48,26 @@ object NonEmptyList {
       override def clear(): Unit = {
         vecBuilder.clear()
       }
+
+      override def addOne(elem: T): this.type = {
+        vecBuilder += elem
+        this
+      }
     }
 
   implicit def canBuildFrom[T] = new CanBuildFrom[Any, T, Option[NonEmptyList[T]]] {
-    def apply(from: Any) = newBuilder[T]
-    def apply() = newBuilder[T]
+    override def apply(from: Any) = makeNewBuilder[T]
+
+    def apply() = makeNewBuilder[T]
+
+    override def fromSpecific(from: Any)(it: IterableOnce[T]): Option[NonEmptyList[T]] = {
+      val iter = it.iterator
+      val b: mutable.Builder[T, Option[NonEmptyList[T]]] = apply(from)
+      it.iterator.foreach(b += _)
+      b.result()
+    }
+
+    override def newBuilder(from: Any): mutable.Builder[T, Option[NonEmptyList[T]]] = apply(from)
   }
 
   implicit class IterableConverter[T](iterable: Iterable[T]) {
@@ -112,6 +122,7 @@ sealed trait NonEmptyList[+T] {
   def tailOption: Option[NonEmptyList[T]]
 
   def hasTail: Boolean
+
   def isLast: Boolean
 
   def +:[X >: T](elem: X): NonEmptyList[X] =
@@ -160,7 +171,7 @@ sealed trait NonEmptyList[+T] {
   final def filter[X >: T](f: X => Boolean): Option[NonEmptyList[T]] =
     foldLeft[Option[NonEmptyList[T]]](None) {
       case (None, elem) => if (f(elem)) Some(Last(elem)) else None
-      case (acc @ Some(nel), elem) => if (f(elem)) Some(Fby(elem, nel)) else acc
+      case (acc@Some(nel), elem) => if (f(elem)) Some(Fby(elem, nel)) else acc
     }.map(_.reverse)
 
   final def forall[X >: T](predicate: X => Boolean): Boolean =
@@ -179,7 +190,7 @@ sealed trait NonEmptyList[+T] {
   }
 
   final def collect[S](pf: PartialFunction[T, S]): Option[NonEmptyList[S]] =
-    foldLeft(newBuilder[S]) { (builder, elem) =>
+    foldLeft(makeNewBuilder[S]) { (builder, elem) =>
       if (pf.isDefinedAt(elem)) builder += pf(elem) else builder
     }.result()
 
@@ -231,7 +242,7 @@ sealed trait NonEmptyList[+T] {
       val key = f(value)
       val nel = m.get(key).map(cur => Fby(value, cur)).getOrElse(Last(value))
       m.updated(key, nel)
-    }.mapValues(_.reverse)
+    }.map { case (k, v) => k -> v.reverse }
 
   final def reverse: NonEmptyList[T] = self match {
     case Fby(elem, tail) => tail.mapAndPrependReversedTo[T, T](identity, Last(elem))
@@ -265,13 +276,14 @@ sealed trait NonEmptyList[+T] {
   def size: Int
 
   final def toSet[X >: T]: Set[X] = foldLeft(Set.empty[X])(_ + _)
+
   final def toIndexedSeq: Seq[T] = foldLeft(IndexedSeq.empty[T])(_ :+ _)
 
   @tailrec
   private def reverseFlatMapLoop[S](
-      acc: NonEmptyList[S],
-      f: T => NonEmptyList[S]
-  ): NonEmptyList[S] = self match {
+                                     acc: NonEmptyList[S],
+                                     f: T => NonEmptyList[S]
+                                   ): NonEmptyList[S] = self match {
     case Fby(elem, tail) =>
       tail.reverseFlatMapLoop(f(elem).mapAndPrependReversedTo[S, S](identity, acc), f)
     case Last(elem) => f(elem).mapAndPrependReversedTo[S, S](identity, acc)
@@ -300,12 +312,12 @@ sealed trait NonEmptyList[+T] {
 
   @tailrec
   private def partitionLoop[A, B](
-      f: T => Either[A, B],
-      acc: Either[
-        (NonEmptyList[A], Option[NonEmptyList[B]]),
-        (Option[NonEmptyList[A]], NonEmptyList[B])
-      ]
-  ): Either[
+                                   f: T => Either[A, B],
+                                   acc: Either[
+                                     (NonEmptyList[A], Option[NonEmptyList[B]]),
+                                     (Option[NonEmptyList[A]], NonEmptyList[B])
+                                   ]
+                                 ): Either[
     (NonEmptyList[A], Option[NonEmptyList[B]]),
     (Option[NonEmptyList[A]], NonEmptyList[B])
   ] =
@@ -315,12 +327,12 @@ sealed trait NonEmptyList[+T] {
     }
 
   private def appendToPartitions[A, B](
-      value: Either[A, B],
-      acc: Either[
-        (NonEmptyList[A], Option[NonEmptyList[B]]),
-        (Option[NonEmptyList[A]], NonEmptyList[B])
-      ]
-  ): Either[
+                                        value: Either[A, B],
+                                        acc: Either[
+                                          (NonEmptyList[A], Option[NonEmptyList[B]]),
+                                          (Option[NonEmptyList[A]], NonEmptyList[B])
+                                        ]
+                                      ): Either[
     (NonEmptyList[A], Option[NonEmptyList[B]]),
     (Option[NonEmptyList[A]], NonEmptyList[B])
   ] =
@@ -334,11 +346,11 @@ sealed trait NonEmptyList[+T] {
     }
 
   private def reversePartitions[A, B](
-      acc: Either[
-        (NonEmptyList[A], Option[NonEmptyList[B]]),
-        (Option[NonEmptyList[A]], NonEmptyList[B])
-      ]
-  ): Either[
+                                       acc: Either[
+                                         (NonEmptyList[A], Option[NonEmptyList[B]]),
+                                         (Option[NonEmptyList[A]], NonEmptyList[B])
+                                       ]
+                                     ): Either[
     (NonEmptyList[A], Option[NonEmptyList[B]]),
     (Option[NonEmptyList[A]], NonEmptyList[B])
   ] =
@@ -348,9 +360,9 @@ sealed trait NonEmptyList[+T] {
     }
 
   private def prependToOptionalNonEmptyList[X](
-      elem: X,
-      optNel: Option[NonEmptyList[X]]
-  ): Option[NonEmptyList[X]] =
+                                                elem: X,
+                                                optNel: Option[NonEmptyList[X]]
+                                              ): Option[NonEmptyList[X]] =
     optNel.map { nel =>
       Fby(elem, nel)
     } orElse Some(Last(elem))
@@ -358,16 +370,24 @@ sealed trait NonEmptyList[+T] {
 
 final case class Fby[+T](head: T, tail: NonEmptyList[T]) extends NonEmptyList[T] {
   override def tailOption: Option[NonEmptyList[T]] = Some(tail)
+
   override def hasTail: Boolean = true
+
   override def isLast: Boolean = false
+
   override def toString = s"${head.toString}, ${tail.toString}"
+
   override def size = 1 + tail.size
 }
 
 final case class Last[+T](head: T) extends NonEmptyList[T] {
   override def tailOption: Option[NonEmptyList[T]] = None
+
   override def hasTail: Boolean = false
+
   override def isLast: Boolean = true
+
   override def toString = s"${head.toString}"
+
   override def size = 1
 }

@@ -41,18 +41,18 @@ class SubtractTest extends InfixExpressionTestBase(Subtract(_, _)(DummyPosition(
     testValidTypes(CTFloat, CTInteger)(CTFloat)
     testValidTypes(CTFloat, CTFloat)(CTFloat)
     testValidTypes(CTDuration, CTDuration)(CTDuration)
-    testValidTypes(CTDate, CTDuration)(CTDate)
-    testValidTypes(CTTime, CTDuration)(CTTime)
-    testValidTypes(CTLocalTime, CTDuration)(CTLocalTime)
-    testValidTypes(CTDateTime, CTDuration)(CTDateTime)
-    testValidTypes(CTLocalDateTime, CTDuration)(CTLocalDateTime)
+//    testValidTypes(CTDate, CTDuration)(CTDate)
+//    testValidTypes(CTTime, CTDuration)(CTTime)
+//    testValidTypes(CTLocalTime, CTDuration)(CTLocalTime)
+//    testValidTypes(CTDateTime, CTDuration)(CTDateTime)
+//    testValidTypes(CTLocalDateTime, CTDuration)(CTLocalDateTime)
   }
 
   test("shouldHandleCombinedSpecializations") {
     testValidTypes(CTFloat | CTInteger, CTFloat | CTInteger)(CTFloat | CTInteger)
   }
 
-  test("shouldFailTypeCheckForIncompatibleArguments") {
+  ignore("shouldFailTypeCheckForIncompatibleArguments") {
     testInvalidApplication(CTInteger, CTBoolean)(
       "Type mismatch: expected Float or Integer but was Boolean"
     )

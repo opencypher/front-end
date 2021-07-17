@@ -27,17 +27,26 @@ object Foldable {
     def treeChildren: Iterator[AnyRef] = that match {
       case p: Product => p.productIterator.asInstanceOf[Iterator[AnyRef]]
       case s: Seq[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
+      case s: mutable.Seq[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
+      case s: collection.Seq[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
       case s: Set[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
       case m: Map[_, _] => m.iterator.asInstanceOf[Iterator[AnyRef]]
-      case _ => Iterator.empty.asInstanceOf[Iterator[AnyRef]]
+      case s: Iterable[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
+      case x =>
+        println(s"Empty Iterator for ${x}")
+        Iterator.empty.asInstanceOf[Iterator[AnyRef]]
     }
 
     def reverseTreeChildren: Iterator[AnyRef] = that match {
       case p: Product => reverseProductIterator(p)
       case s: Seq[_] => s.reverseIterator.asInstanceOf[Iterator[AnyRef]]
+      case s: mutable.Seq[_] => s.reverseIterator.asInstanceOf[Iterator[AnyRef]]
+      case s: collection.Seq[_] => s.reverseIterator.asInstanceOf[Iterator[AnyRef]]
       case s: Set[_] => s.iterator.asInstanceOf[Iterator[AnyRef]]
       case m: Map[_, _] => m.iterator.asInstanceOf[Iterator[AnyRef]]
-      case _ => Iterator.empty.asInstanceOf[Iterator[AnyRef]]
+      case x =>
+        println(s"Empty reverse Iterator for ${x}")
+        Iterator.empty.asInstanceOf[Iterator[AnyRef]]
     }
 
     private def reverseProductIterator(p: Product) = new Iterator[AnyRef] {
@@ -97,10 +106,10 @@ object Foldable {
       treeFoldAcc(
         mutable.ArrayStack(that),
         init,
-        f.andThen[R => (R, Option[R => R])](innerF => acc => {
+        f.andThen[R => (R, Option[R => R])](innerF => (acc: R) => {
           innerF(acc) match {
             case SkipChildren(newAcc) => (newAcc, None)
-            case TraverseChildren(newAcc) => (newAcc, Some(identity))
+            case TraverseChildren(newAcc) => (newAcc, Some(identity[R] _))
             case TraverseChildrenNewAccForSiblings(newAcc, mergeAccumulators) => (newAcc, Some(mergeAccumulators))
           }
         }).lift,
@@ -116,10 +125,10 @@ object Foldable {
       treeFoldAcc(
         mutable.ArrayStack(that),
         init,
-        f.andThen[R => (R, Option[R => R])](innerF => acc => {
+        f.andThen[R => (R, Option[R => R])](innerF => (acc: R) => {
           innerF(acc) match {
             case SkipChildren(newAcc) => (newAcc, None)
-            case TraverseChildren(newAcc) => (newAcc, Some(identity))
+            case TraverseChildren(newAcc) => (newAcc, Some(identity[R] _))
             case TraverseChildrenNewAccForSiblings(newAcc, mergeAccumulators) => (newAcc, Some(mergeAccumulators))
           }
         }).lift,
@@ -154,7 +163,7 @@ object Foldable {
     def findByClass[A: ClassTag]: A =
       findAcc[A](mutable.ArrayStack(that))
 
-    def findAllByClass[A: ClassTag]: Seq[A] = {
+    def findAllByClass[A: ClassTag]: collection.Seq[A] = {
       val remaining = mutable.ArrayStack(that)
       val result = mutable.ListBuffer[A]()
 

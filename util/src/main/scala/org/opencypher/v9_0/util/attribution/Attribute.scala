@@ -114,7 +114,7 @@ trait Attribute[KEY, VALUE] {
   /**
    * Returns a copy of the underlying storage of values, as a Seq.
    */
-  def toSeq: Seq[Unchangeable[VALUE]] = {
+  def toSeq: scala.collection.Seq[Unchangeable[VALUE]] = {
     array.map { original =>
       val copied = new Unchangeable[VALUE]()
       copied.copyFrom(original)

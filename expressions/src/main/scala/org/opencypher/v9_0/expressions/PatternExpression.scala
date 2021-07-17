@@ -29,7 +29,7 @@ extends ScopeExpression with ExpressionWithOuterScope with RollupApplySolvable {
 
   override def withOuterScope(outerScope: Set[Variable]): PatternExpression = copy()(outerScope, variableToCollectName, collectionName)
 
-  override def dup(children: Seq[AnyRef]): this.type = {
+  override def dup(children: scala.collection.Seq[AnyRef]): this.type = {
     PatternExpression(
       children.head.asInstanceOf[RelationshipsPattern]
     )(outerScope, variableToCollectName, collectionName).asInstanceOf[this.type]

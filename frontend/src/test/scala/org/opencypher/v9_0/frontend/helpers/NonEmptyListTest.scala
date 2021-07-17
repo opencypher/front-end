@@ -30,7 +30,7 @@ class NonEmptyListTest extends CypherFunSuite {
   }
 
   test("Should build NonEmptyLists") {
-    val builder = NonEmptyList.newBuilder[Int]
+    val builder = NonEmptyList.makeNewBuilder[Int]
 
     builder.result() should equal(None)
 

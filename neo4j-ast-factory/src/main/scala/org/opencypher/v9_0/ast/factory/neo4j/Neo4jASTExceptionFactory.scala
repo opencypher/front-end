@@ -21,9 +21,9 @@ import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 
-import scala.collection.convert.AsScalaConverters
+import scala.jdk.CollectionConverters._
 
-class Neo4jASTExceptionFactory(inner: CypherExceptionFactory) extends ASTExceptionFactory with AsScalaConverters {
+class Neo4jASTExceptionFactory(inner: CypherExceptionFactory) extends ASTExceptionFactory {
 
   override def syntaxException(got: String,
                                expected: util.List[String],
@@ -31,7 +31,7 @@ class Neo4jASTExceptionFactory(inner: CypherExceptionFactory) extends ASTExcepti
                                offset: Int,
                                line: Int,
                                column: Int): Exception = {
-    val exp: Seq[String] = asScalaBuffer(expected)
+    val exp: collection.Seq[String] = expected.asScala
 
     val message =
       new StringBuilder("Invalid input '")

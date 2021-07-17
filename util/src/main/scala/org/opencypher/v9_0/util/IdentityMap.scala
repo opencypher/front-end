@@ -48,7 +48,7 @@ case class IdentityMap[K, V] private (idMap: util.IdentityHashMap[K, V]) extends
       clone
     })
 
-  override def -(key: K): IdentityMap[K, V] =
+  override def removed(key: K): IdentityMap[K, V] =
     IdentityMap({
       val clone = idMap.clone().asInstanceOf[util.IdentityHashMap[K, V]]
       clone.remove(key)
@@ -61,4 +61,5 @@ case class IdentityMap[K, V] private (idMap: util.IdentityHashMap[K, V]) extends
     idMap.clone().asInstanceOf[util.IdentityHashMap[K, V]].entrySet().iterator().asScala.map(e => (e.getKey, e.getValue))
 
   override def stringPrefix: String = "IdentityMap"
+
 }

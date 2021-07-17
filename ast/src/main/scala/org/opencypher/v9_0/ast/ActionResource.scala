@@ -18,21 +18,21 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.InputPosition
 
 sealed trait ActionResource {
-  def simplify: Seq[ActionResource] = Seq(this)
+  def simplify: collection.Seq[ActionResource] = Seq(this)
 }
 
 final case class PropertyResource(property: String)(val position: InputPosition) extends ActionResource
 
-final case class PropertiesResource(properties: Seq[String])(val position: InputPosition) extends ActionResource {
-  override def simplify: Seq[ActionResource] = properties.map(PropertyResource(_)(position))
+final case class PropertiesResource(properties: collection.Seq[String])(val position: InputPosition) extends ActionResource {
+  override def simplify: collection.Seq[ActionResource] = properties.map(PropertyResource(_)(position))
 }
 
 final case class AllPropertyResource()(val position: InputPosition) extends ActionResource
 
 final case class LabelResource(label: String)(val position: InputPosition) extends ActionResource
 
-final case class LabelsResource(labels: Seq[String])(val position: InputPosition) extends ActionResource {
-  override def simplify: Seq[ActionResource] = labels.map(LabelResource(_)(position))
+final case class LabelsResource(labels: collection.Seq[String])(val position: InputPosition) extends ActionResource {
+  override def simplify: collection.Seq[ActionResource] = labels.map(LabelResource(_)(position))
 }
 
 final case class AllLabelResource()(val position: InputPosition) extends ActionResource

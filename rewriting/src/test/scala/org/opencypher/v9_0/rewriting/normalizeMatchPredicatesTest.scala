@@ -81,7 +81,7 @@ class normalizeMatchPredicatesTest extends CypherFunSuite {
   test("move multiple predicates to WHERE") {
     assertRewrite(
       "MATCH (n {foo: 'bar', bar: 4})-[r:Foo {foo: 1, bar: 'baz'}]->() RETURN n",
-      "MATCH (n)-[r:Foo]->() WHERE n.foo = 'bar' AND n.bar = 4 AND r.foo = 1 AND r.bar = 'baz' RETURN n")
+      "MATCH (n)-[r:Foo]->() WHERE ((r.foo = 1 AND r.bar = 'baz') AND n.foo = 'bar') AND n.bar = 4 RETURN n")
   }
 
   test("remove empty predicate from node") {
@@ -111,7 +111,7 @@ class normalizeMatchPredicatesTest extends CypherFunSuite {
   test("prepend predicates to existing WHERE") {
     assertRewrite(
       "MATCH (n {foo: 'bar', bar: 4})-[r:Foo {foo: 1, bar: 'baz'}]->() WHERE n.baz = true OR r.baz = false RETURN n",
-      "MATCH (n)-[r:Foo]->() WHERE n.foo = 'bar' AND n.bar = 4 AND r.foo = 1 AND r.bar = 'baz' AND (n.baz = true OR r.baz = false) RETURN n")
+      "MATCH (n)-[r:Foo]->() WHERE (((r.foo = 1 AND r.bar = 'baz') AND n.foo = 'bar') AND n.bar = 4) AND (n.baz = true OR r.baz = false) RETURN n")
   }
 
   test("ignore unnamed node pattern elements") {
@@ -153,7 +153,7 @@ class normalizeMatchPredicatesTest extends CypherFunSuite {
   test("move properties and labels from nodes and relationships to WHERE clause") {
     assertRewrite(
       "MATCH (a:A {foo:'v1', bar:'v2'})-[r:R {baz: 'v1'}]->(b:B {foo:'v2', baz:'v2'}) RETURN *",
-      "MATCH (a)-[r:R]->(b) WHERE a.foo = 'v1' AND a.bar = 'v2' AND a:A AND r.baz = 'v1' AND b.foo = 'v2' AND b.baz = 'v2' AND b:B RETURN *")
+      "MATCH (a)-[r:R]->(b) WHERE (((((b.foo = 'v2' AND b.baz = 'v2') AND b:B) AND r.baz = 'v1') AND a.foo = 'v1') AND a.bar = 'v2') AND a:A RETURN *")
   }
 
   test("move single property from var length relationship to the where clause") {
@@ -171,12 +171,12 @@ class normalizeMatchPredicatesTest extends CypherFunSuite {
   test("varlength with labels") {
     assertRewrite(
       "MATCH (a:Artist)-[r:WORKED_WITH* { year: 1988 }]->(b:Artist) RETURN *",
-      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE a:Artist AND ALL(`  UNNAMED0` in r where `  UNNAMED0`.year = 1988) AND b:Artist  RETURN *")
+      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE (b:Artist AND all(`  UNNAMED0` IN r WHERE `  UNNAMED0`.year = 1988)) AND a:Artist RETURN *")
   }
 
   test("varlength with labels and parameters") {
     assertRewrite(
       "MATCH (a:Artist)-[r:WORKED_WITH* { year: $foo }]->(b:Artist) RETURN *",
-      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE a:Artist AND ALL(`  UNNAMED0` in r where `  UNNAMED0`.year = $foo)  AND b:Artist RETURN *")
+      "MATCH (a)-[r:WORKED_WITH*]->(b) WHERE (b:Artist AND all(`  UNNAMED0` IN r WHERE `  UNNAMED0`.year = $foo)) AND a:Artist RETURN *")
   }
 }
