@@ -53,7 +53,10 @@ import org.opencypher.v9_0.util.test_helpers.TestName
 
 class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport with TestName {
 
-  private def projectionInlinedAst(queryText: String) = ast(queryText).endoRewrite(projectNamedPaths)
+  private def projectionInlinedAst(queryText: String) = {
+    val statement = ast(queryText)
+    statement.endoRewrite(projectNamedPaths)
+  }
 
   private def ast(queryText: String) = {
     val nameGenerator = new AnonymousVariableNameGenerator
@@ -66,7 +69,11 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
 
   private def parseReturnedExpr(queryText: String) = {
     val query = projectionInlinedAst(queryText).asInstanceOf[Query]
-    query.part.asInstanceOf[SingleQuery].clauses.last.asInstanceOf[Return].returnItems.items.collectFirst {
+    val query1 = query.part.asInstanceOf[SingleQuery]
+    val clauses = query1.clauses
+    val value1 = clauses.last.asInstanceOf[Return]
+    val items = value1.returnItems
+    items.items.collectFirst {
       case AliasedReturnItem(expr, Variable("p")) => expr
     }.get
   }
@@ -350,11 +357,11 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
       val WITH1 =
         With(distinct = false,
           ReturnItems(includeExisting = false, Seq(
-            AliasedReturnItem(a, a)(pos),
             AliasedReturnItem(s, s)(pos),
-            AliasedReturnItem(b, b)(pos),
-            AliasedReturnItem(c, c)(pos),
             AliasedReturnItem(r, r)(pos),
+            AliasedReturnItem(b, b)(pos),
+            AliasedReturnItem(a, a)(pos),
+            AliasedReturnItem(c, c)(pos),
           ))(pos), None, None, None, None)(pos)
 
       val WITH2 =

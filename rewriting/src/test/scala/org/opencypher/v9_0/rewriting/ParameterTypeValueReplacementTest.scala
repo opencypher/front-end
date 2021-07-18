@@ -65,7 +65,7 @@ class ParameterTypeValueReplacementTest extends CypherFunSuite {
     val rewriter = parameterValueTypeReplacement(parameterTypes)
     val result = original.rewrite(rewriter).asInstanceOf[Statement]
 
-    val rewrittenParameters: Seq[Parameter] = result.findAllByClass[Parameter]
+    val rewrittenParameters = result.findAllByClass[Parameter]
     val rewrittenParameterTypes = rewrittenParameters.map(p => p.name -> parameterTypes.getOrElse(p.name, fail("something went wrong"))).toMap
     rewrittenParameterTypes should equal(parameterTypes)
   }

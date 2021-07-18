@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.opencypher.v9_0.ast.generator
-
+import scala.jdk.CollectionConverters._
 import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
@@ -389,19 +389,20 @@ import org.scalacheck.util.Buildable
 
 import java.nio.charset.StandardCharsets
 
+
 object AstGenerator {
   val OR_MORE_UPPER_BOUND = 3
 
   def zeroOrMore[T](gen: Gen[T]): Gen[List[T]] =
     choose(0, OR_MORE_UPPER_BOUND).flatMap(listOfN(_, gen))
 
-  def zeroOrMore[T](seq: Seq[T]): Gen[Seq[T]] =
+  def zeroOrMore[T](seq: Seq[T]): Gen[scala.collection.Seq[T]] =
     choose(0, Math.min(OR_MORE_UPPER_BOUND, seq.size)).flatMap(pick(_, seq))
 
   def oneOrMore[T](gen: Gen[T]): Gen[List[T]] =
     choose(1, OR_MORE_UPPER_BOUND).flatMap(listOfN(_, gen))
 
-  def oneOrMore[T](seq: Seq[T]): Gen[Seq[T]] =
+  def oneOrMore[T](seq: Seq[T]): Gen[scala.collection.Seq[T]] =
     choose(1, Math.min(OR_MORE_UPPER_BOUND, seq.size)).flatMap(pick(_, seq))
 
   def tuple[A, B](ga: Gen[A], gb: Gen[B]): Gen[(A, B)] = for {
@@ -578,8 +579,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     exprs <- listOfN(4, _expression)
     pairs = exprs.sliding(2)
     gens = pairs.map(p => _predicateComparisonPar(p.head, p.last)).toList
-    chain <- sequence(gens)(Buildable.buildableCanBuildFrom)
-  } yield Ands(chain)(pos)
+    chain <- sequence(gens)(Buildable.buildableArrayList)
+  } yield Ands(chain.asScala.toSeq)(pos)
 
   def _predicateUnary: Gen[Expression] = for {
     r <- _expression

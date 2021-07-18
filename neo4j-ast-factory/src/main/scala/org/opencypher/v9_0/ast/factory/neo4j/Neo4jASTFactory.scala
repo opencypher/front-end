@@ -350,8 +350,10 @@ import java.lang
 import java.nio.charset.StandardCharsets
 import java.util
 import java.util.stream.Collectors
-import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.collection.JavaConverters.mapAsScalaMap
+import scala.collection.mutable
+//import scala.collection.JavaConverters.asScalaBufferConverter
+//import scala.collection.JavaConverters.mapAsScalaMap
+import scala.jdk.CollectionConverters._
 import scala.util.Either
 
 final case class Privilege(privilegeType: PrivilegeType, resource: ActionResource, qualifier: util.List[PrivilegeQualifier])
@@ -422,7 +424,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                                    loadCsv: Clause,
                                    queryBody: util.List[Clause]): Query =
     Query(Some(PeriodicCommitHint(Option(batchSize).map(SignedDecimalIntegerLiteral(_)(p)))(p)),
-      SingleQuery(loadCsv +: queryBody.asScala)(p)
+      SingleQuery((loadCsv +: queryBody.asScala))(p)
     )(p)
 
   override def useClause(p: InputPosition,
@@ -1076,7 +1078,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                                 label: StringPos[InputPosition],
                                 javaProperties: util.List[Property],
                                 options: Either[util.Map[String, Expression], Parameter]): SchemaCommand = {
-    val properties = javaProperties.asScala
+    val properties: Seq[Property] = javaProperties.asScala.toSeq
     constraintType match {
       case ConstraintType.UNIQUE => ast.CreateUniquePropertyConstraint(variable, LabelName(label.string)(label.pos), properties, Option(name),
         ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
@@ -1108,7 +1110,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                               variable: Variable,
                               label: StringPos[InputPosition],
                               javaProperties: util.List[Property]): SchemaCommand = {
-    val properties = javaProperties.asScala
+    val properties = javaProperties.asScala.toSeq
     constraintType match {
       case ConstraintType.UNIQUE => DropUniquePropertyConstraint(variable, LabelName(label.string)(label.pos), properties)(p)
       case ConstraintType.NODE_KEY => DropNodeKeyConstraint(variable, LabelName(label.string)(label.pos), properties)(p)
@@ -1542,7 +1544,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
   private def asOptionsAst(options: Either[util.Map[String, Expression], Parameter]) =
     Option(options) match {
-      case Some(Left(map)) => OptionsMap(mapAsScalaMap(map).toMap)
+      case Some(Left(map)) => OptionsMap(map.asScala.toMap)
       case Some(Right(param)) => OptionsParam(param)
       case None => NoOptions
     }

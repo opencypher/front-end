@@ -292,7 +292,7 @@ final case class RenameRole(fromRoleName: Either[String, Parameter], toRoleName:
       SemanticState.recordCurrentScope(this)
 }
 
-final case class GrantRolesToUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])
+final case class GrantRolesToUsers(roleNames: collection.Seq[Either[String, Parameter]], userNames: collection.Seq[Either[String, Parameter]])
                                   (val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "GRANT ROLE"
@@ -303,7 +303,7 @@ final case class GrantRolesToUsers(roleNames: Seq[Either[String, Parameter]], us
   }
 }
 
-final case class RevokeRolesFromUsers(roleNames: Seq[Either[String, Parameter]], userNames: Seq[Either[String, Parameter]])
+final case class RevokeRolesFromUsers(roleNames: collection.Seq[Either[String, Parameter]], userNames: collection.Seq[Either[String, Parameter]])
                                      (val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "REVOKE ROLE"
@@ -366,7 +366,7 @@ sealed abstract class PrivilegeCommand(privilege: PrivilegeType, qualifier: List
 final case class GrantPrivilege(privilege: PrivilegeType,
                                 resource: Option[ActionResource],
                                 qualifier: List[PrivilegeQualifier],
-                                roleNames: Seq[Either[String, Parameter]])
+                                roleNames: collection.Seq[Either[String, Parameter]])
                                (val position: InputPosition) extends PrivilegeCommand(privilege, qualifier, position) {
   override def name = s"GRANT ${privilege.name}"
 }
@@ -396,7 +396,7 @@ object GrantPrivilege {
 final case class DenyPrivilege(privilege: PrivilegeType,
                                resource: Option[ActionResource],
                                qualifier: List[PrivilegeQualifier],
-                               roleNames: Seq[Either[String, Parameter]])
+                               roleNames: collection.Seq[Either[String, Parameter]])
                               (val position: InputPosition) extends PrivilegeCommand(privilege, qualifier, position) {
 
   override def name = s"DENY ${privilege.name}"
@@ -433,7 +433,7 @@ object DenyPrivilege {
 final case class RevokePrivilege(privilege: PrivilegeType,
                                  resource: Option[ActionResource],
                                  qualifier: List[PrivilegeQualifier],
-                                 roleNames: Seq[Either[String, Parameter]],
+                                 roleNames: collection.Seq[Either[String, Parameter]],
                                  revokeType: RevokeType)(val position: InputPosition) extends PrivilegeCommand(privilege, qualifier, position) {
 
   override def name: String = {

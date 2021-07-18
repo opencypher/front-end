@@ -21,15 +21,13 @@ Apache Software License, Version 2.0
   openCypher Utils
   org.apiguardian:apiguardian-api
   org.opentest4j:opentest4j
+  Scala Compiler
+  scala-xml
   scalactic
   scalatest
 
 BSD - Scala License
   Scala Library
-
-BSD License
-  Scala Compiler
-  scala-xml
 
 Eclipse Public License v2.0
   JUnit Platform Commons

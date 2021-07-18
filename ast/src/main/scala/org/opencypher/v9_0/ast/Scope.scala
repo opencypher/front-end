@@ -20,7 +20,7 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewritable
 
 sealed trait GraphOrDatabaseScope extends Rewritable {
-  override def dup(children: Seq[AnyRef]): GraphOrDatabaseScope.this.type = this
+  override def dup(children: scala.collection.Seq[AnyRef]): GraphOrDatabaseScope.this.type = this
 }
 
 sealed trait DefaultScope
@@ -30,7 +30,7 @@ sealed trait DefaultScope
 sealed trait GraphScope extends GraphOrDatabaseScope
 
 final case class NamedGraphScope(graph: Either[String, Parameter])(val position: InputPosition) extends GraphScope {
-  override def dup(children: Seq[AnyRef]): NamedGraphScope.this.type =
+  override def dup(children: scala.collection.Seq[AnyRef]): NamedGraphScope.this.type =
     this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
 }
 
@@ -47,7 +47,7 @@ sealed trait DatabaseScope extends GraphOrDatabaseScope {
 }
 
 final case class NamedDatabaseScope(database: Either[String, Parameter])(val position: InputPosition) extends DatabaseScope {
-  override def dup(children: Seq[AnyRef]): NamedDatabaseScope.this.type =
+  override def dup(children: scala.collection.Seq[AnyRef]): NamedDatabaseScope.this.type =
     this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
 
   override val showCommandName: String = "ShowDatabase"
@@ -68,21 +68,21 @@ final case class HomeDatabaseScope()(val position: InputPosition) extends Databa
 // Dbms scopes
 
 sealed trait ShowPrivilegeScope extends Rewritable {
-  override def dup(children: Seq[AnyRef]): ShowPrivilegeScope.this.type = this
+  override def dup(children: scala.collection.Seq[AnyRef]): ShowPrivilegeScope.this.type = this
 }
 
 final case class ShowRolesPrivileges(roles: List[Either[String, Parameter]])(val position: InputPosition) extends ShowPrivilegeScope {
-  override def dup(children: Seq[AnyRef]): ShowRolesPrivileges.this.type =
+  override def dup(children: scala.collection.Seq[AnyRef]): ShowRolesPrivileges.this.type =
     this.copy(children.head.asInstanceOf[List[Either[String, Parameter]]])(position).asInstanceOf[this.type]
 }
 
 final case class ShowUserPrivileges(user: Option[Either[String, Parameter]])(val position: InputPosition) extends ShowPrivilegeScope {
-  override def dup(children: Seq[AnyRef]): ShowUserPrivileges.this.type =
+  override def dup(children: scala.collection.Seq[AnyRef]): ShowUserPrivileges.this.type =
     this.copy(children.head.asInstanceOf[Option[Either[String, Parameter]]])(position).asInstanceOf[this.type]
 }
 
 final case class ShowUsersPrivileges(users: List[Either[String, Parameter]])(val position: InputPosition) extends ShowPrivilegeScope {
-  override def dup(children: Seq[AnyRef]): ShowUsersPrivileges.this.type =
+  override def dup(children: scala.collection.Seq[AnyRef]): ShowUsersPrivileges.this.type =
     this.copy(children.head.asInstanceOf[List[Either[String, Parameter]]])(position).asInstanceOf[this.type]
 }
 

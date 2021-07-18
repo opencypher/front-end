@@ -28,7 +28,7 @@ case class ExistsSubClause(pattern: Pattern, optionalWhereExpression: Option[Exp
 
   override val introducedVariables: Set[LogicalVariable] = patternElements.collect { case e => e.allVariables }.flatten.toSet -- outerScope
 
-  override def dup(children: Seq[AnyRef]): this.type = {
+  override def dup(children: scala.collection.Seq[AnyRef]): this.type = {
     ExistsSubClause(
       children(0).asInstanceOf[Pattern],
       children(1).asInstanceOf[Option[Expression]],

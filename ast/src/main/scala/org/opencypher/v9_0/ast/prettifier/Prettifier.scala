@@ -857,7 +857,7 @@ object Prettifier {
                                 dbScope: List[DatabaseScope],
                                 qualifier: List[PrivilegeQualifier],
                                 preposition: String,
-                                roleNames: Seq[Either[String, Parameter]]): String = {
+                                roleNames: collection.Seq[Either[String, Parameter]]): String = {
     val (dbName, default, multiple) = Prettifier.extractDbScope(dbScope)
     val db = if (default) {
       s"$dbName DATABASE"
@@ -874,7 +874,7 @@ object Prettifier {
                              qualifierString: String,
                              resource: Option[ActionResource],
                              preposition: String,
-                             roleNames: Seq[Either[String, Parameter]]): String = {
+                             roleNames: collection.Seq[Either[String, Parameter]]): String = {
 
     val resourceName = resource match {
       case Some(PropertyResource(name)) => s" {${ExpressionStringifier.backtick(name)}}"
@@ -969,6 +969,6 @@ object Prettifier {
     case Right(p) => s"$$${ExpressionStringifier.backtick(p.name)}"
   }
 
-  def escapeNames(names: Seq[Either[String, Parameter]]): String = names.map(escapeName).mkString(", ")
+  def escapeNames(names: collection.Seq[Either[String, Parameter]]): String = names.map(escapeName).mkString(", ")
 
 }

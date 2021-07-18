@@ -28,23 +28,23 @@ import scala.collection.mutable.ListBuffer
 object RewritableTest {
   trait Exp extends Product with Rewritable
   case class Val(int: Int) extends Exp {
-    def dup(children: Seq[AnyRef]): this.type =
+    def dup(children: scala.collection.Seq[AnyRef]): this.type =
       Val(children.head.asInstanceOf[Int]).asInstanceOf[this.type]
   }
   case class Add(lhs: Exp, rhs: Exp) extends Exp {
-    def dup(children: Seq[AnyRef]): this.type =
+    def dup(children: scala.collection.Seq[AnyRef]): this.type =
       Add(children.head.asInstanceOf[Exp], children(1).asInstanceOf[Exp]).asInstanceOf[this.type]
   }
   case class Sum(args: Seq[Exp]) extends Exp {
-    def dup(children: Seq[AnyRef]): this.type =
+    def dup(children: scala.collection.Seq[AnyRef]): this.type =
       Sum(children.head.asInstanceOf[Seq[Exp]]).asInstanceOf[this.type]
   }
   case class Pos(latlng: (Exp, Exp)) extends Exp {
-    def dup(children: Seq[AnyRef]): this.type =
+    def dup(children: scala.collection.Seq[AnyRef]): this.type =
       Pos(children.head.asInstanceOf[(Exp, Exp)]).asInstanceOf[this.type]
   }
   case class Options(args: Seq[(Exp, Exp)]) extends Exp {
-    def dup(children: Seq[AnyRef]): this.type =
+    def dup(children: scala.collection.Seq[AnyRef]): this.type =
       Options(children.head.asInstanceOf[Seq[(Exp, Exp)]]).asInstanceOf[this.type]
   }
 }
@@ -204,8 +204,8 @@ class RewritableTest extends CypherFunSuite {
   }
 
   test("should not create unnecessary copies of objects that have Seq's as Children (when using ListBuffer)") {
-    case class Thing(texts: Seq[String]) extends Rewritable {
-      def dup(children: Seq[AnyRef]): this.type =
+    case class Thing(texts: scala.collection.Seq[String]) extends Rewritable {
+      def dup(children: scala.collection.Seq[AnyRef]): this.type =
         if (children.iterator eqElements this.treeChildren)
           this
         else {

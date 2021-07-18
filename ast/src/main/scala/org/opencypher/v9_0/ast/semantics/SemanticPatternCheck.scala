@@ -313,7 +313,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
     SemanticPatternCheck.checkValidPropertyKeyNames(propertyKeys, position)
   }
 
-  def checkValidPropertyKeyNames(propertyKeys: Seq[PropertyKeyName], pos: InputPosition): SemanticCheck = {
+  def checkValidPropertyKeyNames(propertyKeys: collection.Seq[PropertyKeyName], pos: InputPosition): SemanticCheck = {
     val errorMessage = propertyKeys.collectFirst { case key if checkValidTokenName(key.name).nonEmpty =>
       checkValidTokenName(key.name).get
     }

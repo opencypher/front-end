@@ -63,9 +63,10 @@ class InvalidInputErrorFormatter extends DefaultInvalidInputErrorFormatter {
         List()
       } else {
         getLabels(labelMatcher).filter(_ != null).flatMap(_.trim match {
-          case l@"','" => Seq(l)
-          case "" => Seq()
-          case l => l.split(",").map(_.trim)
+          case l@"','" => List(l)
+          case "" => List.empty[String]
+          case l =>
+            l.split(",").map(_.trim).toList
         })
       }
     }).distinct

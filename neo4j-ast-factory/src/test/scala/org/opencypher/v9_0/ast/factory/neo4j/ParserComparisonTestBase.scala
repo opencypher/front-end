@@ -27,7 +27,7 @@ import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.scalatest.Assertion
 import org.scalatest.Assertions
 import org.scalatest.Matchers
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.util.Failure
 import scala.util.Success

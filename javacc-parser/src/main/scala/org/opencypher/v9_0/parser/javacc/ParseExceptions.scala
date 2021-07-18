@@ -49,7 +49,7 @@ object ParseExceptions extends RuntimeException {
   }
 
   def filterExpression(expected: Seq[Int]): Seq[Int] = {
-    filterIdentifierTokens(expected).groupBy(identity).mapValues(_.size)
+    filterIdentifierTokens(expected).groupBy(identity).view.mapValues(_.size)
       .map({ case (token, count) =>
         if (ExpressionTokens.tokens.contains(token)) {
           (token, count - 1)
@@ -57,17 +57,19 @@ object ParseExceptions extends RuntimeException {
           (token, count)
         }
       }).filter({ case (_, count) => count > 0 })
+      .toMap
       .keySet.toSeq
   }
 
   def filterIdentifierTokens(expected: Seq[Int]): Seq[Int] = {
-    expected.groupBy(identity).mapValues(_.size).map({ case (token, count) =>
+    expected.groupBy(identity).view.mapValues(_.size).map({ case (token, count) =>
       if (IdentifierTokens.tokens.contains(token)) {
         (token, count - 1)
       } else {
         (token, count)
       }
     }).filter({ case (_, count) => count > 0 })
+      .toMap
       .keySet.toSeq
   }
 }

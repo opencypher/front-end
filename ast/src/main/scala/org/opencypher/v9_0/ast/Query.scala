@@ -84,7 +84,7 @@ sealed trait QueryPart extends ASTNode with SemanticCheckable {
   def isYielding: Boolean
 }
 
-case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extends QueryPart with SemanticAnalysisTooling {
+case class SingleQuery(clauses: collection.Seq[Clause])(val position: InputPosition) extends QueryPart with SemanticAnalysisTooling {
   assert(clauses.nonEmpty)
 
   override def containsUpdates: Boolean =
@@ -131,18 +131,18 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
   private def leadingGraphSelection: Option[GraphSelection] =
     clauses.headOption.collect { case s: GraphSelection => s }
 
-  def clausesExceptImportWith: Seq[Clause] =
+  def clausesExceptImportWith: collection.Seq[Clause] =
     clauses.filterNot(importWith.contains)
 
-  private def clausesExceptLeadingFrom: Seq[Clause] =
+  private def clausesExceptLeadingFrom: collection.Seq[Clause] =
     clauses.filterNot(leadingGraphSelection.contains)
 
-  private def clausesExceptLeadingFromAndImportWith: Seq[Clause] =
+  private def clausesExceptLeadingFromAndImportWith: collection.Seq[Clause] =
     clauses
       .filterNot(importWith.contains)
       .filterNot(leadingGraphSelection.contains)
 
-  private def semanticCheckAbstract(clauses: Seq[Clause], clauseCheck: Seq[Clause] => SemanticCheck): SemanticCheck =
+  private def semanticCheckAbstract(clauses: collection.Seq[Clause], clauseCheck: collection.Seq[Clause] => SemanticCheck): SemanticCheck =
     checkStandaloneCall(clauses) chain
       withScopedState(clauseCheck(clauses)) chain
       checkOrder(clauses) chain
@@ -210,7 +210,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  private def checkIndexHints(clauses: Seq[Clause]): SemanticCheck = s => {
+  private def checkIndexHints(clauses: collection.Seq[Clause]): SemanticCheck = s => {
     val hints = clauses.collect { case m: Match => m.hints }.flatten
     val hasStartClause = clauses.exists(_.isInstanceOf[Start])
     if (hints.nonEmpty && hasStartClause) {
@@ -220,7 +220,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  private def checkStandaloneCall(clauses: Seq[Clause]): SemanticCheck = s => {
+  private def checkStandaloneCall(clauses: collection.Seq[Clause]): SemanticCheck = s => {
     clauses match {
       case Seq(_: UnresolvedCall, where: With) =>
         SemanticCheckResult.error(s, SemanticError("Cannot use standalone call with WHERE (instead use: `CALL ... WITH * WHERE ... RETURN *`)", where.position))
@@ -239,7 +239,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  private def checkOrder(clauses: Seq[Clause]): SemanticCheck = s => {
+  private def checkOrder(clauses: collection.Seq[Clause]): SemanticCheck = s => {
     val sequenceErrors = clauses.sliding(2).foldLeft(Vector.empty[SemanticError]) {
       case (semanticErrors, pair) =>
         val optError = pair match {
@@ -285,7 +285,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     semantics.SemanticCheckResult(s, sequenceErrors ++ concludeError)
   }
 
-  private def checkClauses(clauses: Seq[Clause], outerScope: Option[Scope]): SemanticCheck = initialState => {
+  private def checkClauses(clauses: collection.Seq[Clause], outerScope: Option[Scope]): SemanticCheck = initialState => {
     val lastIndex = clauses.size - 1
     clauses.zipWithIndex.foldLeft(SemanticCheckResult.success(initialState)) {
       case (lastResult, (clause, idx)) =>
@@ -318,7 +318,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     semantics.SemanticCheckResult(continuationResult.state, prevErrors ++ closingResult.errors ++ continuationResult.errors)
   }
 
-  private def checkInputDataStream(clauses: Seq[Clause]): SemanticCheck = (state: SemanticState) => {
+  private def checkInputDataStream(clauses: collection.Seq[Clause]): SemanticCheck = (state: SemanticState) => {
     val idsClauses = clauses.filter(_.isInstanceOf[InputDataStream])
 
     idsClauses.size match {
@@ -335,7 +335,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
 
   private def checkShadowedVariables(outer: SemanticState): SemanticCheck = { state =>
     val outerScopeSymbols: Map[String, Symbol] = outer.currentScope.scope.symbolTable
-    val subquerySymbolPositions: Map[String, Set[InputPosition]] = state.currentScope.scope.allSymbolDefinitions.mapValues(_.map(_.position))
+    val subquerySymbolPositions: Map[String, Set[InputPosition]] = state.currentScope.scope.allSymbolDefinitions.view.mapValues(_.map(_.position)).toMap
 
     def isShadowed(s: Symbol): Boolean =
       subquerySymbolPositions.contains(s.name) &&

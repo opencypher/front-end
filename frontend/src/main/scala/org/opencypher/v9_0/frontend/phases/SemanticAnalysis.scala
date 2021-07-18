@@ -15,19 +15,17 @@
  */
 package org.opencypher.v9_0.frontend.phases
 
-import org.opencypher.v9_0.ast.UnaliasedReturnItem
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
-import org.opencypher.v9_0.ast.semantics.SemanticChecker
-import org.opencypher.v9_0.ast.semantics.SemanticFeature
-import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.ast.semantics.SemanticTable
+import org.opencypher.v9_0.ast.{ASTAnnotationMap, UnaliasedReturnItem}
+import org.opencypher.v9_0.ast.semantics.{Scope, SemanticCheckResult, SemanticChecker, SemanticFeature, SemanticState, SemanticTable}
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.SEMANTIC_CHECK
 import org.opencypher.v9_0.frontend.phases.factories.PlanPipelineTransformerFactory
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.conditions.StateContainsSemanticTable
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.rewriters.recordScopes
-import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.{ASTNode, StepSequencer}
+
+import scala.collection.MapView
 
 case object TokensResolved extends StepSequencer.Condition
 
@@ -49,8 +47,9 @@ case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
       case Some(existingTable) =>
       // We might already have a SemanticTable from a previous run, and that might already have tokens.
       // We don't want to lose these
-        existingTable.copy(types = state.typeTable, recordedScopes = state.recordedScopes.mapValues(_.scope))
-      case None => SemanticTable(types = state.typeTable, recordedScopes = state.recordedScopes.mapValues(_.scope))
+        existingTable.copy(types = state.typeTable, recordedScopes = ASTAnnotationMap(state.recordedScopes.mapValues(_.scope).toSeq: _*))
+      case None =>
+        SemanticTable(types = state.typeTable, recordedScopes = ASTAnnotationMap(state.recordedScopes.mapValues(_.scope).toSeq: _*))
     }
 
     val rewrittenStatement = if (errors.isEmpty) {

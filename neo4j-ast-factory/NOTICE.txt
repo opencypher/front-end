@@ -29,6 +29,7 @@ Apache Software License, Version 2.0
   parboiled-core
   parboiled-scala
   Scala Compiler
+  scala-xml
   scalactic
   scalatest
 
@@ -36,7 +37,6 @@ BSD - Scala License
   Scala Library
 
 BSD License
-  scala-xml
   scalacheck
   test-interface
 

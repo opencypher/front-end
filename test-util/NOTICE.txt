@@ -19,19 +19,19 @@ Third-party licenses
 Apache Software License, Version 2.0
   Apache Commons Lang
   Byte Buddy (without dependencies)
-  Byte Buddy Java agent
+  Byte Buddy agent
+  junit-4.12
+  mockito-3.2
   Objenesis
   org.apiguardian:apiguardian-api
   org.opentest4j:opentest4j
+  Scala Compiler
+  scala-xml
   scalactic
   scalatest
 
 BSD - Scala License
   Scala Library
-
-BSD License
-  Scala Compiler
-  scala-xml
 
 Eclipse Public License - v 1.0
   JUnit

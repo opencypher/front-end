@@ -191,11 +191,12 @@ case object projectNamedPaths extends Rewriter with StepSequencer.Step with ASTR
         // We do not want to replace named shortest paths
         TraverseChildren(acc)
 
-    case part @ NamedPatternPart(variable, patternPart) =>
-      acc =>
-        // Remember the named path for replacing variables referring to it
-        val pathExpr = expressions.PathExpression(patternPartPathExpression(patternPart))(part.position)
-        TraverseChildren(acc.withNamedPath(variable -> pathExpr).withProtectedVariable(Ref(variable)))
+    case part @ NamedPatternPart(variable, patternPart) => { acc: Projectibles =>
+      // Remember the named path for replacing variables referring to it
+      val pathExpr = expressions.PathExpression(patternPartPathExpression(patternPart))(part.position)
+      val projectibles = acc.withNamedPath(variable -> pathExpr).withProtectedVariable(Ref(variable))
+      TraverseChildren(projectibles)
+    }
   }
 
   def patternPartPathExpression(patternPart: AnonymousPatternPart): PathStep = patternPart match {

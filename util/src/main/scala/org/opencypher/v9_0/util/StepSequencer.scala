@@ -83,7 +83,7 @@ case class StepSequencer[S <: Step, ACC](stepAccumulator: StepAccumulator[S, ACC
         _ = { if (invalidatedCondition.isInstanceOf[NegatedCondition]) throw new IllegalArgumentException(s"Step $step has an negated invalidated condition: $invalidatedCondition. That is not allowed.") }
       } yield invalidatedCondition -> step
       is.groupBy(_._1)
-        .mapValues(_.map(_._2).toSet)
+        .map{case (k, v) => k -> v.map(_._2).toSet}
         .withDefaultValue(Set.empty)
     }
 
@@ -304,20 +304,21 @@ object StepSequencer {
   private def sort[S <: Step](graph: MutableDirectedGraph[S],
                               introducingSteps: Map[Condition, S],
                               allSteps: Seq[S],
-                              initialConditions: Set[Condition]): AccumulatedSteps[Seq[S]] = {
-    val allPostConditions: Set[Condition] = allSteps.flatMap(_.postConditions)(collection.breakOut)
+                              initialConditions: Set[Condition]): AccumulatedSteps[scala.collection.Seq[S]] = {
+    val allPostConditions: Set[Condition] = allSteps.view.flatMap(_.postConditions).to(Set)
 
     val numberOfTimesEachStepIsInvalidated = allSteps
       .flatMap(_.invalidatedConditions.collect { case s if introducingSteps.contains(s) => introducingSteps(s) })
       .groupBy(identity)
-      .mapValues(_.size)
+      .map{case (k, v) => k -> v.size}
       .withDefaultValue(0)
+
     val order = heuristicStepOrdering(numberOfTimesEachStepIsInvalidated, allSteps)
 
     // We need to be able to look at the original state, so we make a copy in the beginning
     val workingGraph = MutableDirectedGraph.copyOf(graph)
     // During the algorithm keep track of all conditions currently enabled
-    val currentConditions = initialConditions.to[mutable.Set]
+    val currentConditions = initialConditions.to(mutable.Set)
 
     def dealWithInvalidatedConditions(nextStep: S, startPoints: mutable.Set[S]): Unit = {
       currentConditions ++= nextStep.postConditions
@@ -371,7 +372,7 @@ object StepSequencer {
    */
   private def topologicalSort[S](graph: MutableDirectedGraph[S],
                                  order: Option[Ordering[S]],
-                                 nextStepChosen: (S, mutable.Set[S]) => Unit): Seq[S] = {
+                                 nextStepChosen: (S, mutable.Set[S]) => Unit): scala.collection.Seq[S] = {
     // Empty list that will contain the sorted elements
     val result = new ArrayBuffer[S]()
 
@@ -379,10 +380,10 @@ object StepSequencer {
     val startPoints = {
       val nonEmpty = graph.allNodes.filter(graph.incoming(_).isEmpty)
       order match {
-        case None => nonEmpty.to[mutable.Set]
+        case None => nonEmpty.to(mutable.Set)
         case Some(order) =>
           implicit val implicitOrder: Ordering[S] = order
-          nonEmpty.to[mutable.SortedSet]
+          nonEmpty.to(mutable.SortedSet)
       }
     }
 

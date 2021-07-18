@@ -96,7 +96,7 @@ case class PatternComprehension(namedPath: Option[LogicalVariable], pattern: Rel
     introducedExternally
   }
 
-  override def dup(children: Seq[AnyRef]): this.type = {
+  override def dup(children: scala.collection.Seq[AnyRef]): this.type = {
     PatternComprehension(
       children(0).asInstanceOf[Option[LogicalVariable]],
       children(1).asInstanceOf[RelationshipsPattern],

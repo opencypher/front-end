@@ -19,6 +19,8 @@ import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.Eagerly
 import org.opencypher.v9_0.util.InputPosition
 
+import scala.collection.MapView
+
 object ASTAnnotationMap {
   def empty[K <: ASTNode, V]: ASTAnnotationMap[K, V] = new ASTAnnotationMap(Map.empty[(K, InputPosition), V])
   def apply[K <: ASTNode, V](elems: (K, V)*): ASTAnnotationMap[K, V] =
@@ -41,11 +43,11 @@ class ASTAnnotationMap[K <: ASTNode, V] private (store: Map[(K, InputPosition), 
   override def iterator: Iterator[(K, V)] =
     store.iterator.map { case ((astNode, _), value) => (astNode, value) }
 
-  override def -(key: K): Map[K, V] =
+  override def removed(key: K): Map[K, V] =
     new ASTAnnotationMap(store - ((key, key.position)))
 
-  override def mapValues[C](f: V => C): ASTAnnotationMap[K, C] =
-    new ASTAnnotationMap(Eagerly.immutableMapValues(store, f))
+  override def mapValues[W](f: V => W): MapView[K, W] =
+    MapView.from(new ASTAnnotationMap(Eagerly.immutableMapValues(store, f)))
 
   def replaceKeys(replacements: (K, K)*): ASTAnnotationMap[K, V] = {
     val expandedReplacements = replacements.map {
