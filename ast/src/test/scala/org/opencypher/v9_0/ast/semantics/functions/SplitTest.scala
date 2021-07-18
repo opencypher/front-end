@@ -26,7 +26,7 @@ class SplitTest extends FunctionTestBase("split")  {
     testValidTypes(CTString,CTString)(CTList(CTString))
   }
 
-  ignore("shouldFailTypeCheckForIncompatibleArguments") {
+  test("shouldFailTypeCheckForIncompatibleArguments") {
     testInvalidApplication(CTString, CTBoolean)(
       "Type mismatch: expected String or List<String> but was Boolean"
     )

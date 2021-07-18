@@ -26,8 +26,8 @@ class PercentileDiscTest extends FunctionTestBase("percentileDisc") {
 
   test("shouldHandleAllSpecializations") {
     testValidTypes(CTInteger, CTInteger)(CTInteger)
-//    testValidTypes(CTInteger, CTFloat)(CTInteger)
-//    testValidTypes(CTFloat, CTInteger)(CTFloat)
+    testValidTypes(CTInteger, CTFloat)(CTInteger)
+    testValidTypes(CTFloat, CTInteger)(CTFloat)
     testValidTypes(CTFloat, CTFloat)(CTFloat)
   }
 
@@ -40,7 +40,7 @@ class PercentileDiscTest extends FunctionTestBase("percentileDisc") {
     testInvalidApplication(CTFloat, CTFloat, CTFloat)("Too many parameters for function 'percentileDisc'")
   }
 
-  ignore("shouldFailTypeCheckWhenAddingIncompatible") {
+  test("shouldFailTypeCheckWhenAddingIncompatible") {
     testInvalidApplication(CTInteger, CTBoolean)(
       "Type mismatch: expected Float but was Boolean"
     )

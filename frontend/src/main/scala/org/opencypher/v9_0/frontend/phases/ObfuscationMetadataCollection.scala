@@ -55,6 +55,6 @@ case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, 
 
     }.distinct.sortBy(_.start)
 
-  private def collectSensitiveParameterNames(queryParams: Seq[Parameter], extractedParamNames: Set[String]): Set[String] =
+  private def collectSensitiveParameterNames(queryParams: collection.Seq[Parameter], extractedParamNames: Set[String]): Set[String] =
     queryParams.findAllByClass[SensitiveParameter].map(_.name).toSet -- extractedParamNames
 }

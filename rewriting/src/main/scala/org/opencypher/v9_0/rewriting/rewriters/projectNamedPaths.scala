@@ -194,7 +194,8 @@ case object projectNamedPaths extends Rewriter with StepSequencer.Step with ASTR
     case part @ NamedPatternPart(variable, patternPart) => { acc: Projectibles =>
       // Remember the named path for replacing variables referring to it
       val pathExpr = expressions.PathExpression(patternPartPathExpression(patternPart))(part.position)
-      TraverseChildren(acc.withNamedPath(variable -> pathExpr).withProtectedVariable(Ref(variable)))
+      val projectibles = acc.withNamedPath(variable -> pathExpr).withProtectedVariable(Ref(variable))
+      TraverseChildren(projectibles)
     }
   }
 

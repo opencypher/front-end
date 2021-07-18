@@ -357,11 +357,11 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
       val WITH1 =
         With(distinct = false,
           ReturnItems(includeExisting = false, Seq(
-            AliasedReturnItem(a, a)(pos),
             AliasedReturnItem(s, s)(pos),
-            AliasedReturnItem(b, b)(pos),
-            AliasedReturnItem(c, c)(pos),
             AliasedReturnItem(r, r)(pos),
+            AliasedReturnItem(b, b)(pos),
+            AliasedReturnItem(a, a)(pos),
+            AliasedReturnItem(c, c)(pos),
           ))(pos), None, None, None, None)(pos)
 
       val WITH2 =

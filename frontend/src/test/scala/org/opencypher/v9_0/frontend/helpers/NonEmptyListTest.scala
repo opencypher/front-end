@@ -51,7 +51,7 @@ class NonEmptyListTest extends CypherFunSuite {
     canBuildFrom(Seq(1)).result() should equal(None)
     (canBuildFrom(Seq(1)) += 2).result() should equal(Some(NonEmptyList(2)))
 
-    val result = Seq(1, 2, 3).map(_.toString): Option[NonEmptyList[String]]
+    val result = Seq(1, 2, 3).map(_.toString).toNonEmptyListOption
     result should equal(Some(NonEmptyList("1", "2", "3")))
   }
 
