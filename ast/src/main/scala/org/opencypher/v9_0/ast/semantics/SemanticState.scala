@@ -67,27 +67,28 @@ final case class SymbolUse(use: Ref[LogicalVariable]) {
 
 /**
  * A symbol collects the definition and all reading uses of a variable.
- * @param name the name
+ *
+ * @param name       the name
  * @param definition the definition
- * @param readingUses all reading uses of the symbol
- * @param types the type specification
+ * @param uses       all uses of the symbol. The definition is not a use.
+ * @param types      the type specification
  */
 final case class Symbol(name: String,
                         types: TypeSpec,
                         definition: SymbolUse,
-                        readingUses: Set[SymbolUse]) {
+                        uses: Set[SymbolUse]) {
   /**
-   * All uses of this symbol. This includes the definition and the reading uses.
+   * All references to this symbol. This includes the definition and the uses.
    */
-  def uses: Set[SymbolUse] = readingUses + definition
+  def references: Set[SymbolUse] = uses + definition
 
   /**
-   * @return the positions and unique IDs of all uses.
+   * @return the positions and unique IDs of all references.
    */
-  private[semantics] def positionsAndUniqueIds: Set[(Int, Int)] = uses.map(_.positionAndUniqueId)
+  private[semantics] def positionsAndUniqueIds: Set[(Int, Int)] = references.map(_.positionAndUniqueId)
 
   override def toString: String =
-    s"${definition.uniqueName}(${readingUses.map(_.uniqueName).mkString(",")}): ${types.toShortString}"
+    s"${definition.uniqueName}(${uses.map(_.uniqueName).mkString(",")}): ${types.toShortString}"
 }
 
 final case class ExpressionTypeInfo(specified: TypeSpec, expected: Option[TypeSpec] = None) {
@@ -120,8 +121,8 @@ final case class Scope(symbolTable: Map[String, Symbol],
     copy(symbolTable = symbolTable ++ otherSymbols)
   }
 
-  def updateVariable(variable: String, types: TypeSpec, definition: SymbolUse, readingUses: Set[SymbolUse]): Scope =
-    copy(symbolTable = symbolTable.updated(variable, Symbol(variable, types, definition, readingUses)))
+  def updateVariable(variable: String, types: TypeSpec, definition: SymbolUse, uses: Set[SymbolUse]): Scope =
+    copy(symbolTable = symbolTable.updated(variable, Symbol(variable, types, definition, uses)))
 
   /**
    * All symbol definitions of this scope and its children,
@@ -170,12 +171,12 @@ final case class Scope(symbolTable: Map[String, Symbol],
     allScopes.map(_.variableDefinitions).reduce(_ ++ _)
 
   /**
-   * @return A map from any use (read or definition) of a variable to its definition, in the current scope.
+   * @return A map from any reference of a variable to its definition, in the current scope.
    */
   def variableDefinitions: Map[SymbolUse, SymbolUse] =
     symbolTable.values.flatMap { symbol =>
       val definition = symbol.definition
-      symbol.uses.map { use => use -> definition }
+      symbol.references.map { use => use -> definition }
     }.toMap
 
   def allScopes: Seq[Scope] =
@@ -246,8 +247,8 @@ object SemanticState {
     def importValuesFromScope(other: Scope, exclude: Set[String] = Set.empty): ScopeLocation =
       location.replace(scope.importValuesFromScope(other, exclude))
 
-    def updateVariable(variable: String, types: TypeSpec, definition: SymbolUse, readingUses: Set[SymbolUse]): ScopeLocation =
-      location.replace(scope.updateVariable(variable, types, definition, readingUses))
+    def updateVariable(variable: String, types: TypeSpec, definition: SymbolUse, uses: Set[SymbolUse]): ScopeLocation =
+      location.replace(scope.updateVariable(variable, types, definition, uses))
   }
 
   def recordCurrentScope(node: ASTNode): SemanticCheck =
@@ -298,7 +299,7 @@ case class SemanticState(currentScope: ScopeLocation,
         Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position))
       case _ =>
         val (definition, uses) = maybePreviousDeclaration match {
-          case Some(previousDeclaration) => (previousDeclaration.definition, previousDeclaration.readingUses ++ Set(SymbolUse(variable)))
+          case Some(previousDeclaration) => (previousDeclaration.definition, previousDeclaration.uses ++ Set(SymbolUse(variable)))
           case None => (SymbolUse(variable), Set.empty[SymbolUse])
         }
         Right(updateVariable(variable, possibleTypes, definition, uses))
@@ -315,7 +316,7 @@ case class SemanticState(currentScope: ScopeLocation,
       case Some(symbol) =>
         val inferredTypes = symbol.types intersect possibleTypes
         if (inferredTypes.nonEmpty) {
-          Right(updateVariable(variable, inferredTypes, symbol.definition, symbol.readingUses + SymbolUse(variable)))
+          Right(updateVariable(variable, inferredTypes, symbol.definition, symbol.uses + SymbolUse(variable)))
         } else {
           val existingTypes = symbol.types.mkString(", ", " or ")
           val expectedTypes = possibleTypes.mkString(", ", " or ")
@@ -330,7 +331,7 @@ case class SemanticState(currentScope: ScopeLocation,
       case None =>
         Left(SemanticError(s"Variable `${variable.name}` not defined", variable.position))
       case Some(symbol) =>
-        Right(updateVariable(variable, symbol.types, symbol.definition, symbol.readingUses + SymbolUse(variable)))
+        Right(updateVariable(variable, symbol.types, symbol.definition, symbol.uses + SymbolUse(variable)))
     }
 
   def specifyType(expression: Expression, possibleTypes: TypeSpec): Either[SemanticError, SemanticState] =
@@ -352,9 +353,9 @@ case class SemanticState(currentScope: ScopeLocation,
 
   def expressionType(expression: Expression): ExpressionTypeInfo = typeTable.getOrElse(expression, ExpressionTypeInfo(TypeSpec.all))
 
-  private def updateVariable(variable: LogicalVariable, types: TypeSpec, definition: SymbolUse, readingUses: Set[SymbolUse]) =
+  private def updateVariable(variable: LogicalVariable, types: TypeSpec, definition: SymbolUse, uses: Set[SymbolUse]) =
     copy(
-      currentScope = currentScope.updateVariable(variable.name, types, definition, readingUses),
+      currentScope = currentScope.updateVariable(variable.name, types, definition, uses),
       typeTable = typeTable.updated(variable, ExpressionTypeInfo(types))
     )
 
