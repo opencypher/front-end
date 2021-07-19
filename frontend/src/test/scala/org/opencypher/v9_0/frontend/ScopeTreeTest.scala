@@ -28,12 +28,14 @@ import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.typedSymbol
 import org.opencypher.v9_0.frontend.phases.Namespacer
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.symbols.StorableType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-/*
-ScopeTree is tested here because we want to be able to use the parser for the testing
+/**
+ * ScopeTree is tested here because we want to be able to use the parser for the testing
  */
+//noinspection ZeroIndexToHead
 class ScopeTreeTest extends CypherFunSuite {
   /*
    * NOTE: when computing the scopeTree the normalization of return and with clauses has already taken place, so when
@@ -267,6 +269,26 @@ class ScopeTreeTest extends CypherFunSuite {
     )
 
     actual should equal(expected)
+  }
+
+  test("Scope.toString should render nicely") {
+    val ast = parse("match (n) return n as m")
+    val scopeTree = ast.scope
+    val nAt = ast.varAt("n")_
+    val mAt = ast.varAt("m")_
+
+    normalizeNewLines(scopeTree.toString) should equal(
+      normalizeNewLines(
+        s"""${scopeTree.toIdString} {
+        |  ${scopeTree.children(0).toIdString} {
+        |    n: 7(${Ref(nAt(7)).toIdString}) 17(${Ref(nAt(17)).toIdString})
+        |  }
+        |  ${scopeTree.children(1).toIdString} {
+        |    m: 22(${Ref(mAt(22)).toIdString})
+        |  }
+        |}
+        |""".stripMargin
+      ))
   }
 
   def parse(queryText: String): Statement = {
