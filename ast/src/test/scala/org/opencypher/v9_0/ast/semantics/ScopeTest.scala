@@ -21,7 +21,6 @@ import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.intSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.nodeSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.scope
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.stringSymbol
-import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 //noinspection ZeroIndexToHead

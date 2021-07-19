@@ -21,7 +21,6 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.helpers.TreeElem

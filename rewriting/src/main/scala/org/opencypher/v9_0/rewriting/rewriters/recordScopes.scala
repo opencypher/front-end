@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
