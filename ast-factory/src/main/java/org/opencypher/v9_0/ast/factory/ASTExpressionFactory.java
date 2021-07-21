@@ -82,7 +82,7 @@ public interface ASTExpressionFactory<
 
     EXPRESSION ands( List<EXPRESSION> exprs );
 
-    EXPRESSION not( EXPRESSION e );
+    EXPRESSION not( POS p, EXPRESSION e );
 
     EXPRESSION plus( POS p, EXPRESSION lhs, EXPRESSION rhs );
 
@@ -98,7 +98,9 @@ public interface ASTExpressionFactory<
 
     EXPRESSION unaryPlus( EXPRESSION e );
 
-    EXPRESSION unaryMinus( EXPRESSION e );
+    EXPRESSION unaryPlus( POS p, EXPRESSION e );
+
+    EXPRESSION unaryMinus( POS p, EXPRESSION e );
 
     EXPRESSION eq( POS p, EXPRESSION lhs, EXPRESSION rhs );
 
@@ -124,7 +126,7 @@ public interface ASTExpressionFactory<
 
     EXPRESSION in( POS p, EXPRESSION lhs, EXPRESSION rhs );
 
-    EXPRESSION isNull( EXPRESSION e );
+    EXPRESSION isNull( POS p, EXPRESSION e );
 
     EXPRESSION listLookup( EXPRESSION list, EXPRESSION index );
 
@@ -132,11 +134,16 @@ public interface ASTExpressionFactory<
 
     EXPRESSION newCountStar( POS p );
 
-    EXPRESSION functionInvocation( POS p, List<String> namespace, String name, boolean distinct, List<EXPRESSION> arguments );
+    EXPRESSION functionInvocation( POS p,
+                                   POS functionNamePosition,
+                                   List<String> namespace,
+                                   String name,
+                                   boolean distinct,
+                                   List<EXPRESSION> arguments );
 
     EXPRESSION listComprehension( POS p, VARIABLE v, EXPRESSION list, EXPRESSION where, EXPRESSION projection );
 
-    EXPRESSION patternComprehension( POS p, VARIABLE v, PATTERN pattern, EXPRESSION where, EXPRESSION projection );
+    EXPRESSION patternComprehension( POS p, POS relationshipPatternPosition, VARIABLE v, PATTERN pattern, EXPRESSION where, EXPRESSION projection );
 
     EXPRESSION filterExpression( POS p, VARIABLE v, EXPRESSION list, EXPRESSION where );
 

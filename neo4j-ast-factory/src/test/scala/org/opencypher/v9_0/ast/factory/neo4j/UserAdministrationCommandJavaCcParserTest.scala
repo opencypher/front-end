@@ -741,7 +741,9 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   ).permutations.foreach {
     clauses =>
       test(s"ALTER USER foo ${clauses.mkString(" ")}") {
-        assertSameAST(testName, "ALTER USER foo SET PASSWORD 'password' CHANGE NOT REQUIRED SET STATUS ACTIVE SET HOME DATABASE db1")
+        assertSameASTForQueries(testName,
+          "ALTER USER foo SET PASSWORD 'password' CHANGE NOT REQUIRED SET STATUS ACTIVE SET HOME DATABASE db1",
+          comparePosition = false)
       }
   }
 
@@ -749,7 +751,11 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
   ).permutations.foreach {
     clauses =>
       test(s"ALTER USER foo ${clauses.mkString(" ")}") {
-        assertSameAST(testName, "ALTER USER foo SET PASSWORD 'password' CHANGE REQUIRED SET STATUS ACTIVE SET HOME DATABASE db1")
+        assertSameASTForQueries(
+          testName,
+          "ALTER USER foo SET PASSWORD 'password' CHANGE REQUIRED SET STATUS ACTIVE SET HOME DATABASE db1",
+          comparePosition = false
+        )
       }
   }
 

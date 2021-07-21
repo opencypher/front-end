@@ -16,10 +16,29 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.junit.runner.RunWith
+import org.opencypher.v9_0.ast.HasCatalog
+import org.opencypher.v9_0.ast.LoadCSV
+import org.opencypher.v9_0.ast.PeriodicCommitHint
+import org.opencypher.v9_0.ast.ReadAdministrationCommand
+import org.opencypher.v9_0.ast.RemovePropertyItem
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
+import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
+import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.expressions.Literal
+import org.opencypher.v9_0.ast.UseGraph
+import org.opencypher.v9_0.ast.Yield
+import org.opencypher.v9_0.expressions.ContainerIndex
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.HasLabelsOrTypes
+import org.opencypher.v9_0.expressions.ListSlice
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
@@ -87,9 +106,9 @@ abstract class ParserComparisonTestBase() extends Assertions with Matchers {
   /**
    * Tests that the parboiled and JavaCC parsers produce the same AST and error positions.
    */
-  protected def assertSameAST(query: String): Unit = assertSameAST(query, query)
+  protected def assertSameAST(query: String, comparePosition: Boolean = true): Unit = assertSameASTForQueries(query, query, comparePosition)
 
-  protected def assertSameAST(query: String, parBoiledQuery: String): Unit = {
+  protected def assertSameASTForQueries(query: String, parBoiledQuery: String, comparePosition: Boolean = true): Unit = {
     withClue(query+System.lineSeparator()) {
       val parboiledParser = new org.opencypher.v9_0.parser.CypherParser()
       val parboiledAST = Try(parboiledParser.parse(parBoiledQuery, exceptionFactory, None))
@@ -107,19 +126,51 @@ abstract class ParserComparisonTestBase() extends Assertions with Matchers {
           throw parboiledEx
         case (Success(javaCCStatement), Success(parboiledStatement)) =>
           javaCCStatement shouldBe parboiledStatement
-          verifyPositions(javaCCStatement, parboiledStatement)
+          if (comparePosition) {
+            verifyPositions(javaCCStatement, parboiledStatement)
+          }
+        case (Success(_), Failure(parboiledEx)) =>
+          throw parboiledEx
         case _ =>
       }
     }
   }
 
   def verifyPositions(javaCCAstNode: ASTNode, parboiledASTNode: ASTNode): Unit = {
-    def getLiteralPositions(astNode: ASTNode) = astNode.treeFold(Seq.empty[(ASTNode, InputPosition)]) {
-      case astNode: Literal => acc => TraverseChildren(acc :+ (astNode, astNode.position))
-      case _ => acc => TraverseChildren(acc)
+
+    def astWithPosition(astNode: ASTNode) = {
+      {
+        lazy val containsReadAdministratorCommand = astNode.treeExists {
+          case _: ReadAdministrationCommand => true
+        }
+
+        astNode.treeFold(Seq.empty[(ASTNode, InputPosition)]) {
+          case _: Property |
+               _: SetPropertyItem |
+               _: RemovePropertyItem |
+               _: LoadCSV |
+               _: UseGraph |
+               _: EveryPath |
+               _: RelationshipChain |
+               _: Yield |
+               _: ContainerIndex |
+               _: ListSlice |
+               _: HasLabelsOrTypes |
+               _: SingleQuery |
+               _: PeriodicCommitHint |
+               _: ReadAdministrationCommand |
+               _: HasCatalog |
+               _: SetIncludingPropertiesFromMapItem |
+               _: SetExactPropertiesFromMapItem => acc => TraverseChildren(acc)
+          case returnItems: ReturnItems if returnItems.items.isEmpty => acc => SkipChildren(acc)
+          case _: Variable if containsReadAdministratorCommand => acc => TraverseChildren(acc)
+          case astNode: ASTNode => acc => TraverseChildren(acc :+ (astNode, astNode.position))
+          case _ => acc => TraverseChildren(acc)
+        }
+      }
     }
 
-    getLiteralPositions(javaCCAstNode).zip(getLiteralPositions(parboiledASTNode))
+    astWithPosition(javaCCAstNode).zip(astWithPosition(parboiledASTNode))
       .foreach {
         case ((astChildNode1, pos1), (astChildNode2, pos2)) => withClue(
           s"ASTNode $astChildNode1 should have the same position as $astChildNode2")(pos1 shouldBe pos2)
