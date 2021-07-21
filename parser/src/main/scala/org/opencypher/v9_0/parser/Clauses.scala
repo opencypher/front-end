@@ -199,6 +199,10 @@ trait Clauses extends Parser
   }
 
   def SubqueryCall: Rule1[ast.SubqueryCall] = rule("CALL") {
-    group(keyword("CALL") ~~ group("{" ~~ QueryPart ~~ "}")) ~~>> (part => ast.SubqueryCall(part))
+    group(keyword("CALL") ~~ group("{" ~~ QueryPart ~~ "}") ~~ optional(InTransactions)) ~~>>
+      ((part, inTx) => ast.SubqueryCall(part, inTx))
   }
+
+  private def InTransactions: Rule1[ast.SubqueryCall.InTransactionsParameters] =
+    keyword("IN TRANSACTIONS") ~~~> ast.SubqueryCall.InTransactionsParameters()
 }

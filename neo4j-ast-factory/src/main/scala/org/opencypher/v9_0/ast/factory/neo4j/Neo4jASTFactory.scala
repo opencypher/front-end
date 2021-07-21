@@ -240,7 +240,6 @@ import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.WriteAction
 import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
-import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
@@ -391,6 +390,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     Privilege,
     ActionResource,
     PrivilegeQualifier,
+    SubqueryCall.InTransactionsParameters,
     InputPosition] {
 
   override def newSingleQuery(p: InputPosition, clauses: util.List[Clause]): Query = {
@@ -609,8 +609,11 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                              clauses: util.List[Clause]): Clause =
     Foreach(v, list, clauses.asScala.toList)(p)
 
-  override def subqueryClause(p: InputPosition, subquery: Query): Clause =
-    SubqueryCall(subquery.part)(p)
+  override def subqueryInTransactionsParams(p: InputPosition): SubqueryCall.InTransactionsParameters =
+    SubqueryCall.InTransactionsParameters()(p)
+
+  override def subqueryClause(p: InputPosition, subquery: Query, inTransactions: SubqueryCall.InTransactionsParameters): Clause =
+    SubqueryCall(subquery.part, Option(inTransactions))(p)
 
   // PATTERNS
 
