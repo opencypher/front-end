@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext.failWith
@@ -29,6 +30,7 @@ import org.opencypher.v9_0.frontend.phases.Phase
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -255,6 +257,21 @@ class SemanticAnalysisTest extends CypherFunSuite {
     pipeline.transform(startState, context)
 
     context.errors.map(_.msg) shouldBe empty
+  }
+
+
+  test("nested CALL { ... } IN TRANSACTIONS") {
+    val query = "CALL { CALL { CREATE (x) } IN TRANSACTIONS } IN TRANSACTIONS RETURN 1 AS result"
+
+    val startState = initStartState(query)
+    val context = new ErrorCollectingContext()
+
+    val pipeline = pipelineWithSemanticFeatures(SemanticFeature.CallSubqueryInTransactions)
+    pipeline.transform(startState, context)
+
+    context.errors shouldBe Seq(
+      SemanticError("Nested CALL { ... } IN TRANSACTIONS is not supported", InputPosition(7, 1, 8))
+    )
   }
 
   private def initStartState(query: String) =
