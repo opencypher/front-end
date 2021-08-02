@@ -25,6 +25,7 @@ import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
+import org.opencypher.v9_0.ast.semantics.SemanticFeature.CallSubqueryInTransactions
 import org.opencypher.v9_0.ast.semantics.SemanticFeature.CorrelatedSubQueries
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Variable
@@ -169,7 +170,8 @@ class CNFNormalizerTest extends CypherFunSuite with PredicateTestSupport {
 object CNFNormalizerTest {
 
   case object SemanticWrapper extends Transformer[BaseContext, BaseState, BaseState] with StepSequencer.Step {
-    private val transformer = SemanticAnalysis.getTransformer(pushdownPropertyReads = false, Seq(CorrelatedSubQueries))
+    private val transformer =
+      SemanticAnalysis.getTransformer(pushdownPropertyReads = false, Seq(CorrelatedSubQueries, CallSubqueryInTransactions))
 
     override def preConditions: Set[Condition] = SemanticAnalysis.preConditions
 
