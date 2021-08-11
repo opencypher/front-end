@@ -15,8 +15,12 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTNumber
@@ -24,11 +28,11 @@ import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.TypeSpec
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class SemanticAnalysisToolingTest extends CypherFunSuite {
+class SemanticAnalysisToolingTest extends CypherFunSuite with AstConstructionTestSupport {
 
-  val expression = DummyExpression(CTAny)
+  val expression: Expression = DummyExpression(CTAny)
 
-  val toTest = new SemanticAnalysisTooling {}
+  val toTest: SemanticAnalysisTooling = new SemanticAnalysisTooling {}
 
   test("shouldReturnCalculatedType") {
     SemanticState.clean.expressionType(expression).actual should equal(TypeSpec.all)
@@ -70,5 +74,17 @@ class SemanticAnalysisToolingTest extends CypherFunSuite {
     assert(result.errors.head.position === expression.position)
     assert(result.errors.head.msg == "Type mismatch: lhs was String yet rhs was Integer or Node")
     assert(toTest.types(expression)(result.state).isEmpty)
+  }
+
+  test("should infer the right type for arguments of Ands") {
+    // Given
+    val varExpr = varFor("x")
+    val expression = ands(varExpr)
+
+    // When
+    val checkResult = SemanticExpressionCheck.check(SemanticContext.Simple, expression).apply(SemanticState.clean)
+
+    // Then
+    checkResult.state.typeTable.get(varExpr).get.expected should be(Some(CTBoolean.covariant))
   }
 }

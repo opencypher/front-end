@@ -28,7 +28,6 @@ import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
