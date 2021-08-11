@@ -25,10 +25,12 @@ import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.logical.plans.CoerceToPredicate
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
+import org.scalatest.Assertion
 
 trait PredicateTestSupport extends CypherTestSupport {
   self: CypherFunSuite =>
@@ -37,27 +39,28 @@ trait PredicateTestSupport extends CypherTestSupport {
 
   def rewriter: Rewriter
 
-  val P = anExp("P")
-  val Q = anExp("Q")
-  val R = anExp("R")
-  val S = anExp("S")
-  val V = anExp("V")
+  val P:Expression = anExp("P")
+  val Q:Expression = anExp("Q")
+  val R:Expression = anExp("R")
+  val S:Expression = anExp("S")
+  val V:Expression = anExp("V")
 
   implicit class IFF(x: Expression) {
-    def <=>(other: Expression) = {
+    def <=>(other: Expression): Assertion = {
       val output = rewriter(x)
 
       output should equal(other)
     }
   }
 
-  def anExp(s: String) = StringLiteral(s)(pos)
-  def and(p1: Expression, p2: Expression) = And(p1, p2)(pos)
-  def ands(predicates: Expression*) = Ands(predicates)(pos)
-  def or(p1: Expression, p2: Expression) = Or(p1, p2)(pos)
-  def ors(predicates: Expression*) = Ors(predicates)(pos)
-  def xor(p1: Expression, p2: Expression) = Xor(p1, p2)(pos)
-  def not(e: Expression) = Not(e)(pos)
+  def anExp(s: String): Expression = StringLiteral(s)(pos)
+  def and(p1: Expression, p2: Expression): Expression = And(p1, p2)(pos)
+  def ands(predicates: Expression*): Expression = Ands(predicates)(pos)
+  def or(p1: Expression, p2: Expression): Expression = Or(p1, p2)(pos)
+  def ors(predicates: Expression*): Expression = Ors(predicates)(pos)
+  def xor(p1: Expression, p2: Expression): Expression = Xor(p1, p2)(pos)
+  def not(e: Expression): Expression = Not(e)(pos)
+  def bool(e: Expression): Expression = CoerceToPredicate(e)
   def TRUE: Expression = True()(pos)
   def FALSE: Expression = False()(pos)
 }

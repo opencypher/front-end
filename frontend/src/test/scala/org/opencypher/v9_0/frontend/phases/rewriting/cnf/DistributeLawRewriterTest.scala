@@ -16,15 +16,17 @@
 package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.mockito.Mockito.verify
-import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
+import scala.annotation.tailrec
+
 class DistributeLawRewriterTest extends CypherFunSuite with PredicateTestSupport {
 
-  val monitor = mock[AstRewritingMonitor]
+  val monitor: AstRewritingMonitor = mock[AstRewritingMonitor]
   val rewriter: Rewriter = distributeLawsRewriter()(monitor)
 
   test("(P or (Q and R))  iff  (P or Q) and (P or R)") {
@@ -64,7 +66,8 @@ class DistributeLawRewriterTest extends CypherFunSuite with PredicateTestSupport
     if (result == fullOr) verify(monitor).abortedRewriting(fullOr)
   }
 
-  private def combineUntilLimit(start: Or, limit: Int): Or =
+  @tailrec
+  private def combineUntilLimit(start: Expression, limit: Int): Expression =
     if (limit > 0)
       combineUntilLimit(or(start, and(P, Q)), limit - 1)
     else
