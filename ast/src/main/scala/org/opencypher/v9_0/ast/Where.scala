@@ -15,10 +15,12 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.semantics.SemanticCheck
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
@@ -27,10 +29,14 @@ import org.opencypher.v9_0.util.symbols.CTBoolean
 case class Where(expression: Expression)(val position: InputPosition)
   extends ASTNode with SemanticCheckable {
 
-  def dependencies = expression.dependencies
+  def dependencies: Set[LogicalVariable] = expression.dependencies
 
-  def semanticCheck =
+  def semanticCheck: SemanticCheck = Where.checkExpression(expression)
+}
+
+object Where {
+  def checkExpression(expression: Expression): SemanticCheck =
     SemanticExpressionCheck.simple(expression) chain
-    SemanticPatternCheck.checkValidPropertyKeyNames(expression.findAllByClass[Property].map(prop => prop.propertyKey), expression.position) chain
-    SemanticExpressionCheck.expectType(CTBoolean.covariant, expression)
+      SemanticPatternCheck.checkValidPropertyKeyNames(expression.findAllByClass[Property].map(prop => prop.propertyKey), expression.position) chain
+      SemanticExpressionCheck.expectType(CTBoolean.covariant, expression)
 }

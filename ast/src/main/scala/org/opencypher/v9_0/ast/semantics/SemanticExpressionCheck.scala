@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
 import org.opencypher.v9_0.expressions.And
@@ -368,8 +369,8 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         SemanticState.recordCurrentScope(x) chain
           withScopedState {
             SemanticPatternCheck.check(Pattern.SemanticContext.Match, x.pattern) chain
-              x.namedPath.map(declareVariable(_, CTPath): SemanticCheck).getOrElse(SemanticCheckResult.success) chain
-              simple(x.predicate) chain
+              x.namedPath.foldSemanticCheck(declareVariable(_, CTPath)) chain
+              x.predicate.foldSemanticCheck(Where.checkExpression) chain
               simple(x.projection)
           } chain {
             val outerTypes: TypeGenerator = types(x.projection)(_).wrapInList
