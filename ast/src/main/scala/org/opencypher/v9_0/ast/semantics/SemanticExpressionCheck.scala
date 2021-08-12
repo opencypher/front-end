@@ -406,7 +406,8 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         SemanticCheckResult.success
 
       case x:ShortestPathExpression =>
-        SemanticPatternCheck.declareVariables(Pattern.SemanticContext.Expression)(x.pattern) chain
+        SemanticPatternCheck.checkElementPredicates(Pattern.SemanticContext.Expression)(x.pattern) chain
+          SemanticPatternCheck.declareVariables(Pattern.SemanticContext.Expression)(x.pattern) chain
           SemanticPatternCheck.check(Pattern.SemanticContext.Expression)(x.pattern) chain
           specifyType(if (x.pattern.single) CTPath else CTList(CTPath), x)
 
@@ -422,7 +423,9 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
                 SemanticCheckResult(state, errors)
               }
             }
-          } chain specifyType(CTList(CTPath), x)
+          } chain
+          specifyType(CTList(CTPath), x) chain
+          SemanticPatternCheck.checkElementPredicates(Pattern.SemanticContext.Expression, x.pattern.element)
 
       case x:IterablePredicateExpression =>
         FilteringExpressions.checkPredicateDefined(x) chain
@@ -616,7 +619,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
   def simple(option: Option[Expression]): SemanticCheck = check(SemanticContext.Simple, option, Seq())
 
   def check(ctx: SemanticContext, option: Option[Expression], parents: Seq[Expression]): SemanticCheck =
-    option.fold(SemanticCheckResult.success) {
+    option.foldSemanticCheck {
       check(ctx, _, parents)
     }
 

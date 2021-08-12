@@ -19,7 +19,9 @@ import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
 
 object Pattern {
-  sealed trait SemanticContext
+  sealed trait SemanticContext {
+    def name: String = SemanticContext.name(this)
+  }
 
   object SemanticContext {
     case object Match extends SemanticContext

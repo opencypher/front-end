@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.InvalidNodePattern
@@ -54,14 +55,36 @@ import org.opencypher.v9_0.util.symbols.CTRelationship
 object SemanticPatternCheck extends SemanticAnalysisTooling {
 
   def check(ctx: SemanticContext, pattern: Pattern): SemanticCheck =
-        semanticCheckFold(pattern.patternParts)(declareVariables(ctx)) chain
-          semanticCheckFold(pattern.patternParts)(check(ctx)) chain
-          ensureNoDuplicateRelationships(pattern, error = true)
+    semanticCheckFold(pattern.patternParts)(checkElementPredicates(ctx)) chain
+      semanticCheckFold(pattern.patternParts)(declareVariables(ctx)) chain
+      semanticCheckFold(pattern.patternParts)(check(ctx)) chain
+      ensureNoDuplicateRelationships(pattern, error = true)
 
   def check(ctx: SemanticContext, pattern: RelationshipsPattern): SemanticCheck =
-    declareVariables(ctx, pattern.element) chain
+    checkElementPredicates(ctx, pattern.element) chain
+      declareVariables(ctx, pattern.element) chain
       check(ctx, pattern.element) chain
       ensureNoDuplicateRelationships(pattern, error = false)
+
+  def checkElementPredicates(ctx: SemanticContext)(part: PatternPart): SemanticCheck =
+    checkElementPredicates(ctx, part.element)
+
+  def checkElementPredicates(ctx: SemanticContext, part: PatternElement): SemanticCheck =
+    part match {
+      case x: RelationshipChain =>
+        checkElementPredicates(ctx, x.element) chain
+          checkElementPredicates(ctx, x.rightNode)
+
+      case x: NodePattern =>
+        x.predicate.foldSemanticCheck { predicate =>
+          when (ctx != SemanticContext.Match) {
+            error(s"Node pattern predicates are not allowed in ${ctx.name}", predicate.position)
+          } chain withScopedState {
+            declareVariables(ctx, x) chain
+              Where.checkExpression(predicate)
+          }
+        }
+    }
 
   def declareVariables(ctx: SemanticContext)(part: PatternPart): SemanticCheck =
     part match {
@@ -74,7 +97,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
           case (_: NodePattern, SemanticContext.Match) =>
             declareVariables(ctx, x.element)
           case (n: NodePattern, _) =>
-            n.variable.fold(SemanticCheckResult.success)(declareVariable(_, CTNode)) chain
+            n.variable.foldSemanticCheck(declareVariable(_, CTNode)) chain
               declareVariables(ctx, n)
           case _ =>
             declareVariables(ctx, x.element)
@@ -256,7 +279,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
           declareVariables(ctx, x.rightNode)
 
       case x: NodePattern =>
-        x.variable.fold(SemanticCheckResult.success) {
+        x.variable.foldSemanticCheck {
           variable =>
             ctx match {
               case SemanticContext.Expression =>
@@ -269,7 +292,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
     }
 
   def declareVariables(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck =
-    x.variable.fold(SemanticCheckResult.success) {
+    x.variable.foldSemanticCheck {
       variable =>
         val possibleType = if (x.length.isEmpty) CTRelationship else CTList(CTRelationship)
 
