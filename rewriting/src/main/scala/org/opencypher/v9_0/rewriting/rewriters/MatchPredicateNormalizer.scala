@@ -16,8 +16,15 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.util.Foldable.FoldableAny
 
 trait MatchPredicateNormalizer {
   val extract: PartialFunction[AnyRef, IndexedSeq[Expression]]
   val replace: PartialFunction[AnyRef, AnyRef]
+
+  final def extractAllFrom(pattern: Any): Seq[Expression] =
+    pattern.fold(Vector.empty[Expression]) {
+      case pattern: AnyRef if extract.isDefinedAt(pattern) => acc => acc ++ extract(pattern)
+      case _                                               => identity
+    }
 }

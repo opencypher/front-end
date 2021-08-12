@@ -37,6 +37,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
 import org.opencypher.v9_0.rewriting.rewriters.normalizeHasLabelsAndHasType
 import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
+import org.opencypher.v9_0.rewriting.rewriters.normalizePatternComprehensionPredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
@@ -60,6 +61,7 @@ object ASTRewriter {
     normalizeExistsPatternExpressions,
     nameAllPatternElements,
     normalizeMatchPredicates,
+    normalizePatternComprehensionPredicates,
     normalizeNotEquals,
     normalizeArgumentOrder,
     normalizeSargablePredicates,
