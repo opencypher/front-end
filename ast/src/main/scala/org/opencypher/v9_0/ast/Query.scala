@@ -382,6 +382,7 @@ sealed trait Union extends QueryPart with SemanticAnalysisTooling {
       checkColumnNamesAgree chain
       defineUnionVariables chain
       checkInputDataStream chain
+      checkNoCallInTransactionInsideUnion chain
       SemanticState.recordCurrentScope(this)
 
   def semanticCheck: SemanticCheck =
@@ -456,6 +457,14 @@ sealed trait Union extends QueryPart with SemanticAnalysisTooling {
     case (_: ProjectingUnionAll, _: ProjectingUnionAll) => None
     case (_: ProjectingUnionDistinct, _: ProjectingUnionDistinct) => None
     case _ => Some(SemanticError("Invalid combination of UNION and UNION ALL", position))
+  }
+
+  private def checkNoCallInTransactionInsideUnion: SemanticCheck = {
+    val nestedCallInTransactions = Seq(part, query).flatMap{qp => SubqueryCall.findTransactionalSubquery(qp)}
+
+    nestedCallInTransactions.foldSemanticCheck { nestedCallInTransactions =>
+      error("CALL { ... } IN TRANSACTIONS in a UNION is not supported", nestedCallInTransactions.position)
+    }
   }
 
   def unionedQueries: Seq[SingleQuery] = unionedQueries(Vector.empty)
