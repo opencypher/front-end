@@ -368,6 +368,10 @@ import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.expressions.functions.Labels
 import org.opencypher.v9_0.expressions.functions.Type
+import org.opencypher.v9_0.util.ConstraintVersion
+import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_0
+import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_1
+import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_2
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.AnyType
 import org.opencypher.v9_0.util.symbols.CTMap
@@ -1291,6 +1295,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     props <- oneOrMore(_variableProperty)
   } yield props
 
+  def _constraintVersion: Gen[ConstraintVersion] = oneOf(CONSTRAINT_VERSION_0, CONSTRAINT_VERSION_1, CONSTRAINT_VERSION_2)
+
+  def _constraintVersionZeroOrTwo: Gen[ConstraintVersion] = oneOf(CONSTRAINT_VERSION_0, CONSTRAINT_VERSION_2)
+
   def _createIndex: Gen[CreateIndex] = for {
     variable          <- _variable
     labelName         <- _labelName
@@ -1334,14 +1342,16 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     prop                <- _variableProperty
     name                <- option(_identifier)
     ifExistsDo          <- _ifExistsDo
-    oldExistenceSyntax  <- boolean
+    containsOn          <- boolean
+    constraintVersion   <- _constraintVersion
+    constraintVersion2  <- _constraintVersionZeroOrTwo
     options             <- _optionsMapAsEither
     use                 <- option(_use)
-    nodeKey             = CreateNodeKeyConstraint(variable, labelName, props, name, ifExistsDo, options, use)(pos)
-    uniqueness          = CreateUniquePropertyConstraint(variable, labelName, Seq(prop), name, ifExistsDo, options, use)(pos)
-    compositeUniqueness = CreateUniquePropertyConstraint(variable, labelName, props, name, ifExistsDo, options, use)(pos)
-    nodeExistence       = CreateNodePropertyExistenceConstraint(variable, labelName, prop, name, ifExistsDo, oldExistenceSyntax, options, use)(pos)
-    relExistence        = CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, prop, name, ifExistsDo, oldExistenceSyntax, options, use)(pos)
+    nodeKey             = CreateNodeKeyConstraint(variable, labelName, props, name, ifExistsDo, options, containsOn, constraintVersion2, use)(pos)
+    uniqueness          = CreateUniquePropertyConstraint(variable, labelName, Seq(prop), name, ifExistsDo, options, containsOn, constraintVersion2, use)(pos)
+    compositeUniqueness = CreateUniquePropertyConstraint(variable, labelName, props, name, ifExistsDo, options, containsOn, constraintVersion2, use)(pos)
+    nodeExistence       = CreateNodePropertyExistenceConstraint(variable, labelName, prop, name, ifExistsDo, options, containsOn, constraintVersion, use)(pos)
+    relExistence        = CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, prop, name, ifExistsDo, options, containsOn, constraintVersion, use)(pos)
     command             <- oneOf(nodeKey, uniqueness, compositeUniqueness, nodeExistence, relExistence)
   } yield command
 

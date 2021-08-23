@@ -345,6 +345,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.ConstraintVersion
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTMap
@@ -1134,34 +1135,33 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
   override def createConstraint(p: InputPosition,
                                 constraintType: ConstraintType,
                                 replace: Boolean,
-                                ifNotExists:Boolean,
+                                ifNotExists: Boolean,
                                 name: String,
                                 variable: Variable,
                                 label: StringPos[InputPosition],
                                 javaProperties: util.List[Property],
-                                options: SimpleEither[util.Map[String, Expression], Parameter]): SchemaCommand = {
+                                options: SimpleEither[util.Map[String, Expression], Parameter],
+                                containsOn: Boolean,
+                                constraintVersion: ConstraintVersion
+                               ): SchemaCommand = {
     val properties = javaProperties.asScala
     constraintType match {
       case ConstraintType.UNIQUE => ast.CreateUniquePropertyConstraint(variable, LabelName(label.string)(label.pos), properties, Option(name),
-        ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
+        ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
       case ConstraintType.NODE_KEY => ast.CreateNodeKeyConstraint(variable, LabelName(label.string)(label.pos), properties, Option(name),
-        ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
+        ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
       case ConstraintType.NODE_EXISTS =>
         validateSingleProperty(properties, constraintType)
-        ast.CreateNodePropertyExistenceConstraint(variable, LabelName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists),
-          oldSyntax = true, asOptionsAst(options))(p)
+        ast.CreateNodePropertyExistenceConstraint(variable, LabelName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
       case ConstraintType.NODE_IS_NOT_NULL =>
         validateSingleProperty(properties, constraintType)
-        ast.CreateNodePropertyExistenceConstraint(variable, LabelName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists),
-          oldSyntax = false, asOptionsAst(options))(p)
+        ast.CreateNodePropertyExistenceConstraint(variable, LabelName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
       case ConstraintType.REL_EXISTS =>
         validateSingleProperty(properties, constraintType)
-        ast.CreateRelationshipPropertyExistenceConstraint(variable, RelTypeName(label.string)(label.pos), properties.head, Option(name),
-          ifExistsDo(replace, ifNotExists), oldSyntax = true, asOptionsAst(options))(p)
+        ast.CreateRelationshipPropertyExistenceConstraint(variable, RelTypeName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
       case ConstraintType.REL_IS_NOT_NULL =>
         validateSingleProperty(properties, constraintType)
-        ast.CreateRelationshipPropertyExistenceConstraint(variable, RelTypeName(label.string)(label.pos), properties.head, Option(name),
-          ifExistsDo(replace, ifNotExists), oldSyntax = false, asOptionsAst(options))(p)
+        ast.CreateRelationshipPropertyExistenceConstraint(variable, RelTypeName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
     }
   }
 

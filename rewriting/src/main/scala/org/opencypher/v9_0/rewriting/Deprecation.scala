@@ -53,6 +53,7 @@ import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Length3_5
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_0
 import org.opencypher.v9_0.util.DeprecatedCatalogKeywordForAdminCommandSyntax
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
@@ -156,13 +157,13 @@ object Deprecations {
           Some(DeprecatedDropConstraintSyntax(c.position))
         )
 
-      case c: ast.CreateNodePropertyExistenceConstraint if c.oldSyntax =>
+      case c: ast.CreateNodePropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_0 =>
         Deprecation(
           None,
           Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
         )
 
-      case c: ast.CreateRelationshipPropertyExistenceConstraint if c.oldSyntax =>
+      case c: ast.CreateRelationshipPropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_0 =>
         Deprecation(
           None,
           Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))

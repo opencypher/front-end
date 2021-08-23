@@ -138,6 +138,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.RELATIONSHIPS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.REMOVE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.RENAME;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.REPLACE;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.REQUIRE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.REQUIRED;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.RETURN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.REVOKE;
@@ -308,6 +309,7 @@ public class IdentifierTokens
             REMOVE,
             RENAME,
             REPLACE,
+            REQUIRE,
             REQUIRED,
             RETURN,
             REVOKE,
