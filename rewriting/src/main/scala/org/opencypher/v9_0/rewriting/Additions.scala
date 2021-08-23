@@ -23,6 +23,8 @@ import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
+import org.opencypher.v9_0.ast.CreateTextNodeIndex
+import org.opencypher.v9_0.ast.CreateTextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
@@ -33,6 +35,7 @@ import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.UniquePropertyConstraintCommand
 import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.UseGraph
@@ -158,6 +161,15 @@ object Additions {
       case c: UniquePropertyConstraintCommand if c.properties.size > 1 =>
         throw cypherExceptionFactory.syntaxException("Multi-property uniqueness constraints are not supported in this Cypher version.", c.position)
 
+      // CREATE TEXT INDEX ...
+      case c: CreateTextNodeIndex =>
+        throw cypherExceptionFactory.syntaxException("Text indexes are not supported in this Cypher version.", c.position)
+      case c: CreateTextRelationshipIndex =>
+        throw cypherExceptionFactory.syntaxException("Text indexes are not supported in this Cypher version.", c.position)
+
+      // SHOW TEXT INDEXES
+      case s: ShowIndexesClause if s.indexType == TextIndexes =>
+        throw cypherExceptionFactory.syntaxException("Filtering on text indexes in SHOW INDEXES is not supported in this Cypher version.", s.position)
     }
   }
 

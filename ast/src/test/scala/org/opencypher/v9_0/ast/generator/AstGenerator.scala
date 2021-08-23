@@ -70,6 +70,8 @@ import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateRoleAction
+import org.opencypher.v9_0.ast.CreateTextNodeIndex
+import org.opencypher.v9_0.ast.CreateTextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateUserAction
@@ -237,6 +239,7 @@ import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
 import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.TerminateTransactionAction
+import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.TransactionManagementAction
 import org.opencypher.v9_0.ast.TraverseAction
@@ -1191,7 +1194,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   def _indexType: Gen[(ShowIndexType, Option[Boolean])] = for {
     verbose   <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
     // BRIEF/VERBOSE is only allowed with ALL and BTREE
-    indexType <- oneOf((AllIndexes, verbose), (BtreeIndexes, verbose), (FulltextIndexes, None), (LookupIndexes, None))
+    indexType <- oneOf((AllIndexes, verbose), (BtreeIndexes, verbose), (FulltextIndexes, None), (TextIndexes, None), (LookupIndexes, None))
   } yield indexType
 
   def _listOfLabels: Gen[List[LabelName]] = for {
@@ -1305,7 +1308,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     lookupRelIndex    = CreateLookupIndex(variable, isNodeIndex = false, FunctionInvocation(FunctionName(Type.name)(pos), distinct = false, IndexedSeq(variable))(pos), name, ifExistsDo, options, use)(pos)
     fulltextNodeIndex = CreateFulltextNodeIndex(variable, labels, props, name, ifExistsDo, options, use)(pos)
     fulltextRelIndex  = CreateFulltextRelationshipIndex(variable, types, props, name, ifExistsDo, options, use)(pos)
-    command           <- oneOf(btreeNodeIndex, btreeRelIndex, lookupNodeIndex, lookupRelIndex, fulltextNodeIndex, fulltextRelIndex)
+    textNodeIndex     = CreateTextNodeIndex(variable, labelName, props, name, ifExistsDo, options, use)(pos)
+    textRelIndex      = CreateTextRelationshipIndex(variable, relType, props, name, ifExistsDo, options, use)(pos)
+    command           <- oneOf(btreeNodeIndex, btreeRelIndex, lookupNodeIndex, lookupRelIndex, fulltextNodeIndex, fulltextRelIndex, textNodeIndex, textRelIndex)
   } yield command
 
   def _dropIndex: Gen[DropIndexOnName] = for {

@@ -154,6 +154,7 @@ import org.opencypher.v9_0.parser.javacc.CypherConstants.STATUS
 import org.opencypher.v9_0.parser.javacc.CypherConstants.STOP
 import org.opencypher.v9_0.parser.javacc.CypherConstants.SUSPENDED
 import org.opencypher.v9_0.parser.javacc.CypherConstants.TERMINATE
+import org.opencypher.v9_0.parser.javacc.CypherConstants.TEXT
 import org.opencypher.v9_0.parser.javacc.CypherConstants.THEN
 import org.opencypher.v9_0.parser.javacc.CypherConstants.TO
 import org.opencypher.v9_0.parser.javacc.CypherConstants.TRANSACTION
@@ -321,6 +322,7 @@ object IdentifierTokens {
     STOP,
     SUSPENDED,
     TERMINATE,
+    TEXT,
     THEN,
     TO,
     TRANSACTION,

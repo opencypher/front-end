@@ -30,6 +30,7 @@ import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
+import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.util.test_helpers.TestName
 import org.scalatest.FunSuiteLike
@@ -56,6 +57,10 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
 
     test(s"SHOW FULLTEXT $indexKeyword") {
       assertJavaCCAST(testName, query(ShowIndexesClause(FulltextIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
+    }
+
+    test(s"SHOW TEXT $indexKeyword") {
+      assertJavaCCAST(testName, query(ShowIndexesClause(TextIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW LOOKUP $indexKeyword") {
@@ -151,6 +156,11 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
       yieldClause(returnItems(aliasedReturnItem("name", "INDEX"), aliasedReturnItem("type", "OUTPUT")))))
   }
 
+  test("SHOW TEXT INDEXES YIELD name AS INDEX, type AS OUTPUT") {
+    assertJavaCCAST(testName, query(ShowIndexesClause(TextIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
+      yieldClause(returnItems(aliasedReturnItem("name", "INDEX"), aliasedReturnItem("type", "OUTPUT")))))
+  }
+
   test("SHOW LOOKUP INDEXES WHERE name = 'GRANT'") {
     assertJavaCCAST(testName, query(ShowIndexesClause(LookupIndexes, brief = false, verbose = false,
       Some(where(equals(varFor("name"), literalString("GRANT")))), hasYield = false)(pos)))
@@ -243,6 +253,14 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
   }
 
   test("SHOW FULLTEXT INDEXES VERBOSE") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW TEXT INDEXES BRIEF") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW TEXT INDEXES VERBOSE") {
     assertSameAST(testName)
   }
 
@@ -412,6 +430,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "REL"
         |  "RELATIONSHIP"
         |  "ROLES"
+        |  "TEXT"
         |  "UNIQUE"
         |  "USER"
         |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
@@ -455,6 +474,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "REL"
         |  "RELATIONSHIP"
         |  "ROLES"
+        |  "TEXT"
         |  "UNIQUE"
         |  "USER"
         |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
@@ -498,6 +518,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "REL"
         |  "RELATIONSHIP"
         |  "ROLES"
+        |  "TEXT"
         |  "UNIQUE"
         |  "USER"
         |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)

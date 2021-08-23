@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.expressions
-import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
@@ -68,6 +67,17 @@ trait SchemaCommand extends Parser
       | ("()<-[" ~~ Variable ~~ RelType ~~ "]-()")
   )
 
+  private def NodeIndexPatternSyntax: Rule4[Variable, LabelName, Seq[Property], Options] = rule {
+    group("(" ~~ Variable ~~ NodeLabel ~~ ")" ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")" ~~ optionsMapOrParameter) |
+      group("(" ~~ Variable ~~ NodeLabel ~~ ")" ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")") ~> (_ => NoOptions)
+  }
+
+  private def RelationshipIndexPatternSyntax: Rule4[Variable, RelTypeName, Seq[Property], Options] = rule {
+    group(RelationshipPatternSyntax ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")" ~~ optionsMapOrParameter) |
+      group(RelationshipPatternSyntax ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")") ~> (_ => NoOptions)
+  }
+
+
   // INDEX commands
 
   private def CreateIndexOldSyntax: Rule1[ast.CreateIndexOldSyntax] = rule {
@@ -75,13 +85,13 @@ trait SchemaCommand extends Parser
   }
 
   private def CreateIndex: Rule1[ast.CreateIndex] = rule {
-    CreateLookupIndex | CreateFulltextIndex | CreateBtreeIndex
+    CreateLookupIndex | CreateFulltextIndex | CreateTextIndex | CreateBtreeIndex
   }
 
   private def CreateBtreeIndex: Rule1[ast.CreateIndex] = rule {
-    group(CreateBtreeIndexStart ~~ BtreeRelationshipIndexPatternSyntax) ~~>>
+    group(CreateBtreeIndexStart ~~ RelationshipIndexPatternSyntax) ~~>>
       ((name, ifExistsDo, variable, relType, properties, options) => ast.CreateBtreeRelationshipIndex(variable, relType, properties.toList, name, ifExistsDo, options)) |
-    group(CreateBtreeIndexStart ~~ BtreeNodeIndexPatternSyntax) ~~>>
+    group(CreateBtreeIndexStart ~~ NodeIndexPatternSyntax) ~~>>
       ((name, ifExistsDo, variable, label, properties, options) => ast.CreateBtreeNodeIndex(variable, label, properties.toList, name, ifExistsDo, options))
   }
 
@@ -96,16 +106,6 @@ trait SchemaCommand extends Parser
     group((keyword("CREATE OR REPLACE BTREE INDEX") | keyword("CREATE OR REPLACE INDEX")) ~~ SymbolicNameString ~~ keyword("FOR")) ~~>> (name => _ => Some(name)) ~> (_ => ast.IfExistsReplace) |
     group((keyword("CREATE BTREE INDEX") | keyword("CREATE INDEX")) ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS FOR")) ~~>> (name => _ => Some(name)) ~> (_ => ast.IfExistsDoNothing) |
     group((keyword("CREATE BTREE INDEX") | keyword("CREATE INDEX")) ~~ SymbolicNameString ~~ keyword("FOR")) ~~>> (name => _ => Some(name)) ~> (_ => ast.IfExistsThrowError)
-  }
-
-  private def BtreeNodeIndexPatternSyntax: Rule4[Variable, LabelName, Seq[Property], Options] = rule {
-    group("(" ~~ Variable ~~ NodeLabel ~~ ")" ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")" ~~ optionsMapOrParameter) |
-    group("(" ~~ Variable ~~ NodeLabel ~~ ")" ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")") ~> (_ => NoOptions)
-  }
-
-  private def BtreeRelationshipIndexPatternSyntax: Rule4[Variable, RelTypeName, Seq[Property], Options] = rule {
-    group(RelationshipPatternSyntax ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")" ~~ optionsMapOrParameter) |
-    group(RelationshipPatternSyntax ~~ keyword("ON") ~~ "(" ~~ VariablePropertyExpressions ~~ ")") ~> (_ => NoOptions)
   }
 
   private def CreateLookupIndex: Rule1[ast.CreateIndex] = rule {
@@ -197,6 +197,26 @@ trait SchemaCommand extends Parser
   private def FulltextPropertyProjection: Rule1[List[Property]] = rule(
     keyword("EACH") ~~ "[" ~~ VariablePropertyExpressions ~~ "]" ~~> (s => s.toList)
   )
+
+  private def CreateTextIndex: Rule1[ast.CreateIndex] = rule {
+    group(CreateTextIndexStart ~~ RelationshipIndexPatternSyntax) ~~>>
+      ((name, ifExistsDo, variable, relType, properties, options) => ast.CreateTextRelationshipIndex(variable, relType, properties.toList, name, ifExistsDo, options)) |
+    group(CreateTextIndexStart ~~ NodeIndexPatternSyntax) ~~>>
+      ((name, ifExistsDo, variable, label, properties, options) => ast.CreateTextNodeIndex(variable, label, properties.toList, name, ifExistsDo, options))
+  }
+
+  private def CreateTextIndexStart: Rule2[Option[String], ast.IfExistsDo] = rule {
+    // without name
+    keyword("CREATE OR REPLACE TEXT INDEX IF NOT EXISTS FOR") ~~~> (_ => None) ~> (_ => ast.IfExistsInvalidSyntax) |
+    keyword("CREATE OR REPLACE TEXT INDEX FOR") ~~~> (_ => None) ~> (_ => ast.IfExistsReplace) |
+    keyword("CREATE TEXT INDEX IF NOT EXISTS FOR") ~~~> (_ => None) ~> (_ => ast.IfExistsDoNothing) |
+    keyword("CREATE TEXT INDEX FOR") ~~~> (_ => None) ~> (_ => ast.IfExistsThrowError) |
+    // with name
+    group(keyword("CREATE OR REPLACE TEXT INDEX") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS FOR")) ~~>> (name => _ => Some(name)) ~> (_ => ast.IfExistsInvalidSyntax) |
+    group(keyword("CREATE OR REPLACE TEXT INDEX") ~~ SymbolicNameString ~~ keyword("FOR")) ~~>> (name => _ => Some(name)) ~> (_ => ast.IfExistsReplace) |
+    group(keyword("CREATE TEXT INDEX") ~~ SymbolicNameString ~~ keyword("IF NOT EXISTS FOR")) ~~>> (name => _ => Some(name)) ~> (_ => ast.IfExistsDoNothing) |
+    group(keyword("CREATE TEXT INDEX") ~~ SymbolicNameString ~~ keyword("FOR")) ~~>> (name => _ => Some(name)) ~> (_ => ast.IfExistsThrowError)
+  }
 
   private def DropIndex: Rule1[ast.DropIndex] = rule {
     group(keyword("DROP INDEX ON") ~~ NodeLabel ~~ "(" ~~ PropertyKeyNames ~~ ")") ~~>> (ast.DropIndex(_, _))

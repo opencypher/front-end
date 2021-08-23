@@ -67,6 +67,8 @@ import org.opencypher.v9_0.ast.CreatePropertyKeyAction
 import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateRoleAction
+import org.opencypher.v9_0.ast.CreateTextNodeIndex
+import org.opencypher.v9_0.ast.CreateTextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.CurrentUser
@@ -217,6 +219,7 @@ import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
 import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.TerminateTransactionAction
+import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.TraverseAction
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
@@ -245,6 +248,7 @@ import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
 import org.opencypher.v9_0.ast.factory.ActionType
 import org.opencypher.v9_0.ast.factory.ConstraintType
+import org.opencypher.v9_0.ast.factory.CreateIndexTypes
 import org.opencypher.v9_0.ast.factory.ParameterType
 import org.opencypher.v9_0.ast.factory.ScopeType
 import org.opencypher.v9_0.ast.factory.ShowCommandFilterTypes
@@ -1050,6 +1054,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       case ShowCommandFilterTypes.ALL => AllIndexes
       case ShowCommandFilterTypes.BTREE => BtreeIndexes
       case ShowCommandFilterTypes.FULLTEXT => FulltextIndexes
+      case ShowCommandFilterTypes.TEXT => TextIndexes
       case ShowCommandFilterTypes.LOOKUP => LookupIndexes
       case t => throw new Neo4jASTConstructionException(ASTExceptionFactory.invalidShowFilterType("indexes", t))
     }
@@ -1195,19 +1200,29 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     CreateIndexOldSyntax(LabelName(label.string)(label.pos), properties.asScala.toList.map(prop => PropertyKeyName(prop.string)(prop.pos)))(p)
   }
 
-  override def createBtreeIndex(p: InputPosition,
-                                replace: Boolean,
-                                ifNotExists: Boolean,
-                                isNode: Boolean,
-                                indexName: String,
-                                variable: Variable,
-                                label: StringPos[InputPosition],
-                                javaProperties: util.List[Property],
-                                options: Either[util.Map[String, Expression], Parameter]): CreateIndex = {
+  override def createIndex(p: InputPosition,
+                           replace: Boolean,
+                           ifNotExists: Boolean,
+                           isNode: Boolean,
+                           indexName: String,
+                           variable: Variable,
+                           label: StringPos[InputPosition],
+                           javaProperties: util.List[Property],
+                           options: Either[util.Map[String, Expression], Parameter],
+                           indexType: CreateIndexTypes): CreateIndex = {
     val properties = javaProperties.asScala.toList
-    if (isNode)
-      CreateBtreeNodeIndex(variable, LabelName(label.string)(label.pos), properties, Option(indexName), ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
-    else CreateBtreeRelationshipIndex(variable, RelTypeName(label.string)(label.pos), properties, Option(indexName), ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
+    (indexType, isNode) match {
+      case (CreateIndexTypes.BTREE, true)  =>
+        CreateBtreeNodeIndex(variable, LabelName(label.string)(label.pos), properties, Option(indexName), ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
+      case (CreateIndexTypes.BTREE, false) =>
+        CreateBtreeRelationshipIndex(variable, RelTypeName(label.string)(label.pos), properties, Option(indexName), ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
+      case (CreateIndexTypes.TEXT, true)   =>
+        CreateTextNodeIndex(variable, LabelName(label.string)(label.pos), properties, Option(indexName), ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
+      case (CreateIndexTypes.TEXT, false)  =>
+        CreateTextRelationshipIndex(variable, RelTypeName(label.string)(label.pos), properties, Option(indexName), ifExistsDo(replace, ifNotExists), asOptionsAst(options))(p)
+      case (t, _) =>
+        throw new Neo4jASTConstructionException(ASTExceptionFactory.invalidCreateIndexType(t))
+    }
   }
 
   override def createFulltextIndex(p: InputPosition,

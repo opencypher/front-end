@@ -162,6 +162,7 @@ class ShowFunctionCommandJavaCcParserTest extends ParserComparisonTestBase with 
         |  "REL"
         |  "RELATIONSHIP"
         |  "ROLES"
+        |  "TEXT"
         |  "UNIQUE"
         |  "USER"
         |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
