@@ -15,6 +15,14 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.ReturnItems
+import org.opencypher.v9_0.ast.ShowDatabase
+import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.Yield
+import org.opencypher.v9_0.expressions.StartsWith
+import org.opencypher.v9_0.expressions.StringLiteral
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.rewriters.expandShowWhere
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -23,10 +31,16 @@ class ExpandShowWhereTest extends CypherFunSuite with RewriteTest {
   val rewriterUnderTest: Rewriter = expandShowWhere
 
   test("SHOW DATABASES") {
-    assertRewrite(
-      "SHOW DATABASES WHERE name STARTS WITH 's'",
-      "SHOW DATABASES YIELD * WHERE name STARTS WITH 's'"
-    )
+    val originalQuery = "SHOW DATABASES WHERE name STARTS WITH 's'"
+    val original = parseForRewriting(originalQuery)
+    val result = rewrite(original)
+
+    result match {
+      // Rewrite to approximately `SHOW DATABASES YIELD * WHERE name STARTS WITH 's'` but because we didn't have a YIELD * in the original
+      // query the columns are brief and not verbose so it's not exactly the same
+      case ShowDatabase(_, Some(Left((Yield(ReturnItems(returnStar, _, _ ), None, None, None, Some(Where(StartsWith(Variable("name"),StringLiteral("s"))))), None))), _)  if returnStar => ()
+      case _ => fail(s"\n$originalQuery\nshould be rewritten to:\nSHOW DATABASES YIELD * WHERE name STARTS WITH 's'\nbut was rewritten to:\n${prettifier.asString(result.asInstanceOf[Statement])}")
+    }
   }
 
   test("SHOW ROLES") {

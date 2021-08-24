@@ -29,6 +29,7 @@ import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTString
 
@@ -479,8 +480,9 @@ object RevokePrivilege {
 
 // Database commands
 
-final case class ShowDatabase(scope: DatabaseScope, override val yieldOrWhere: YieldOrWhere, override val defaultColumnSet: List[ShowColumn])
+final case class ShowDatabase(scope: DatabaseScope, override val yieldOrWhere: YieldOrWhere, defaultColumns: DefaultOrAllShowColumns)
                              (val position: InputPosition) extends ReadAdministrationCommand {
+  override val defaultColumnSet: List[ShowColumn] = defaultColumns.columns
 
   override def name: String = scope match {
     case _: NamedDatabaseScope   => "SHOW DATABASE"
@@ -496,13 +498,23 @@ final case class ShowDatabase(scope: DatabaseScope, override val yieldOrWhere: Y
 
 object ShowDatabase {
   def apply(scope: DatabaseScope, yieldOrWhere: YieldOrWhere)(position: InputPosition): ShowDatabase = {
-    val columns = List(
+    val briefColumns = List(
       ShowColumn("name")(position), ShowColumn("address")(position), ShowColumn("role")(position), ShowColumn("requestedStatus")(position),
       ShowColumn("currentStatus")(position), ShowColumn("error")(position)) ++ (scope match {
       case _: DefaultDatabaseScope => List.empty
       case _: HomeDatabaseScope => List.empty
       case _ => List(ShowColumn("default", CTBoolean)(position), ShowColumn("home", CTBoolean)(position))
     })
+    val verboseColumns = List(
+      ShowColumn("databaseID")(position), ShowColumn("serverID")(position),
+      ShowColumn("lastCommittedTxn", CTInteger)(position),
+      ShowColumn("replicationLag", CTInteger)(position)
+    )
+    val allColumns = yieldOrWhere match {
+      case Some(Left(_)) => true
+      case _ => false
+    }
+    val columns = DefaultOrAllShowColumns(allColumns, briefColumns, briefColumns ++ verboseColumns)
     ShowDatabase(scope, yieldOrWhere, columns)(position)
   }
 }
