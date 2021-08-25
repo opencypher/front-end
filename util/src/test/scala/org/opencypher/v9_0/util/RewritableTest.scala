@@ -18,6 +18,7 @@ package org.opencypher.v9_0.util
 import org.opencypher.v9_0.util.Foldable.TreeAny
 import org.opencypher.v9_0.util.Rewritable.IteratorEq
 import org.opencypher.v9_0.util.RewritableTest.Add
+import org.opencypher.v9_0.util.RewritableTest.Exp
 import org.opencypher.v9_0.util.RewritableTest.ExpList
 import org.opencypher.v9_0.util.RewritableTest.Options
 import org.opencypher.v9_0.util.RewritableTest.Pos
@@ -57,6 +58,9 @@ object RewritableTest {
 
 class RewritableTest extends CypherFunSuite {
 
+  //---------
+  // topDown
+  //---------
   test("topDown should be identical when no rule matches") {
     val ast = Add(Val(1), Add(Val(2), Val(3)))
 
@@ -130,7 +134,109 @@ class RewritableTest extends CypherFunSuite {
 
     assert(result === Add(Val(99), Options(Seq((Val(99), Val(99)), (Val(99), Val(99))))))
   }
-  
+
+  //-------------------
+  // topDownWithParent
+  //-------------------
+  test("topDownWithParent should let rules see parent as additional context") {
+    val v1 = Val(1)
+    val v2 = Val(2)
+    val v3 = Val(3)
+    val parent = Add(v2, v3)
+    val grandParent = Add(v1, parent)
+
+    val parentOf: Map[Exp, Option[Exp]] = Map(v1 -> Some(grandParent),
+                                              v2 -> Some(parent),
+                                              v3 -> Some(parent),
+                                              parent -> Some(grandParent),
+                                              grandParent -> None)
+
+    val result = grandParent.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (x: Exp, parent) =>
+        assert(parent === parentOf(x))
+        x
+    }))
+
+    assert(result === grandParent)
+  }
+
+  test("topDownWithParent should be identical when no rule matches") {
+    val ast = Add(Val(1), Add(Val(2), Val(3)))
+
+    val result = ast.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (None, _) => ???
+    }))
+
+    assert(result === ast)
+  }
+
+  test("topDownWithParent should be identical when using identity") {
+    val ast = Add(Val(1), Add(Val(2), Val(3)))
+
+    val result = ast.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (a, _) => a
+    }))
+
+    assert(result === ast)
+  }
+
+  test("topDownWithParent should match and replace primitives") {
+    val ast = Add(Val(1), Add(Val(2), Val(3)))
+
+    val result = ast.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (_: java.lang.Integer, _) => 99: java.lang.Integer
+    }))
+
+    assert(result === Add(Val(99), Add(Val(99), Val(99))))
+  }
+
+  test("topDownWithParent should match and replace trees") {
+    val ast = Add(Val(1), Add(Val(2), Val(3)))
+
+    val result = ast.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (Add(Val(x), Val(y)), _) =>
+        Val(x + y)
+    }))
+
+    assert(result === Add(Val(1), Val(5)))
+  }
+
+  test("topDownWithParent should match and replace primitives and trees") {
+    val ast = Add(Val(8), Add(Val(2), Val(3)))
+
+    val result = ast.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (Val(_), _) =>
+        Val(1)
+      case (Add(Val(x), Val(y)), _) =>
+        Val(x + y)
+    }))
+
+    assert(result === Add(Val(1), Val(5)))
+  }
+
+  test("topDownWithParent should duplicate terms with pair parameters") {
+    val ast = Add(Val(1), RewritableTest.Pos((Val(2), Val(3))))
+
+    val result = ast.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (Val(_), _) => Val(99)
+    }))
+
+    assert(result === Add(Val(99), Pos((Val(99), Val(99)))))
+  }
+
+  test("topDownWithParent should duplicate terms with sequence of pairs") {
+    val ast = Add(Val(1), Options(Seq((Val(2), Val(3)), (Val(4), Val(5)))))
+
+    val result = ast.rewrite(topDownWithParent(RewriterWithParent.lift {
+      case (Val(_), _) => Val(99)
+    }))
+
+    assert(result === Add(Val(99), Options(Seq((Val(99), Val(99)), (Val(99), Val(99))))))
+  }
+
+  //--------------------------------
+  // bottomUp, bottomUpWithRecorder
+  //--------------------------------
   List("bottomUp" -> ((ast: Rewritable, rewritePf: PartialFunction[AnyRef, AnyRef]) => ast.rewrite(bottomUp(Rewriter.lift(rewritePf)))),
        "bottomUpWithRecorder" -> ((ast: Rewritable, rewritePf: PartialFunction[AnyRef, AnyRef]) => ast.rewrite(bottomUpWithRecorder(Rewriter.lift(rewritePf))))
        ) foreach { case (name, bottomUpVariant) =>
