@@ -41,6 +41,7 @@ import org.opencypher.v9_0.ast.UnresolvedCall
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_1
+import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_2
 import org.opencypher.v9_0.util.CypherExceptionFactory
 
 object Additions {
@@ -171,6 +172,23 @@ object Additions {
       // SHOW TEXT INDEXES
       case s: ShowIndexesClause if s.indexType == TextIndexes =>
         throw cypherExceptionFactory.syntaxException("Filtering on text indexes in SHOW INDEXES is not supported in this Cypher version.", s.position)
+
+      // CREATE CONSTRAINT [name] [IF NOT EXISTS] FOR (node:Label) REQUIRE node.prop IS NOT NULL
+      case c: CreateNodePropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_2 =>
+        throw cypherExceptionFactory.syntaxException("Creating node existence constraint using `FOR ... REQUIRE` is not supported in this Cypher version.", c.position)
+
+      // CREATE CONSTRAINT [name] [IF NOT EXISTS] FOR ()-[r:R]-() REQUIRE r.prop IS NOT NULL
+      case c: CreateRelationshipPropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_2 =>
+        throw cypherExceptionFactory.syntaxException("Creating relationship existence constraint using `FOR ... REQUIRE` is not supported in this Cypher version.", c.position)
+
+      // CREATE CONSTRAINT [name] [IF NOT EXISTS] FOR (node:Label) REQUIRE node.prop IS NODE KEY
+      case c: CreateNodeKeyConstraint if c.constraintVersion == CONSTRAINT_VERSION_2 =>
+        throw cypherExceptionFactory.syntaxException("Creating node key constraint using `FOR ... REQUIRE` is not supported in this Cypher version.", c.position)
+
+      // CREATE CONSTRAINT [name] [IF NOT EXISTS] FOR (node:Label) REQUIRE node.prop IS UNIQUE
+      case c: CreateUniquePropertyConstraint if c.constraintVersion == CONSTRAINT_VERSION_2 =>
+        throw cypherExceptionFactory.syntaxException("Creating uniqueness constraint using `FOR ... REQUIRE` is not supported in this Cypher version.", c.position)
+
     }
   }
 
