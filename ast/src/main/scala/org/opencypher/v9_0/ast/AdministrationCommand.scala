@@ -71,6 +71,7 @@ sealed trait ReadAdministrationCommand extends AdministrationCommand {
   def yieldOrWhere: YieldOrWhere = None
   def yields: Option[Yield] = yieldOrWhere.flatMap(yw => yw.left.toOption.map { case (y, _) => y })
   def returns: Option[Return] = yieldOrWhere.flatMap(yw => yw.left.toOption.flatMap { case (_, r) => r })
+  def withYieldOrWhere(newYieldOrWhere: YieldOrWhere): ReadAdministrationCommand
 
   override def returnColumns: List[LogicalVariable] = returnColumnNames.map(name => Variable(name)(position))
 
@@ -131,6 +132,8 @@ final case class ShowUsers(override val yieldOrWhere: YieldOrWhere, override val
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
+
+  override def withYieldOrWhere(newYieldOrWhere: YieldOrWhere): ShowUsers = this.copy(yieldOrWhere = newYieldOrWhere)(position)
 }
 
 object ShowUsers {
@@ -150,6 +153,8 @@ final case class ShowCurrentUser(override val yieldOrWhere: YieldOrWhere, overri
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck
+
+  override def withYieldOrWhere(newYieldOrWhere: YieldOrWhere): ShowCurrentUser = this.copy(yieldOrWhere = newYieldOrWhere)(position)
 }
 
 object ShowCurrentUser {
@@ -244,6 +249,8 @@ final case class ShowRoles(withUsers: Boolean, showAll: Boolean, override val yi
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
+
+  override def withYieldOrWhere(newYieldOrWhere: YieldOrWhere): ShowRoles = this.copy(yieldOrWhere = newYieldOrWhere)(position)
 }
 
 object ShowRoles {
@@ -324,6 +331,8 @@ final case class ShowPrivileges(scope: ShowPrivilegeScope,
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
+
+  override def withYieldOrWhere(newYieldOrWhere: YieldOrWhere): ShowPrivileges = this.copy(yieldOrWhere = newYieldOrWhere)(position)
 }
 
 object ShowPrivileges {
@@ -346,6 +355,8 @@ final case class ShowPrivilegeCommands(scope: ShowPrivilegeScope,
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
+
+  override def withYieldOrWhere(newYieldOrWhere: YieldOrWhere): ShowPrivilegeCommands = this.copy(yieldOrWhere = newYieldOrWhere)(position)
 }
 
 object ShowPrivilegeCommands {
@@ -494,6 +505,8 @@ final case class ShowDatabase(scope: DatabaseScope, override val yieldOrWhere: Y
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
+
+  override def withYieldOrWhere(newYieldOrWhere: YieldOrWhere): ShowDatabase = this.copy(yieldOrWhere = newYieldOrWhere)(position)
 }
 
 object ShowDatabase {
@@ -507,8 +520,7 @@ object ShowDatabase {
     })
     val verboseColumns = List(
       ShowColumn("databaseID")(position), ShowColumn("serverID")(position),
-      ShowColumn("lastCommittedTxn", CTInteger)(position),
-      ShowColumn("replicationLag", CTInteger)(position)
+      ShowColumn("lastCommittedTxn", CTInteger)(position), ShowColumn("replicationLag", CTInteger)(position)
     )
     val allColumns = yieldOrWhere match {
       case Some(Left(_)) => true

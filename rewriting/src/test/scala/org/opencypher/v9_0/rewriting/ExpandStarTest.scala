@@ -22,6 +22,7 @@ import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.rewriting.rewriters.expandShowWhere
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.rewriteShowQuery
@@ -115,6 +116,21 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
         |RETURN name, category, description, signature, isBuiltIn, argumentDescription, returnDescription, aggregating, rolesExecution, rolesBoostedExecution""".stripMargin,
       rewriteShowCommand = true
     )
+
+    assertRewrite(
+      "SHOW USERS YIELD *",
+      """SHOW USERS
+        |YIELD user, roles, passwordChangeRequired, suspended, home""".stripMargin,
+      rewriteShowCommand = true
+    )
+
+    assertRewrite(
+      "SHOW USERS YIELD * RETURN *",
+      """SHOW USERS
+        |YIELD user, roles, passwordChangeRequired, suspended, home
+        |RETURN user, roles, passwordChangeRequired, suspended, home""".stripMargin,
+      rewriteShowCommand = true
+    )
   }
 
   test("uses the position of the clause for variables in new return items") {
@@ -150,7 +166,7 @@ class ExpandStarTest extends CypherFunSuite with AstConstructionTestSupport {
     val exceptionFactory = OpenCypherExceptionFactory(None)
     val nameGenerator = new AnonymousVariableNameGenerator
     val rewriter = if (rewriteShowCommand)
-      inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger), rewriteShowQuery)
+      inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger), rewriteShowQuery, expandShowWhere)
     else
       inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger))
     JavaCCParser.parse(q, exceptionFactory, nameGenerator).endoRewrite(rewriter)
