@@ -54,8 +54,10 @@ import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Length3_5
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_0
+import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_1
 import org.opencypher.v9_0.util.DeprecatedCatalogKeywordForAdminCommandSyntax
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
+import org.opencypher.v9_0.util.DeprecatedCreateConstraintOnAssertSyntax
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDefaultDatabaseSyntax
@@ -157,16 +159,46 @@ object Deprecations {
           Some(DeprecatedDropConstraintSyntax(c.position))
         )
 
+      // ASSERT EXISTS
       case c: ast.CreateNodePropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_0 =>
         Deprecation(
           None,
           Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
         )
 
+      // ASSERT EXISTS
       case c: ast.CreateRelationshipPropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_0 =>
         Deprecation(
           None,
           Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
+        )
+
+      // CREATE CONSTRAINT ON ... ASSERT ...
+      case c: ast.CreateNodeKeyConstraint if c.constraintVersion == CONSTRAINT_VERSION_1 =>
+        Deprecation(
+          None,
+          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
+        )
+
+      // CREATE CONSTRAINT ON ... ASSERT ...
+      case c: ast.CreateRelationshipPropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_1 =>
+        Deprecation(
+          None,
+          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
+        )
+
+      // CREATE CONSTRAINT ON ... ASSERT ...
+      case c: ast.CreateNodeKeyConstraint if c.constraintVersion == CONSTRAINT_VERSION_0 =>
+        Deprecation(
+          None,
+          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
+        )
+
+      // CREATE CONSTRAINT ON ... ASSERT ...
+      case c: ast.CreateUniquePropertyConstraint if c.constraintVersion == CONSTRAINT_VERSION_0 =>
+        Deprecation(
+          None,
+          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
         )
 
       case e@Exists(_: Property | _: ContainerIndex) =>
