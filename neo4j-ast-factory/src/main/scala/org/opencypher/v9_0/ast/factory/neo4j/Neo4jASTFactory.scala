@@ -49,6 +49,9 @@ import org.opencypher.v9_0.ast.AssignRoleAction
 import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.ConstraintVersion0
+import org.opencypher.v9_0.ast.ConstraintVersion1
+import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
@@ -248,6 +251,7 @@ import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
 import org.opencypher.v9_0.ast.factory.ActionType
 import org.opencypher.v9_0.ast.factory.ConstraintType
+import org.opencypher.v9_0.ast.factory.ConstraintVersion
 import org.opencypher.v9_0.ast.factory.CreateIndexTypes
 import org.opencypher.v9_0.ast.factory.ParameterType
 import org.opencypher.v9_0.ast.factory.ScopeType
@@ -345,7 +349,6 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
-import org.opencypher.v9_0.util.ConstraintVersion
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTMap
@@ -1144,18 +1147,25 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                                 containsOn: Boolean,
                                 constraintVersion: ConstraintVersion
                                ): SchemaCommand = {
+    // Convert ConstraintVersion from Java to Scala
+    val constraintVersionScala = constraintVersion match {
+      case ConstraintVersion.CONSTRAINT_VERSION_0 => ConstraintVersion0
+      case ConstraintVersion.CONSTRAINT_VERSION_1 => ConstraintVersion1
+      case ConstraintVersion.CONSTRAINT_VERSION_2 => ConstraintVersion2
+    }
+
     val properties = javaProperties.asScala
     constraintType match {
       case ConstraintType.UNIQUE => ast.CreateUniquePropertyConstraint(variable, LabelName(label.string)(label.pos), properties, Option(name),
-        ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
+        ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersionScala)(p)
       case ConstraintType.NODE_KEY => ast.CreateNodeKeyConstraint(variable, LabelName(label.string)(label.pos), properties, Option(name),
-        ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
+        ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersionScala)(p)
       case ConstraintType.NODE_EXISTS | ConstraintType.NODE_IS_NOT_NULL =>
         validateSingleProperty(properties, constraintType)
-        ast.CreateNodePropertyExistenceConstraint(variable, LabelName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
+        ast.CreateNodePropertyExistenceConstraint(variable, LabelName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersionScala)(p)
       case ConstraintType.REL_EXISTS | ConstraintType.REL_IS_NOT_NULL =>
         validateSingleProperty(properties, constraintType)
-        ast.CreateRelationshipPropertyExistenceConstraint(variable, RelTypeName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersion)(p)
+        ast.CreateRelationshipPropertyExistenceConstraint(variable, RelTypeName(label.string)(label.pos), properties.head, Option(name), ifExistsDo(replace, ifNotExists), asOptionsAst(options), containsOn, constraintVersionScala)(p)
     }
   }
 

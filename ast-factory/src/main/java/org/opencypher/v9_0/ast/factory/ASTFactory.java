@@ -18,8 +18,6 @@ package org.opencypher.v9_0.ast.factory;
 import java.util.List;
 import java.util.Map;
 
-import org.opencypher.v9_0.util.ConstraintVersion;
-
 /**
  * Factory for constructing ASTs.
  * <p>

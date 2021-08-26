@@ -49,6 +49,10 @@ import org.opencypher.v9_0.ast.AssignRoleAction
 import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.ConstraintVersion
+import org.opencypher.v9_0.ast.ConstraintVersion0
+import org.opencypher.v9_0.ast.ConstraintVersion1
+import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
@@ -368,10 +372,6 @@ import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.expressions.functions.Labels
 import org.opencypher.v9_0.expressions.functions.Type
-import org.opencypher.v9_0.util.ConstraintVersion
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_0
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_1
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_2
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.AnyType
 import org.opencypher.v9_0.util.symbols.CTMap
@@ -1295,9 +1295,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     props <- oneOrMore(_variableProperty)
   } yield props
 
-  def _constraintVersion: Gen[ConstraintVersion] = oneOf(CONSTRAINT_VERSION_0, CONSTRAINT_VERSION_1, CONSTRAINT_VERSION_2)
+  def _constraintVersion: Gen[ConstraintVersion] = oneOf(ConstraintVersion0, ConstraintVersion1, ConstraintVersion2)
 
-  def _constraintVersionZeroOrTwo: Gen[ConstraintVersion] = oneOf(CONSTRAINT_VERSION_0, CONSTRAINT_VERSION_2)
+  def _constraintVersionZeroOrTwo: Gen[ConstraintVersion] = oneOf(ConstraintVersion0, ConstraintVersion2)
 
   def _createIndex: Gen[CreateIndex] = for {
     variable          <- _variable

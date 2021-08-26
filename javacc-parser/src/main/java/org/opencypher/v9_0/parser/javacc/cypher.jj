@@ -48,11 +48,11 @@ import org.opencypher.v9_0.ast.factory.ASTFactory;
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos;
 import org.opencypher.v9_0.ast.factory.ActionType;
 import org.opencypher.v9_0.ast.factory.ConstraintType;
+import org.opencypher.v9_0.ast.factory.ConstraintVersion;
 import org.opencypher.v9_0.ast.factory.CreateIndexTypes;
 import org.opencypher.v9_0.ast.factory.ParameterType;
 import org.opencypher.v9_0.ast.factory.ScopeType;
 import org.opencypher.v9_0.ast.factory.ShowCommandFilterTypes;
-import org.opencypher.v9_0.util.ConstraintVersion;
 import org.opencypher.v9_0.ast.factory.SimpleEither;
 
 /** Simple brace matcher. */

@@ -16,6 +16,9 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.ConstraintVersion0
+import org.opencypher.v9_0.ast.ConstraintVersion1
+import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.expressions
@@ -23,9 +26,6 @@ import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_0
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_1
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_2
 import org.parboiled.scala.Parser
 import org.parboiled.scala.Rule1
 import org.parboiled.scala.Rule2
@@ -234,29 +234,29 @@ trait SchemaCommand extends Parser
   private def CreateConstraint: Rule1[ast.SchemaCommand] = rule {
     val constraintStart = CreateConstraintStart
     group(constraintStart ~~ UniqueConstraintWithOptionsSyntaxAssert) ~~>>
-      ((name, ifExistsDo, containsOn, variable, label, property, options) => ast.CreateUniquePropertyConstraint(variable, label, Seq(property), name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_0)) |
+      ((name, ifExistsDo, containsOn, variable, label, property, options) => ast.CreateUniquePropertyConstraint(variable, label, Seq(property), name, ifExistsDo, options, containsOn, ConstraintVersion0)) |
     group(constraintStart ~~ UniqueConstraintWithOptionsSyntaxRequire) ~~>>
-      ((name, ifExistsDo, containsOn, variable, label, property, options) => ast.CreateUniquePropertyConstraint(variable, label, Seq(property), name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_2)) |
+      ((name, ifExistsDo, containsOn, variable, label, property, options) => ast.CreateUniquePropertyConstraint(variable, label, Seq(property), name, ifExistsDo, options, containsOn, ConstraintVersion2)) |
     group(constraintStart ~~ UniqueCompositeConstraintWithOptionsSyntaxAssert) ~~>>
-      ((name, ifExistsDo, containsOn, variable, labelName, properties, options) => ast.CreateUniquePropertyConstraint(variable, labelName, properties, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_0)) |
+      ((name, ifExistsDo, containsOn, variable, labelName, properties, options) => ast.CreateUniquePropertyConstraint(variable, labelName, properties, name, ifExistsDo, options, containsOn, ConstraintVersion0)) |
     group(constraintStart ~~ UniqueCompositeConstraintWithOptionsSyntaxRequire) ~~>>
-      ((name, ifExistsDo, containsOn, variable, labelName, properties, options) => ast.CreateUniquePropertyConstraint(variable, labelName, properties, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_2)) |
+      ((name, ifExistsDo, containsOn, variable, labelName, properties, options) => ast.CreateUniquePropertyConstraint(variable, labelName, properties, name, ifExistsDo, options, containsOn, ConstraintVersion2)) |
     group(constraintStart ~~ NodeKeyConstraintWithOptionsSyntaxAssert) ~~>>
-      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodeKeyConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_0)) |
+      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodeKeyConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, ConstraintVersion0)) |
     group(constraintStart ~~ NodeKeyConstraintWithOptionsSyntaxRequire) ~~>>
-      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodeKeyConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_2)) |
+      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodeKeyConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, ConstraintVersion2)) |
     group(constraintStart ~~ NodePropertyExistenceConstraintWithOptionsSyntaxAssertExists) ~~>>
-      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodePropertyExistenceConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_0)) |
+      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodePropertyExistenceConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, ConstraintVersion0)) |
     group(constraintStart ~~ NodePropertyExistenceConstraintWithOptionsSyntaxAssertIsNotNull) ~~>>
-      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodePropertyExistenceConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_1)) |
+      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodePropertyExistenceConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, ConstraintVersion1)) |
     group(constraintStart ~~ NodePropertyExistenceConstraintWithOptionsSyntaxRequireIsNotNull) ~~>>
-      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodePropertyExistenceConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_2)) |
+      ((name, ifExistsDo, containsOn, variable, labelName, property, options) => ast.CreateNodePropertyExistenceConstraint(variable, labelName, property, name, ifExistsDo, options, containsOn, ConstraintVersion2)) |
     group(constraintStart ~~ RelationshipPropertyExistenceConstraintWithOptionsSyntaxAssertExists) ~~>>
-      ((name, ifExistsDo, containsOn, variable, relTypeName, property, options) => ast.CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_0)) |
+      ((name, ifExistsDo, containsOn, variable, relTypeName, property, options) => ast.CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, property, name, ifExistsDo, options, containsOn, ConstraintVersion0)) |
     group(constraintStart ~~ RelationshipPropertyExistenceConstraintWithOptionsSyntaxAssertIsNotNull) ~~>>
-      ((name, ifExistsDo, containsOn, variable, relTypeName, property, options) => ast.CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_1)) |
+      ((name, ifExistsDo, containsOn, variable, relTypeName, property, options) => ast.CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, property, name, ifExistsDo, options, containsOn, ConstraintVersion1)) |
     group(constraintStart ~~ RelationshipPropertyExistenceConstraintWithOptionsSyntaxRequireIsNotNull) ~~>>
-      ((name, ifExistsDo, containsOn, variable, relTypeName, property, options) => ast.CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, property, name, ifExistsDo, options, containsOn, CONSTRAINT_VERSION_2))
+      ((name, ifExistsDo, containsOn, variable, relTypeName, property, options) => ast.CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, property, name, ifExistsDo, options, containsOn, ConstraintVersion2))
   }
 
   private def CreateConstraintStart: Rule3[Option[String], ast.IfExistsDo, Boolean] = rule {

@@ -29,6 +29,9 @@ import org.opencypher.v9_0.ast.AllRelationships
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
+import org.opencypher.v9_0.ast.ConstraintVersion
+import org.opencypher.v9_0.ast.ConstraintVersion0
+import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
@@ -191,10 +194,6 @@ import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.util.ConstraintVersion
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_0
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_1
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_2
 
 //noinspection DuplicatedCode
 case class Prettifier(
@@ -225,7 +224,7 @@ case class Prettifier(
     def propertyToString(property: Property): String = s"${expr(property.map)}.${backtick(property.propertyKey.name)}"
     def propertyToStringExistenceConstraint(property: Property, constraintVersion: ConstraintVersion): String = {
       constraintVersion match {
-        case CONSTRAINT_VERSION_0 => s"exists(${propertyToString(property)})"
+        case ConstraintVersion0 => s"exists(${propertyToString(property)})"
         case _ => s"(${propertyToString(property)}) IS NOT NULL"
       }
     }
@@ -289,7 +288,7 @@ case class Prettifier(
       case CreateNodeKeyConstraint(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, containsOn, constraintVersion, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "CONSTRAINT")
         val forOrOn = if (containsOn) "ON" else "FOR"
-        val assertOrRequire = if (constraintVersion == CONSTRAINT_VERSION_2) "REQUIRE" else "ASSERT"
+        val assertOrRequire = if (constraintVersion == ConstraintVersion2) "REQUIRE" else "ASSERT"
         s"${startOfCommand}$forOrOn (${backtick(variable)}:${backtick(label)}) $assertOrRequire ${propertiesToString(properties)} IS NODE KEY${asString(options)}"
 
       case DropNodeKeyConstraint(Variable(variable), LabelName(label), properties, _) =>
@@ -298,7 +297,7 @@ case class Prettifier(
       case CreateUniquePropertyConstraint(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, containsOn, constraintVersion, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "CONSTRAINT")
         val forOrOn = if (containsOn) "ON" else "FOR"
-        val assertOrRequire = if (constraintVersion == CONSTRAINT_VERSION_2) "REQUIRE" else "ASSERT"
+        val assertOrRequire = if (constraintVersion == ConstraintVersion2) "REQUIRE" else "ASSERT"
         s"${startOfCommand}$forOrOn (${backtick(variable)}:${backtick(label)}) $assertOrRequire ${propertiesToString(properties)} IS UNIQUE${asString(options)}"
 
       case DropUniquePropertyConstraint(Variable(variable), LabelName(label), properties, _) =>
@@ -309,7 +308,7 @@ case class Prettifier(
         val propertyString = propertyToStringExistenceConstraint(property, constraintVersion)
         val optionsString = asString(options)
         val forOrOn = if (containsOn) "ON" else "FOR"
-        val assertOrRequire = if (constraintVersion == CONSTRAINT_VERSION_2) "REQUIRE" else "ASSERT"
+        val assertOrRequire = if (constraintVersion == ConstraintVersion2) "REQUIRE" else "ASSERT"
         s"${startOfCommand}$forOrOn (${backtick(variable)}:${backtick(label)}) $assertOrRequire $propertyString$optionsString"
 
       case DropNodePropertyExistenceConstraint(Variable(variable), LabelName(label), property, _) =>
@@ -320,7 +319,7 @@ case class Prettifier(
         val propertyString = propertyToStringExistenceConstraint(property, constraintVersion)
         val optionsString = asString(options)
         val forOrOn = if (containsOn) "ON" else "FOR"
-        val assertOrRequire = if (constraintVersion == CONSTRAINT_VERSION_2) "REQUIRE" else "ASSERT"
+        val assertOrRequire = if (constraintVersion == ConstraintVersion2) "REQUIRE" else "ASSERT"
         s"${startOfCommand}$forOrOn ()-[${backtick(variable)}:${backtick(relType)}]-() $assertOrRequire $propertyString$optionsString"
 
       case DropRelationshipPropertyExistenceConstraint(Variable(variable), RelTypeName(relType), property, _) =>

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.ConstraintVersion0
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
@@ -31,7 +32,6 @@ import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.util.ConstraintVersion.CONSTRAINT_VERSION_0
 import org.opencypher.v9_0.util.test_helpers.TestName
 import org.scalatest.FunSuiteLike
 
@@ -336,7 +336,7 @@ class ConstraintCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         IfExistsThrowError,
         NoOptions,
         containsOn = true,
-        CONSTRAINT_VERSION_0,
+        ConstraintVersion0,
         None
       )(pos)
     )
@@ -390,7 +390,7 @@ class ConstraintCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
 
   test("CREATE CONSTRAINT ON (node1:Label) ASSERT EXISTS node2.prop") {
     assertJavaCCAST(testName,
-      CreateNodePropertyExistenceConstraint(Variable("node1")(pos), LabelName("Label")(pos), Property(Variable("node2")(pos), PropertyKeyName("prop")(pos))(pos), None, IfExistsThrowError, NoOptions, containsOn = true, CONSTRAINT_VERSION_0, None)(pos))
+      CreateNodePropertyExistenceConstraint(Variable("node1")(pos), LabelName("Label")(pos), Property(Variable("node2")(pos), PropertyKeyName("prop")(pos))(pos), None, IfExistsThrowError, NoOptions, containsOn = true, ConstraintVersion0, None)(pos))
   }
 
   test("CREATE CONSTRAINT ON (node1:Label) ASSERT EXISTS (node2.prop1, node3.prop2)") {
@@ -407,7 +407,7 @@ class ConstraintCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
 
   test("CREATE CONSTRAINT ON ()-[r1:R]-() ASSERT EXISTS r2.prop") {
     assertJavaCCAST(testName,
-      CreateRelationshipPropertyExistenceConstraint(Variable("r1")(pos), RelTypeName("R")(pos), Property(Variable("r2")(pos), PropertyKeyName("prop")(pos))(pos), None, IfExistsThrowError, NoOptions, containsOn = true, CONSTRAINT_VERSION_0, None)(pos)
+      CreateRelationshipPropertyExistenceConstraint(Variable("r1")(pos), RelTypeName("R")(pos), Property(Variable("r2")(pos), PropertyKeyName("prop")(pos))(pos), None, IfExistsThrowError, NoOptions, containsOn = true, ConstraintVersion0, None)(pos)
     )
   }
 
