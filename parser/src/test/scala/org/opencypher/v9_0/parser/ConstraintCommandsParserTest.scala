@@ -458,6 +458,14 @@ class ConstraintCommandsParserTest extends SchemaCommandsParserTestBase {
     failsToParse
   }
 
+  test("CREATE CONSTRAINT FOR (node:Label) REQUIRE EXISTS (node.prop)") {
+    failsToParse
+  }
+
+  test("CREATE CONSTRAINT FOR ()-[r:R]-() REQUIRE EXISTS (r.prop)") {
+    failsToParse
+  }
+
   // Drop constraint
 
   test("DROP CONSTRAINT ON (node:Label) ASSERT (node.prop) IS NODE KEY") {
