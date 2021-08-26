@@ -174,7 +174,7 @@ object Deprecations {
         )
 
       // CREATE CONSTRAINT ON ... ASSERT ...
-      case c: ast.CreateNodeKeyConstraint if c.constraintVersion == CONSTRAINT_VERSION_1 =>
+      case c: ast.CreateNodePropertyExistenceConstraint if c.constraintVersion == CONSTRAINT_VERSION_1 =>
         Deprecation(
           None,
           Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
