@@ -68,6 +68,7 @@ import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.LengthOnNonPathNotification
+import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTList
@@ -88,21 +89,21 @@ object Deprecations {
       // old octal literal syntax
       case p@SignedOctalIntegerLiteral(stringVal) if stringVal.charAt(stringVal.indexOf('0') + 1) != 'o' =>
         Deprecation(
-          Some(p -> SignedOctalIntegerLiteral(stringVal.patch(stringVal.indexOf('0') + 1, "o", 0))(p.position)),
+          Some(Ref(p) -> SignedOctalIntegerLiteral(stringVal.patch(stringVal.indexOf('0') + 1, "o", 0))(p.position)),
           Some(DeprecatedOctalLiteralSyntax(p.position))
         )
 
       // old hex literal syntax
       case p@SignedHexIntegerLiteral(stringVal) if stringVal.charAt(stringVal.indexOf('0') + 1) == 'X' =>
         Deprecation(
-          Some(p -> SignedHexIntegerLiteral(stringVal.toLowerCase)(p.position)),
+          Some(Ref(p) -> SignedHexIntegerLiteral(stringVal.toLowerCase)(p.position)),
           Some(DeprecatedHexLiteralSyntax(p.position))
         )
 
       // timestamp
       case f@FunctionInvocation(_, FunctionName(name), _, _) if name.equalsIgnoreCase("timestamp") =>
         Deprecation(
-          Some(f -> renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f)),
+          Some(Ref(f) -> renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f)),
           None
         )
 
@@ -283,7 +284,7 @@ object Deprecations {
 
       case c: ast.HasCatalog =>
         Deprecation(
-          Some(c -> c.source),
+          Some(Ref(c) -> c.source),
           Some(DeprecatedCatalogKeywordForAdminCommandSyntax(c.position))
         )
     }
@@ -297,7 +298,7 @@ object Deprecations {
 
             case e@Exists(p@(_: Property | _: ContainerIndex)) =>
               val deprecation = Deprecation(
-                Some(e -> IsNotNull(p)(e.position)),
+                Some(Ref(e) -> IsNotNull(p)(e.position)),
                 None
               )
               acc => SkipChildren(acc + deprecation)
@@ -366,28 +367,28 @@ object Deprecations {
 
       case f@FunctionInvocation(_, FunctionName(name), _, _) if removedFunctionsRenames.contains(name) =>
         Deprecation(
-          Some(f -> renameFunctionTo(removedFunctionsRenames(name))(f)),
+          Some(Ref(f) -> renameFunctionTo(removedFunctionsRenames(name))(f)),
           Some(DeprecatedFunctionNotification(f.position, name, removedFunctionsRenames(name)))
         )
 
       // extract => list comprehension
       case e@ExtractExpression(scope, expression) =>
         Deprecation(
-          Some(e -> ListComprehension(scope, expression)(e.position)),
+          Some(Ref(e) -> ListComprehension(scope, expression)(e.position)),
           Some(DeprecatedFunctionNotification(e.position, "extract(...)", "[...]"))
         )
 
       // filter => list comprehension
       case e@FilterExpression(scope, expression) =>
         Deprecation(
-          Some(e -> ListComprehension(ExtractScope(scope.variable, scope.innerPredicate, None)(scope.position), expression)(e.position)),
+          Some(Ref(e) -> ListComprehension(ExtractScope(scope.variable, scope.innerPredicate, None)(scope.position), expression)(e.position)),
           Some(DeprecatedFunctionNotification(e.position, "filter(...)", "[...]"))
         )
 
       // old parameter syntax
       case p@ParameterWithOldSyntax(name, parameterType) =>
         Deprecation(
-          Some(p -> Parameter(name, parameterType)(p.position)),
+          Some(Ref(p) -> Parameter(name, parameterType)(p.position)),
           Some(DeprecatedParameterSyntax(p.position))
         )
 
@@ -396,21 +397,21 @@ object Deprecations {
         if f.function == Length && args.nonEmpty &&
           (args.head.isInstanceOf[StringLiteral] || args.head.isInstanceOf[ListLiteral] || args.head.isInstanceOf[PatternExpression]) =>
         Deprecation(
-          Some(f -> renameFunctionTo("size")(f)),
+          Some(Ref(f) -> renameFunctionTo("size")(f)),
           Some(LengthOnNonPathNotification(f.position))
         )
 
       // length of anything else
       case f@FunctionInvocation(_, _, _, Seq(argumentExpr)) if f.function == Length =>
         Deprecation(
-          Some(f -> Length3_5(argumentExpr)(f.position)),
+          Some(Ref(f) -> Length3_5(argumentExpr)(f.position)),
           None
         )
 
       // legacy type separator
       case p@RelationshipPattern(variable, _, length, properties, _, true) if variable.isDefined || length.isDefined || properties.isDefined =>
         Deprecation(
-          Some(p -> p.copy(legacyTypeSeparator = false)(p.position)),
+          Some(Ref(p) -> p.copy(legacyTypeSeparator = false)(p.position)),
           Some(DeprecatedRelTypeSeparatorNotification(p.position))
         )
     }
@@ -431,7 +432,7 @@ object Deprecations {
  * @param replacement  an optional replacement tuple with the ASTNode to be replaced and its replacement.
  * @param notification optional appropriate deprecation notification
  */
-case class Deprecation(replacement: Option[(ASTNode, ASTNode)], notification: Option[InternalNotification])
+case class Deprecation(replacement: Option[(Ref[ASTNode], ASTNode)], notification: Option[InternalNotification])
 
 sealed trait Deprecations
 

@@ -21,11 +21,13 @@ import org.opencypher.v9_0.frontend.helpers.TestContext
 import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.Deprecations.semanticallyDeprecatedFeaturesIn4_X
 import org.opencypher.v9_0.rewriting.Deprecations.syntacticallyDeprecatedFeaturesIn4_X
+import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
+import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.RecordingNotificationLogger
@@ -103,6 +105,18 @@ class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
     ))
   }
 
+  test("should warn about exists() in both union branches") {
+    val q = """MATCH (n:Label) WHERE exists(n.prop) RETURN n
+              |UNION
+              |MATCH (n:OtherLabel) WHERE exists(n.prop) RETURN n
+              |""".stripMargin
+
+    check(q) shouldBe Set(
+      DeprecatedPropertyExistenceSyntax(InputPosition(22, 1, 23)),
+      DeprecatedPropertyExistenceSyntax(InputPosition(79, 3, 28))
+    )
+  }
+
   private val plannerName = new PlannerName {
     override def name: String = "fake"
     override def toTextOutput: String = "fake"
@@ -120,7 +134,11 @@ class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
         SemanticAnalysis(warn = true) andThen
         SyntaxDeprecationWarningsAndReplacements(semanticallyDeprecatedFeaturesIn4_X)
 
-    pipeline.transform(initialState, TestContext(logger))
+    val transformedState = pipeline.transform(initialState, TestContext(logger))
+
+    // Check that we didn't introduce any duplicate AST nodes
+    noReferenceEqualityAmongVariables(transformedState.statement()) shouldBe empty
+
     logger.notifications
   }
 

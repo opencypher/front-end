@@ -21,6 +21,7 @@ import org.opencypher.v9_0.rewriting.Deprecations
 import org.opencypher.v9_0.rewriting.SemanticDeprecations
 import org.opencypher.v9_0.rewriting.SyntacticDeprecations
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Condition
@@ -60,7 +61,7 @@ case class SyntaxDeprecationWarningsAndReplacements(deprecations: Deprecations) 
 
     // apply replacements
     val rewriter: Rewriter = bottomUp(Rewriter.lift {
-      case astNode: ASTNode => replacements.getOrElse(astNode, astNode)
+      case astNode: ASTNode => replacements.getOrElse(Ref(astNode), astNode)
     })
     val newStatement = state.statement().endoRewrite(rewriter)
     state.withStatement(newStatement)
