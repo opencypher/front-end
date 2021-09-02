@@ -130,6 +130,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.PRIVILEGES;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURES;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PROPERTY;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.RANGE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.READ;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.REDUCE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.REL;
@@ -301,6 +302,7 @@ public class IdentifierTokens
             PROCEDURE,
             PROCEDURES,
             PROPERTY,
+            RANGE,
             READ,
             REDUCE,
             REL,

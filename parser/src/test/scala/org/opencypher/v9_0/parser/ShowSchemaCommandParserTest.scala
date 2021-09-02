@@ -26,6 +26,7 @@ import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OldValidSyntax
+import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
@@ -51,6 +52,10 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
 
     test(s"SHOW BTREE $indexKeyword") {
       yields(_ => query(ShowIndexesClause(BtreeIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
+    }
+
+    test(s"SHOW RANGE $indexKeyword") {
+      yields(_ => query(ShowIndexesClause(RangeIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW FULLTEXT $indexKeyword") {
@@ -122,6 +127,12 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
 
   test("SHOW INDEXES YIELD * ORDER BY name SKIP 2 LIMIT 5") {
     yields(_ => query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
+      yieldClause(returnAllItems, Some(orderBy(sortItem(varFor("name")))), Some(skip(2)), Some(limit(5)))
+    ))
+  }
+
+  test("SHOW RANGE INDEXES YIELD * ORDER BY name SKIP 2 LIMIT 5") {
+    yields(_ => query(ShowIndexesClause(RangeIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
       yieldClause(returnAllItems, Some(orderBy(sortItem(varFor("name")))), Some(skip(2)), Some(limit(5)))
     ))
   }
@@ -285,6 +296,14 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
   }
 
   test("SHOW RELATIONSHIP INDEXES") {
+    failsToParse
+  }
+
+  test("SHOW RANGE INDEXES BRIEF") {
+    failsToParse
+  }
+
+  test("SHOW RANGE INDEXES VERBOSE") {
     failsToParse
   }
 

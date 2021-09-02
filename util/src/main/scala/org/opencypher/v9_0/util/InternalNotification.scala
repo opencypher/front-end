@@ -38,6 +38,8 @@ case class DeprecatedParameterSyntax(position: InputPosition) extends InternalNo
 
 case class DeprecatedCreateIndexSyntax(position: InputPosition) extends InternalNotification
 
+case class DeprecatedBtreeIndexSyntax(position: InputPosition) extends InternalNotification
+
 case class DeprecatedDropIndexSyntax(position: InputPosition) extends InternalNotification
 
 case class DeprecatedDropConstraintSyntax(position: InputPosition) extends InternalNotification

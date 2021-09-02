@@ -27,6 +27,7 @@ import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OldValidSyntax
+import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
@@ -53,6 +54,10 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
 
     test(s"SHOW BTREE $indexKeyword") {
       assertJavaCCAST(testName, query(ShowIndexesClause(BtreeIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
+    }
+
+    test(s"SHOW RANGE $indexKeyword") {
+      assertJavaCCAST(testName, query(ShowIndexesClause(RangeIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW FULLTEXT $indexKeyword") {
@@ -124,6 +129,12 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
 
   test("SHOW INDEXES YIELD * ORDER BY name SKIP 2 LIMIT 5") {
     assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
+      yieldClause(returnAllItems, Some(orderBy(sortItem(varFor("name")))), Some(skip(2)), Some(limit(5)))
+    ))
+  }
+
+  test("SHOW RANGE INDEXES YIELD * ORDER BY name SKIP 2 LIMIT 5") {
+    assertJavaCCAST(testName, query(ShowIndexesClause(RangeIndexes, brief = false, verbose = false, None, hasYield = true)(pos),
       yieldClause(returnAllItems, Some(orderBy(sortItem(varFor("name")))), Some(skip(2)), Some(limit(5)))
     ))
   }
@@ -245,6 +256,14 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
   }
 
   test("SHOW RELATIONSHIP INDEXES") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW RANGE INDEXES BRIEF") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW RANGE INDEXES VERBOSE") {
     assertSameAST(testName)
   }
 
@@ -427,6 +446,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "PROCEDURE"
         |  "PROCEDURES"
         |  "PROPERTY"
+        |  "RANGE"
         |  "REL"
         |  "RELATIONSHIP"
         |  "ROLES"
@@ -471,6 +491,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "PROCEDURE"
         |  "PROCEDURES"
         |  "PROPERTY"
+        |  "RANGE"
         |  "REL"
         |  "RELATIONSHIP"
         |  "ROLES"
@@ -515,6 +536,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "PROCEDURE"
         |  "PROCEDURES"
         |  "PROPERTY"
+        |  "RANGE"
         |  "REL"
         |  "RELATIONSHIP"
         |  "ROLES"
