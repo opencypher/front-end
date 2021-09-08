@@ -100,6 +100,7 @@ import org.opencypher.v9_0.expressions.functions.Collect
 import org.opencypher.v9_0.expressions.functions.Count
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Id
+import org.opencypher.v9_0.expressions.functions.Length3_5
 import org.opencypher.v9_0.expressions.functions.Max
 import org.opencypher.v9_0.expressions.functions.Min
 import org.opencypher.v9_0.expressions.functions.Sum
@@ -487,6 +488,9 @@ trait AstConstructionTestSupport extends CypherTestSupport {
                   limit: Option[Limit] = None,
                   where: Option[Where] = None): Yield =
     Yield(returnItems, orderBy, skip, limit, where)(pos)
+
+  def length3_5(argument: Expression): Length3_5 =
+    Length3_5(argument)(pos)
 
   implicit class ExpressionOps(expr: Expression) {
     def as(name: String): ReturnItem = AliasedReturnItem(expr, varFor(name))(pos)
