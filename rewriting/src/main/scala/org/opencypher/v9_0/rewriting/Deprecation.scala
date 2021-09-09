@@ -29,6 +29,7 @@ import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.ListComprehension
 import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
@@ -290,22 +291,30 @@ object Deprecations {
     }
 
     override def findWithContext(statement: ast.Statement): Set[Deprecation] = {
+      def findExistsToIsNotNullReplacements(astNode: ASTNode): Set[Deprecation] = {
+        astNode.treeFold[Set[Deprecation]](Set.empty) {
+          case _: ast.Where | _: And | _: Ands | _: Set[_] | _: Seq[_] | _: Or | _: Ors =>
+            acc => TraverseChildren(acc)
+
+          case e@Exists(p@(_: Property | _: ContainerIndex)) =>
+            val deprecation = Deprecation(
+              Some(Ref(e) -> IsNotNull(p)(e.position)),
+              None
+            )
+            acc => SkipChildren(acc + deprecation)
+
+          case _ =>
+            acc => SkipChildren(acc)
+        }
+      }
+
       val replacementsFromExistsToIsNotNull = statement.treeFold[Set[Deprecation]](Set.empty) {
         case w: ast.Where =>
-          val deprecations = w.treeFold[Set[Deprecation]](Set.empty) {
-            case _: ast.Where | _: And | _: Ands | _: Set[_] | _: Seq[_] | _: Or | _: Ors =>
-              acc => TraverseChildren(acc)
+          val deprecations = findExistsToIsNotNullReplacements(w)
+          acc => SkipChildren(acc ++ deprecations)
 
-            case e@Exists(p@(_: Property | _: ContainerIndex)) =>
-              val deprecation = Deprecation(
-                Some(Ref(e) -> IsNotNull(p)(e.position)),
-                None
-              )
-              acc => SkipChildren(acc + deprecation)
-
-            case _ =>
-              acc => SkipChildren(acc)
-          }
+        case n: NodePattern =>
+          val deprecations = n.predicate.fold(Set.empty[Deprecation])(findExistsToIsNotNullReplacements)
           acc => SkipChildren(acc ++ deprecations)
       }
 
