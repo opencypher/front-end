@@ -74,6 +74,10 @@ class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstruct
       "MATCH (n WHERE exists(n.prop)) RETURN n",
       "MATCH (n WHERE n.prop IS NOT NULL) RETURN n"
     )
+    assertRewritten(
+      "RETURN [(n)-->() WHERE exists(n.prop) | n] AS result",
+      "RETURN [(n)-->() WHERE n.prop IS NOT NULL | n] AS result"
+    )
   }
 
   test("should rewrite exists with dynamic property in where") {
@@ -84,6 +88,10 @@ class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstruct
     assertRewritten(
       "MATCH (n WHERE exists(n['prop'])) RETURN n",
       "MATCH (n WHERE n['prop'] IS NOT NULL) RETURN n"
+    )
+    assertRewritten(
+      "RETURN [(n)-->() WHERE exists(n['prop']) | n] AS result",
+      "RETURN [(n)-->() WHERE n['prop'] IS NOT NULL | n] AS result"
     )
   }
 
@@ -100,6 +108,7 @@ class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstruct
       "MATCH (n) WHERE (exists(n.prop) OR n.foo > 0) AND n:N RETURN n",
       "MATCH (n) WHERE (n.prop IS NOT NULL OR n.foo > 0) AND n:N RETURN n"
     )
+
     assertRewritten(
       "MATCH (n WHERE exists(n.prop) AND n.foo > 0) RETURN n",
       "MATCH (n WHERE n.prop IS NOT NULL AND n.foo > 0) RETURN n"
@@ -111,6 +120,19 @@ class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstruct
     assertRewritten(
       "MATCH (n WHERE (exists(n.prop) OR n.foo > 0) AND n:N) RETURN n",
       "MATCH (n WHERE (n.prop IS NOT NULL OR n.foo > 0) AND n:N) RETURN n"
+    )
+
+    assertRewritten(
+      "RETURN [(n)-->() WHERE exists(n.prop) AND n.foo > 0 | n] AS result",
+      "RETURN [(n)-->() WHERE n.prop IS NOT NULL AND n.foo > 0 | n] AS result"
+    )
+    assertRewritten(
+      "RETURN [(n)-->() WHERE exists(n.prop) OR n.foo > 0 | n] AS result",
+      "RETURN [(n)-->() WHERE n.prop IS NOT NULL OR n.foo > 0 | n] AS result"
+    )
+    assertRewritten(
+      "RETURN [(n)-->() WHERE (exists(n.prop) OR n.foo > 0) AND n:N | n] AS result",
+      "RETURN [(n)-->() WHERE (n.prop IS NOT NULL OR n.foo > 0) AND n:N | n] AS result"
     )
   }
 
@@ -126,6 +148,9 @@ class ReplaceDeprecatedCypherSyntaxTest extends CypherFunSuite with AstConstruct
     )
     assertNotRewritten(
       "MATCH (n WHERE exists(n.prop) = n.prop) RETURN n"
+    )
+    assertNotRewritten(
+      "RETURN [(n)--() WHERE exists(n.prop) = n.prop | n] AS result"
     )
   }
 

@@ -34,6 +34,7 @@ import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
+import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
@@ -316,6 +317,10 @@ object Deprecations {
         case n: NodePattern =>
           val deprecations = n.predicate.fold(Set.empty[Deprecation])(findExistsToIsNotNullReplacements)
           acc => SkipChildren(acc ++ deprecations)
+
+        case p: PatternComprehension =>
+          val deprecations = p.predicate.fold(Set.empty[Deprecation])(findExistsToIsNotNullReplacements)
+          acc => TraverseChildren(acc ++ deprecations)
       }
 
       replacementsFromExistsToIsNotNull
