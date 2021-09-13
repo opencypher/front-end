@@ -16,6 +16,8 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.Options
+import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Ands
@@ -29,6 +31,7 @@ import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.ListComprehension
 import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
@@ -164,6 +167,20 @@ object Deprecations {
           Some(DeprecatedDropConstraintSyntax(c.position))
         )
 
+      // CREATE CONSTRAINT ... OPTIONS {<btree options>}
+      case c: ast.CreateNodeKeyConstraint if hasBtreeOptions(c.options) =>
+        Deprecation(
+          None,
+          Some(DeprecatedBtreeIndexSyntax(c.position))
+        )
+
+      // CREATE CONSTRAINT ... OPTIONS {<btree options>}
+      case c: ast.CreateUniquePropertyConstraint if hasBtreeOptions(c.options) =>
+        Deprecation(
+          None,
+          Some(DeprecatedBtreeIndexSyntax(c.position))
+        )
+
       // ASSERT EXISTS
       case c: ast.CreateNodePropertyExistenceConstraint if c.constraintVersion == ast.ConstraintVersion0 =>
         Deprecation(
@@ -289,6 +306,27 @@ object Deprecations {
           Some(Ref(c) -> c.source),
           Some(DeprecatedCatalogKeywordForAdminCommandSyntax(c.position))
         )
+    }
+
+    private def hasBtreeOptions(options: Options): Boolean = options match {
+      case OptionsMap(opt) => opt.exists {
+        case (key, value: StringLiteral) if key.equalsIgnoreCase("indexProvider") =>
+          // Can't reach the GenericNativeIndexProvider and NativeLuceneFusionIndexProviderFactory30
+          // so have to hardcode the btree providers instead
+          value.value.equalsIgnoreCase("native-btree-1.0") || value.value.equalsIgnoreCase("lucene+native-3.0")
+
+        case (key, value: MapExpression) if key.equalsIgnoreCase("indexConfig") =>
+          // Can't reach the settings so have to hardcode them instead, only checks start of setting names
+          //  spatial.cartesian.{min | max}
+          //  spatial.cartesian-3d.{min | max}
+          //  spatial.wgs-84.{min | max}
+          //  spatial.wgs-84-3d.{min | max}
+          val settings = value.items.map(_._1.name)
+          settings.exists(name => name.toLowerCase.startsWith("spatial.cartesian") || name.toLowerCase.startsWith("spatial.wgs-84"))
+
+        case _ => false
+      }
+      case _ => false
     }
 
     override def findWithContext(statement: ast.Statement): Set[Deprecation] = {
