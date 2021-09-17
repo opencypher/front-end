@@ -26,6 +26,7 @@ import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OldValidSyntax
+import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowConstraintsClause
@@ -64,6 +65,10 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
 
     test(s"SHOW TEXT $indexKeyword") {
       yields(_ => query(ShowIndexesClause(TextIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
+    }
+
+    test(s"SHOW POINT $indexKeyword") {
+      yields(_ => query(ShowIndexesClause(PointIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW LOOKUP $indexKeyword") {
@@ -119,6 +124,10 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
 
   test("SHOW INDEXES YIELD populationPercent") {
     yields(_ => query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("populationPercent")))))
+  }
+
+  test("SHOW POINT INDEXES YIELD populationPercent") {
+    yields(_ => query(ShowIndexesClause(PointIndexes, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("populationPercent")))))
   }
 
   test("SHOW BTREE INDEXES YIELD *") {
@@ -320,6 +329,14 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
   }
 
   test("SHOW TEXT INDEXES VERBOSE") {
+    failsToParse
+  }
+
+  test("SHOW POINT INDEXES BRIEF") {
+    failsToParse
+  }
+
+  test("SHOW POINT INDEXES VERBOSE") {
     failsToParse
   }
 

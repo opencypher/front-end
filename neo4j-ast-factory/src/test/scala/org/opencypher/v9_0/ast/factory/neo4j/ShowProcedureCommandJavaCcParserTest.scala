@@ -145,6 +145,7 @@ class ShowProcedureCommandJavaCcParserTest extends ParserComparisonTestBase with
         |  "INDEXES"
         |  "LOOKUP"
         |  "NODE"
+        |  "POINT"
         |  "POPULATED"
         |  "PROCEDURE"
         |  "PROCEDURES"

@@ -24,6 +24,8 @@ import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
+import org.opencypher.v9_0.ast.CreatePointNodeIndex
+import org.opencypher.v9_0.ast.CreatePointRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRangeNodeIndex
 import org.opencypher.v9_0.ast.CreateRangeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
@@ -36,6 +38,7 @@ import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowFunctionsClause
@@ -154,7 +157,7 @@ object Additions {
       case e: ExistsSubClause =>
         throw cypherExceptionFactory.syntaxException("Existential subquery is not supported in this Cypher version.", e.position)
 
-      // SHOW [ALL|BTREE|FULLTEXT|LOOKUP] INDEX[ES] [WHERE clause|YIELD clause]
+      // SHOW [ALL|BTREE|FULLTEXT|LOOKUP|POINT|RANGE|TEXT] INDEX[ES] [WHERE clause|YIELD clause]
       case s: ShowIndexesClause =>
         throw cypherExceptionFactory.syntaxException("SHOW INDEXES is not supported in this Cypher version.", s.position)
 
@@ -202,6 +205,16 @@ object Additions {
       // SHOW TEXT INDEXES
       case s: ShowIndexesClause if s.indexType == TextIndexes =>
         throw cypherExceptionFactory.syntaxException("Filtering on text indexes in SHOW INDEXES is not supported in this Cypher version.", s.position)
+
+      // CREATE POINT INDEX ...
+      case c: CreatePointNodeIndex =>
+        throw cypherExceptionFactory.syntaxException("Point indexes are not supported in this Cypher version.", c.position)
+      case c: CreatePointRelationshipIndex =>
+        throw cypherExceptionFactory.syntaxException("Point indexes are not supported in this Cypher version.", c.position)
+
+      // SHOW POINT INDEXES
+      case s: ShowIndexesClause if s.indexType == PointIndexes =>
+        throw cypherExceptionFactory.syntaxException("Filtering on point indexes in SHOW INDEXES is not supported in this Cypher version.", s.position)
 
       // CREATE CONSTRAINT ... OPTIONS {indexProvider:  'range-1.0'}
       case c: CreateNodeKeyConstraint if hasRangeOptions(c.options) =>

@@ -27,6 +27,7 @@ import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OldValidSyntax
+import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.ShowConstraintsClause
@@ -66,6 +67,10 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
 
     test(s"SHOW TEXT $indexKeyword") {
       assertJavaCCAST(testName, query(ShowIndexesClause(TextIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
+    }
+
+    test(s"SHOW POINT $indexKeyword") {
+      assertJavaCCAST(testName, query(ShowIndexesClause(PointIndexes, brief = false, verbose = false, None, hasYield = false)(pos)))
     }
 
     test(s"SHOW LOOKUP $indexKeyword") {
@@ -121,6 +126,10 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
 
   test("SHOW INDEXES YIELD populationPercent") {
     assertJavaCCAST(testName, query(ShowIndexesClause(AllIndexes, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("populationPercent")))))
+  }
+
+  test("SHOW POINT INDEXES YIELD populationPercent") {
+    assertJavaCCAST(testName, query(ShowIndexesClause(PointIndexes, brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("populationPercent")))))
   }
 
   test("SHOW BTREE INDEXES YIELD *") {
@@ -283,6 +292,14 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
     assertSameAST(testName)
   }
 
+  test("SHOW POINT INDEXES BRIEF") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW POINT INDEXES VERBOSE") {
+    assertSameAST(testName)
+  }
+
   test("SHOW LOOKUP INDEXES BRIEF") {
     assertSameAST(testName)
   }
@@ -442,6 +459,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "INDEXES"
         |  "LOOKUP"
         |  "NODE"
+        |  "POINT"
         |  "POPULATED"
         |  "PROCEDURE"
         |  "PROCEDURES"
@@ -487,6 +505,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "INDEXES"
         |  "LOOKUP"
         |  "NODE"
+        |  "POINT"
         |  "POPULATED"
         |  "PROCEDURE"
         |  "PROCEDURES"
@@ -532,6 +551,7 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "INDEXES"
         |  "LOOKUP"
         |  "NODE"
+        |  "POINT"
         |  "POPULATED"
         |  "PROCEDURE"
         |  "PROCEDURES"

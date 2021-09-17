@@ -42,6 +42,8 @@ import org.opencypher.v9_0.ast.CreateIndexOldSyntax
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
+import org.opencypher.v9_0.ast.CreatePointNodeIndex
+import org.opencypher.v9_0.ast.CreatePointRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRangeNodeIndex
 import org.opencypher.v9_0.ast.CreateRangeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
@@ -288,6 +290,14 @@ case class Prettifier(
 
       case CreateTextRelationshipIndex(Variable(variable), RelTypeName(relType), properties, name, ifExistsDo, options, _) =>
         val startOfCommand = getStartOfCommand(name, ifExistsDo, "TEXT INDEX")
+        s"${startOfCommand}FOR ()-[${backtick(variable)}:${backtick(relType)}]-() ON ${propertiesToString(properties)}${asString(options)}"
+
+      case CreatePointNodeIndex(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, _) =>
+        val startOfCommand = getStartOfCommand(name, ifExistsDo, "POINT INDEX")
+        s"${startOfCommand}FOR (${backtick(variable)}:${backtick(label)}) ON ${propertiesToString(properties)}${asString(options)}"
+
+      case CreatePointRelationshipIndex(Variable(variable), RelTypeName(relType), properties, name, ifExistsDo, options, _) =>
+        val startOfCommand = getStartOfCommand(name, ifExistsDo, "POINT INDEX")
         s"${startOfCommand}FOR ()-[${backtick(variable)}:${backtick(relType)}]-() ON ${propertiesToString(properties)}${asString(options)}"
 
       case DropIndex(LabelName(label), properties, _) =>

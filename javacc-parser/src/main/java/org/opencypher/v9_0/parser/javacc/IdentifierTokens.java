@@ -124,6 +124,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.PASSWORD;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PASSWORDS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PERIODIC;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PLAINTEXT;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.POINT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.POPULATED;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PRIVILEGE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PRIVILEGES;
@@ -296,6 +297,7 @@ public class IdentifierTokens
             PASSWORDS,
             PERIODIC,
             PLAINTEXT,
+            POINT,
             POPULATED,
             PRIVILEGE,
             PRIVILEGES,
