@@ -234,6 +234,7 @@ import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowTransactionAction
+import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserAction
 import org.opencypher.v9_0.ast.ShowUserPrivileges
 import org.opencypher.v9_0.ast.ShowUsers
@@ -249,6 +250,7 @@ import org.opencypher.v9_0.ast.StopDatabaseAction
 import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.SubqueryCall.InTransactionsParameters
 import org.opencypher.v9_0.ast.TerminateTransactionAction
+import org.opencypher.v9_0.ast.TerminateTransactionsClause
 import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.TransactionManagementAction
@@ -1277,7 +1279,35 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     Query(None, SingleQuery(fullClauses)(pos))(pos)
   }
 
-  def _showCommands: Gen[Query] = oneOf(_showIndexes, _showConstraints, _showProcedures, _showFunctions)
+  def _showTransactions: Gen[Query] = for {
+    idList <- zeroOrMore(string)
+    param  <- _parameter
+    ids    <- oneOf(Left(idList), Right(param))
+    yields <- _eitherYieldOrWhere
+    use    <- option(_use)
+  } yield {
+    val showClauses = yields match {
+      case Some(Right(w))           => Seq(ShowTransactionsClause(ids, Some(w), hasYield = false)(pos))
+      case Some(Left((y, Some(r)))) => Seq(ShowTransactionsClause(ids, None, hasYield = true)(pos), y, r)
+      case Some(Left((y, None)))    => Seq(ShowTransactionsClause(ids, None, hasYield = true)(pos), y)
+      case _                        => Seq(ShowTransactionsClause(ids, None, hasYield = false)(pos))
+    }
+    val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
+    Query(None, SingleQuery(fullClauses)(pos))(pos)
+  }
+
+  def _terminateTransactions: Gen[Query] = for {
+    idList <- zeroOrMore(string)
+    param  <- _parameter
+    ids    <- oneOf(Left(idList), Right(param))
+    use    <- option(_use)
+  } yield {
+    val terminateClause = Seq(TerminateTransactionsClause(ids)(pos))
+    val fullClauses = use.map(u => u +: terminateClause).getOrElse(terminateClause)
+    Query(None, SingleQuery(fullClauses)(pos))(pos)
+  }
+
+  def _showCommands: Gen[Query] = oneOf(_showIndexes, _showConstraints, _showProcedures, _showFunctions, _showTransactions, _terminateTransactions)
 
   // Schema commands
   // ----------------------------------

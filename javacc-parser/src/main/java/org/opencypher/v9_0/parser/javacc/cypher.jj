@@ -2845,6 +2845,7 @@ STATEMENT Command( USE_CLAUSE useClause ) throws Exception:
 
         statement=CommandWithUseGraph( useClause )
         | statement=ShowCommand( useClause )
+        | statement=TerminateCommand( useClause )
     )
     {
         return statement;
@@ -2920,15 +2921,15 @@ STATEMENT ShowCommand( USE_CLAUSE useClause ) :
     (
         showCommandType=<ALL> statement=ShowAllCommand( start, useClause )
         | <POPULATED> statement=ShowRoles( start, useClause, false )
-        | showCommandType=<BTREE> statement = ShowIndexesAllowBrief( start, useClause, ShowCommandFilterTypes.BTREE )
-        | showCommandType=<RANGE> statement = ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.RANGE )
-        | showCommandType=<FULLTEXT> statement = ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.FULLTEXT )
-        | showCommandType=<TEXT> statement = ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.TEXT )
-        | showCommandType=<POINT> statement = ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.POINT )
-        | showCommandType=<LOOKUP> statement = ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.LOOKUP )
-        | showCommandType=<UNIQUE> statement = ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.UNIQUE )
-        | showCommandType=<NODE> statement = ShowNodeCommand( start, useClause )
-        | showCommandType=<PROPERTY> statement = ShowPropertyCommand( start, useClause, ShowCommandFilterTypes.EXIST )
+        | showCommandType=<BTREE> statement=ShowIndexesAllowBrief( start, useClause, ShowCommandFilterTypes.BTREE )
+        | showCommandType=<RANGE> statement=ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.RANGE )
+        | showCommandType=<FULLTEXT> statement=ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.FULLTEXT )
+        | showCommandType=<TEXT> statement=ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.TEXT )
+        | showCommandType=<POINT> statement=ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.POINT )
+        | showCommandType=<LOOKUP> statement=ShowIndexesNoBrief( start, useClause, ShowCommandFilterTypes.LOOKUP )
+        | showCommandType=<UNIQUE> statement=ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.UNIQUE )
+        | showCommandType=<NODE> statement=ShowNodeCommand( start, useClause )
+        | showCommandType=<PROPERTY> statement=ShowPropertyCommand( start, useClause, ShowCommandFilterTypes.EXIST )
         | showCommandType=<EXISTENCE> statement=ShowConstraintsAllowYield( start, useClause, ShowCommandFilterTypes.EXIST )
         | showCommandType=<EXISTS> statement=ShowConstraintsAllowBrief( start, useClause, ShowCommandFilterTypes.OLD_EXISTS )
         | showCommandType=<EXIST> statement=ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.OLD_EXIST )
@@ -2944,6 +2945,22 @@ STATEMENT ShowCommand( USE_CLAUSE useClause ) :
         | statement=ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.ALL )
         | statement=ShowProcedures( start, useClause )
         | statement=ShowFunctions( start, useClause, ShowCommandFilterTypes.ALL )
+        | statement=ShowTransactions( start, useClause )
+    )
+    {
+        return statement;
+    }
+}
+
+STATEMENT TerminateCommand( USE_CLAUSE useClause ) :
+{
+    Token start = null;
+    STATEMENT statement = null;
+}
+{
+    start=<TERMINATE>
+    (
+        statement=TerminateTransactions( start, useClause )
     )
     {
         return statement;
@@ -2956,10 +2973,10 @@ STATEMENT ShowAllCommand( Token start, USE_CLAUSE useClause ) :
 }
 {
     (
-        statement = ShowRoles( start, useClause, true )
-        | statement = ShowIndexesAllowBrief( start, useClause, ShowCommandFilterTypes.ALL )
-        | statement = ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.ALL )
-        | statement = ShowFunctions( start, useClause, ShowCommandFilterTypes.ALL )
+        statement=ShowRoles( start, useClause, true )
+        | statement=ShowIndexesAllowBrief( start, useClause, ShowCommandFilterTypes.ALL )
+        | statement=ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.ALL )
+        | statement=ShowFunctions( start, useClause, ShowCommandFilterTypes.ALL )
     )
     {
         return statement;
@@ -2974,7 +2991,7 @@ STATEMENT ShowNodeCommand( Token start, USE_CLAUSE useClause ) :
 {
     // Needs to add <NODE> to the type
     (
-        constraintType=<KEY> statement = ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.NODE_KEY )
+        constraintType=<KEY> statement=ShowConstraintsAllowBriefAndYield( start, useClause, ShowCommandFilterTypes.NODE_KEY )
         | constraintType=<PROPERTY> statement=ShowPropertyCommand( start, useClause, ShowCommandFilterTypes.NODE_EXIST )
         | constraintType=<EXISTENCE> statement=ShowConstraintsAllowYield( start, useClause, ShowCommandFilterTypes.NODE_EXIST )
         | constraintType=<EXISTS> statement=ShowConstraintsAllowBrief( start, useClause, ShowCommandFilterTypes.NODE_OLD_EXISTS )
@@ -3123,14 +3140,13 @@ STATEMENT ShowIndexesNoBrief(Token start, USE_CLAUSE useClause, ShowCommandFilte
   if (useClause != null) {
       clauses.add( useClause );
   }
-  Token t;
   WHERE where = null;
   YIELD yieldClause = null;
   RETURN_CLAUSE returnClause = null;
 }
 {
-    ( t=<INDEX> | t=<INDEXES> )
-    ( (yieldClause = YieldClause() ( returnClause=ReturnClause() )?) | where=WhereClause() )?
+    ( <INDEX> | <INDEXES> )
+    ( (yieldClause=YieldClause() ( returnClause=ReturnClause() )?) | where=WhereClause() )?
     {
         if ( yieldClause != null )
         {
@@ -3192,7 +3208,6 @@ STATEMENT ShowConstraintsAllowBrief( Token start, USE_CLAUSE useClause, ShowComm
 {
     // old deprecated existence constraints
     List<CLAUSE> clauses = new ArrayList<>();
-    Token t;
     if ( useClause != null )
     {
         clauses.add( useClause );
@@ -3201,7 +3216,7 @@ STATEMENT ShowConstraintsAllowBrief( Token start, USE_CLAUSE useClause, ShowComm
     boolean verbose = false;
 }
 {
-    ( t=<CONSTRAINT> | t=<CONSTRAINTS> )
+    ( <CONSTRAINT> | <CONSTRAINTS> )
     ( ( <BRIEF> { brief = true; } | <VERBOSE> { verbose = true; }) (<OUTPUT>)? )?
     {
         clauses.add( astFactory.showConstraintClause( pos( start ), constraintType, brief, verbose, null, false ) );
@@ -3213,7 +3228,6 @@ STATEMENT ShowConstraintsAllowYield( Token start, USE_CLAUSE useClause, ShowComm
 {
     // new existence constraints
     List<CLAUSE> clauses = new ArrayList<>();
-    Token t;
     if (useClause != null)
     {
         clauses.add( useClause );
@@ -3223,9 +3237,9 @@ STATEMENT ShowConstraintsAllowYield( Token start, USE_CLAUSE useClause, ShowComm
     RETURN_CLAUSE returnClause = null;
 }
 {
-    ( t=<CONSTRAINT> | t=<CONSTRAINTS> )
+    ( <CONSTRAINT> | <CONSTRAINTS> )
     (
-        ( yieldClause = YieldClause() ( returnClause=ReturnClause() ) ? )
+        ( yieldClause=YieldClause() ( returnClause=ReturnClause() ) ? )
         | where=WhereClause()
     )?
     {
@@ -3248,7 +3262,6 @@ STATEMENT ShowConstraintsAllowYield( Token start, USE_CLAUSE useClause, ShowComm
 
 STATEMENT ShowProcedures( Token start, USE_CLAUSE useClause ):
 {
-    Token t;
     List<CLAUSE> clauses = new ArrayList<>();
     if (useClause != null)
     {
@@ -3264,14 +3277,14 @@ STATEMENT ShowProcedures( Token start, USE_CLAUSE useClause ):
     RETURN_CLAUSE returnClause = null;
 }
 {
-    ( t=<PROCEDURE> | t=<PROCEDURES> )
+    ( <PROCEDURE> | <PROCEDURES> )
     (
         <EXECUTABLE> { currentUser = true; } ( <BY>
         ( <CURRENT> <USER> { currentUser = true; }
         | userToken=SymbolicNameString() { user = userToken.image; currentUser = false; } ) )?
     )?
     (
-        ( yieldClause = YieldClause() ( returnClause=ReturnClause() ) ? )
+        ( yieldClause=YieldClause() ( returnClause=ReturnClause() ) ? )
         | where=WhereClause()
     )?
     {
@@ -3294,7 +3307,6 @@ STATEMENT ShowProcedures( Token start, USE_CLAUSE useClause ):
 
 STATEMENT ShowFunctions( Token start, USE_CLAUSE useClause, ShowCommandFilterTypes functionType ):
 {
-    Token t;
     List<CLAUSE> clauses = new ArrayList<>();
     if (useClause != null)
     {
@@ -3310,14 +3322,14 @@ STATEMENT ShowFunctions( Token start, USE_CLAUSE useClause, ShowCommandFilterTyp
     RETURN_CLAUSE returnClause = null;
 }
 {
-    ( t=<FUNCTION> | t=<FUNCTIONS> )
+    ( <FUNCTION> | <FUNCTIONS> )
     (
         <EXECUTABLE> { currentUser = true; } ( <BY>
         ( <CURRENT> <USER> { currentUser = true; }
         | userToken=SymbolicNameString() { user = userToken.image; currentUser = false; } ) )?
     )?
     (
-        ( yieldClause = YieldClause() ( returnClause=ReturnClause() ) ? )
+        ( yieldClause=YieldClause() ( returnClause=ReturnClause() ) ? )
         | where=WhereClause()
     )?
     {
@@ -3334,6 +3346,75 @@ STATEMENT ShowFunctions( Token start, USE_CLAUSE useClause, ShowCommandFilterTyp
         {
             clauses.add( astFactory.showFunctionClause( pos( start ), functionType, currentUser, user, where, false ) );
         }
+        return astFactory.newSingleQuery( pos( start ), clauses );
+    }
+}
+
+STATEMENT ShowTransactions( Token start, USE_CLAUSE useClause ):
+{
+    List<CLAUSE> clauses = new ArrayList<>();
+    if (useClause != null)
+    {
+        clauses.add( useClause );
+    }
+
+    List<String> ids = new ArrayList<>();
+    PARAMETER param = null;
+    SimpleEither<List<String>, PARAMETER> idEither = SimpleEither.left(ids);
+
+    WHERE where = null;
+    YIELD yieldClause = null;
+    RETURN_CLAUSE returnClause = null;
+}
+{
+    ( <TRANSACTION> | <TRANSACTIONS> )
+    (
+        //lookaheads for potential symbolicNames "yield", "where"
+        LOOKAHEAD(<YIELD>) yieldClause=YieldClause() ( returnClause=ReturnClause() ) ?
+        | LOOKAHEAD(<WHERE>) where=WhereClause()
+        | ( (ids=TransactionIdStringList() { idEither=SimpleEither.left(ids); }) | (param=Parameter( ParameterType.ANY ) { idEither=SimpleEither.right(param); }) ) (
+            ( yieldClause=YieldClause() ( returnClause=ReturnClause() ) ? )
+            | where=WhereClause()
+        )?
+    )?
+    {
+        if ( yieldClause != null )
+        {
+            clauses.add( astFactory.showTransactionsClause( pos( start ), idEither,  where, true ) );
+            clauses.add( yieldClause );
+            if ( returnClause != null )
+            {
+                clauses.add( returnClause );
+            }
+        }
+        else
+        {
+            clauses.add( astFactory.showTransactionsClause( pos( start ), idEither, where, false ) );
+        }
+        return astFactory.newSingleQuery( pos( start ), clauses );
+    }
+}
+
+STATEMENT TerminateTransactions( Token start, USE_CLAUSE useClause ):
+{
+    List<CLAUSE> clauses = new ArrayList<>();
+    if (useClause != null)
+    {
+        clauses.add( useClause );
+    }
+
+    List<String> ids = new ArrayList<>();
+    PARAMETER param = null;
+    SimpleEither<List<String>, PARAMETER> idEither = SimpleEither.left(ids);
+}
+{
+    ( <TRANSACTION> | <TRANSACTIONS> )
+    (
+        (ids=TransactionIdStringList() { idEither=SimpleEither.left(ids); }) |
+        (param=Parameter( ParameterType.ANY ) { idEither=SimpleEither.right(param); })
+    )?
+    {
+        clauses.add( astFactory.terminateTransactionsClause( pos( start ), idEither ) );
         return astFactory.newSingleQuery( pos( start ), clauses );
     }
 }
@@ -4730,6 +4811,28 @@ SimpleEither<String, PARAMETER> SymbolicNameOrStringParameter():
 {
     name=SymbolicNameString() { return SimpleEither.<String, PARAMETER>left( name.image ); }
     | parameter=Parameter(ParameterType.STRING) { return SimpleEither.<String, PARAMETER>right( parameter ); }
+}
+
+String TransactionIdString():
+{
+    Token t;
+}
+{
+    t=<STRING_LITERAL1> { return token.image; }
+    | t=<STRING_LITERAL2> { return token.image; }
+}
+
+List<String> TransactionIdStringList():
+{
+    String entry;
+    List<String> list = new ArrayList<>();
+}
+{
+    entry=TransactionIdString() { list.add( entry ); }
+    ( "," entry=TransactionIdString() { list.add( entry ); } )*
+    {
+        return list;
+    }
 }
 
 SimpleEither<Map<String, EXPRESSION>, PARAMETER> MapOrParameter():

@@ -52,7 +52,9 @@ import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowProceduresClause
+import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.TerminateTransactionsClause
 import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.UniquePropertyConstraintCommand
 import org.opencypher.v9_0.ast.UnresolvedCall
@@ -277,6 +279,15 @@ object Additions {
         throw cypherExceptionFactory.syntaxException("SET DATABASE ACCESS privilege is not supported in this Cypher version.", p.position)
       case p@RevokePrivilege(DbmsPrivilege(SetDatabaseAccessAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("SET DATABASE ACCESS privilege is not supported in this Cypher version.", p.position)
+
+      // SHOW TRANSACTION[S] [id[, ...]] [WHERE clause | YIELD clause]
+      case c: ShowTransactionsClause =>
+        throw cypherExceptionFactory.syntaxException("`SHOW TRANSACTIONS` is not supported in this Cypher version.", c.position)
+
+      // TERMINATE TRANSACTION[S] id[, ...]
+      case c: TerminateTransactionsClause =>
+        throw cypherExceptionFactory.syntaxException("`TERMINATE TRANSACTIONS` is not supported in this Cypher version.", c.position)
+
     }
 
     private def hasRangeOptions(options: Options): Boolean = options match {

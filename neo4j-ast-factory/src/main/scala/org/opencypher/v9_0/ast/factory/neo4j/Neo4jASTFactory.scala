@@ -221,6 +221,7 @@ import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowTransactionAction
+import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserAction
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.SingleQuery
@@ -234,6 +235,7 @@ import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
 import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.TerminateTransactionAction
+import org.opencypher.v9_0.ast.TerminateTransactionsClause
 import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.TimeoutAfter
 import org.opencypher.v9_0.ast.TraverseAction
@@ -1146,6 +1148,19 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     // either we have 'EXECUTABLE BY user', 'EXECUTABLE [BY CURRENT USER]' or nothing
     val executableBy = if (user != null) Some(User(user)) else if (currentUser) Some(CurrentUser) else None
     ShowFunctionsClause(functionType, executableBy, Option(where), hasYield)(p)
+  }
+
+  override def showTransactionsClause(p: InputPosition,
+                                      ids: SimpleEither[util.List[String], Parameter],
+                                      where: Where,
+                                      hasYield: Boolean): Clause = {
+    val scalaIds = ids.asScala.left.map(_.asScala.toList) // if left: map the string list to scala, if right: changes nothing
+    ShowTransactionsClause.apply(scalaIds, Option(where), hasYield)(p)
+  }
+
+  override def terminateTransactionsClause(p: InputPosition, ids: SimpleEither[util.List[String], Parameter]): Clause = {
+    val scalaIds = ids.asScala.left.map(_.asScala.toList) // if left: map the string list to scala, if right: changes nothing
+    TerminateTransactionsClause(scalaIds)(p)
   }
 
   // Schema Commands

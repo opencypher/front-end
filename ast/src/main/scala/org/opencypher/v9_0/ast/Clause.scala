@@ -80,6 +80,7 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.helpers.StringHelper.RichString
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTDuration
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
@@ -581,6 +582,82 @@ object ShowFunctionsClause {
     )
 
     ShowFunctionsClause(DefaultOrAllShowColumns(hasYield, briefCols, briefCols ++ verboseCols), functionType, executable, where, hasYield)(position)
+  }
+}
+
+case class ShowTransactionsClause(unfilteredColumns: DefaultOrAllShowColumns, ids: Either[List[String], Parameter], where: Option[Where], hasYield: Boolean)
+                            (val position: InputPosition) extends CommandClause with CommandClauseAllowedOnSystem {
+  override def name: String = "SHOW TRANSACTIONS"
+
+  override def moveWhereToYield: CommandClause = copy(where = None, hasYield = true)(position)
+}
+
+object ShowTransactionsClause {
+  def apply(ids: Either[List[String], Parameter], where: Option[Where], hasYield: Boolean)(position: InputPosition): ShowTransactionsClause = {
+    val showColumns = List(
+      // (column, brief)
+      (ShowColumn("database")(position), true),
+      (ShowColumn("transactionId")(position), true),
+      (ShowColumn("currentQueryId")(position), true),
+      (ShowColumn("outerTransactionId")(position), false),
+      (ShowColumn("connectionId")(position), true),
+      (ShowColumn("clientAddress")(position), true),
+      (ShowColumn("username")(position), true),
+      (ShowColumn("metaData", CTMap)(position), false),
+      (ShowColumn("currentQuery")(position), true),
+      (ShowColumn("parameters", CTMap)(position), false),
+      (ShowColumn("planner")(position), false),
+      (ShowColumn("runtime")(position), false),
+      (ShowColumn("indexes", CTList(CTMap))(position), false),
+      (ShowColumn("startTime")(position), true),
+      (ShowColumn("protocol")(position), false),
+      (ShowColumn("requestUri")(position), false),
+      (ShowColumn("status")(position), true),
+      (ShowColumn("statusDetails")(position), false),
+      (ShowColumn("resourceInformation", CTMap)(position), false),
+      (ShowColumn("activeLockCount", CTInteger)(position), false),
+      (ShowColumn("elapsedTime", CTDuration)(position), true),
+      (ShowColumn("cpuTime", CTDuration)(position), false),
+      (ShowColumn("waitTime", CTDuration)(position), false),
+      (ShowColumn("idleTime", CTDuration)(position), false),
+      (ShowColumn("allocatedBytes", CTInteger)(position), true),
+      (ShowColumn("allocatedDirectBytes", CTInteger)(position), false),
+      (ShowColumn("estimatedUsedHeapMemory", CTInteger)(position), false),
+      (ShowColumn("pageHits", CTInteger)(position), false),
+      (ShowColumn("pageFaults", CTInteger)(position), false),
+      (ShowColumn("initializationStackTrace")(position), false)
+    )
+    val briefShowColumns = showColumns.filter(_._2).map(_._1)
+    val allShowColumns = showColumns.map(_._1)
+
+    ShowTransactionsClause(DefaultOrAllShowColumns(hasYield, briefShowColumns, allShowColumns), ids, where, hasYield)(position)
+  }
+}
+
+case class TerminateTransactionsClause(unfilteredColumns: DefaultOrAllShowColumns, ids: Either[List[String], Parameter])
+                            (val position: InputPosition) extends CommandClause with CommandClauseAllowedOnSystem {
+  override def name: String = "TERMINATE TRANSACTIONS"
+
+  override def semanticCheck: SemanticCheck = when(ids match {
+    case Left(ls) => ls.size < 1
+    case Right(_) => false // parameter list length needs to be checked at runtime
+  }) {
+    error("Missing transaction id to terminate, the transaction id can be found using `SHOW TRANSACTIONS`", position)
+  } chain super.semanticCheck
+
+  override def where: Option[Where] = None
+  override def moveWhereToYield: CommandClause = this
+}
+
+object TerminateTransactionsClause {
+  def apply(ids: Either[List[String], Parameter])(position: InputPosition): TerminateTransactionsClause = {
+    val columns = List(
+      ShowColumn("transactionId")(position),
+      ShowColumn("username")(position),
+      ShowColumn("message")(position)
+    )
+
+    TerminateTransactionsClause(DefaultOrAllShowColumns(useAllColumns = true, columns, columns), ids)(position)
   }
 }
 
