@@ -20,6 +20,8 @@ import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.BooleanExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.False
+import org.opencypher.v9_0.expressions.IsNotNull
+import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.True
@@ -49,6 +51,7 @@ case class simplifyPredicates(semanticState: SemanticState) extends Rewriter {
 
   private def computeReplacement: Expression => Expression = {
     case n@Not(Not(innerExpression)) => simplifyToInnerExpression(n, innerExpression)
+    case n@Not(IsNull(innerExpression)) => IsNotNull(innerExpression)(n.position)
     case Ands(exps)   if exps.isEmpty => throw new IllegalStateException("Found an instance of Ands with empty expressions")
     case Ors(exps)    if exps.isEmpty => throw new IllegalStateException("Found an instance of Ors with empty expressions")
     case p@Ands(exps) if exps.contains(F) => False()(p.position)

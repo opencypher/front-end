@@ -21,6 +21,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.ExplicitParameter
+import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Null
 import org.opencypher.v9_0.expressions.Ors
@@ -70,6 +71,11 @@ class SimplifyPredicatesTest extends CypherFunSuite {
   test("OR + double negation") {
     // or(not(not(P)), not(not(Q))) <=> or(P, Q)
     assertRewrittenMatches("NOT NOT 'P' OR NOT NOT 'Q'", { case Ors(List(StringLiteral("P"), StringLiteral("Q"))) => () })
+  }
+
+  test("NOT IS NULL is rewritten") {
+    // not(isNull(P)) <=> isNotNull(P)
+    assertRewrittenMatches("NOT( 'P' IS NULL )", { case IsNotNull(StringLiteral("P")) => () })
   }
 
   test("Do not simplify expressions with different auto extracted parameters") {
