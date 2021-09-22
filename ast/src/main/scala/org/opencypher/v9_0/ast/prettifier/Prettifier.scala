@@ -169,6 +169,7 @@ import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.SubqueryCall
+import org.opencypher.v9_0.ast.SubqueryCall.InTransactionsParameters
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Union
 import org.opencypher.v9_0.ast.Union.UnionMapping
@@ -631,9 +632,15 @@ case class Prettifier(
     }
 
     def asString(c: SubqueryCall): String = {
+      val ofRows = c.inTransactionsParameters.map(asString).getOrElse("")
       s"""${INDENT}CALL {
          |${indented().queryPart(c.part)}
-         |$INDENT}""".stripMargin
+         |$INDENT}$ofRows""".stripMargin
+    }
+
+    def asString(ip: InTransactionsParameters): String = {
+      val ofRows = ip.batchSize.map(n => s" OF ${expr(n)} ROWS").getOrElse("")
+      s" IN TRANSACTIONS$ofRows"
     }
 
     def asString(w: Where): String =

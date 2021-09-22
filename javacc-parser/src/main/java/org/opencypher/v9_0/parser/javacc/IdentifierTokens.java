@@ -88,8 +88,8 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.GRAPH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.GRAPHS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.HEADERS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.HOME;
-import static org.opencypher.v9_0.parser.javacc.CypherConstants.IF;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.IDENTIFIER;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.IF;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.IN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.INDEX;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.INDEXES;
@@ -146,6 +146,8 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.RETURN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.REVOKE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ROLE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ROLES;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ROW;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ROWS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SCAN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SEC;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SECOND;
@@ -319,6 +321,8 @@ public class IdentifierTokens
             REVOKE,
             ROLE,
             ROLES,
+            ROW,
+            ROWS,
             SCAN,
             SEC,
             SECOND,

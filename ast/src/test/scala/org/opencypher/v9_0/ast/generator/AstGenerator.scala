@@ -240,6 +240,7 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
 import org.opencypher.v9_0.ast.SubqueryCall
+import org.opencypher.v9_0.ast.SubqueryCall.InTransactionsParameters
 import org.opencypher.v9_0.ast.TerminateTransactionAction
 import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.TimeoutAfter
@@ -1118,7 +1119,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _subqueryCall: Gen[SubqueryCall] = for {
     part <- _queryPart
-  } yield SubqueryCall(part, None)(pos)
+    params <- option(_inTransactionsParameters)
+  } yield SubqueryCall(part, params)(pos)
+
+  def _inTransactionsParameters: Gen[InTransactionsParameters] = for {
+    batchSize <- option(_expression)
+  } yield InTransactionsParameters(batchSize)(pos)
 
   def _clause: Gen[Clause] = oneOf(
     lzy(_use),

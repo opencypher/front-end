@@ -50,8 +50,4 @@ class SubqueryCallParserTest
   test("CALL { CREATE (n:N) }") {
     gives(subqueryCall(create(nodePat("n", "N"))))
   }
-
-  test("CALL { CREATE (n:N) } IN TRANSACTIONS") {
-    gives(subqueryCallInTransactions(create(nodePat("n", "N"))))
-  }
 }
