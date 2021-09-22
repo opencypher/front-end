@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.ASTSlicingPhrase.checkExpressionIsStaticInt
 import org.opencypher.v9_0.ast.connectedComponents.RichConnectedComponent
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
@@ -31,6 +32,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics.TypeGenerator
+import org.opencypher.v9_0.ast.semantics.optionSemanticChecking
 import org.opencypher.v9_0.ast.semantics.traversableOnceSemanticChecking
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Ands
@@ -985,7 +987,10 @@ case class Yield(returnItems: ReturnItems,
 object SubqueryCall {
   final case class InTransactionsParameters(batchSize: Option[Expression])(val position: InputPosition) extends ASTNode with SemanticCheckable with SemanticAnalysisTooling {
     override def semanticCheck: SemanticCheck =
-      requireFeatureSupport("The CALL { ... } IN TRANSACTIONS clause", SemanticFeature.CallSubqueryInTransactions, position)
+      requireFeatureSupport("The CALL { ... } IN TRANSACTIONS clause", SemanticFeature.CallSubqueryInTransactions, position) chain
+        batchSize.foldSemanticCheck {
+          checkExpressionIsStaticInt(_,"OF ... ROWS", acceptsZero = false)
+        }
   }
 
   def isTransactionalSubquery(clause: SubqueryCall): Boolean = clause.inTransactionsParameters.isDefined
