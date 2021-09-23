@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.semantics.SemanticTable
@@ -31,12 +32,15 @@ import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.ListComprehension
 import org.opencypher.v9_0.expressions.ListLiteral
+import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
+import org.opencypher.v9_0.expressions.NamedPatternPart
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
+import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
@@ -66,9 +70,11 @@ import org.opencypher.v9_0.util.DeprecatedParameterSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
+import org.opencypher.v9_0.util.DeprecatedSelfReferenceToVariableInCreatePattern
 import org.opencypher.v9_0.util.DeprecatedShowExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedShowSchemaSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
+import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InternalNotification
@@ -387,19 +393,39 @@ object Deprecations {
       typeInfo => typeInfo.expected.fold(false)(CTBoolean.covariant.containsAll)
     )
 
-    private def isListCoercedToBoolean(semanticTable: SemanticTable, e: Expression) = semanticTable.types.get(e).exists(
+    private def isListCoercedToBoolean(semanticTable: SemanticTable, e: Expression): Boolean = semanticTable.types.get(e).exists(
       typeInfo =>
         CTList(CTAny).covariant.containsAll(typeInfo.specified) && isExpectedTypeBoolean(semanticTable, e)
     )
 
-    override def find(semanticTable: SemanticTable): PartialFunction[Any, Deprecation] = {
+    private def hasSelfReferenceToVariableInPattern(pattern: Pattern, semanticTable: SemanticTable): Boolean = {
+      val allSymbolDefinitions = semanticTable.recordedScopes(pattern).allSymbolDefinitions
 
+      def findAllVariables(e: Any): Set[LogicalVariable] = e.findAllByClass[LogicalVariable].toSet
+      def isDefinition(variable: LogicalVariable): Boolean = allSymbolDefinitions(variable.name).map(_.use).contains(Ref(variable))
+
+      val (declaredVariables, referencedVariables) = pattern.treeFold[(Set[LogicalVariable], Set[LogicalVariable])]((Set.empty, Set.empty)) {
+        case NodePattern(maybeVariable, _, maybeProperties, _)               => acc => SkipChildren((acc._1 ++ maybeVariable.filter(isDefinition), acc._2 ++ findAllVariables(maybeProperties)))
+        case RelationshipPattern(maybeVariable, _, _, maybeProperties, _, _) => acc => SkipChildren((acc._1 ++ maybeVariable.filter(isDefinition), acc._2 ++ findAllVariables(maybeProperties)))
+        case NamedPatternPart(variable, _)                                   => acc => TraverseChildren((acc._1 + variable, acc._2))
+      }
+
+      (declaredVariables & referencedVariables).nonEmpty
+    }
+
+    override def find(semanticTable: SemanticTable): PartialFunction[Any, Deprecation] = {
       case e: Expression if isListCoercedToBoolean(semanticTable, e) =>
         Deprecation(
           None,
           Some(DeprecatedCoercionOfListToBoolean(e.position))
         )
 
+      // CREATE (a {prop:7})-[r:R]->(b {prop: a.prop})
+      case Create(p: Pattern) if hasSelfReferenceToVariableInPattern(p, semanticTable) =>
+        Deprecation(
+          None,
+          Some(DeprecatedSelfReferenceToVariableInCreatePattern(p.position))
+        )
     }
 
     override def findWithContext(statement: ast.Statement,
