@@ -23,10 +23,6 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class Neo4jASTFactoryTest extends CypherFunSuite {
 
-  test("undefinedConstraintType") {
-    ASTExceptionFactory.undefinedConstraintType shouldBe "No constraint type [EXISTS, IS UNIQUE, IS NOT NULL, IS NODE KEY] is defined"
-  }
-
   test("invalidDropCommand") {
     ASTExceptionFactory.invalidDropCommand shouldBe "Unsupported drop constraint command: Please delete the constraint by name instead"
   }
@@ -41,10 +37,6 @@ class Neo4jASTFactoryTest extends CypherFunSuite {
 
   test("onlySinglePropertyAllowed") {
     ASTExceptionFactory.onlySinglePropertyAllowed(ConstraintType.NODE_EXISTS) shouldBe "'EXISTS' does not allow multiple properties"
-  }
-
-  test("constraintTypeNotAllowed") {
-    ASTExceptionFactory.constraintTypeNotAllowed(ConstraintType.NODE_EXISTS, ConstraintType.UNIQUE) shouldBe "Invalid input 'EXISTS': conflicting with 'IS UNIQUE'"
   }
 
   test("invalidShowFilterType") {

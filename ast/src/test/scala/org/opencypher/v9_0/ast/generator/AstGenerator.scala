@@ -32,11 +32,9 @@ import org.opencypher.v9_0.ast.AllGraphsScope
 import org.opencypher.v9_0.ast.AllIndexActions
 import org.opencypher.v9_0.ast.AllIndexes
 import org.opencypher.v9_0.ast.AllLabelResource
-import org.opencypher.v9_0.ast.AllNodes
 import org.opencypher.v9_0.ast.AllPrivilegeActions
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
-import org.opencypher.v9_0.ast.AllRelationships
 import org.opencypher.v9_0.ast.AllRoleActions
 import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
@@ -150,8 +148,6 @@ import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
-import org.opencypher.v9_0.ast.NodeByIds
-import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
 import org.opencypher.v9_0.ast.OldValidSyntax
@@ -175,8 +171,6 @@ import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.ReadAction
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
-import org.opencypher.v9_0.ast.RelationshipByIds
-import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
@@ -240,10 +234,8 @@ import org.opencypher.v9_0.ast.ShowUsersPrivileges
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.SortItem
-import org.opencypher.v9_0.ast.Start
 import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.StartDatabaseAction
-import org.opencypher.v9_0.ast.StartItem
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.StopDatabaseAction
