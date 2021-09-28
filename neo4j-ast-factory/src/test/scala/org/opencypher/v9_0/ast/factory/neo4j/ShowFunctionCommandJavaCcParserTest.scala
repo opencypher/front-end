@@ -108,6 +108,14 @@ class ShowFunctionCommandJavaCcParserTest extends ParserComparisonTestBase with 
 
   // Negative tests
 
+  test("SHOW FUNCTIONS YIELD (123 + xyz)") {
+    assertSameAST(testName)
+  }
+
+  test("SHOW FUNCTIONS YIELD (123 + xyz) AS foo") {
+    assertSameAST(testName)
+  }
+
   test("SHOW FUNCTIONS YIELD") {
     assertSameAST(testName)
   }
