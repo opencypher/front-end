@@ -48,6 +48,7 @@ import org.opencypher.v9_0.expressions.functions.Tail
 import org.opencypher.v9_0.expressions.functions.ToBoolean
 import org.opencypher.v9_0.expressions.functions.ToString
 import org.opencypher.v9_0.expressions.functions.UnresolvedFunction
+import org.opencypher.v9_0.expressions.functions.WithinBBox
 import org.opencypher.v9_0.util.LengthOnNonPathNotification
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
@@ -189,6 +190,10 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
       case Distance =>
         checkArgs(invocation, 2) ifOkChain
           specifyType(CTFloat, invocation)
+
+      case WithinBBox =>
+        checkArgs(invocation, 3) ifOkChain
+          specifyType(CTBoolean, invocation)
 
       case UnresolvedFunction =>
         // We cannot do a full semantic check until we have resolved the function call.
