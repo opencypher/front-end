@@ -1,5 +1,6 @@
 /*
- * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) "Neo4j"
+ * Neo4j Sweden AB [http://neo4j.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.ast.factory;
+package org.neo4j.cypher.internal.parser
 
-public enum HintIndexType
-{
-    ANY,
-    BTREE,
-    TEXT,
-    RANGE
+import org.neo4j.cypher.internal.util.InputPosition
+import org.parboiled.Context
+import org.parboiled.buffers.InputBuffer
+
+object BufferPosition {
+  def apply(buffer: InputBuffer, offset: Int): InputPosition = {
+    val position = buffer.getPosition(offset)
+    InputPosition(offset, position.line, position.column)
+  }
+}
+
+object ContextPosition {
+  def apply(ctx: Context[Any]): InputPosition =
+    BufferPosition(ctx.getInputBuffer, ctx.getMatchRange.start)
 }

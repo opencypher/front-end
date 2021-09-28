@@ -1,5 +1,6 @@
 /*
- * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) "Neo4j"
+ * Neo4j Sweden AB [http://neo4j.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.ast.factory;
+package org.neo4j.cypher.internal.parser
 
-public enum HintIndexType
-{
-    ANY,
-    BTREE,
-    TEXT,
-    RANGE
+import org.neo4j.cypher.internal.ast
+import org.neo4j.cypher.internal.util.OpenCypherExceptionFactory
+import org.scalatest.mockito.MockitoSugar
+
+object ParserFixture extends MockitoSugar {
+
+  def parse(a: String): ast.Statement = parser.parse(a, OpenCypherExceptionFactory(None))
+
+  val parser = new CypherParser
 }

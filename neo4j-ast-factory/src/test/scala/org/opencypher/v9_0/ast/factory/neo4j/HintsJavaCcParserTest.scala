@@ -21,7 +21,6 @@ import org.opencypher.v9_0.ast.SeekOrScan
 import org.opencypher.v9_0.ast.UsingAnyIndexType
 import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingIndexHint
-import org.opencypher.v9_0.ast.UsingPointIndexType
 import org.opencypher.v9_0.ast.UsingRangeIndexType
 import org.opencypher.v9_0.ast.UsingTextIndexType
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -69,18 +68,6 @@ class HintsJavaCcParserTest extends CypherFunSuite with TestName with AstConstru
     )
   }
 
-  test("MATCH (n) USING POINT INDEX n:N(p)") {
-    parseAndFind[UsingIndexHint](testName) shouldBe Seq(
-      UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOrScan, UsingPointIndexType)(pos)
-    )
-  }
-
-  test("MATCH (n) USING POINT INDEX SEEK n:N(p)") {
-    parseAndFind[UsingIndexHint](testName) shouldBe Seq(
-      UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOnly, UsingPointIndexType)(pos)
-    )
-  }
-
   test("MATCH (n) USING TEXT INDEX n:N(p)") {
     parseAndFind[UsingIndexHint](testName) shouldBe Seq(
       UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOrScan, UsingTextIndexType)(pos)
@@ -104,8 +91,6 @@ class HintsJavaCcParserTest extends CypherFunSuite with TestName with AstConstru
         |USING TEXT INDEX SEEK n:N(p)
         |USING RANGE INDEX n:N(p)
         |USING RANGE INDEX SEEK n:N(p)
-        |USING POINT INDEX n:N(p)
-        |USING POINT INDEX SEEK n:N(p)
         |""".stripMargin
     ) shouldBe Seq(
       UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOrScan, UsingAnyIndexType)(pos),
@@ -116,8 +101,6 @@ class HintsJavaCcParserTest extends CypherFunSuite with TestName with AstConstru
       UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOnly, UsingTextIndexType)(pos),
       UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOrScan, UsingRangeIndexType)(pos),
       UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOnly, UsingRangeIndexType)(pos),
-      UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOrScan, UsingPointIndexType)(pos),
-      UsingIndexHint(varFor("n"), labelOrRelTypeName("N"), Seq(propName("p")), SeekOnly, UsingPointIndexType)(pos),
     )
   }
 

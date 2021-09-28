@@ -1,5 +1,6 @@
 /*
- * Copyright (c) Neo4j Sweden AB (http://neo4j.com)
+ * Copyright (c) "Neo4j"
+ * Neo4j Sweden AB [http://neo4j.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.ast.factory;
+package org.neo4j.cypher.internal.parser.matchers
 
-public enum HintIndexType
-{
-    ANY,
-    BTREE,
-    TEXT,
-    RANGE
+class IdentifierPartMatcher extends ScalaCharMatcher("an identifier character") {
+  protected def matchChar(c: Char): Boolean = Character.isJavaIdentifierPart(c)
+}
+
+class GlobbedIdentifierPartMatcher extends IdentifierPartMatcher {
+  override protected def matchChar(c: Char): Boolean = super.matchChar(c) || '*'.equals(c) || '?'.equals(c)
 }
