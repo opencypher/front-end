@@ -49,6 +49,7 @@ public enum ActionType
     USER_PASSWORD,
     USER_HOME,
     USER_DROP,
+    USER_IMPERSONATE,
     ROLE_ALL,
     ROLE_SHOW,
     ROLE_CREATE,

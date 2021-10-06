@@ -128,6 +128,7 @@ import org.opencypher.v9_0.ast.IfExistsDoNothing
 import org.opencypher.v9_0.ast.IfExistsInvalidSyntax
 import org.opencypher.v9_0.ast.IfExistsReplace
 import org.opencypher.v9_0.ast.IfExistsThrowError
+import org.opencypher.v9_0.ast.ImpersonateUserAction
 import org.opencypher.v9_0.ast.IndefiniteWait
 import org.opencypher.v9_0.ast.LabelAllQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
@@ -1447,6 +1448,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     case ActionType.USER_PASSWORD => SetPasswordsAction
     case ActionType.USER_STATUS => SetUserStatusAction
     case ActionType.USER_HOME   => SetUserHomeDatabaseAction
+    case ActionType.USER_IMPERSONATE => ImpersonateUserAction
     case ActionType.ROLE_ALL    => AllRoleActions
     case ActionType.ROLE_SHOW => ShowRoleAction
     case ActionType.ROLE_CREATE => CreateRoleAction

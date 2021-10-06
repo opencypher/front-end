@@ -90,6 +90,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.HEADERS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.HOME;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.IDENTIFIER;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.IF;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.IMPERSONATE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.IN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.INDEX;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.INDEXES;
@@ -263,8 +264,9 @@ public class IdentifierTokens
             GRAPHS,
             HEADERS,
             HOME,
-            IF,
             IDENTIFIER,
+            IF,
+            IMPERSONATE,
             IN,
             INDEX,
             INDEXES,
