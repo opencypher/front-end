@@ -41,6 +41,7 @@ import org.opencypher.v9_0.ast.AllRoleActions
 import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
+import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -164,6 +165,8 @@ import org.opencypher.v9_0.ast.PropertiesResource
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.ReadAction
+import org.opencypher.v9_0.ast.ReadOnlyAccess
+import org.opencypher.v9_0.ast.ReadWriteAccess
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipQualifier
@@ -256,6 +259,9 @@ import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory
 import org.opencypher.v9_0.ast.factory.ASTFactory.MergeActionType
 import org.opencypher.v9_0.ast.factory.ASTFactory.StringPos
+import org.opencypher.v9_0.ast.factory.AccessType
+import org.opencypher.v9_0.ast.factory.AccessType.READ_ONLY
+import org.opencypher.v9_0.ast.factory.AccessType.READ_WRITE
 import org.opencypher.v9_0.ast.factory.ActionType
 import org.opencypher.v9_0.ast.factory.ConstraintType
 import org.opencypher.v9_0.ast.factory.ConstraintVersion
@@ -1568,6 +1574,14 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     }
 
     DropDatabase(databaseName.asScala, ifExists, action, wait)(p)
+  }
+
+  override def alterDatabase(p:InputPosition, databaseName: SimpleEither[String, Parameter], ifExists: Boolean, accessType: AccessType): AlterDatabase = {
+    val access = accessType match {
+      case READ_ONLY => ReadOnlyAccess
+      case READ_WRITE => ReadWriteAccess
+    }
+    AlterDatabase(databaseName.asScala, ifExists, access)(p)
   }
 
   override def showDatabase(p: InputPosition,

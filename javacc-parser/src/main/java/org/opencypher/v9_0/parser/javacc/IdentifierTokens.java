@@ -116,6 +116,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.NOWAIT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.NULL;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.OF;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ON;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ONLY;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.OPTIONAL;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.OPTIONS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.OR;
@@ -292,6 +293,7 @@ public class IdentifierTokens
             NULL,
             OF,
             ON,
+            ONLY,
             OPTIONS,
             OPTIONAL,
             OR,

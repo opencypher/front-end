@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.ConstraintVersion1
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
@@ -254,6 +255,11 @@ object Additions {
       // REVOKE IMPERSONATE (name) ON DBMS TO role
       case p@RevokePrivilege(DbmsPrivilege(ImpersonateUserAction), _, _, _, _) =>
         throw cypherExceptionFactory.syntaxException("IMPERSONATE privilege is not supported in this Cypher version.", p.position)
+
+      // ALTER DATABASE
+      case a: AlterDatabase =>
+        throw cypherExceptionFactory.syntaxException("The ALTER DATABASE command is not supported in this Cypher version.", a.position)
+
     }
 
     private def hasRangeOptions(options: Options): Boolean = options match {

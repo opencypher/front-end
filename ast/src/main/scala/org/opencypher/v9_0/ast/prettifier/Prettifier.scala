@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast.prettifier
 
+import org.opencypher.v9_0.ast.Access
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
@@ -26,6 +27,7 @@ import org.opencypher.v9_0.ast.AllNodes
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
 import org.opencypher.v9_0.ast.AllRelationships
+import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
@@ -123,6 +125,8 @@ import org.opencypher.v9_0.ast.PropertiesResource
 import org.opencypher.v9_0.ast.PropertyResource
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.QueryPart
+import org.opencypher.v9_0.ast.ReadOnlyAccess
+import org.opencypher.v9_0.ast.ReadWriteAccess
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipByIds
 import org.opencypher.v9_0.ast.RelationshipByParameter
@@ -368,6 +372,15 @@ case class Prettifier(
         case None => ("", "")
       }
     }
+
+    def getAccessString(access: Access): String = {
+      val accessValue = access match {
+        case ReadOnlyAccess => "READ ONLY"
+        case ReadWriteAccess => "READ WRITE"
+      }
+      "SET ACCESS " + accessValue
+    }
+
     val commandString = adminCommand match {
 
       // Probably not needed for production since it is rewritten away by the deprecation rewriter
@@ -532,6 +545,11 @@ case class Prettifier(
           case (false, DumpData) => s"${x.name} ${Prettifier.escapeName(dbName)} DUMP DATA${waitUntilComplete.name}"
           case (true, DumpData) => s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS DUMP DATA${waitUntilComplete.name}"
         }
+
+      case x @ AlterDatabase(dbName, ifExists, access) =>
+        val accessString = getAccessString(access)
+        val maybeIfExists = if(ifExists) " IF EXISTS" else ""
+        s"${x.name} ${Prettifier.escapeName(dbName)}$maybeIfExists $accessString"
 
       case x @ StartDatabase(dbName, waitUntilComplete) =>
         s"${x.name} ${Prettifier.escapeName(dbName)}${waitUntilComplete.name}"

@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast.generator
 
+import org.opencypher.v9_0.ast.Access
 import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
@@ -39,6 +40,7 @@ import org.opencypher.v9_0.ast.AllRoleActions
 import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
+import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -170,6 +172,8 @@ import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.QueryPart
 import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.ReadAction
+import org.opencypher.v9_0.ast.ReadOnlyAccess
+import org.opencypher.v9_0.ast.ReadWriteAccess
 import org.opencypher.v9_0.ast.RelExistsConstraints
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
 import org.opencypher.v9_0.ast.RelationshipQualifier
@@ -1703,6 +1707,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     wait <- _waitUntilComplete
   } yield DropDatabase(dbName, ifExists, additionalAction, wait)(pos)
 
+  def _alterDatabase: Gen[AlterDatabase] = for {
+    dbName <- _nameAsEither
+    ifExists <- boolean
+    access <- _access
+  } yield AlterDatabase(dbName, ifExists, access)(pos)
+
   def _startDatabase: Gen[StartDatabase] = for {
     dbName <- _nameAsEither
     wait <- _waitUntilComplete
@@ -1717,9 +1727,14 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     _showDatabase,
     _createDatabase,
     _dropDatabase,
+    _alterDatabase,
     _startDatabase,
     _stopDatabase
   )
+
+  def _access: Gen[Access] = for {
+    access <- oneOf(ReadOnlyAccess, ReadWriteAccess)
+  } yield access
 
   def _waitUntilComplete: Gen[WaitUntilComplete] = for {
     timeout <- posNum[Long]
