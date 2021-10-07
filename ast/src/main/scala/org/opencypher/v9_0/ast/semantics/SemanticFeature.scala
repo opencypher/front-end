@@ -23,9 +23,6 @@ sealed trait FeatureToString {
 }
 
 object SemanticFeature {
-  case object CorrelatedSubQueries extends SemanticFeature with FeatureToString {
-    override def name: String = "correlated subqueries"
-  }
   case object MultipleDatabases extends SemanticFeature with FeatureToString {
     override def name: String = "multiple databases"
   }
@@ -40,7 +37,6 @@ object SemanticFeature {
   case object WithInitialQuerySignature extends SemanticFeature
 
   private val allSemanticFeatures = Set(
-    CorrelatedSubQueries,
     MultipleDatabases,
     MultipleGraphs,
     UseGraphSelector,

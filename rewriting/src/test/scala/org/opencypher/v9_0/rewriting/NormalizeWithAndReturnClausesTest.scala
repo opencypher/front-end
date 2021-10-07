@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.semantics.SemanticFeature.CorrelatedSubQueries
 import org.opencypher.v9_0.ast.semantics.SemanticFeature.MultipleDatabases
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
@@ -911,7 +910,7 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
     val result = endoRewrite(original)
     assert(result === expected, s"\n$originalQuery\nshould be rewritten to:\n$expectedQuery\nbut was rewritten to:${prettifier.asString(result.asInstanceOf[Statement])}")
 
-    val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases, CorrelatedSubQueries))
+    val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases))
     val errors = checkResult.errors.map(error => s"${error.msg} (${error.position})").toSet
     semanticErrors.foreach(msg =>
       assert(errors contains msg, s"Error '$msg' not produced (errors: $errors)}")
@@ -925,7 +924,7 @@ class NormalizeWithAndReturnClausesTest extends CypherFunSuite with RewriteTest 
     val result = endoRewrite(original)
     assert(result === expected, s"\n$originalQuery\nshould be rewritten to:\n$expectedQuery\nbut was rewritten to:${prettifier.asString(result.asInstanceOf[Statement])}")
 
-    val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases, CorrelatedSubQueries))
+    val checkResult = result.semanticCheck(SemanticState.clean.withFeatures(MultipleDatabases))
     assert(checkResult.errors === Seq())
     notificationLogger.notifications should equal(expectedWarnings)
   }
