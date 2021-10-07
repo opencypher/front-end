@@ -32,14 +32,19 @@ import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateTextNodeIndex
 import org.opencypher.v9_0.ast.CreateTextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
+import org.opencypher.v9_0.ast.DbmsPrivilege
+import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropIndexOnName
+import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsDoNothing
+import org.opencypher.v9_0.ast.ImpersonateUserAction
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.RangeIndexes
+import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
@@ -238,6 +243,17 @@ object Additions {
       case c: CreateUniquePropertyConstraint if c.constraintVersion == ConstraintVersion2 =>
         throw cypherExceptionFactory.syntaxException("Creating uniqueness constraint using `FOR ... REQUIRE` is not supported in this Cypher version.", c.position)
 
+      // GRANT IMPERSONATE (name) ON DBMS TO role
+      case p@GrantPrivilege(DbmsPrivilege(ImpersonateUserAction), _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("IMPERSONATE privilege is not supported in this Cypher version.", p.position)
+
+      // DENY IMPERSONATE (name) ON DBMS TO role
+      case p@DenyPrivilege(DbmsPrivilege(ImpersonateUserAction), _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("IMPERSONATE privilege is not supported in this Cypher version.", p.position)
+
+      // REVOKE IMPERSONATE (name) ON DBMS TO role
+      case p@RevokePrivilege(DbmsPrivilege(ImpersonateUserAction), _, _, _, _) =>
+        throw cypherExceptionFactory.syntaxException("IMPERSONATE privilege is not supported in this Cypher version.", p.position)
     }
 
     private def hasRangeOptions(options: Options): Boolean = options match {
