@@ -68,6 +68,7 @@ import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedParameterSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
+import org.opencypher.v9_0.util.DeprecatedPeriodicCommit
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.DeprecatedSelfReferenceToVariableInCreatePattern
@@ -327,6 +328,12 @@ object Deprecations {
         Deprecation(
           Some(Ref(c) -> c.source),
           Some(DeprecatedCatalogKeywordForAdminCommandSyntax(c.position))
+        )
+
+      case p: ast.PeriodicCommitHint =>
+        Deprecation(
+          None,
+          Some(DeprecatedPeriodicCommit(p.position))
         )
     }
 
