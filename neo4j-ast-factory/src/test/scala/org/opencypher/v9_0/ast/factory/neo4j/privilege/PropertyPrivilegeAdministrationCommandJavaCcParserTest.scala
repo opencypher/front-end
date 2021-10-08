@@ -126,6 +126,7 @@ class PropertyPrivilegeAdministrationCommandJavaCcParserTest extends ParserCompa
         val offset = verb.length + 5
         assertJavaCCException(testName,
           s"""Invalid input 'PROPERTYS': expected
+             |  "DATABASE"
              |  "LABEL"
              |  "PASSWORD"
              |  "PASSWORDS"
@@ -137,6 +138,7 @@ class PropertyPrivilegeAdministrationCommandJavaCcParserTest extends ParserCompa
         val offset = verb.length + 5
         assertJavaCCException(testName,
           s"""Invalid input 'PROPERTIES': expected
+             |  "DATABASE"
              |  "LABEL"
              |  "PASSWORD"
              |  "PASSWORDS"

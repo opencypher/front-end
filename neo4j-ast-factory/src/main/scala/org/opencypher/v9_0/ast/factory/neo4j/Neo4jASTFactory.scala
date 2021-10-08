@@ -42,6 +42,7 @@ import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
 import org.opencypher.v9_0.ast.AlterDatabase
+import org.opencypher.v9_0.ast.AlterDatabaseAction
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -194,6 +195,7 @@ import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
 import org.opencypher.v9_0.ast.SetClause
+import org.opencypher.v9_0.ast.SetDatabaseAccessAction
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
@@ -1465,6 +1467,8 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     case ActionType.DATABASE_MANAGEMENT => AllDatabaseManagementActions
     case ActionType.DATABASE_CREATE => CreateDatabaseAction
     case ActionType.DATABASE_DROP => DropDatabaseAction
+    case ActionType.DATABASE_ALTER => AlterDatabaseAction
+    case ActionType.SET_DATABASE_ACCESS => SetDatabaseAccessAction
     case ActionType.PRIVILEGE_ALL => AllPrivilegeActions
     case ActionType.PRIVILEGE_ASSIGN => AssignPrivilegeAction
     case ActionType.PRIVILEGE_REMOVE => RemovePrivilegeAction

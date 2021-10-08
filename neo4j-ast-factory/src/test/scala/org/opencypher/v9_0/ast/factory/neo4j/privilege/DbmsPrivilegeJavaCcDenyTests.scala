@@ -16,5 +16,5 @@
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 class DbmsPrivilegeJavaCcDenyTests extends DbmsPrivilegeAdministrationCommandJavaCcParserTest {
-  privilegeTests("DENY", "TO")
+  privilegeTests("DENY", "TO", denyDbmsPrivilege)
 }

@@ -16,5 +16,5 @@
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 class DbmsPrivilegeJavaCcRevokeTests extends DbmsPrivilegeAdministrationCommandJavaCcParserTest {
-  privilegeTests("REVOKE", "FROM")
+  privilegeTests("REVOKE", "FROM", revokeDbmsPrivilege)
 }
