@@ -36,6 +36,7 @@ import org.opencypher.v9_0.expressions.functions.Function
 import org.opencypher.v9_0.expressions.functions.Head
 import org.opencypher.v9_0.expressions.functions.IsEmpty
 import org.opencypher.v9_0.expressions.functions.Last
+import org.opencypher.v9_0.expressions.functions.LegacyDistance
 import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Max
 import org.opencypher.v9_0.expressions.functions.Min
@@ -188,6 +189,10 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
           specifyType(CTString, invocation)
 
       case Distance =>
+        checkArgs(invocation, 2) ifOkChain
+          specifyType(CTFloat, invocation)
+
+      case LegacyDistance =>
         checkArgs(invocation, 2) ifOkChain
           specifyType(CTFloat, invocation)
 

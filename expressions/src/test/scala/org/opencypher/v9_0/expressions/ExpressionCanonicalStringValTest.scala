@@ -18,8 +18,8 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.SemanticDirection.BOTH
 import org.opencypher.v9_0.expressions.SemanticDirection.INCOMING
 import org.opencypher.v9_0.expressions.SemanticDirection.OUTGOING
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ExpressionCanonicalStringValTest extends CypherFunSuite {
 
