@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.generator.AstGenerator.boolean
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.MapProjection
-import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.functions.Avg
 import org.opencypher.v9_0.expressions.functions.Collect
 import org.opencypher.v9_0.expressions.functions.Count
@@ -50,7 +49,8 @@ class SemanticAwareAstGenerator(simpleStrings: Boolean = true, allowedVarNames: 
     numArgs = signature.argumentTypes.length
     distinct <- boolean
     args <- listOfN(numArgs, nonAggregatingExpression)
-  } yield FunctionInvocation(Namespace()(pos), function.asFunctionName(pos), distinct, args.toIndexedSeq)(pos)
+    (ns, name) = function.asFunctionName(pos)
+  } yield FunctionInvocation(ns, name, distinct, args.toIndexedSeq)(pos)
 
   def aggregatingExpression: Gen[Expression] =
     frequency(

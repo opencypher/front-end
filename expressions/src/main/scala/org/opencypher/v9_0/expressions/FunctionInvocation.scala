@@ -21,6 +21,8 @@ import org.opencypher.v9_0.util.InputPosition
 object FunctionInvocation {
   def apply(name: FunctionName, argument: Expression)(position: InputPosition): FunctionInvocation =
     FunctionInvocation(Namespace()(position), name, distinct = false, IndexedSeq(argument))(position)
+  def apply(ns: Namespace, name: FunctionName, argument: Expression)(position: InputPosition): FunctionInvocation =
+    FunctionInvocation(ns, name, distinct = false, IndexedSeq(argument))(position)
   def apply(left: Expression, name: FunctionName, right: Expression): FunctionInvocation =
     FunctionInvocation(Namespace()(name.position), name, distinct = false, IndexedSeq(left, right))(name.position)
   def apply(expression: Expression, name: FunctionName): FunctionInvocation =
