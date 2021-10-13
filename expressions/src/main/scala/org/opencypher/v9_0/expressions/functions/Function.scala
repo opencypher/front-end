@@ -66,7 +66,6 @@ object Function {
     Labels,
     Last,
     Left,
-    LegacyDistance,
     Length,
     Linenumber,
     Log,

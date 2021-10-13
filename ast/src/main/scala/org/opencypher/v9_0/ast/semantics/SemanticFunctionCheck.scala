@@ -36,7 +36,6 @@ import org.opencypher.v9_0.expressions.functions.Function
 import org.opencypher.v9_0.expressions.functions.Head
 import org.opencypher.v9_0.expressions.functions.IsEmpty
 import org.opencypher.v9_0.expressions.functions.Last
-import org.opencypher.v9_0.expressions.functions.LegacyDistance
 import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Max
 import org.opencypher.v9_0.expressions.functions.Min
@@ -50,7 +49,6 @@ import org.opencypher.v9_0.expressions.functions.ToBoolean
 import org.opencypher.v9_0.expressions.functions.ToString
 import org.opencypher.v9_0.expressions.functions.UnresolvedFunction
 import org.opencypher.v9_0.expressions.functions.WithinBBox
-import org.opencypher.v9_0.util.DeprecatedFunctionNotification
 import org.opencypher.v9_0.util.LengthOnNonPathNotification
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
@@ -191,15 +189,6 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
 
       case Distance =>
         checkArgs(invocation, 2) ifOkChain
-          specifyType(CTFloat, invocation)
-
-      case LegacyDistance =>
-        def warn = (originalState: SemanticState) => {
-          val newState = originalState.addNotification(DeprecatedFunctionNotification(invocation.position, "distance", "point.distance"))
-          SemanticCheckResult(newState, Seq.empty)
-        }
-
-        warn chain checkArgs(invocation, 2) ifOkChain
           specifyType(CTFloat, invocation)
 
       case WithinBBox =>

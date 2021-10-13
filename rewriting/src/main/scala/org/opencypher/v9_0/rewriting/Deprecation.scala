@@ -35,6 +35,7 @@ import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.NamedPatternPart
+import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
@@ -94,6 +95,9 @@ object Deprecations {
 
   def renameFunctionTo(newName: String): FunctionInvocation => FunctionInvocation =
     f => f.copy(functionName = FunctionName(newName)(f.functionName.position))(f.position)
+
+  def renameFunctionTo(newNamespace: Namespace, newName: String): FunctionInvocation => FunctionInvocation =
+    f => f.copy(namespace = newNamespace, functionName = FunctionName(newName)(f.functionName.position))(f.position)
 
   case object syntacticallyDeprecatedFeaturesIn4_X extends SyntacticDeprecations {
     override val find: PartialFunction[Any, Deprecation] = {
@@ -334,6 +338,13 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedPeriodicCommit(p.position))
+        )
+
+      // distance -> point.distance
+      case f@FunctionInvocation(namespace, FunctionName("distance"), _, _) if namespace.parts.isEmpty =>
+        Deprecation(
+          Some(Ref(f) -> renameFunctionTo(Namespace(List("point"))(f.position), "distance")(f)),
+          Some(DeprecatedFunctionNotification(f.position, "distance", "point.distance"))
         )
     }
 

@@ -70,7 +70,6 @@ import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.containsAggregate
 import org.opencypher.v9_0.expressions.functions
-import org.opencypher.v9_0.expressions.functions.LegacyDistance
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.CartesianProductNotification
 import org.opencypher.v9_0.util.DeprecatedStartNotification
@@ -380,9 +379,7 @@ case class Match(
               expr match {
                 case Property(Variable(id), PropertyKeyName(name)) if id == variable =>
                   acc :+ name
-                case FunctionInvocation(Namespace(List("point")), FunctionName("distance"), _, Seq(Property(Variable(id), PropertyKeyName(name)), _)) if id == variable =>
-                  acc :+ name
-                case FunctionInvocation(Namespace(List()), FunctionName(LegacyDistance.name), _, Seq(Property(Variable(id), PropertyKeyName(name)), _)) if id == variable =>
+                case FunctionInvocation(Namespace(List(point)), FunctionName("distance"), _, Seq(Property(Variable(id), PropertyKeyName(name)), _)) if id == variable && point.equalsIgnoreCase("point") =>
                   acc :+ name
                 case _ =>
                   acc
