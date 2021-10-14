@@ -27,6 +27,7 @@ import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
+import org.opencypher.v9_0.rewriting.rewriters.factories.combineSetProperty
 import org.opencypher.v9_0.rewriting.rewriters.foldConstants
 import org.opencypher.v9_0.rewriting.rewriters.inlineNamedPathsInPatternComprehensions
 import org.opencypher.v9_0.rewriting.rewriters.moveWithPastMatch
@@ -52,6 +53,7 @@ import org.opencypher.v9_0.util.symbols.CypherType
 object ASTRewriter {
 
   private val AccumulatedSteps(orderedSteps, _) = StepSequencer(ListStepAccumulator[StepSequencer.Step with ASTRewriterFactory]()).orderSteps(Set(
+    combineSetProperty,
     expandStar,
     normalizeHasLabelsAndHasType,
     desugarMapProjection,
