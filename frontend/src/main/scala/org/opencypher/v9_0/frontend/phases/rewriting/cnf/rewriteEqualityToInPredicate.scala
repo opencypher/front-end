@@ -16,13 +16,12 @@
 package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.expressions.DeterministicFunctionInvocation
 import org.opencypher.v9_0.expressions.Equals
-import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.Variable
-import org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.EqualityRewrittenToIn
@@ -40,10 +39,9 @@ import org.opencypher.v9_0.util.bottomUp
 case object rewriteEqualityToInPredicate extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
   override def instance(from: BaseState, ignored: BaseContext): Rewriter = bottomUp(Rewriter.lift {
-    // id(a) = value => id(a) IN [value]
-    case predicate@Equals(func@FunctionInvocation(_, _, _, IndexedSeq(idExpr)), idValueExpr)
-      if func.function == functions.Id =>
-      In(func, ListLiteral(Seq(idValueExpr))(idValueExpr.position))(predicate.position)
+    // if f is deterministic: f(a) = value => f(a) IN [value]
+    case predicate@Equals(DeterministicFunctionInvocation(invocation), value) =>
+      In(invocation, ListLiteral(Seq(value))(value.position))(predicate.position)
 
     // Equality between two property lookups should not be rewritten
     case predicate@Equals(_: Property, _: Property) =>
