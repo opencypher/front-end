@@ -191,10 +191,14 @@ import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.User
 import org.opencypher.v9_0.ast.UserAllQualifier
 import org.opencypher.v9_0.ast.UserQualifier
+import org.opencypher.v9_0.ast.UsingAnyIndexType
+import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
+import org.opencypher.v9_0.ast.UsingIndexHintType
 import org.opencypher.v9_0.ast.UsingJoinHint
 import org.opencypher.v9_0.ast.UsingScanHint
+import org.opencypher.v9_0.ast.UsingTextIndexType
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.Yield
@@ -688,8 +692,14 @@ case class Prettifier(
 
     def asString(m: UsingHint): String = {
       m match {
-        case UsingIndexHint(v, l, ps, s) => Seq(
-          s"${INDENT}USING INDEX ", if (s == SeekOnly) "SEEK " else "",
+        case UsingIndexHint(v, l, ps, s, t) => Seq(
+          s"${INDENT}USING ",
+          t match {
+            case UsingAnyIndexType   => "INDEX "
+            case UsingBtreeIndexType => "BTREE INDEX "
+            case UsingTextIndexType  => "TEXT INDEX"
+          },
+          if (s == SeekOnly) "SEEK " else "",
           expr(v), ":", expr(l),
           ps.map(expr(_)).mkString("(", ",", ")")
         ).mkString

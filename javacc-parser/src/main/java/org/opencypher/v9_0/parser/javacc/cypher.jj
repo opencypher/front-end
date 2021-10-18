@@ -51,6 +51,7 @@ import org.opencypher.v9_0.ast.factory.ActionType;
 import org.opencypher.v9_0.ast.factory.ConstraintType;
 import org.opencypher.v9_0.ast.factory.ConstraintVersion;
 import org.opencypher.v9_0.ast.factory.CreateIndexTypes;
+import org.opencypher.v9_0.ast.factory.HintIndexType;
 import org.opencypher.v9_0.ast.factory.ParameterType;
 import org.opencypher.v9_0.ast.factory.ScopeType;
 import org.opencypher.v9_0.ast.factory.ShowCommandFilterTypes;
@@ -1613,7 +1614,6 @@ List<HINT> Hints() :
     boolean seek;
     VARIABLE v;
     Token labelOrRelType;
-    List<String> propNames;
     List<VARIABLE> joinVariables;
     HINT hint;
     List<HINT> hints = null;
@@ -1621,9 +1621,9 @@ List<HINT> Hints() :
 {
     ( t=<USING>
         (
-            <INDEX> { seek = false; } ( LOOKAHEAD( 2 ) <SEEK> { seek = true; } )? v=Variable() labelOrRelType=LabelOrRelType()
-                <LPAREN> propNames=SymbolicNameList1() <RPAREN>
-                { hint = astFactory.usingIndexHint( pos( t ), v, labelOrRelType.image, propNames, seek ); }
+              <INDEX> hint = IndexHintBody( HintIndexType.ANY, pos( t ) )
+            | <BTREE> <INDEX> hint = IndexHintBody( HintIndexType.BTREE, pos( t ) )
+            | <TEXT> <INDEX> hint = IndexHintBody( HintIndexType.TEXT, pos( t ) )
             | <JOIN> <ON> joinVariables=VariableList1() { hint = astFactory.usingJoin( pos( t ), joinVariables ); }
             | <SCAN> v=Variable() labelOrRelType=LabelOrRelType() { hint = astFactory.usingScan( pos( t ), v, labelOrRelType.image ); }
         )
@@ -1637,6 +1637,20 @@ List<HINT> Hints() :
     )*
     {
         return hints;
+    }
+}
+
+HINT IndexHintBody( HintIndexType indexType, POS p ) :
+{
+    boolean seek = false;
+    VARIABLE v;
+    Token labelOrRelType;
+    List<String> propNames;
+}
+{
+    ( LOOKAHEAD( 2 ) <SEEK> { seek = true; } )? v=Variable() labelOrRelType=LabelOrRelType() <LPAREN> propNames=SymbolicNameList1() <RPAREN>
+    {
+        return astFactory.usingIndexHint( p, v, labelOrRelType.image, propNames, seek, indexType);
     }
 }
 
