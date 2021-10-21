@@ -154,6 +154,7 @@ import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.SetPropertyItems
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
@@ -863,6 +864,7 @@ case class Prettifier(
     def asString(s: SetClause): String = {
       val items = s.items.map {
         case SetPropertyItem(prop, exp)                       => s"${expr(prop)} = ${expr(exp)}"
+        case SetPropertyItems(entity, items)                  => items.map(i =>  s"${expr(entity)}.${i._1.name} = ${expr(i._2)}").mkString(", ")
         case SetLabelItem(variable, labels)                   => expr(variable) + labels.map(l => s":${expr(l)}").mkString("")
         case SetIncludingPropertiesFromMapItem(variable, exp) => s"${expr(variable)} += ${expr(exp)}"
         case SetExactPropertiesFromMapItem(variable, exp)     => s"${expr(variable)} = ${expr(exp)}"
