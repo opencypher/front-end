@@ -29,7 +29,7 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
 
   test("should introduce variables into scope") {
     // GIVEN WITH "a" as n
-    val returnItem = AliasedReturnItem(literalString("a"), varFor("n"))_
+    val returnItem = AliasedReturnItem(literalString("a"), varFor("n"))(pos, isAutoAliased = false)
     val listedReturnItems = ReturnItems(includeExisting = false, Seq(returnItem))_
     val withObj = With(distinct = false, listedReturnItems, None, None, None, None)_
 
@@ -45,7 +45,7 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
 
   test("should remove variables from scope") {
     // GIVEN n WITH "a" as X
-    val returnItem = AliasedReturnItem(literalString("a"), varFor("X"))_
+    val returnItem = AliasedReturnItem(literalString("a"), varFor("X"))(pos, isAutoAliased = false)
     val listedReturnItems = ReturnItems(includeExisting = false, Seq(returnItem))_
     val withObj = With(distinct = false, listedReturnItems,  None, None, None, None)_
 
@@ -64,11 +64,11 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
   test("test order by scoping") {
     // GIVEN MATCH n WITH n AS X ORDER BY X.prop1, X.prop2
     val orderBy: OrderBy = OrderBy(Seq(
-      AscSortItem(prop("X", "prop1"))_,
-      AscSortItem(prop("X", "prop2"))_
+      AscSortItem(prop("X", "prop1"))(pos),
+      AscSortItem(prop("X", "prop2"))(pos)
     ))_
 
-    val returnItem = AliasedReturnItem(varFor("n"), varFor("X"))_
+    val returnItem = AliasedReturnItem(varFor("n"), varFor("X"))(pos, isAutoAliased = false)
     val listedReturnItems = ReturnItems(includeExisting = false, Seq(returnItem))_
     val withObj = With(distinct = false, listedReturnItems,  Some(orderBy), None, None, None)_
 
@@ -86,10 +86,10 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
   test("test order by scoping 2") {
     // GIVEN MATCH n WITH n.prop AS introducedVariable ORDER BY introducedVariable + 2
     val orderBy: OrderBy = OrderBy(Seq(
-      AscSortItem(add(varFor("introducedVariable"), literalInt(2)))_
+      AscSortItem(add(varFor("introducedVariable"), literalInt(2)))(pos)
     ))_
 
-    val returnItem = AliasedReturnItem(prop("n", "prop"), varFor("introducedVariable"))_
+    val returnItem = AliasedReturnItem(prop("n", "prop"), varFor("introducedVariable"))(pos, isAutoAliased = false)
     val listedReturnItems = ReturnItems(includeExisting = false, Seq(returnItem))_
     val withObj = With(distinct = false, listedReturnItems,  Some(orderBy), None, None, None)_
 
@@ -111,11 +111,11 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
     ))(pos)
 
     val orderBy: OrderBy = OrderBy(Seq(
-      AscSortItem(prop("n", "foo"))_,
-      AscSortItem(prop("X", "bar"))_
+      AscSortItem(prop("n", "foo"))(pos),
+      AscSortItem(prop("X", "bar"))(pos)
     ))_
 
-    val returnItem = AliasedReturnItem(varFor("m"), varFor("X"))_
+    val returnItem = AliasedReturnItem(varFor("m"), varFor("X"))(pos, isAutoAliased = false)
     val listedReturnItems = ReturnItems(includeExisting = false, Seq(returnItem))_
     val withObj = With(distinct = false, listedReturnItems, Some(orderBy), None, None, Some(where))_
 
@@ -134,10 +134,10 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
   test("test order by scoping & shadowing 2") {
     // GIVEN MATCH n WITH n AS n ORDER BY n + 2
     val orderBy: OrderBy = OrderBy(Seq(
-      AscSortItem(add(varFor("n"), literalInt(2)))_
+      AscSortItem(add(varFor("n"), literalInt(2)))(pos)
     ))_
 
-    val returnItem = AliasedReturnItem(varFor("n"), varFor("n"))_
+    val returnItem = AliasedReturnItem(varFor("n"), varFor("n"))(pos, isAutoAliased = false)
     val listedReturnItems = ReturnItems(includeExisting = false, Seq(returnItem))_
     val withObj = With(distinct = false, listedReturnItems,  Some(orderBy), None, None, None)_
 
@@ -178,12 +178,12 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
   test("Aggregating queries remove variables from scope") {
     // GIVEN MATCH n WITH n.prop as x, count(*) ORDER BY n.bar
     val orderBy: OrderBy = OrderBy(Seq(
-      AscSortItem(prop("n", "bar"))_
+      AscSortItem(prop("n", "bar"))(pos)
     ))_
 
     val returnItems: Seq[AliasedReturnItem] = Seq(
-      AliasedReturnItem(prop("n", "prop"), varFor("x"))_,
-      AliasedReturnItem(CountStar()_, varFor("count"))_
+      AliasedReturnItem(prop("n", "prop"), varFor("x"))(pos, isAutoAliased = false),
+      AliasedReturnItem(CountStar()_, varFor("count"))(pos, isAutoAliased = false)
     )
     val listedReturnItems = ReturnItems(includeExisting = false, returnItems)_
     val withObj = With(distinct = false, listedReturnItems,  Some(orderBy), None, None, None)_
@@ -200,11 +200,11 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
   test("Distinct queries remove variables from scope") {
     // GIVEN MATCH n WITH DISTINCT n.prop as x ORDER BY n.bar
     val orderBy: OrderBy = OrderBy(Seq(
-      AscSortItem(Property(varFor("n"), PropertyKeyName("bar")_)_)_
+      AscSortItem(Property(varFor("n"), PropertyKeyName("bar")_)_)(pos)
     ))_
 
     val returnItems: Seq[AliasedReturnItem] = Seq(
-      AliasedReturnItem(Property(varFor("n"), PropertyKeyName("prop")_)_, varFor("x"))_
+      AliasedReturnItem(Property(varFor("n"), PropertyKeyName("prop")_)_, varFor("x"))(pos, isAutoAliased = false)
     )
     val listedReturnItems = ReturnItems(includeExisting = false, returnItems)_
     val withObj = With(distinct = true, listedReturnItems,  Some(orderBy), None, None, None)_
@@ -221,11 +221,11 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
   test("order by a property that isn't projected") {
     // GIVEN MATCH n WITH n.prop as x ORDER BY n.bar
     val orderBy: OrderBy = OrderBy(Seq(
-      AscSortItem(prop("n", "bar"))_
+      AscSortItem(prop("n", "bar"))(pos)
     ))_
 
     val returnItems: Seq[AliasedReturnItem] = Seq(
-      AliasedReturnItem(prop("n", "prop"), varFor("x"))_
+      AliasedReturnItem(prop("n", "prop"), varFor("x"))(pos, isAutoAliased = false)
     )
     val listedReturnItems = ReturnItems(includeExisting = false, returnItems)_
     val withObj = With(distinct = false, listedReturnItems,  Some(orderBy), None, None, None)_
@@ -241,7 +241,7 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
 
   test("WITH should not care about outer scope") {
     val returnItems: Seq[AliasedReturnItem] = Seq(
-      AliasedReturnItem(literalInt(1), varFor("x"))_
+      AliasedReturnItem(literalInt(1), varFor("x"))(pos, isAutoAliased = false)
     )
     val listedReturnItems = ReturnItems(includeExisting = false, returnItems)_
     val withObj = With(distinct = false, listedReturnItems,  None, None, None, None)_
@@ -260,7 +260,7 @@ class ProjectionClauseTest extends CypherFunSuite with AstConstructionTestSuppor
   test("RETURN should fail to declare variable existing in outer scope") {
     val varPosition = InputPosition(100, 4, 10)
     val returnItems: Seq[AliasedReturnItem] = Seq(
-      AliasedReturnItem(literalInt(1), varFor("x").copy()(varPosition))_
+      AliasedReturnItem(literalInt(1), varFor("x").copy()(varPosition))(pos, isAutoAliased = false)
     )
     val listedReturnItems = ReturnItems(includeExisting = false, returnItems)_
     val returnObj = Return(distinct = false, listedReturnItems,  None, None, None)_

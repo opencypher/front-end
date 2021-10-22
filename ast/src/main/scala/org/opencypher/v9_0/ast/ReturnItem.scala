@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
@@ -23,11 +24,13 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapProjection
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.DeprecatedAmbiguousGroupingNotification
 import org.opencypher.v9_0.util.InputPosition
 
 /**
@@ -100,6 +103,8 @@ sealed trait ReturnItem extends ASTNode with SemanticCheckable {
     val invalid: Option[Expression] = expression.treeFind[Expression] { case _: ExistsSubClause => true }
     invalid.map(exp => SemanticError("The EXISTS subclause is not valid inside a WITH or RETURN clause.", exp.position))
   }
+
+  def stringify(expressionStringifier: ExpressionStringifier): String
 }
 
 case class UnaliasedReturnItem(expression: Expression, inputText: String)(val position: InputPosition) extends ReturnItem {
@@ -109,14 +114,83 @@ case class UnaliasedReturnItem(expression: Expression, inputText: String)(val po
     case _ => None
   }
   val name: String = alias.map(_.name) getOrElse { inputText.trim }
+
+  override def asCanonicalStringVal: String = expression.asCanonicalStringVal
+
+  def stringify(expressionStringifier: ExpressionStringifier): String = expressionStringifier(expression)
 }
 
 object AliasedReturnItem {
-  def apply(v:LogicalVariable):AliasedReturnItem = AliasedReturnItem(v.copyId, v.copyId)(v.position)
+  def apply(v:LogicalVariable):AliasedReturnItem = AliasedReturnItem(v.copyId, v.copyId)(v.position, isAutoAliased = true)
 }
 
 //TODO variable should not be a Variable. A Variable is an expression, and the return item alias isn't
-case class AliasedReturnItem(expression: Expression, variable: LogicalVariable)(val position: InputPosition) extends ReturnItem {
-  val alias = Some(variable)
+case class AliasedReturnItem(expression: Expression, variable: LogicalVariable)(val position: InputPosition, val isAutoAliased: Boolean) extends ReturnItem {
+  val alias: Option[LogicalVariable] = Some(variable)
   val name: String = variable.name
+
+  override def dup(children: Seq[AnyRef]): AliasedReturnItem.this.type =
+      this.copy(children.head.asInstanceOf[Expression], children(1).asInstanceOf[LogicalVariable])(position, isAutoAliased).asInstanceOf[this.type]
+
+  override def asCanonicalStringVal: String = s"${expression.asCanonicalStringVal} AS ${variable.asCanonicalStringVal}"
+
+  def stringify(expressionStringifier: ExpressionStringifier): String = s"${expressionStringifier(expression)} AS ${expressionStringifier(variable)}"
+
+}
+
+object ReturnItems {
+  private val ExprStringifier = ExpressionStringifier(e => e.asCanonicalStringVal)
+
+  def checkAmbiguousGrouping(returnItems: ReturnItems, nameOfClause: String): SemanticCheck = (state: SemanticState) => {
+    val stateWithNotifications = {
+      val aggregationExpressions = returnItems.items.map(_.expression).collect { case expr if expr.containsAggregate => expr }
+
+      if (AmbiguousAggregation.containsDeprecatedAggrExpr(aggregationExpressions, returnItems.items)) {
+        state.addNotification(DeprecatedAmbiguousGroupingNotification(
+          returnItems.position,
+          getAmbiguousNotificationDetails(returnItems.items, nameOfClause)
+        ))
+      } else {
+        state
+      }
+    }
+
+    SemanticCheckResult.success(stateWithNotifications)
+  }
+
+  /**
+   * If possible, creates a notification detail which describes how this query can be rewritten to use an extra `WITH` clause.
+   *
+   * Example:
+   * RETURN n.x + n.y, n.x + n.y + count(*), where n is a variable
+   * ->
+   * WITH n.x + n.y AS grpExpr0 RETURN grpExpr0, grpExpr0 + count(*)
+   *
+   * @param allReturnItems all return items, both grouping keys and expressions which contains aggregation(s).
+   * @param nameOfClause   "RETURN" OR "WHERE"
+   * @return
+   */
+  private def getAmbiguousNotificationDetails(allReturnItems: Seq[ReturnItem],
+                                              nameOfClause: String): Option[String] = {
+
+    val (aggregationItems, allGroupingItems) = allReturnItems.partition(_.expression.containsAggregate)
+    val deprecatedGroupingKeys = AmbiguousAggregation.deprecatedGroupingKeysUsedInAggrExpr(aggregationItems.map(_.expression), allGroupingItems)
+    if (deprecatedGroupingKeys.nonEmpty) {
+      val (withItems, returnItems) = AmbiguousAggregation.getAliasedWithAndReturnItems(allReturnItems)
+      val aggregationExpressions = returnItems.map(_.expression).collect { case expr if expr.containsAggregate => expr }
+
+      if (!AmbiguousAggregation.containsDeprecatedAggrExpr(aggregationExpressions, returnItems)) {
+        val singleDeprecatedGK = deprecatedGroupingKeys.size == 1
+        Some(s"The grouping key${if (singleDeprecatedGK) "" else "s"} " +
+          s"${deprecatedGroupingKeys.map(gk => ExprStringifier(gk.expression)).mkString("`", "`, `", "`")} " +
+          s"${if (singleDeprecatedGK) "is" else "are"} deprecated. Could be rewritten using a `WITH`: " +
+          s"`WITH ${withItems.map(_.stringify(ExprStringifier)).mkString(", ")}" +
+          s" $nameOfClause ${returnItems.map(_.stringify(ExprStringifier)).mkString(", ")}`")
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
 }

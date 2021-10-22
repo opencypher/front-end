@@ -33,11 +33,11 @@ class ProjectionClauseParserTest
   }
 
   test("WITH 1 AS a") {
-    yields(ast.With(ast.ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos)))(pos)))
+    yields(ast.With(ast.ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
   }
 
   test("WITH *, 1 AS a") {
-    yields(ast.With(ast.ReturnItems(includeExisting = true, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos)))(pos)))
+    yields(ast.With(ast.ReturnItems(includeExisting = true, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
   }
 
   test("WITH ") {
@@ -49,11 +49,11 @@ class ProjectionClauseParserTest
   }
 
   test("RETURN 1 AS a") {
-    yields(ast.Return(ast.ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos)))(pos)))
+    yields(ast.Return(ast.ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
   }
 
   test("RETURN *, 1 AS a") {
-    yields(ast.Return(ast.ReturnItems(includeExisting = true, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos)))(pos)))
+    yields(ast.Return(ast.ReturnItems(includeExisting = true, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
   }
 
   test("RETURN ") {

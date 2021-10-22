@@ -26,8 +26,8 @@ class NoDuplicatesInReturnItemsTest extends CypherFunSuite with AstConstructionT
   private val condition: Any => Seq[String] = noDuplicatesInReturnItems
 
   test("happy if the return items do not contain duplicates") {
-    val return1 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))_
-    val return2 = AliasedReturnItem(literalUnsignedInt(42), varFor("b"))_
+    val return1 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))(pos, isAutoAliased = false)
+    val return2 = AliasedReturnItem(literalUnsignedInt(42), varFor("b"))(pos, isAutoAliased = false)
     val return3 = UnaliasedReturnItem(literalUnsignedInt(42), "42")_
     val ast: ReturnItems = ReturnItems(includeExisting = false, Seq(return1, return2, return3))_
 
@@ -35,8 +35,8 @@ class NoDuplicatesInReturnItemsTest extends CypherFunSuite with AstConstructionT
   }
 
   test("unhappy if the return items contains aliased duplicates") {
-    val return1 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))_
-    val return2 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))_
+    val return1 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))(pos, isAutoAliased = false)
+    val return2 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))(pos, isAutoAliased = false)
     val return3 = UnaliasedReturnItem(literalUnsignedInt(42), "42")_
     val ast: ReturnItems = ReturnItems(includeExisting = false, Seq(return1, return2, return3))_
 
@@ -44,7 +44,7 @@ class NoDuplicatesInReturnItemsTest extends CypherFunSuite with AstConstructionT
   }
 
   test("unhappy if the return items contains unaliased duplicates") {
-    val return1 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))_
+    val return1 = AliasedReturnItem(literalUnsignedInt(42), varFor("a"))(pos, isAutoAliased = false)
     val return2 = UnaliasedReturnItem(literalUnsignedInt(42), "42")_
     val return3 = UnaliasedReturnItem(literalUnsignedInt(42), "42")_
     val ast: ReturnItems = ReturnItems(includeExisting = false, Seq(return1, return2, return3))_

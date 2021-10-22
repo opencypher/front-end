@@ -17,4 +17,6 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
 
-case class CountStar()(val position: InputPosition) extends Expression
+case class CountStar()(val position: InputPosition) extends Expression {
+  override def asCanonicalStringVal: String = "count(*)"
+}
