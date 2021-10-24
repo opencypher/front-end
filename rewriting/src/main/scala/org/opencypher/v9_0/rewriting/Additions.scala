@@ -17,10 +17,12 @@ package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterDatabaseAction
+import org.opencypher.v9_0.ast.AlterDatabaseAlias
 import org.opencypher.v9_0.ast.ConstraintVersion1
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
+import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateLookupIndex
@@ -37,6 +39,7 @@ import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DropConstraintOnName
+import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.IfExistsDoNothing
@@ -288,6 +291,14 @@ object Additions {
       case c: TerminateTransactionsClause =>
         throw cypherExceptionFactory.syntaxException("`TERMINATE TRANSACTIONS` is not supported in this Cypher version.", c.position)
 
+      // CREATE ALIAS [name] FOR DATABASE [name]
+      case c@CreateDatabaseAlias(_, _, _) => throw cypherExceptionFactory.syntaxException("Create alias is not supported in this Cypher version.", c.position)
+
+      // ALTER ALIAS [name] FOR SET DATABASE TARGET [name]
+      case c@AlterDatabaseAlias(_, _, _) => throw cypherExceptionFactory.syntaxException("Alter alias is not supported in this Cypher version.", c.position)
+
+      // DROP ALIAS [name] FOR DATABASE
+      case c@DropDatabaseAlias(_, _) => throw cypherExceptionFactory.syntaxException("Drop alias is not supported in this Cypher version.", c.position)
     }
 
     private def hasRangeOptions(options: Options): Boolean = options match {

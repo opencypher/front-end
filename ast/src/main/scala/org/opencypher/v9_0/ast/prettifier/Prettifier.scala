@@ -28,6 +28,7 @@ import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
 import org.opencypher.v9_0.ast.AllRelationships
 import org.opencypher.v9_0.ast.AlterDatabase
+import org.opencypher.v9_0.ast.AlterDatabaseAlias
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
@@ -38,6 +39,7 @@ import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateDatabase
+import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
@@ -66,6 +68,7 @@ import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
+import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.DropNodeKeyConstraint
@@ -558,6 +561,20 @@ case class Prettifier(
 
       case x @ StopDatabase(dbName, waitUntilComplete) =>
         s"${x.name} ${Prettifier.escapeName(dbName)}${waitUntilComplete.name}"
+
+      case x @ CreateDatabaseAlias(aliasName, targetName, ifExistsDo) =>
+        ifExistsDo match {
+          case IfExistsDoNothing | IfExistsInvalidSyntax => s"${x.name} ${Prettifier.escapeName(aliasName)} IF NOT EXISTS FOR DATABASE ${Prettifier.escapeName(targetName)}"
+          case _                                         => s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE ${Prettifier.escapeName(targetName)}"
+        }
+
+      case x @ DropDatabaseAlias(aliasName, ifExists) =>
+        if (ifExists) s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS FOR DATABASE"
+        else s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE"
+
+      case x @ AlterDatabaseAlias(aliasName, targetName, ifExists) =>
+        if (ifExists) s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS SET DATABASE TARGET ${Prettifier.escapeName(targetName)}"
+        else s"${x.name} ${Prettifier.escapeName(aliasName)} SET DATABASE TARGET ${Prettifier.escapeName(targetName)}"
     }
     useString + commandString
   }

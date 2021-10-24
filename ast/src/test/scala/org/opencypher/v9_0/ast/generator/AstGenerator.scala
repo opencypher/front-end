@@ -42,6 +42,7 @@ import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
 import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterDatabaseAction
+import org.opencypher.v9_0.ast.AlterDatabaseAlias
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -60,6 +61,7 @@ import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAction
+import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
@@ -100,6 +102,7 @@ import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAction
+import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexAction
 import org.opencypher.v9_0.ast.DropIndexOnName
@@ -1562,7 +1565,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     ImpersonateUserAction,
     AllUserActions, ShowUserAction, CreateUserAction, RenameUserAction, SetUserStatusAction, SetUserHomeDatabaseAction, SetPasswordsAction, AlterUserAction, DropUserAction,
     AllRoleActions, ShowRoleAction, CreateRoleAction, RenameRoleAction, DropRoleAction, AssignRoleAction, RemoveRoleAction,
-    AllDatabaseManagementActions, CreateDatabaseAction, DropDatabaseAction, AlterDatabaseAction, SetDatabaseAccessAction,
+    AllDatabaseManagementActions, CreateDatabaseAction, DropDatabaseAction,/* AlterDatabaseAction ,*/ SetDatabaseAccessAction,  //TODO: Add these when all generated identifiers are parsed in JavaCC
     AllPrivilegeActions, ShowPrivilegeAction, AssignPrivilegeAction, RemovePrivilegeAction
   )
 
@@ -1773,6 +1776,31 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     timeout <- posNum[Long]
     wait <- oneOf(NoWait, IndefiniteWait, TimeoutAfter(timeout))
   } yield wait
+
+  /* TODO: Add these when all generated identifiers are parsed in JavaCC
+  def _aliasCommands: Gen[AdministrationCommand] = oneOf(
+    _createAlias,
+    _dropAlias,
+    _alterAlias
+  )
+
+  def _createAlias: Gen[CreateDatabaseAlias] = for {
+    aliasName <- _nameAsEither
+    targetName <- _nameAsEither
+    ifExistsDo <- _ifExistsDo
+  } yield CreateDatabaseAlias(aliasName, targetName, ifExistsDo)(pos)
+
+  def _dropAlias: Gen[DropDatabaseAlias] = for {
+    aliasName <- _nameAsEither
+    ifExists <- boolean
+  } yield DropDatabaseAlias(aliasName, ifExists)(pos)
+
+  def _alterAlias: Gen[AlterDatabaseAlias] = for {
+    aliasName <- _nameAsEither
+    targetName <- _nameAsEither
+    ifExists <- boolean
+  } yield AlterDatabaseAlias(aliasName, targetName, ifExists)(pos)
+   */
 
   // Top level administration command
 

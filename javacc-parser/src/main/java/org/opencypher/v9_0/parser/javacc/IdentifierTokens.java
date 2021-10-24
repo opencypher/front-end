@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ACCESS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ACTIVE;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALIAS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALL;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALL_SHORTEST_PATH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALTER;
@@ -165,6 +166,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.STARTS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.STATUS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.STOP;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SUSPENDED;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.TARGET;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.TERMINATE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.TEXT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.THEN;
@@ -199,6 +201,7 @@ public class IdentifierTokens
             //keywords
             ACCESS,
             ACTIVE,
+            ALIAS,
             ALL_SHORTEST_PATH,
             ALL,
             ALTER,
@@ -342,6 +345,7 @@ public class IdentifierTokens
             STATUS,
             STOP,
             SUSPENDED,
+            TARGET,
             TERMINATE,
             TEXT,
             THEN,
