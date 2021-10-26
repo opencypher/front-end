@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
+import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Ands
@@ -341,6 +342,12 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedPeriodicCommit(p.position))
+        )
+
+      case h@ast.UsingIndexHint(_, _, _, _, UsingBtreeIndexType) =>
+        Deprecation(
+          None,
+          Some(DeprecatedBtreeIndexSyntax(h.position))
         )
 
       // distance -> point.distance
