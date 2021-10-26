@@ -93,7 +93,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
     val `match` = Match(optional = false,
       Pattern(Seq(EveryPath(
         RelationshipChain(nodePat(),
-        RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, SemanticDirection.BOTH)(pos),
+        RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, None, SemanticDirection.BOTH)(pos),
         nodePat())(pos)
       )))(pos),
       hints = Seq.empty,
@@ -114,7 +114,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
     val `match` = Match(optional = false,
       Pattern(Seq(EveryPath(
         RelationshipChain(nodePat(),
-          RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, SemanticDirection.BOTH)(pos),
+          RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, None, SemanticDirection.BOTH)(pos),
           nodePat())(pos)
       )))(pos),
       hints = Seq.empty,
@@ -135,7 +135,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
     val `match` = Match(optional = false,
       Pattern(Seq(EveryPath(
         RelationshipChain(nodePat(),
-          RelationshipPattern(Some(varFor("r")), Seq(relTypeName("R")), None, None, SemanticDirection.BOTH)(pos),
+          RelationshipPattern(Some(varFor("r")), Seq(relTypeName("R")), None, None, None, SemanticDirection.BOTH)(pos),
           nodePat())(pos)
       )))(pos),
       hints = Seq.empty,
@@ -154,7 +154,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
     val `match` = Match(optional = false,
       Pattern(Seq(EveryPath(
         RelationshipChain(nodePat(),
-          RelationshipPattern(Some(varFor("r")), Seq(relTypeName("R")), None, Some(mapOfInt("prop" -> 42)), SemanticDirection.BOTH)(pos),
+          RelationshipPattern(Some(varFor("r")), Seq(relTypeName("R")), None, Some(mapOfInt("prop" -> 42)), None, SemanticDirection.BOTH)(pos),
           nodePat())(pos)
       )))(pos),
       hints = Seq.empty,

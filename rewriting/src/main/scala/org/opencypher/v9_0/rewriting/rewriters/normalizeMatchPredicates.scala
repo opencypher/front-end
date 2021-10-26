@@ -51,6 +51,7 @@ object normalizeMatchPredicates extends StepSequencer.Step with ASTRewriterFacto
         PropertyPredicateNormalizer(anonymousVariableNameGenerator),
         LabelPredicateNormalizer,
         NodePatternPredicateNormalizer,
+        RelationshipPatternPredicateNormalizer,
       )
     )
 }

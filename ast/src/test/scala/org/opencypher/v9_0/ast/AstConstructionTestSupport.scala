@@ -76,6 +76,7 @@ import org.opencypher.v9_0.expressions.ProcedureName
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
+import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.ReduceScope
 import org.opencypher.v9_0.expressions.RegexMatch
@@ -393,7 +394,7 @@ trait AstConstructionTestSupport extends CypherTestSupport {
   def patternExpression(nodeVar1: Variable, nodeVar2: Variable): PatternExpression =
     PatternExpression(RelationshipsPattern(RelationshipChain(
       NodePattern(Some(nodeVar1), Seq.empty, None, None)(pos),
-      RelationshipPattern(None, Seq.empty, None, None, BOTH)(pos),
+      RelationshipPattern(None, Seq.empty, None, None, None, BOTH)(pos),
       NodePattern(Some(nodeVar2), Seq.empty, None, None)(pos)
     )(pos))(pos))(Set.empty, "", "")
 
@@ -503,6 +504,9 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def length3_5(argument: Expression): Length3_5 =
     Length3_5(argument)(pos)
+
+  def range(lower: Option[Int], upper: Option[Int]): Range =
+    Range(lower.map(literalUnsignedInt), upper.map(literalUnsignedInt))(pos)
 
   implicit class ExpressionOps(expr: Expression) {
     def as(name: String): ReturnItem = AliasedReturnItem(expr, varFor(name))(pos, isAutoAliased = false)

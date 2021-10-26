@@ -21,10 +21,6 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticChecker
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.rewriting.rewriters.LabelPredicateNormalizer
-import org.opencypher.v9_0.rewriting.rewriters.MatchPredicateNormalizerChain
-import org.opencypher.v9_0.rewriting.rewriters.NodePatternPredicateNormalizer
-import org.opencypher.v9_0.rewriting.rewriters.PropertyPredicateNormalizer
 import org.opencypher.v9_0.rewriting.rewriters.normalizeHasLabelsAndHasType
 import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -47,7 +43,6 @@ class normalizeMatchPredicatesTest extends CypherFunSuite {
 
   private def assertRewrite(originalQuery: String, expectedQuery: String) {
     val original = parseForRewriting(originalQuery)
-    rewriter(SemanticChecker.check(original).state)
     val result = original.endoRewrite(rewriter(SemanticChecker.check(original).state))
     val expected = parseForRewriting(expectedQuery)
     //For the test sake we need to rewrite away HasLabelsOrTypes to HasLabels alse on the expected
@@ -197,5 +192,11 @@ class normalizeMatchPredicatesTest extends CypherFunSuite {
     assertRewrite(
       "MATCH (n WHERE n.prop > 123)-->(m WHERE m.prop < 42 AND m.otherProp = 'hello') WHERE n.prop <> m.prop RETURN n",
       "MATCH (n)-->(m) WHERE n.prop > 123 AND (m.prop < 42 AND m.otherProp = 'hello') AND n.prop <> m.prop RETURN n")
+  }
+
+  test("move single relationship pattern predicate from relationship to WHERE") {
+    assertRewrite(
+      "MATCH (n)-[r WHERE r.prop > 123]->() RETURN r",
+      "MATCH (n)-[r]->() WHERE r.prop > 123 RETURN r")
   }
 }

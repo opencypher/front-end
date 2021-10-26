@@ -56,12 +56,12 @@ import org.opencypher.v9_0.ast.ConstraintVersion0
 import org.opencypher.v9_0.ast.ConstraintVersion1
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
-import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAction
+import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
@@ -97,12 +97,12 @@ import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
-import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAction
 import org.opencypher.v9_0.ast.DropDatabaseAdditionalAction
+import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexAction
 import org.opencypher.v9_0.ast.DropIndexOnName
@@ -709,6 +709,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                                    relTypes: util.List[StringPos[InputPosition]],
                                    pathLength: Option[Range],
                                    properties: Expression,
+                                   predicate: Expression,
                                    legacyTypeSeparator: Boolean): RelationshipPattern = {
     val direction =
       if (left && !right) SemanticDirection.INCOMING
@@ -727,6 +728,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       relTypes.asScala.toList.map(sp => RelTypeName(sp.string)(sp.pos)),
       range,
       Option(properties),
+      Option(predicate),
       direction,
       legacyTypeSeparator)(p)
   }
