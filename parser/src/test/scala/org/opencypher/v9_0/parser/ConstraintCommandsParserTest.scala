@@ -35,7 +35,7 @@ class ConstraintCommandsParserTest extends SchemaCommandsParserTestBase {
           val constraintVersion = if (requireOrAssertString == "REQUIRE") ConstraintVersion2 else ConstraintVersion0
           val constraintVersionOneOrTwo = if (requireOrAssertString == "REQUIRE") ConstraintVersion2 else ConstraintVersion1
 
-          // Create constraint: Without name
+          // Create node key and uniqueness constraint: Without name
           test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY") {
             yields(ast.CreateNodeKeyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), None, ast.IfExistsThrowError, NoOptions, containsOn, constraintVersion))
           }
@@ -139,7 +139,7 @@ class ConstraintCommandsParserTest extends SchemaCommandsParserTestBase {
               OptionsParam(parameter("options", CTMap)), containsOn, constraintVersion))
           }
 
-          // Create constraint: With name
+          // Create node key and uniqueness constraint: With name
 
           test(s"USE neo4j CREATE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY") {
             yields(ast.CreateNodeKeyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), Some("my_constraint"), ast.IfExistsThrowError, NoOptions, containsOn, constraintVersion, Some(use(varFor("neo4j")))))
@@ -237,7 +237,7 @@ class ConstraintCommandsParserTest extends SchemaCommandsParserTestBase {
               Some("my_constraint"), ast.IfExistsThrowError, OptionsMap(Map.empty), containsOn, constraintVersion))
           }
 
-          // Create constraint: Without name
+          // Create existence constraint: Without name
           test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString node.prop IS NOT NULL") {
             yields(ast.CreateNodePropertyExistenceConstraint(varFor("node"), labelName("Label"), prop("node", "prop"), None, ast.IfExistsThrowError, NoOptions, containsOn, constraintVersionOneOrTwo))
           }
@@ -282,7 +282,7 @@ class ConstraintCommandsParserTest extends SchemaCommandsParserTestBase {
             yields(ast.CreateRelationshipPropertyExistenceConstraint(varFor("r"), relTypeName("R"), prop("r", "prop"), None, ast.IfExistsThrowError, OptionsMap(Map.empty), containsOn, constraintVersionOneOrTwo))
           }
 
-          // Create constraint: With name
+          // Create existence constraint: With name
 
           test(s"CREATE OR REPLACE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString node.prop IS NOT NULL") {
             yields(ast.CreateNodePropertyExistenceConstraint(varFor("node"), labelName("Label"), prop("node", "prop"), Some("my_constraint"), ast.IfExistsReplace, NoOptions, containsOn, constraintVersionOneOrTwo))
@@ -466,6 +466,26 @@ class ConstraintCommandsParserTest extends SchemaCommandsParserTestBase {
     failsToParse
   }
 
+  test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE (node.prop) IS NODE KEY") {
+    // fails on second FOR since it doesn't think the first is the name but the keyword
+    failsToParse
+  }
+
+  test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE (node.prop) IS UNIQUE") {
+    // fails on second FOR since it doesn't think the first is the name but the keyword
+    failsToParse
+  }
+
+  test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE node.prop IS NOT NULL") {
+    // fails on second FOR since it doesn't think the first is the name but the keyword
+    failsToParse
+  }
+
+  test("CREATE CONSTRAINT FOR FOR ()-[r:R]-() REQUIRE (r.prop) IS NOT NULL") {
+    // fails on second FOR since it doesn't think the first is the name but the keyword
+    failsToParse
+  }
+
   // Drop constraint
 
   test("DROP CONSTRAINT ON (node:Label) ASSERT (node.prop) IS NODE KEY") {
@@ -532,6 +552,22 @@ class ConstraintCommandsParserTest extends SchemaCommandsParserTestBase {
 
   test("DROP CONSTRAINT ON ()-[r:R]-() ASSERT r.prop IS NOT NULL") {
     failsToParse
+  }
+
+  test("DROP CONSTRAINT ON (node:Label) ASSERT (node.EXISTS) IS NODE KEY") {
+    yields(ast.DropNodeKeyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "EXISTS"))))
+  }
+
+  test("DROP CONSTRAINT ON (node:Label) ASSERT (node.EXISTS) IS UNIQUE") {
+    yields(ast.DropUniquePropertyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "EXISTS"))))
+  }
+
+  test("DROP CONSTRAINT ON (node:Label) ASSERT EXISTS (node.EXISTS)") {
+    yields(ast.DropNodePropertyExistenceConstraint(varFor("node"), labelName("Label"), prop("node", "EXISTS")))
+  }
+
+  test("DROP CONSTRAINT ON ()-[r:R]-() ASSERT EXISTS (r.EXISTS)") {
+    yields(ast.DropRelationshipPropertyExistenceConstraint(varFor("r"), relTypeName("R"), prop("r", "EXISTS")))
   }
 
   test("DROP CONSTRAINT my_constraint") {
