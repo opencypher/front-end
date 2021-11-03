@@ -94,7 +94,7 @@ trait Patterns extends Parser
           MaybeVariable ~~
           RelationshipTypes ~~ MaybeVariableLength ~
           MaybeProperties ~~
-          MaybeWereSubClause ~~
+          MaybeWhereSubClause ~~
         "]"
       | EMPTY ~ push(None) ~ push(MaybeLegacyRelTypes()) ~ push(None) ~ push(None) ~ push(None)
     )
@@ -121,7 +121,7 @@ trait Patterns extends Parser
   )
 
   private def NodePattern: Rule1[expressions.NodePattern] = rule("a node pattern") (
-    group("(" ~~ MaybeVariable ~ MaybeNodeLabels ~ MaybeProperties ~ MaybeWereSubClause ~~ ")") ~~>>
+    group("(" ~~ MaybeVariable ~ MaybeNodeLabels ~ MaybeProperties ~ MaybeWhereSubClause ~~ ")") ~~>>
       { (v, labels, props, where) => expressions.NodePattern(v, labels, props, where)}
     | group(Variable ~ MaybeNodeLabels ~ MaybeProperties)  ~~>>
       (expressions.InvalidNodePattern(_, _, _)) // Here to give nice error messages
@@ -139,7 +139,7 @@ trait Patterns extends Parser
     optional(WS ~ (MapLiteral | Parameter | OldParameter))
   )
 
-  private def MaybeWereSubClause: Rule1[Option[expressions.Expression]] = rule("a WHERE subclause") (
+  private def MaybeWhereSubClause: Rule1[Option[expressions.Expression]] = rule("a WHERE subclause") (
     optional(WS ~ "WHERE" ~ WS ~ Expression)
   )
 }
