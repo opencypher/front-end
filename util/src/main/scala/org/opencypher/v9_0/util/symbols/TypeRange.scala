@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.util.symbols
 
-import scala.language.implicitConversions
 import scala.language.postfixOps
 
 object TypeRange {

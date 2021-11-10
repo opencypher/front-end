@@ -26,7 +26,6 @@ import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.NonEmptyList
 import org.opencypher.v9_0.util.NonEmptyList.IterableConverter
-import org.opencypher.v9_0.util.NonEmptyList.canBuildFrom
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
 
