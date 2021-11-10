@@ -49,7 +49,7 @@ trait CommandHelper extends Parser
   }
 
   def ShowCommandClauses: Rule1[Either[(ast.Yield, Option[ast.Return]), ast.Where]] = rule("YIELD, WHERE") {
-    (Yield ~~ optional(Return)) ~~> ((y, r) => Left(y,r)) |
+    (Yield ~~ optional(Return)) ~~> ((y, r) => Left(y -> r)) |
     (Where ~~>> (where => _ => Right(where)))
   }
 }
