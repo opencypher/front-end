@@ -79,9 +79,6 @@ class ParserComparisonTCKTest extends ParserComparisonTestBase with FunSpecLike 
                     it(s"[$x]\n$query") {
                       withClue(testName) {
                         try {
-                          if(testName.contains("Bound Range")) {
-                            val t = testName
-                          }
                           assertSameAST(query, !positionAcceptanceList.contains(testName))
                         } catch {
                           // Allow withClue to populate the testcase name

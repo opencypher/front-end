@@ -21,6 +21,9 @@ import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.TestName
 import org.scalatest.FunSuiteLike
@@ -51,7 +54,7 @@ class IndexCommandsJavaCcParserTest extends ParserComparisonTestBase with FunSui
 
   // Create index
 
-  test("CREATe INDEX FOR (n1:Person) ON (n2.name)") {
+  test("CrEATe INDEX FOR (n1:Person) ON (n2.name)") {
     assertSameAST(testName)
   }
 
@@ -148,15 +151,20 @@ class IndexCommandsJavaCcParserTest extends ParserComparisonTestBase with FunSui
       }
 
       test(s"CREATE INDEX FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsThrowError, NoOptions, true))
+        assertJavaCCAST(testName,
+          createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+            ast.IfExistsThrowError, NoOptions, true)(defaultPos))
       }
 
       test(s"CREATE INDEX my_index FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), Some("my_index"), ast.IfExistsThrowError, NoOptions, true))
+        assertJavaCCAST(testName,
+          createIndex(List(prop("n2", "name", posN2(testName))), Some("my_index"), posN1(testName),
+            ast.IfExistsThrowError, NoOptions, true)(defaultPos))
       }
 
       test(s"CREATE OR REPLACE INDEX IF NOT EXISTS FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsInvalidSyntax, NoOptions, true))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsInvalidSyntax, NoOptions, true)(defaultPos))
       }
 
       test(s"CREATE INDEX FOR $pattern ON (n2.name) {indexProvider : 'native-btree-1.0'}") {
@@ -257,15 +265,20 @@ class IndexCommandsJavaCcParserTest extends ParserComparisonTestBase with FunSui
       }
 
       test(s"CREATE RANGE INDEX FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsThrowError, NoOptions, false))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsThrowError, NoOptions, false)(defaultPos))
       }
 
       test(s"CREATE RANGE INDEX my_index FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), Some("my_index"), ast.IfExistsThrowError, NoOptions, false))
+        assertJavaCCAST(testName,
+          createIndex(List(prop("n2", "name")), Some("my_index"), pos, ast.IfExistsThrowError, NoOptions, false),
+          comparePosition = false)
       }
 
       test(s"CREATE OR REPLACE RANGE INDEX IF NOT EXISTS FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsInvalidSyntax, NoOptions, false))
+        assertJavaCCAST(testName,
+          createIndex(List(prop("n2", "name")), None, pos, ast.IfExistsInvalidSyntax, NoOptions, false),
+          comparePosition = false)
       }
 
       test(s"CREATE RANGE INDEX FOR $pattern ON (n2.name) {indexProvider : 'range-1.0'}") {
@@ -366,15 +379,18 @@ class IndexCommandsJavaCcParserTest extends ParserComparisonTestBase with FunSui
       }
 
       test(s"CREATE BTREE INDEX FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsThrowError, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsThrowError, NoOptions)(defaultPos))
       }
 
       test(s"CREATE BTREE INDEX my_index FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), Some("my_index"), ast.IfExistsThrowError, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), Some("my_index"), posN1(testName),
+          ast.IfExistsThrowError, NoOptions)(defaultPos))
       }
 
       test(s"CREATE OR REPLACE BTREE INDEX IF NOT EXISTS FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsInvalidSyntax, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsInvalidSyntax, NoOptions)(defaultPos))
       }
 
       test(s"CREATE BTREE INDEX FOR $pattern ON (n2.name) {indexProvider : 'native-btree-1.0'}") {
@@ -670,15 +686,18 @@ class IndexCommandsJavaCcParserTest extends ParserComparisonTestBase with FunSui
       }
 
       test(s"CREATE TEXT INDEX FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsThrowError, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsThrowError, NoOptions)(defaultPos))
       }
 
       test(s"CREATE TEXT INDEX my_index FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), Some("my_index"), ast.IfExistsThrowError, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), Some("my_index"), posN1(testName),
+          ast.IfExistsThrowError, NoOptions)(defaultPos))
       }
 
       test(s"CREATE OR REPLACE TEXT INDEX IF NOT EXISTS FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsInvalidSyntax, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsInvalidSyntax, NoOptions)(defaultPos))
       }
 
       test(s"CREATE TEXT INDEX my_index FOR $pattern ON n2.name, n3.age") {
@@ -783,15 +802,18 @@ class IndexCommandsJavaCcParserTest extends ParserComparisonTestBase with FunSui
       }
 
       test(s"CREATE POINT INDEX FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsThrowError, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsThrowError, NoOptions)(defaultPos))
       }
 
       test(s"CREATE POINT INDEX my_index FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), Some("my_index"), ast.IfExistsThrowError, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), Some("my_index"), posN1(testName),
+          ast.IfExistsThrowError, NoOptions)(defaultPos))
       }
 
       test(s"CREATE OR REPLACE POINT INDEX IF NOT EXISTS FOR $pattern ON n2.name") {
-        assertJavaCCAST(testName, createIndex(List(prop("n2", "name")), None, ast.IfExistsInvalidSyntax, NoOptions))
+        assertJavaCCAST(testName, createIndex(List(prop("n2", "name", posN2(testName))), None, posN1(testName),
+          ast.IfExistsInvalidSyntax, NoOptions)(defaultPos))
       }
 
       test(s"CREATE POINT INDEX my_index FOR $pattern ON n2.name, n3.age") {
@@ -1097,57 +1119,70 @@ class IndexCommandsJavaCcParserTest extends ParserComparisonTestBase with FunSui
 
   // help methods
 
-  type CreateIndexFunction = (List[expressions.Property], Option[String], ast.IfExistsDo, Options) => InputPosition => ast.CreateIndex
+  type CreateIndexFunction = (List[expressions.Property], Option[String], InputPosition, ast.IfExistsDo, Options) => InputPosition => ast.CreateIndex
 
   private def btreeNodeIndex(props: List[expressions.Property],
                              name: Option[String],
+                             varPos: InputPosition,
                              ifExistsDo: ast.IfExistsDo,
                              options: Options): InputPosition => ast.CreateIndex =
-    ast.CreateBtreeNodeIndex(varFor("n1"), labelName("Person"), props, name, ifExistsDo, options)
+    ast.CreateBtreeNodeIndex(Variable("n1")(varPos), LabelName("Person")(increasePos(varPos, 3)), props, name, ifExistsDo, options)
 
   private def btreeRelIndex(props: List[expressions.Property],
                             name: Option[String],
+                            varPos: InputPosition,
                             ifExistsDo: ast.IfExistsDo,
                             options: Options): InputPosition => ast.CreateIndex =
-    ast.CreateBtreeRelationshipIndex(varFor("n1"), relTypeName("R"), props, name, ifExistsDo, options)
+    ast.CreateBtreeRelationshipIndex(Variable("n1")(varPos), RelTypeName("R")(increasePos(varPos, 3)), props, name, ifExistsDo, options)
 
-  type CreateRangeIndexFunction = (List[expressions.Property], Option[String], ast.IfExistsDo, Options, Boolean) => InputPosition => ast.CreateIndex
+  type CreateRangeIndexFunction = (List[expressions.Property], Option[String], InputPosition, ast.IfExistsDo, Options, Boolean) => InputPosition => ast.CreateIndex
 
   private def rangeNodeIndex(props: List[expressions.Property],
                              name: Option[String],
+                             varPos: InputPosition,
                              ifExistsDo: ast.IfExistsDo,
                              options: Options,
                              fromDefault: Boolean): InputPosition => ast.CreateIndex =
-    ast.CreateRangeNodeIndex(varFor("n1"), labelName("Person"), props, name, ifExistsDo, options, fromDefault)
+    ast.CreateRangeNodeIndex(Variable("n1")(varPos), LabelName("Person")(increasePos(varPos, 3)), props, name, ifExistsDo, options, fromDefault)
 
   private def rangeRelIndex(props: List[expressions.Property],
                             name: Option[String],
+                            varPos: InputPosition,
                             ifExistsDo: ast.IfExistsDo,
                             options: Options,
                             fromDefault: Boolean): InputPosition => ast.CreateIndex =
-    ast.CreateRangeRelationshipIndex(varFor("n1"), relTypeName("R"), props, name, ifExistsDo, options, fromDefault)
+    ast.CreateRangeRelationshipIndex(Variable("n1")(varPos), RelTypeName("R")(increasePos(varPos, 3)), props, name, ifExistsDo, options, fromDefault)
 
   private def textNodeIndex(props: List[expressions.Property],
-                             name: Option[String],
-                             ifExistsDo: ast.IfExistsDo,
-                             options: Options): InputPosition => ast.CreateIndex =
-    ast.CreateTextNodeIndex(varFor("n1"), labelName("Person"), props, name, ifExistsDo, options)
-
-  private def textRelIndex(props: List[expressions.Property],
                             name: Option[String],
+                            varPos: InputPosition,
                             ifExistsDo: ast.IfExistsDo,
                             options: Options): InputPosition => ast.CreateIndex =
-    ast.CreateTextRelationshipIndex(varFor("n1"), relTypeName("R"), props, name, ifExistsDo, options)
+    ast.CreateTextNodeIndex(Variable("n1")(varPos), LabelName("Person")(increasePos(varPos, 3)), props, name, ifExistsDo, options)
+
+  private def textRelIndex(props: List[expressions.Property],
+                           name: Option[String],
+                           varPos: InputPosition,
+                           ifExistsDo: ast.IfExistsDo,
+                           options: Options): InputPosition => ast.CreateIndex =
+    ast.CreateTextRelationshipIndex(Variable("n1")(varPos), RelTypeName("R")(increasePos(varPos, 3)), props, name, ifExistsDo, options)
 
   private def pointNodeIndex(props: List[expressions.Property],
                              name: Option[String],
+                             varPos: InputPosition,
                              ifExistsDo: ast.IfExistsDo,
                              options: Options): InputPosition => ast.CreateIndex =
-    ast.CreatePointNodeIndex(varFor("n1"), labelName("Person"), props, name, ifExistsDo, options)
+    ast.CreatePointNodeIndex(Variable("n1")(varPos), LabelName("Person")(increasePos(varPos, 3)), props, name, ifExistsDo, options)
 
   private def pointRelIndex(props: List[expressions.Property],
                             name: Option[String],
+                            varPos: InputPosition,
                             ifExistsDo: ast.IfExistsDo,
-                            options: Options): InputPosition => ast.CreateIndex =
-    ast.CreatePointRelationshipIndex(varFor("n1"), relTypeName("R"), props, name, ifExistsDo, options)
+                            options: Options): InputPosition => ast.CreateIndex = {
+    ast.CreatePointRelationshipIndex(Variable("n1")(varPos), RelTypeName("R")(increasePos(varPos, 3)), props, name, ifExistsDo, options)
+  }
+
+  private def pos(offset: Int): InputPosition = (1, offset + 1, offset)
+  private def posN1(query: String): InputPosition = pos(query.indexOf("n1"))
+  private def posN2(query: String): InputPosition = pos(query.indexOf("n2"))
 }

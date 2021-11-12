@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.AllFunctions
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.CurrentUser
+import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.User
 import org.opencypher.v9_0.ast.UserDefinedFunctions
@@ -36,27 +37,28 @@ class ShowFunctionCommandJavaCcParserTest extends ParserComparisonTestBase with 
     ).foreach { case (typeString, functionType) =>
 
       test(s"SHOW $typeString $funcKeyword") {
-        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, None, None, hasYield = false)(pos)))
+        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, None, None, hasYield = false)(defaultPos)))
       }
 
       test(s"SHOW $typeString $funcKeyword EXECUTABLE") {
-        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(CurrentUser), None, hasYield = false)(pos)))
+        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(CurrentUser), None, hasYield = false)(defaultPos)))
       }
 
       test(s"SHOW $typeString $funcKeyword EXECUTABLE BY CURRENT USER") {
-        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(CurrentUser), None, hasYield = false)(pos)))
+        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(CurrentUser), None, hasYield = false)(defaultPos)))
       }
 
       test(s"SHOW $typeString $funcKeyword EXECUTABLE BY user") {
-        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(User("user")), None, hasYield = false)(pos)))
+        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(User("user")), None, hasYield = false)(defaultPos)))
       }
 
       test(s"SHOW $typeString $funcKeyword EXECUTABLE BY CURRENT") {
-        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(User("CURRENT")), None, hasYield = false)(pos)))
+        assertJavaCCAST(testName, query(ShowFunctionsClause(functionType, Some(User("CURRENT")), None, hasYield = false)(defaultPos)))
       }
 
       test(s"USE db SHOW $typeString $funcKeyword") {
-        assertJavaCCAST(testName, query(use(varFor("db")), ShowFunctionsClause(functionType, None, None, hasYield = false)(pos)))
+        assertJavaCCAST(testName, query(use(varFor("db")), ShowFunctionsClause(functionType, None, None, hasYield = false)(defaultPos)),
+          comparePosition = false)
       }
 
     }
@@ -65,49 +67,53 @@ class ShowFunctionCommandJavaCcParserTest extends ParserComparisonTestBase with 
   // Filtering tests
 
   test("SHOW FUNCTION WHERE name = 'my.func'") {
-    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, Some(where(equals(varFor("name"), literalString("my.func")))), hasYield = false)(pos)))
+    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, Some(where(equals(varFor("name"), literalString("my.func")))), hasYield = false)(defaultPos)),
+      comparePosition = false)
   }
 
   test("SHOW FUNCTIONS YIELD description") {
-    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("description")))))
+    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, None, hasYield = true)(defaultPos),
+      yieldClause(ReturnItems(includeExisting = false, Seq(variableReturnItem("description", (1, 22, 21))))(1, 22, 21))))
   }
 
   test("SHOW USER DEFINED FUNCTIONS EXECUTABLE BY user YIELD *") {
-    assertJavaCCAST(testName, query(ShowFunctionsClause(UserDefinedFunctions, Some(User("user")), None, hasYield = true)(pos), yieldClause(returnAllItems)))
+    assertJavaCCAST(testName, query(ShowFunctionsClause(UserDefinedFunctions, Some(User("user")), None, hasYield = true)(defaultPos), yieldClause(returnAllItems))
+      , comparePosition = false)
   }
 
   test("SHOW FUNCTIONS YIELD * ORDER BY name SKIP 2 LIMIT 5") {
-    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, None, hasYield = true)(pos),
+    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, None, hasYield = true)(defaultPos),
       yieldClause(returnAllItems, Some(orderBy(sortItem(varFor("name")))), Some(skip(2)), Some(limit(5)))
-    ))
+    ), comparePosition = false)
   }
 
   test("USE db SHOW BUILT IN FUNCTIONS YIELD name, description AS pp WHERE pp < 50.0 RETURN name") {
     assertJavaCCAST(testName, query(
       use(varFor("db")),
-      ShowFunctionsClause(BuiltInFunctions, None, None, hasYield = true)(pos),
+      ShowFunctionsClause(BuiltInFunctions, None, None, hasYield = true)(defaultPos),
       yieldClause(returnItems(variableReturnItem("name"), aliasedReturnItem("description", "pp")),
         where = Some(where(lessThan(varFor("pp"), literalFloat(50.0))))),
       return_(variableReturnItem("name"))
-    ))
+    ), comparePosition = false)
   }
 
   test("USE db SHOW FUNCTIONS EXECUTABLE YIELD name, description AS pp ORDER BY pp SKIP 2 LIMIT 5 WHERE pp < 50.0 RETURN name") {
     assertJavaCCAST(testName, query(
       use(varFor("db")),
-      ShowFunctionsClause(AllFunctions, Some(CurrentUser), None, hasYield = true)(pos),
+      ShowFunctionsClause(AllFunctions, Some(CurrentUser), None, hasYield = true)(defaultPos),
       yieldClause(returnItems(variableReturnItem("name"), aliasedReturnItem("description", "pp")),
         Some(orderBy(sortItem(varFor("pp")))),
         Some(skip(2)),
         Some(limit(5)),
         Some(where(lessThan(varFor("pp"), literalFloat(50.0))))),
       return_(variableReturnItem("name"))
-    ))
+    ), comparePosition = false)
   }
 
   test("SHOW ALL FUNCTIONS YIELD name AS FUNCTION, mode AS OUTPUT") {
-    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, None, hasYield = true)(pos),
-      yieldClause(returnItems(aliasedReturnItem("name", "FUNCTION"), aliasedReturnItem("mode", "OUTPUT")))))
+    assertJavaCCAST(testName, query(ShowFunctionsClause(AllFunctions, None, None, hasYield = true)(defaultPos),
+      yieldClause(returnItems(aliasedReturnItem("name", "FUNCTION"), aliasedReturnItem("mode", "OUTPUT")))),
+      comparePosition = false)
   }
 
   // Negative tests
