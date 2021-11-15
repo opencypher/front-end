@@ -159,7 +159,6 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
       withScopedState(clauseCheck(clauses)) chain
       checkOrder(clauses) chain
       checkNoCallInTransactionsAfterWriteClause(clauses) chain
-      checkIndexHints(clauses) chain
       checkInputDataStream(clauses) chain
       recordCurrentScope(this)
 
@@ -216,16 +215,6 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  private def checkIndexHints(clauses: Seq[Clause]): SemanticCheck = s => {
-    val hints = clauses.collect { case m: Match => m.hints }.flatten
-    val hasStartClause = clauses.exists(_.isInstanceOf[Start])
-    if (hints.nonEmpty && hasStartClause) {
-      SemanticCheckResult.error(s, SemanticError("Cannot use planner hints with start clause", hints.head.position))
-    } else {
-      SemanticCheckResult.success(s)
-    }
-  }
-
   private def checkStandaloneCall(clauses: Seq[Clause]): SemanticCheck = s => {
     clauses match {
       case Seq(_: UnresolvedCall, where: With) =>
@@ -249,10 +238,6 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     val sequenceErrors = clauses.sliding(2).foldLeft(Vector.empty[SemanticError]) {
       case (semanticErrors, pair) =>
         val optError = pair match {
-          case Seq(_: With, _: Start) =>
-            None
-          case Seq(clause, start: Start) =>
-            Some(SemanticError(s"WITH is required between ${clause.name} and ${start.name}", clause.position))
           case Seq(match1: Match, match2: Match) if match1.optional && !match2.optional =>
             Some(SemanticError(s"${match2.name} cannot follow OPTIONAL ${match1.name} (perhaps use a WITH clause between them)", match2.position))
           case Seq(clause: Return, _) =>

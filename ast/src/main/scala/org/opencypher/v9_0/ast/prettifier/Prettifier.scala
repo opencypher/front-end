@@ -176,7 +176,6 @@ import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.ShowUsersPrivileges
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
-import org.opencypher.v9_0.ast.Start
 import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
@@ -660,7 +659,6 @@ case class Prettifier(
       case m: Merge     => asString(m)
       case l: LoadCSV   => asString(l)
       case f: Foreach   => asString(f)
-      case s: Start     => asString(s)
       case c =>
         val ext = extension.asString(this)
         ext.applyOrElse(c, fallback)
@@ -916,24 +914,6 @@ case class Prettifier(
       val list = expr(foreach.expression)
       val updates = foreach.updates.map(dispatch).mkString(s"$NL  ", s"$NL  ", NL)
       s"${INDENT}FOREACH ( $varName IN $list |$updates)"
-    }
-
-    def asString(start: Start): String = {
-      val startItems =
-        start.items.map {
-          case AllNodes(v)                                               => s"${expr(v)} = NODE( * )"
-          case NodeByIds(v, ids)                                         => s"${expr(v)} = NODE( ${ids.map(expr(_)).mkString(", ")} )"
-          case NodeByParameter(v, param: Parameter)                      => s"${expr(v)} = NODE( ${expr(param)} )"
-          case NodeByParameter(v, param: ParameterWithOldSyntax)         => s"${expr(v)} = NODE( ${expr(param)} )"
-          case AllRelationships(v)                                       => s"${expr(v)} = RELATIONSHIP( * )"
-          case RelationshipByIds(v, ids)                                 => s"${expr(v)} = RELATIONSHIP( ${ids.map(expr(_)).mkString(", ")} )"
-          case RelationshipByParameter(v, param: Parameter)              => s"${expr(v)} = RELATIONSHIP( ${expr(param)} )"
-          case RelationshipByParameter(v, param: ParameterWithOldSyntax) => s"${expr(v)} = RELATIONSHIP( ${expr(param)} )"
-        }
-
-      val ind = indented()
-      val where = start.where.map(ind.asString).map(asNewLine).getOrElse("")
-      s"${INDENT}START ${startItems.mkString(s",$NL      ")}$where"
     }
   }
 }
