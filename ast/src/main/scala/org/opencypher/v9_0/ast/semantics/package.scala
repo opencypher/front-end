@@ -18,6 +18,7 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.symbols.TypeSpec
 
 import scala.language.implicitConversions
+import scala.IterableOnce
 
 package object semantics {
 
@@ -72,13 +73,13 @@ package object semantics {
   // Allows folding a semantic checking func over a collection
   implicit def optionSemanticChecking[A](option: Option[A]): OptionSemanticChecking[A] = new OptionSemanticChecking(option)
 
-  implicit def traversableOnceSemanticChecking[A](traversable: TraversableOnce[A]): TraversableOnceSemanticChecking[A] = new TraversableOnceSemanticChecking(traversable)
+  implicit def traversableOnceSemanticChecking[A](traversable: IterableOnce[A]): TraversableOnceSemanticChecking[A] = new TraversableOnceSemanticChecking(traversable)
 
   // Allows calling semanticCheck on an optional SemanticCheckable object
   implicit def semanticCheckableOption[A <: SemanticCheckable](option: Option[A]): SemanticCheckableOption[A] = new SemanticCheckableOption(option)
 
   // Allows calling semanticCheck on a traversable sequence of SemanticCheckable objects
-  implicit def semanticCheckableTraversableOnce[A <: SemanticCheckable](traversable: TraversableOnce[A]): SemanticCheckableTraversableOnce[A] = new SemanticCheckableTraversableOnce(traversable)
+  implicit def semanticCheckableTraversableOnce[A <: SemanticCheckable](traversable: IterableOnce[A]): SemanticCheckableTraversableOnce[A] = new SemanticCheckableTraversableOnce(traversable)
 
   implicit final class RichSemanticCheck(val check: SemanticCheck) extends AnyVal {
 

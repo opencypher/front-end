@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
+import scala.IterableOnce
 
 object SemanticCheckResult {
   val success: SemanticCheck = SemanticCheckResult(_, Vector())
@@ -30,7 +31,7 @@ class OptionSemanticChecking[A](val option: Option[A]) extends AnyVal {
     option.fold(SemanticCheckResult.success)(check)
 }
 
-class TraversableOnceSemanticChecking[A](val traversable: TraversableOnce[A]) extends AnyVal {
+class TraversableOnceSemanticChecking[A](val traversable: IterableOnce[A]) extends AnyVal {
   def foldSemanticCheck(check: A => SemanticCheck): SemanticCheck = state => traversable.foldLeft(SemanticCheckResult.success(state)) {
     (r1, o) =>
       val r2 = check(o)(r1.state)
@@ -66,6 +67,6 @@ class SemanticCheckableOption[A <: SemanticCheckable](val option: Option[A]) ext
   def semanticCheck: SemanticCheck = option.fold(SemanticCheckResult.success) { _.semanticCheck }
 }
 
-class SemanticCheckableTraversableOnce[A <: SemanticCheckable](val traversable: TraversableOnce[A]) extends AnyVal {
+class SemanticCheckableTraversableOnce[A <: SemanticCheckable](val traversable: IterableOnce[A]) extends AnyVal {
   def semanticCheck: SemanticCheck = traversable.foldSemanticCheck { _.semanticCheck }
 }

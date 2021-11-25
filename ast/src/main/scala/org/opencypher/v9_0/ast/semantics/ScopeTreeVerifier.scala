@@ -17,7 +17,6 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.util.Ref
 
-import scala.compat.Platform.EOL
 
 object ScopeTreeVerifier {
   def verify(root: Scope): Seq[String] = {
@@ -25,7 +24,7 @@ object ScopeTreeVerifier {
       scope =>
         scope.symbolTable.collect {
           case (name, symbol) if name != symbol.name =>
-            s"'$name' points to symbol with different name '$symbol' in scope #${Ref(scope).toIdString}. Scope tree:$EOL$root"
+            s"'$name' points to symbol with different name '$symbol' in scope #${Ref(scope).toIdString}. Scope tree:${System.lineSeparator}$root"
         }
     }
     localSymbolTableIssues
