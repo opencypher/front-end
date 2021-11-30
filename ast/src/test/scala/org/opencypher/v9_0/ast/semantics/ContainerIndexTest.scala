@@ -19,12 +19,14 @@ import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
 import org.opencypher.v9_0.expressions.DummyExpression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
+import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTNode
+import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.TypeSpec
 
@@ -33,6 +35,8 @@ class ContainerIndexTest extends SemanticFunSuite {
   private val dummyString = DummyExpression(CTString)
   private val dummyInteger = DummyExpression(CTInteger)
   private val dummyNode = DummyExpression(CTNode)
+  private val dummyRelationship = DummyExpression(CTRelationship)
+  private val dummyMap = DummyExpression(CTMap)
   private val dummyAny = DummyExpression(CTAny)
   private val dummyList = DummyExpression(CTList(CTNode) | CTList(CTString))
 
@@ -88,14 +92,57 @@ class ContainerIndexTest extends SemanticFunSuite {
     )(DummyPosition(4))
 
     val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
-    result.errors should equal(Seq(SemanticError("Type mismatch: expected Integer but was Float", index.idx.position)))
+    result.errors should equal(Seq(SemanticError("Type mismatch: list index must be given as Integer, but was Float", index.idx.position)))
   }
 
-  test("should raise error if looking up not from a container") {
+  test("should raise error if indexing list by string") {
+    val index = ContainerIndex(dummyList,
+      StringLiteral("1.3")(DummyPosition(5))
+    )(DummyPosition(4))
+
+    val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
+    result.errors should equal(Seq(SemanticError("Type mismatch: list index must be given as Integer, but was String", index.idx.position)))
+  }
+
+  test("should raise error if indexing map by int") {
+    val index = ContainerIndex(dummyMap,
+      SignedDecimalIntegerLiteral("1")(DummyPosition(5))
+    )(DummyPosition(4))
+
+    val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
+    result.errors should equal(Seq(SemanticError("Type mismatch: map key must be given as String, but was Integer", index.idx.position)))
+  }
+
+  test("should raise error if indexing node by int") {
+    val index = ContainerIndex(dummyNode,
+      SignedDecimalIntegerLiteral("1")(DummyPosition(5))
+    )(DummyPosition(4))
+
+    val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
+    result.errors should equal(Seq(SemanticError("Type mismatch: node or relationship property key must be given as String, but was Integer", index.idx.position)))
+  }
+
+  test("should raise error if indexing relationship by int") {
+    val index = ContainerIndex(dummyRelationship,
+      SignedDecimalIntegerLiteral("1")(DummyPosition(5))
+    )(DummyPosition(4))
+
+    val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
+    result.errors should equal(Seq(SemanticError("Type mismatch: node or relationship property key must be given as String, but was Integer", index.idx.position)))
+  }
+
+  test("should raise error if looking up not from a container, with int") {
     val index = ContainerIndex(dummyInteger, dummyInteger)(DummyPosition(10))
 
     val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
     result.errors should equal(Seq(SemanticError("Type mismatch: expected List<T> but was Integer", index.idx.position)))
+  }
+
+  test("should raise error if looking up not from a container, with string") {
+    val index = ContainerIndex(dummyInteger, dummyString)(DummyPosition(10))
+
+    val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
+    result.errors should equal(Seq(SemanticError("Type mismatch: expected Map, Node or Relationship but was Integer", index.idx.position)))
   }
 
   private def assertIsList(spec: TypeSpec) = {
