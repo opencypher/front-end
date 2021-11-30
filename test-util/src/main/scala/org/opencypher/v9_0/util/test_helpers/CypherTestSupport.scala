@@ -17,6 +17,6 @@ package org.opencypher.v9_0.util.test_helpers
 
 // Inherited by test mixin classes that need to manage resources
 trait CypherTestSupport {
-  protected def initTest() {}
-  protected def stopTest() {}
+  protected def initTest(): Unit = {}
+  protected def stopTest(): Unit = {}
 }

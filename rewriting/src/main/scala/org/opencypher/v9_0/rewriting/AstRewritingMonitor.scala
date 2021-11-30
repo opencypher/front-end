@@ -16,6 +16,6 @@
 package org.opencypher.v9_0.rewriting
 
 trait AstRewritingMonitor {
-  def abortedRewriting(obj: AnyRef)
-  def abortedRewritingDueToLargeDNF(obj: AnyRef)
+  def abortedRewriting(obj: AnyRef): Unit
+  def abortedRewritingDueToLargeDNF(obj: AnyRef): Unit
 }
