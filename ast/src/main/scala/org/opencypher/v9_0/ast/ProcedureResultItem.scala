@@ -46,6 +46,6 @@ case class ProcedureResultItem(output: Option[ProcedureOutput], variable: Logica
   def semanticCheck(types: Map[String, CypherType]): SemanticCheck =
     types
       .get(outputName)
-      .map { typ => declareVariable(variable, typ): SemanticCheck }
+      .map { typ => declareVariable(variable, typ.covariant): SemanticCheck }
       .getOrElse(error(s"Unknown procedure output: `$outputName`", position))
 }
