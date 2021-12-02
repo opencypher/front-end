@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTMap
@@ -34,6 +35,7 @@ class ContainerIndexTest extends SemanticFunSuite {
 
   private val dummyString = DummyExpression(CTString)
   private val dummyInteger = DummyExpression(CTInteger)
+  private val dummyFloat = DummyExpression(CTFloat)
   private val dummyNode = DummyExpression(CTNode)
   private val dummyRelationship = DummyExpression(CTRelationship)
   private val dummyMap = DummyExpression(CTMap)
@@ -143,6 +145,13 @@ class ContainerIndexTest extends SemanticFunSuite {
 
     val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
     result.errors should equal(Seq(SemanticError("Type mismatch: expected Map, Node or Relationship but was Integer", index.idx.position)))
+  }
+
+  test("should raise error if looking up not from container, with invalid type") {
+    val index = ContainerIndex(dummyInteger, dummyFloat)(DummyPosition(10))
+
+    val result = SemanticExpressionCheck.simple(index)(SemanticState.clean)
+    result.errors should equal(Seq(SemanticError("Type mismatch: expected Map, Node, Relationship or List<T> but was Integer", index.idx.position)))
   }
 
   private def assertIsList(spec: TypeSpec) = {
