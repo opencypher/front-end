@@ -19,7 +19,6 @@ import org.opencypher.v9_0.util.Fby
 import org.opencypher.v9_0.util.Last
 import org.opencypher.v9_0.util.NonEmptyList
 import org.opencypher.v9_0.util.NonEmptyList.IterableConverter
-import org.opencypher.v9_0.util.NonEmptyList.canBuildFrom
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class NonEmptyListTest extends CypherFunSuite {
@@ -45,14 +44,6 @@ class NonEmptyListTest extends CypherFunSuite {
     builder.clear()
 
     builder.result() should equal(None)
-  }
-
-  test("Should construct builders via canBuildFrom") {
-    canBuildFrom(Seq(1)).result() should equal(None)
-    (canBuildFrom(Seq(1)) += 2).result() should equal(Some(NonEmptyList(2)))
-
-    val result = Seq(1, 2, 3).map(_.toString): Option[NonEmptyList[String]]
-    result should equal(Some(NonEmptyList("1", "2", "3")))
   }
 
   test("Should convert to NonEmptyList") {

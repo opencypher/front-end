@@ -19,7 +19,6 @@ import org.opencypher.v9_0.util.NonEmptyList.IteratorConverter
 import org.opencypher.v9_0.util.NonEmptyList.newBuilder
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
 
 object NonEmptyList {
@@ -41,7 +40,7 @@ object NonEmptyList {
     new mutable.Builder[T, Option[NonEmptyList[T]]] {
       private val vecBuilder = Vector.newBuilder[T]
 
-      override def +=(elem: T): this.type = {
+      override def addOne(elem: T): this.type = {
         vecBuilder += elem
         this
       }
@@ -54,11 +53,6 @@ object NonEmptyList {
         vecBuilder.clear()
       }
     }
-
-  implicit def canBuildFrom[T] = new CanBuildFrom[Any, T, Option[NonEmptyList[T]]] {
-    def apply(from: Any) = newBuilder[T]
-    def apply() = newBuilder[T]
-  }
 
   implicit class IterableConverter[T](iterable: Iterable[T]) {
     def toReverseNonEmptyListOption: Option[NonEmptyList[T]] =
@@ -231,7 +225,7 @@ sealed trait NonEmptyList[+T] {
       val key = f(value)
       val nel = m.get(key).map(cur => Fby(value, cur)).getOrElse(Last(value))
       m.updated(key, nel)
-    }.mapValues(_.reverse)
+    }.view.mapValues(_.reverse).toMap
 
   final def reverse: NonEmptyList[T] = self match {
     case Fby(elem, tail) => tail.mapAndPrependReversedTo[T, T](identity, Last(elem))

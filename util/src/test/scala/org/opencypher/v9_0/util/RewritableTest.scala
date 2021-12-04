@@ -25,8 +25,6 @@ import org.opencypher.v9_0.util.RewritableTest.Pos
 import org.opencypher.v9_0.util.RewritableTest.Val
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-import scala.collection.mutable.ListBuffer
-
 object RewritableTest {
   trait Exp extends Product with Rewritable
   case class Val(int: Int) extends Exp {
@@ -336,7 +334,7 @@ class RewritableTest extends CypherFunSuite {
     }
     case object NotUsed
 
-    val thing = Thing(ListBuffer("a", "b", "c"))
+    val thing = Thing(Seq("a", "b", "c"))
     val rewritten = thing.rewrite(bottomUp(Rewriter.lift {
       case NotUsed => NotUsed
     }))

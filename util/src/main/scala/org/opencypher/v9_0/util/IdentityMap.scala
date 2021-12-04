@@ -17,8 +17,8 @@ package org.opencypher.v9_0.util
 
 import java.util
 
-import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.collection.immutable.Map
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 object IdentityMap {
   def empty[K, V]: IdentityMap[K, V] = IdentityMap()
@@ -48,7 +48,7 @@ case class IdentityMap[K, V] private (idMap: util.IdentityHashMap[K, V]) extends
       clone
     })
 
-  override def -(key: K): IdentityMap[K, V] =
+  override def removed(key: K): IdentityMap[K, V] =
     IdentityMap({
       val clone = idMap.clone().asInstanceOf[util.IdentityHashMap[K, V]]
       clone.remove(key)

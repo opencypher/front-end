@@ -19,6 +19,7 @@ import java.util
 
 import org.opencypher.v9_0.util.InputPosition
 
+import scala.language.postfixOps
 import scala.util.matching.Regex
 
 /**
