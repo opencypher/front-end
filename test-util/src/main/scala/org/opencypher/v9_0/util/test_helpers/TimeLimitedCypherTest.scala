@@ -37,7 +37,9 @@ trait TimeLimitedCypherTest extends TimeLimitedTests {
 
   abstract override def withFixture(test: NoArgTest): Outcome = {
     super.withFixture(test) match {
-      case Failed(e: org.scalatest.exceptions.ModifiableMessage[_]) =>
+      case Failed(e: org.scalatest.exceptions.TestFailedDueToTimeoutException) =>
+        Failed(e.modifyMessage(opts => Some(opts.fold("")(_ + System.lineSeparator()) + DumpUtils.threadDump())))
+      case Failed(e: org.scalatest.exceptions.TestCanceledException) =>
         Failed(e.modifyMessage(opts => Some(opts.fold("")(_ + System.lineSeparator()) + DumpUtils.threadDump())))
       case outcome => outcome
     }
