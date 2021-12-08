@@ -99,7 +99,6 @@ import org.opencypher.v9_0.expressions.UnarySubtract
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
-import org.opencypher.v9_0.expressions.functions.Length3_5
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTDate
@@ -600,10 +599,6 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
                     expectType(CTBoolean.covariant, whereExpression)
                 }
             }
-
-      case x: Length3_5 =>
-        check(ctx, x.argument, x +: parents) chain
-          checkTypes(x, x.signatures)
 
       case x:Expression => semanticCheckFallback(ctx, x)
     }

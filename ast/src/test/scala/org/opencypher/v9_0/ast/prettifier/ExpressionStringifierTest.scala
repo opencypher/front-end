@@ -22,8 +22,6 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 class ExpressionStringifierTest extends CypherFunSuite with AstConstructionTestSupport {
 
   private val tests: Seq[(Expression, String)] = Seq(
-    length3_5(varFor("list")) ->
-      "length(list)",
   )
 
   private val stringifier = ExpressionStringifier()

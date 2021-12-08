@@ -88,8 +88,6 @@ import org.opencypher.v9_0.expressions.UnarySubtract
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
-import org.opencypher.v9_0.expressions.functions.Length
-import org.opencypher.v9_0.expressions.functions.Length3_5
 import org.opencypher.v9_0.expressions.functions.UserDefinedFunctionInvocation
 import org.opencypher.v9_0.util.InputPosition
 
@@ -317,9 +315,6 @@ case class ExpressionStringifier(
 
       case CoerceTo(expr, typ) =>
         apply(expr)
-
-      case length3_5@Length3_5(argument) =>
-        apply(Length.asInvocation(argument)(length3_5.position))
 
       case _ =>
         extension(this)(ast)
