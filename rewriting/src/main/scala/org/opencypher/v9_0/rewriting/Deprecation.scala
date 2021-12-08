@@ -41,8 +41,6 @@ import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
-import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
@@ -68,7 +66,6 @@ import org.opencypher.v9_0.util.DeprecatedDropIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedFunctionNotification
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
-import org.opencypher.v9_0.util.DeprecatedParameterSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPeriodicCommit
 import org.opencypher.v9_0.util.DeprecatedPointsComparison
@@ -468,13 +465,6 @@ object Deprecations {
         Deprecation(
           Some(Ref(e) -> ListComprehension(ExtractScope(scope.variable, scope.innerPredicate, None)(scope.position), expression)(e.position)),
           Some(DeprecatedFunctionNotification(e.position, "filter(...)", "[...]"))
-        )
-
-      // old parameter syntax
-      case p@ParameterWithOldSyntax(name, parameterType) =>
-        Deprecation(
-          Some(Ref(p) -> Parameter(name, parameterType)(p.position)),
-          Some(DeprecatedParameterSyntax(p.position))
         )
 
       // length of a string, collection or pattern expression

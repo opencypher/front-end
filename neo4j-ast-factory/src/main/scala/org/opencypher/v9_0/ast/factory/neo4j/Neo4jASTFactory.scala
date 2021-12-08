@@ -341,7 +341,6 @@ import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.expressions.Null
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternElement
@@ -772,8 +771,6 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
   override def newSensitiveStringParameter(p: InputPosition, v: Variable): Parameter = new ExplicitParameter(v.name, CTString)(p) with SensitiveParameter
 
   override def newSensitiveStringParameter(p: InputPosition, offset: String): Parameter = new ExplicitParameter(offset, CTString)(p) with SensitiveParameter
-
-  override def oldParameter(p: InputPosition, v: Variable): Expression = ParameterWithOldSyntax(v.name, CTAny)(p)
 
   override def newDouble(p: InputPosition, image: String): Expression = DecimalDoubleLiteral(image)(p)
 

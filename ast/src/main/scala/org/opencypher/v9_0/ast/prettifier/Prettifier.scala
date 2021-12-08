@@ -15,8 +15,6 @@
  */
 package org.opencypher.v9_0.ast.prettifier
 
-import org.opencypher.v9_0.ast.SubqueryCall.InTransactionsParameters
-import org.opencypher.v9_0.ast.Union.UnionMapping
 import org.opencypher.v9_0.ast.Access
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
@@ -25,10 +23,8 @@ import org.opencypher.v9_0.ast.AllDatabasesQualifier
 import org.opencypher.v9_0.ast.AllDatabasesScope
 import org.opencypher.v9_0.ast.AllGraphsScope
 import org.opencypher.v9_0.ast.AllLabelResource
-import org.opencypher.v9_0.ast.AllNodes
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
-import org.opencypher.v9_0.ast.AllRelationships
 import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterDatabaseAlias
 import org.opencypher.v9_0.ast.AlterUser
@@ -111,8 +107,6 @@ import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
 import org.opencypher.v9_0.ast.NoOptions
-import org.opencypher.v9_0.ast.NodeByIds
-import org.opencypher.v9_0.ast.NodeByParameter
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.Options
@@ -133,8 +127,6 @@ import org.opencypher.v9_0.ast.QueryPart
 import org.opencypher.v9_0.ast.ReadOnlyAccess
 import org.opencypher.v9_0.ast.ReadWriteAccess
 import org.opencypher.v9_0.ast.RelationshipAllQualifier
-import org.opencypher.v9_0.ast.RelationshipByIds
-import org.opencypher.v9_0.ast.RelationshipByParameter
 import org.opencypher.v9_0.ast.RelationshipQualifier
 import org.opencypher.v9_0.ast.Remove
 import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
@@ -179,9 +171,11 @@ import org.opencypher.v9_0.ast.StartDatabase
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.StopDatabase
 import org.opencypher.v9_0.ast.SubqueryCall
+import org.opencypher.v9_0.ast.SubqueryCall.InTransactionsParameters
 import org.opencypher.v9_0.ast.TerminateTransactionsClause
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.Union
+import org.opencypher.v9_0.ast.Union.UnionMapping
 import org.opencypher.v9_0.ast.UnionAll
 import org.opencypher.v9_0.ast.UnionDistinct
 import org.opencypher.v9_0.ast.UnresolvedCall
@@ -207,7 +201,6 @@ import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.Variable

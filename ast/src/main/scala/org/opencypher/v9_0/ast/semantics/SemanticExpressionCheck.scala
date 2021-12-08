@@ -77,7 +77,6 @@ import org.opencypher.v9_0.expressions.OctalIntegerLiteral
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.expressions.ParameterWithOldSyntax
 import org.opencypher.v9_0.expressions.PartialPredicate
 import org.opencypher.v9_0.expressions.PathExpression
 import org.opencypher.v9_0.expressions.Pattern
@@ -327,9 +326,6 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         check(ctx, x.node, x +: parents) chain
           expectType(CTMap.covariant | CTAny.invariant, x.node) chain
           specifyType(CTAny.covariant, x)
-
-      case x:ParameterWithOldSyntax =>
-        SemanticError("The old parameter syntax `{param}` is no longer supported. Please use `$param` instead", x.position)
 
       case x:Parameter =>
         specifyType(x.parameterType.covariant, x)
