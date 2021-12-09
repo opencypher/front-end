@@ -37,9 +37,7 @@ import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
-import org.opencypher.v9_0.expressions.ExtractExpression
 import org.opencypher.v9_0.expressions.ExtractScope
-import org.opencypher.v9_0.expressions.FilterExpression
 import org.opencypher.v9_0.expressions.FilterScope
 import org.opencypher.v9_0.expressions.FilteringExpression
 import org.opencypher.v9_0.expressions.FunctionInvocation
@@ -347,13 +345,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           expectType(CTRelationship.covariant, x.expression) chain
           specifyType(CTBoolean, x)
 
-        // ITERABLES
-
-      case x:FilterExpression =>
-        SemanticError("Filter is no longer supported. Please use list comprehension instead", x.position)
-
-      case x:ExtractExpression =>
-        SemanticError("Extract is no longer supported. Please use list comprehension instead", x.position)
+      // ITERABLES
 
       case x:ListComprehension =>
         FilteringExpressions.semanticCheck(ctx, x, parents) chain

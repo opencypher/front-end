@@ -25,14 +25,10 @@ import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.ExtractExpression
-import org.opencypher.v9_0.expressions.ExtractScope
-import org.opencypher.v9_0.expressions.FilterExpression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
-import org.opencypher.v9_0.expressions.ListComprehension
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.NamedPatternPart
@@ -60,7 +56,6 @@ import org.opencypher.v9_0.util.DeprecatedDefaultDatabaseSyntax
 import org.opencypher.v9_0.util.DeprecatedDefaultGraphSyntax
 import org.opencypher.v9_0.util.DeprecatedDropConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDropIndexSyntax
-import org.opencypher.v9_0.util.DeprecatedFunctionNotification
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
@@ -425,27 +420,6 @@ object Deprecations {
       }
 
       deprecationsOfPatternExpressionsOutsideExists
-    }
-  }
-
-  // This is functionality that has been removed in 4.0 but still should work (but be deprecated) when using CYPHER 3.5
-  case object removedFeaturesIn4_0 extends SyntacticDeprecations {
-
-    override val find: PartialFunction[Any, Deprecation] = {
-
-      // extract => list comprehension
-      case e@ExtractExpression(scope, expression) =>
-        Deprecation(
-          Some(Ref(e) -> ListComprehension(scope, expression)(e.position)),
-          Some(DeprecatedFunctionNotification(e.position, "extract(...)", "[...]"))
-        )
-
-      // filter => list comprehension
-      case e@FilterExpression(scope, expression) =>
-        Deprecation(
-          Some(Ref(e) -> ListComprehension(ExtractScope(scope.variable, scope.innerPredicate, None)(scope.position), expression)(e.position)),
-          Some(DeprecatedFunctionNotification(e.position, "filter(...)", "[...]"))
-        )
     }
   }
 }

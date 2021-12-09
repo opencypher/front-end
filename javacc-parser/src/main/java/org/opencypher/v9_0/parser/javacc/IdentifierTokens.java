@@ -75,10 +75,8 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXECUTABLE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXIST;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXISTENCE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXISTS;
-import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXTRACT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.FALSE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.FIELDTERMINATOR;
-import static org.opencypher.v9_0.parser.javacc.CypherConstants.FILTER;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.FOR;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.FOREACH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.FROM;
@@ -255,10 +253,8 @@ public class IdentifierTokens
             EXIST,
             EXISTENCE,
             EXISTS,
-            EXTRACT,
             FALSE,
             FIELDTERMINATOR,
-            FILTER,
             FOR,
             FOREACH,
             FROM,
