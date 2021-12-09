@@ -70,7 +70,6 @@ import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPeriodicCommit
 import org.opencypher.v9_0.util.DeprecatedPointsComparison
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
-import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.DeprecatedSelfReferenceToVariableInCreatePattern
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.FoldableAny
@@ -481,13 +480,6 @@ object Deprecations {
         Deprecation(
           Some(Ref(f) -> Length3_5(argumentExpr)(f.position)),
           None
-        )
-
-      // legacy type separator
-      case p@RelationshipPattern(variable, _, length, properties, _, _, true) if variable.isDefined || length.isDefined || properties.isDefined =>
-        Deprecation(
-          Some(Ref(p) -> p.copy(legacyTypeSeparator = false)(p.position)),
-          Some(DeprecatedRelTypeSeparatorNotification(p.position))
         )
     }
   }
