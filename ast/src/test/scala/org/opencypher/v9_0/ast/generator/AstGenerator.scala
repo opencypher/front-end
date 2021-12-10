@@ -95,7 +95,6 @@ import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
-import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropConstraintAction
@@ -152,12 +151,10 @@ import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
-import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
-import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.Options
@@ -278,6 +275,7 @@ import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
 import org.opencypher.v9_0.ast.UsingScanHint
 import org.opencypher.v9_0.ast.UsingTextIndexType
+import org.opencypher.v9_0.ast.ValidSyntax
 import org.opencypher.v9_0.ast.WaitUntilComplete
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
@@ -1202,11 +1200,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   // Show commands
   // ----------------------------------
 
-  def _indexType: Gen[(ShowIndexType, Option[Boolean])] = for {
-    verbose   <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
-    // BRIEF/VERBOSE is only allowed with ALL and BTREE
-    indexType <- oneOf((AllIndexes, verbose), (BtreeIndexes, verbose), (RangeIndexes, None), (FulltextIndexes, None),
-                       (TextIndexes, None), (PointIndexes, None), (LookupIndexes, None))
+  def _indexType: Gen[ShowIndexType] = for {
+    indexType <- oneOf(AllIndexes, BtreeIndexes, RangeIndexes, FulltextIndexes, TextIndexes, PointIndexes, LookupIndexes)
   } yield indexType
 
   def _listOfLabels: Gen[List[LabelName]] = for {
@@ -1217,40 +1212,35 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     types <- oneOrMore(_relTypeName)
   } yield types
 
-  def _constraintInfo: Gen[(ShowConstraintType, Option[Boolean], YieldOrWhere)] = for {
-    unfilteredVerbose         <- frequency(8 -> const(None), 2 -> some(boolean)) // option(boolean) but None more often than Some
-    unfilteredYields          <- _eitherYieldOrWhere
-    // For existence constraint: new syntax don't allow BRIEF/VERBOSE, deprecated syntax don't allow YIELD/WHERE
-    (exists, verbose, yields) <- oneOf((NewSyntax, None, unfilteredYields), (DeprecatedSyntax, unfilteredVerbose, None), (OldValidSyntax, unfilteredVerbose, unfilteredYields))
-    types                     <- oneOf(AllConstraints, UniqueConstraints, ExistsConstraints(exists), NodeExistsConstraints(exists), RelExistsConstraints(exists), NodeKeyConstraints)
-  } yield (types, verbose, yields)
+  def _constraintInfo: Gen[(ShowConstraintType, YieldOrWhere)] = for {
+    unfilteredYields <- _eitherYieldOrWhere
+    types            <- oneOf(AllConstraints, UniqueConstraints, ExistsConstraints(ValidSyntax), NodeExistsConstraints(ValidSyntax), RelExistsConstraints(ValidSyntax), NodeKeyConstraints)
+  } yield (types, unfilteredYields)
 
   def _showIndexes: Gen[Query] = for {
-    (indexType, verbose) <- _indexType
-    use                  <- option(_use)
-    yields               <- _eitherYieldOrWhere
+    indexType <- _indexType
+    use       <- option(_use)
+    yields    <- _eitherYieldOrWhere
   } yield {
-    val showClauses = (yields, verbose) match {
-      case (Some(Right(w)), _)           => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, Some(w), hasYield = false)(pos))
-      case (Some(Left((y, Some(r)))), _) => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = true)(pos), y, r)
-      case (Some(Left((y, None))), _)    => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = true)(pos), y)
-      case (_, Some(v))                  => Seq(ShowIndexesClause(indexType, !v, v, None, hasYield = false)(pos))
-      case _                             => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = false)(pos))
+    val showClauses = yields match {
+      case Some(Right(w))           => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, Some(w), hasYield = false)(pos))
+      case Some(Left((y, Some(r)))) => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = true)(pos), y, r)
+      case Some(Left((y, None)))    => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = true)(pos), y)
+      case _                        => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
     Query(None, SingleQuery(fullClauses)(pos))(pos)
   }
 
   def _showConstraints: Gen[Query] = for {
-    (constraintType, verbose, yields) <- _constraintInfo
-    use                               <- option(_use)
+    (constraintType, yields) <- _constraintInfo
+    use                      <- option(_use)
   } yield {
-    val showClauses = (yields, verbose) match {
-      case (Some(Right(w)), _)           => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, Some(w), hasYield = false)(pos))
-      case (Some(Left((y, Some(r)))), _) => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, None, hasYield = true)(pos), y, r)
-      case (Some(Left((y, None))), _)    => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, None, hasYield = true)(pos), y)
-      case (_, Some(v))                  => Seq(ShowConstraintsClause(constraintType, !v, v, None, hasYield = false)(pos))
-      case _                             => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, None, hasYield = false)(pos))
+    val showClauses = yields match {
+      case Some(Right(w))           => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, Some(w), hasYield = false)(pos))
+      case Some(Left((y, Some(r)))) => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, None, hasYield = true)(pos), y, r)
+      case Some(Left((y, None)))    => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, None, hasYield = true)(pos), y)
+      case _                        => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
     Query(None, SingleQuery(fullClauses)(pos))(pos)

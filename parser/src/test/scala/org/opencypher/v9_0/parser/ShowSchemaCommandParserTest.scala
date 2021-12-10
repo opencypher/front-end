@@ -18,21 +18,20 @@ package org.opencypher.v9_0.parser
 import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AllIndexes
 import org.opencypher.v9_0.ast.BtreeIndexes
-import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.FulltextIndexes
 import org.opencypher.v9_0.ast.LookupIndexes
-import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
-import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.RelExistsConstraints
+import org.opencypher.v9_0.ast.RemovedSyntax
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.TextIndexes
 import org.opencypher.v9_0.ast.UniqueConstraints
+import org.opencypher.v9_0.ast.ValidSyntax
 
 /* Tests for listing indexes and constraints */
 class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
@@ -355,28 +354,28 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
     ("ALL", AllConstraints),
     ("UNIQUE", UniqueConstraints),
     ("NODE KEY", NodeKeyConstraints),
-    ("EXIST", ExistsConstraints(OldValidSyntax)),
-    ("EXISTS", ExistsConstraints(DeprecatedSyntax)),
-    ("NODE EXIST", NodeExistsConstraints(OldValidSyntax)),
-    ("NODE EXISTS", NodeExistsConstraints(DeprecatedSyntax)),
-    ("RELATIONSHIP EXIST", RelExistsConstraints(OldValidSyntax)),
-    ("RELATIONSHIP EXISTS", RelExistsConstraints(DeprecatedSyntax)),
+    ("EXIST", ExistsConstraints(ValidSyntax)),
+    ("EXISTS", ExistsConstraints(RemovedSyntax)),
+    ("NODE EXIST", NodeExistsConstraints(ValidSyntax)),
+    ("NODE EXISTS", NodeExistsConstraints(RemovedSyntax)),
+    ("RELATIONSHIP EXIST", RelExistsConstraints(ValidSyntax)),
+    ("RELATIONSHIP EXISTS", RelExistsConstraints(RemovedSyntax)),
   )
 
   private val newExistenceConstraintType = Seq(
-    ("PROPERTY EXISTENCE", ExistsConstraints(NewSyntax)),
-    ("PROPERTY EXIST", ExistsConstraints(NewSyntax)),
-    ("EXISTENCE", ExistsConstraints(NewSyntax)),
-    ("NODE PROPERTY EXISTENCE", NodeExistsConstraints(NewSyntax)),
-    ("NODE PROPERTY EXIST", NodeExistsConstraints(NewSyntax)),
-    ("NODE EXISTENCE", NodeExistsConstraints(NewSyntax)),
-    ("RELATIONSHIP PROPERTY EXISTENCE", RelExistsConstraints(NewSyntax)),
-    ("RELATIONSHIP PROPERTY EXIST", RelExistsConstraints(NewSyntax)),
-    ("RELATIONSHIP EXISTENCE", RelExistsConstraints(NewSyntax)),
-    ("REL PROPERTY EXISTENCE", RelExistsConstraints(NewSyntax)),
-    ("REL PROPERTY EXIST", RelExistsConstraints(NewSyntax)),
-    ("REL EXISTENCE", RelExistsConstraints(NewSyntax)),
-    ("REL EXIST", RelExistsConstraints(NewSyntax)),
+    ("PROPERTY EXISTENCE", ExistsConstraints(ValidSyntax)),
+    ("PROPERTY EXIST", ExistsConstraints(ValidSyntax)),
+    ("EXISTENCE", ExistsConstraints(ValidSyntax)),
+    ("NODE PROPERTY EXISTENCE", NodeExistsConstraints(ValidSyntax)),
+    ("NODE PROPERTY EXIST", NodeExistsConstraints(ValidSyntax)),
+    ("NODE EXISTENCE", NodeExistsConstraints(ValidSyntax)),
+    ("RELATIONSHIP PROPERTY EXISTENCE", RelExistsConstraints(ValidSyntax)),
+    ("RELATIONSHIP PROPERTY EXIST", RelExistsConstraints(ValidSyntax)),
+    ("RELATIONSHIP EXISTENCE", RelExistsConstraints(ValidSyntax)),
+    ("REL PROPERTY EXISTENCE", RelExistsConstraints(ValidSyntax)),
+    ("REL PROPERTY EXIST", RelExistsConstraints(ValidSyntax)),
+    ("REL EXISTENCE", RelExistsConstraints(ValidSyntax)),
+    ("REL EXIST", RelExistsConstraints(ValidSyntax)),
   )
 
   Seq("CONSTRAINT", "CONSTRAINTS").foreach {
@@ -424,7 +423,7 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
   }
 
   test("SHOW REL PROPERTY EXISTENCE CONSTRAINTS YIELD labelsOrTypes") {
-    yields(_ => query(ShowConstraintsClause(RelExistsConstraints(NewSyntax), brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("labelsOrTypes")))))
+    yields(_ => query(ShowConstraintsClause(RelExistsConstraints(ValidSyntax), brief = false, verbose = false, None, hasYield = true)(pos), yieldClause(returnItems(variableReturnItem("labelsOrTypes")))))
   }
 
   test("SHOW UNIQUE CONSTRAINTS YIELD *") {
@@ -461,12 +460,12 @@ class ShowSchemaCommandParserTest extends SchemaCommandsParserTestBase {
   }
 
   test("SHOW EXISTENCE CONSTRAINTS YIELD name AS CONSTRAINT, type AS OUTPUT") {
-    yields(_ => query(ShowConstraintsClause(ExistsConstraints(NewSyntax), brief = false, verbose = false, None, hasYield = true)(pos),
+    yields(_ => query(ShowConstraintsClause(ExistsConstraints(ValidSyntax), brief = false, verbose = false, None, hasYield = true)(pos),
       yieldClause(returnItems(aliasedReturnItem("name", "CONSTRAINT"), aliasedReturnItem("type", "OUTPUT")))))
   }
 
   test("SHOW NODE EXIST CONSTRAINTS WHERE name = 'GRANT'") {
-    yields(_ => query(ShowConstraintsClause(NodeExistsConstraints(OldValidSyntax), brief = false, verbose = false,
+    yields(_ => query(ShowConstraintsClause(NodeExistsConstraints(ValidSyntax), brief = false, verbose = false,
       Some(where(equals(varFor("name"), literalString("GRANT")))), hasYield = false)(pos)))
   }
 

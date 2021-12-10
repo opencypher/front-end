@@ -94,7 +94,6 @@ import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
 import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
-import org.opencypher.v9_0.ast.DeprecatedSyntax
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropConstraintAction
@@ -147,13 +146,11 @@ import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
-import org.opencypher.v9_0.ast.NewSyntax
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoResource
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeExistsConstraints
 import org.opencypher.v9_0.ast.NodeKeyConstraints
-import org.opencypher.v9_0.ast.OldValidSyntax
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
 import org.opencypher.v9_0.ast.OptionsMap
@@ -182,6 +179,7 @@ import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePrivilegeAction
 import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.RemoveRoleAction
+import org.opencypher.v9_0.ast.RemovedSyntax
 import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.RenameRoleAction
 import org.opencypher.v9_0.ast.RenameUser
@@ -261,6 +259,7 @@ import org.opencypher.v9_0.ast.UsingIndexHintType
 import org.opencypher.v9_0.ast.UsingJoinHint
 import org.opencypher.v9_0.ast.UsingScanHint
 import org.opencypher.v9_0.ast.UsingTextIndexType
+import org.opencypher.v9_0.ast.ValidSyntax
 import org.opencypher.v9_0.ast.WaitUntilComplete
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
@@ -1126,15 +1125,15 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       case ShowCommandFilterTypes.ALL => AllConstraints
       case ShowCommandFilterTypes.UNIQUE => UniqueConstraints
       case ShowCommandFilterTypes.NODE_KEY => NodeKeyConstraints
-      case ShowCommandFilterTypes.EXIST  => ExistsConstraints(NewSyntax)
-      case ShowCommandFilterTypes.OLD_EXISTS => ExistsConstraints(DeprecatedSyntax)
-      case ShowCommandFilterTypes.OLD_EXIST => ExistsConstraints(OldValidSyntax)
-      case ShowCommandFilterTypes.NODE_EXIST => NodeExistsConstraints(NewSyntax)
-      case ShowCommandFilterTypes.NODE_OLD_EXISTS => NodeExistsConstraints(DeprecatedSyntax)
-      case ShowCommandFilterTypes.NODE_OLD_EXIST => NodeExistsConstraints(OldValidSyntax)
-      case ShowCommandFilterTypes.RELATIONSHIP_EXIST => RelExistsConstraints(NewSyntax)
-      case ShowCommandFilterTypes.RELATIONSHIP_OLD_EXISTS => RelExistsConstraints(DeprecatedSyntax)
-      case ShowCommandFilterTypes.RELATIONSHIP_OLD_EXIST => RelExistsConstraints(OldValidSyntax)
+      case ShowCommandFilterTypes.EXIST  => ExistsConstraints(ValidSyntax)
+      case ShowCommandFilterTypes.OLD_EXISTS => ExistsConstraints(RemovedSyntax)
+      case ShowCommandFilterTypes.OLD_EXIST => ExistsConstraints(ValidSyntax)
+      case ShowCommandFilterTypes.NODE_EXIST => NodeExistsConstraints(ValidSyntax)
+      case ShowCommandFilterTypes.NODE_OLD_EXISTS => NodeExistsConstraints(RemovedSyntax)
+      case ShowCommandFilterTypes.NODE_OLD_EXIST => NodeExistsConstraints(ValidSyntax)
+      case ShowCommandFilterTypes.RELATIONSHIP_EXIST => RelExistsConstraints(ValidSyntax)
+      case ShowCommandFilterTypes.RELATIONSHIP_OLD_EXISTS => RelExistsConstraints(RemovedSyntax)
+      case ShowCommandFilterTypes.RELATIONSHIP_OLD_EXIST => RelExistsConstraints(ValidSyntax)
       case t => throw new Neo4jASTConstructionException(ASTExceptionFactory.invalidShowFilterType("constraints", t))
     }
     ShowConstraintsClause(constraintType, brief, verbose, Option(where), hasYield)(p)

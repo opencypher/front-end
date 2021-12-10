@@ -495,6 +495,12 @@ case class ShowIndexesClause(unfilteredColumns: DefaultOrAllShowColumns, indexTy
   override def name: String = "SHOW INDEXES"
 
   override def moveWhereToYield: CommandClause = copy(where = None, hasYield = true)(position)
+
+  override def semanticCheck: SemanticCheck = if (brief || verbose)
+    error(
+      """`SHOW INDEXES` no longer allows the `BRIEF` and `VERBOSE` keywords,
+        |please omit `BRIEF` and use `YIELD *` instead of `VERBOSE`.""".stripMargin, position)
+  else super.semanticCheck
 }
 
 object ShowIndexesClause {
@@ -517,7 +523,7 @@ object ShowIndexesClause {
       ShowColumn("createStatement")(position)
     )
 
-    ShowIndexesClause(DefaultOrAllShowColumns(hasYield | verbose, briefCols, briefCols ++ verboseCols), indexType, brief, verbose, where, hasYield)(position)
+    ShowIndexesClause(DefaultOrAllShowColumns(hasYield, briefCols, briefCols ++ verboseCols), indexType, brief, verbose, where, hasYield)(position)
   }
 }
 
@@ -526,6 +532,17 @@ case class ShowConstraintsClause(unfilteredColumns: DefaultOrAllShowColumns, con
   override def name: String = "SHOW CONSTRAINTS"
 
   override def moveWhereToYield: CommandClause = copy(where = None, hasYield = true)(position)
+
+  val existsErrorMessage = "`SHOW CONSTRAINTS` no longer allows the `EXISTS` keyword, please use `EXIST` or `PROPERTY EXISTENCE` instead."
+  override def semanticCheck: SemanticCheck = constraintType match {
+    case ExistsConstraints(RemovedSyntax)     => error(existsErrorMessage, position)
+    case NodeExistsConstraints(RemovedSyntax) => error(existsErrorMessage, position)
+    case RelExistsConstraints(RemovedSyntax)  => error(existsErrorMessage, position)
+    case _ if brief || verbose => error(
+      """`SHOW CONSTRAINTS` no longer allows the `BRIEF` and `VERBOSE` keywords,
+        |please omit `BRIEF` and use `YIELD *` instead of `VERBOSE`.""".stripMargin, position)
+    case _ => super.semanticCheck
+  }
 }
 
 object ShowConstraintsClause {
@@ -544,7 +561,7 @@ object ShowConstraintsClause {
       ShowColumn("createStatement")(position)
     )
 
-    ShowConstraintsClause(DefaultOrAllShowColumns(hasYield | verbose, briefCols, briefCols ++ verboseCols), constraintType, brief, verbose, where, hasYield)(position)
+    ShowConstraintsClause(DefaultOrAllShowColumns(hasYield, briefCols, briefCols ++ verboseCols), constraintType, brief, verbose, where, hasYield)(position)
   }
 }
 

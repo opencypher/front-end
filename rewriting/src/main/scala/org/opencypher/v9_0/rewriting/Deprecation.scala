@@ -76,8 +76,6 @@ import org.opencypher.v9_0.util.DeprecatedPointsComparison
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.DeprecatedSelfReferenceToVariableInCreatePattern
-import org.opencypher.v9_0.util.DeprecatedShowExistenceConstraintSyntax
-import org.opencypher.v9_0.util.DeprecatedShowSchemaSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
@@ -260,12 +258,6 @@ object Deprecations {
           Some(DeprecatedPropertyExistenceSyntax(e.position))
         )
 
-      case s: ast.ShowIndexesClause if s.verbose || s.brief =>
-        Deprecation(
-          None,
-          Some(DeprecatedShowSchemaSyntax(s.position))
-        )
-
       case i: ast.ShowIndexesClause if i.indexType == ast.BtreeIndexes =>
         Deprecation(
           None,
@@ -306,30 +298,6 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedDefaultGraphSyntax(c.position))
-        )
-
-      case c@ast.ShowConstraintsClause(_, ast.ExistsConstraints(ast.DeprecatedSyntax), _, _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedShowExistenceConstraintSyntax(c.position))
-        )
-
-      case c@ast.ShowConstraintsClause(_, ast.NodeExistsConstraints(ast.DeprecatedSyntax), _, _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedShowExistenceConstraintSyntax(c.position))
-        )
-
-      case c@ast.ShowConstraintsClause(_, ast.RelExistsConstraints(ast.DeprecatedSyntax), _, _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedShowExistenceConstraintSyntax(c.position))
-        )
-
-      case s: ast.ShowConstraintsClause if s.verbose || s.brief =>
-        Deprecation(
-          None,
-          Some(DeprecatedShowSchemaSyntax(s.position))
         )
 
       case c: ast.HasCatalog =>
