@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.parser
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.IndefiniteWait
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
@@ -43,7 +42,6 @@ trait AdministrationCommand extends Parser
                             with Base {
 
   def AdministrationCommand: Rule1[ast.AdministrationCommand] = rule("Administration command") {
-    optional(UseGraph) ~~ keyword("CATALOG") ~~ AllAdministrationCommands ~~> ((use, command) => HasCatalog(command.withGraph(use))) |
     optional(UseGraph) ~~ AllAdministrationCommands ~~> ((use, command) => command.withGraph(use))
   }
 

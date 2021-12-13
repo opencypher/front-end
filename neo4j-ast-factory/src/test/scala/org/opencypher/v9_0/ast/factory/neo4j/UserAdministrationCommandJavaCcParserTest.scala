@@ -26,10 +26,6 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG SHOW USERS") {
-    assertSameAST(testName)
-  }
-
   test("USE system SHOW USERS") {
     assertSameAST(testName)
   }
@@ -70,8 +66,8 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG SHOW USER") {
-    assertJavaCCException(testName, "Invalid input '': expected \"DEFINED\" (line 1, column 18 (offset: 17))")
+  test("SHOW USER") {
+    assertJavaCCException(testName, "Invalid input '': expected \"DEFINED\" (line 1, column 10 (offset: 9))")
   }
 
   test("SHOW USERS YIELD *,blah RETURN user") {
@@ -88,10 +84,6 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
 
   // Showing current user
 
-  test("CATALOG SHOW CURRENT USER") {
-    assertSameAST(testName)
-  }
-
   test("SHOW CURRENT USER") {
     assertSameAST(testName)
   }
@@ -102,23 +94,23 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
 
   //  Creating user
 
-  test("CATALOG CREATE USER foo SET PASSWORD 'password'") {
+  test("CREATE USER foo SET PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER $foo SET PASSWORD 'password'") {
+  test("CREATE USER $foo SET PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER foo SET PLAINTEXT PASSWORD 'password'") {
+  test("CREATE USER foo SET PLAINTEXT PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER foo SET PLAINTEXT PASSWORD $password") {
+  test("CREATE USER foo SET PLAINTEXT PASSWORD $password") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER $bar SET PASSWORD $password") {
+  test("CREATE USER $bar SET PASSWORD $password") {
     assertSameAST(testName)
   }
 
@@ -146,7 +138,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER foo SET PASSWORD $password CHANGE REQUIRED") {
+  test("CREATE USER foo SET PASSWORD $password CHANGE REQUIRED") {
     assertSameAST(testName)
   }
 
@@ -166,7 +158,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER foo SET PASSWORD 'password' SET STATUS SUSPENDed") {
+  test("CREATE USER foo SET PASSWORD 'password' SET STATUS SUSPENDed") {
     assertSameAST(testName)
   }
 
@@ -190,7 +182,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER foo IF NOT EXISTS SET PASSWORD 'password'") {
+  test("CREATE USER foo IF NOT EXISTS SET PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
@@ -198,7 +190,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER foo IF NOT EXISTS SET PASSWORD $password CHANGE REQUIRED") {
+  test("CREATE USER foo IF NOT EXISTS SET PASSWORD $password CHANGE REQUIRED") {
     assertSameAST(testName)
   }
 
@@ -210,7 +202,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE OR REPLACE USER foo SET PASSWORD 'password'") {
+  test("CREATE OR REPLACE USER foo SET PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
@@ -218,7 +210,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE OR REPLACE USER foo SET PASSWORD $password CHANGE REQUIRED") {
+  test("CREATE OR REPLACE USER foo SET PASSWORD $password CHANGE REQUIRED") {
     assertSameAST(testName)
   }
 
@@ -238,11 +230,11 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER $foo SET encrYPTEd PASSWORD 'password'") {
+  test("CREATE USER $foo SET encrYPTEd PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER $bar SET ENCRYPTED Password $password") {
+  test("CREATE USER $bar SET ENCRYPTED Password $password") {
     assertSameAST(testName)
   }
 
@@ -308,7 +300,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE USER fo,o SET PASSWORD 'password'") {
+  test("CREATE USER fo,o SET PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
@@ -609,19 +601,19 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
 
   //  Altering user
 
-  test("CATALOG ALTER USER foo SET PASSWORD 'password'") {
+  test("ALTER USER foo SET PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER $foo SET PASSWORD 'password'") {
+  test("ALTER USER $foo SET PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PLAINTEXT PASSWORD 'password'") {
+  test("ALTER USER foo SET PLAINTEXT PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PLAINTEXT PASSWORD $password") {
+  test("ALTER USER foo SET PLAINTEXT PASSWORD $password") {
     assertSameAST(testName)
   }
 
@@ -645,15 +637,15 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET ENCRYPTED Password $password") {
+  test("ALTER USER foo SET ENCRYPTED Password $password") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET ENCRYPTED PASSWORD 'password'") {
+  test("ALTER USER foo SET ENCRYPTED PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER $foo SET ENCRYPTED PASSWORD 'password'") {
+  test("ALTER USER $foo SET ENCRYPTED PASSWORD 'password'") {
     assertSameAST(testName)
   }
 
@@ -661,15 +653,15 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET ENCRYPTED PASSWORD '1,04773b8510aea96ca2085cb81764b0a2,75f4201d047191c17c5e236311b7c4d77e36877503fe60b1ca6d4016160782ab'") {
+  test("ALTER USER foo SET ENCRYPTED PASSWORD '1,04773b8510aea96ca2085cb81764b0a2,75f4201d047191c17c5e236311b7c4d77e36877503fe60b1ca6d4016160782ab'") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PASSWORD CHANGE REQUIRED") {
+  test("ALTER USER foo SET PASSWORD CHANGE REQUIRED") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PASSWORD CHANGE NOT REQUIRED") {
+  test("ALTER USER foo SET PASSWORD CHANGE NOT REQUIRED") {
     assertSameAST(testName)
   }
 
@@ -685,7 +677,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PASSWORD 'password' CHANGE REQUIRED") {
+  test("ALTER USER foo SET PASSWORD 'password' CHANGE REQUIRED") {
     assertSameAST(testName)
   }
 
@@ -693,11 +685,11 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PASSWORD 'password' SET STATUS ACTIVE") {
+  test("ALTER USER foo SET PASSWORD 'password' SET STATUS ACTIVE") {
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PASSWORD CHANGE NOT REQUIRED SET STATUS ACTIVE") {
+  test("ALTER USER foo SET PASSWORD CHANGE NOT REQUIRED SET STATUS ACTIVE") {
     assertSameAST(testName)
   }
 
@@ -843,7 +835,7 @@ class UserAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
     assertSameAST(testName)
   }
 
-  test("CATALOG ALTER USER foo SET PASSWORD 'password' SET STATUS IMAGINARY") {
+  test("ALTER USER foo SET PASSWORD 'password' SET STATUS IMAGINARY") {
     assertSameAST(testName)
   }
 

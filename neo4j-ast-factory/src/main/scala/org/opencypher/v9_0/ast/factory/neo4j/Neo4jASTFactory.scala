@@ -124,7 +124,6 @@ import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.GraphAction
 import org.opencypher.v9_0.ast.GraphPrivilege
 import org.opencypher.v9_0.ast.GraphScope
-import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.HomeDatabaseScope
 import org.opencypher.v9_0.ast.HomeGraphScope
 import org.opencypher.v9_0.ast.IfExistsDo
@@ -1063,13 +1062,6 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
   override def useGraph(command: StatementWithGraph, graph: UseGraph): StatementWithGraph = {
     command.withGraph(Option(graph))
-  }
-
-  override def hasCatalog(statement: Statement): AdministrationCommand = {
-    statement match {
-      case command: AdministrationCommand => HasCatalog(command)
-      case _ => throw new Neo4jASTConstructionException(ASTExceptionFactory.invalidCatalogStatement)
-    }
   }
 
   // Show Commands

@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
-import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.RemovePropertyItem
@@ -76,9 +75,9 @@ class JavaCcParserPositionTest extends ParserComparisonTestBase with FunSuiteLik
     validatePosition(testName, _.isInstanceOf[EveryPath], InputPosition(7, 1, 8))
   }
 
-  test("CATALOG SHOW ALL ROLES YIELD role") {
+  test("SHOW ALL ROLES YIELD role") {
     assertSameAST(testName)
-    validatePosition(testName, _.isInstanceOf[Yield], InputPosition(23, 1, 24))
+    validatePosition(testName, _.isInstanceOf[Yield], InputPosition(15, 1, 16))
   }
 
   test("RETURN 3 IN list[0] AS r") {
@@ -110,11 +109,6 @@ class JavaCcParserPositionTest extends ParserComparisonTestBase with FunSuiteLik
   test("MATCH (n) SET n = {name: null}") {
     assertSameAST(testName)
     validatePosition(testName, _.isInstanceOf[SetExactPropertiesFromMapItem], InputPosition(14, 1, 15))
-  }
-
-  test("CATALOG SHOW ALL ROLES") {
-    assertSameAST(testName)
-    validatePosition(testName, _.isInstanceOf[HasCatalog], InputPosition(8, 1, 9))
   }
 
   Seq(

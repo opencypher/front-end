@@ -37,7 +37,6 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.BUILT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.BY;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.CALL;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.CASE;
-import static org.opencypher.v9_0.parser.javacc.CypherConstants.CATALOG;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.CHANGE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.COMMIT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.CONSTRAINT;
@@ -217,7 +216,6 @@ public class IdentifierTokens
             BY,
             CALL,
             CASE,
-            CATALOG,
             CHANGE,
             COMMIT,
             CONSTRAINT,

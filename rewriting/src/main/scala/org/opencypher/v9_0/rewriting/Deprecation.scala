@@ -57,7 +57,6 @@ import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Length3_5
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedBtreeIndexSyntax
-import org.opencypher.v9_0.util.DeprecatedCatalogKeywordForAdminCommandSyntax
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedCreateConstraintOnAssertSyntax
 import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
@@ -298,12 +297,6 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedDefaultGraphSyntax(c.position))
-        )
-
-      case c: ast.HasCatalog =>
-        Deprecation(
-          Some(Ref(c) -> c.source),
-          Some(DeprecatedCatalogKeywordForAdminCommandSyntax(c.position))
         )
 
       case p: ast.PeriodicCommitHint =>

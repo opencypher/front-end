@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.DescSortItem
-import org.opencypher.v9_0.ast.HasCatalog
 import org.opencypher.v9_0.ast.OrderBy
 import org.opencypher.v9_0.ast.ProjectionClause
 import org.opencypher.v9_0.ast.Query
@@ -103,11 +102,6 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
     case s@ShowRoles(_, _, Some(Left((yields, returns))),_) =>
       s.copy(yieldOrWhere = Some(Left((addAliasesToYield(yields),returns.map(addAliasesToReturn)))))(s.position)
         .withGraph(s.useGraph)
-
-    case h: HasCatalog =>
-      // needs to rewrite the source if we contain a SHOW command
-      // since the source is an AdministrationCommand we will get that back from the apply as well
-      h.copy(apply(h.source).asInstanceOf[AdministrationCommand])
 
     case x => x
   }

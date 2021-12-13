@@ -161,7 +161,7 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE `foo.bar`") {
+  test("CREATE DATABASE `foo.bar`") {
     assertSameAST(testName)
   }
 
@@ -169,23 +169,19 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE foo.bar") {
+  test("CREATE DATABASE `graph.db`.`db.db`") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE `graph.db`.`db.db`") {
+  test("CREATE DATABASE `foo-bar42`") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE `foo-bar42`") {
+  test("CREATE DATABASE `_foo-bar42`") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE `_foo-bar42`") {
-    assertSameAST(testName)
-  }
-
-  test("CATALOG CREATE DATABASE ``") {
+  test("CREATE DATABASE ``") {
     assertSameAST(testName)
   }
 
@@ -205,7 +201,7 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE `_foo-bar42` IF NOT EXISTS") {
+  test("CREATE DATABASE `_foo-bar42` IF NOT EXISTS") {
     assertSameAST(testName)
   }
 
@@ -225,7 +221,7 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE OR REPLACE DATABASE `_foo-bar42`") {
+  test("CREATE OR REPLACE DATABASE `_foo-bar42`") {
     assertSameAST(testName)
   }
 
@@ -237,23 +233,23 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE foo-bar42") {
+  test("CREATE DATABASE foo-bar42") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE _foo-bar42") {
+  test("CREATE DATABASE _foo-bar42") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE 42foo-bar") {
+  test("CREATE DATABASE 42foo-bar") {
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE DATABASE") {
-    assertJavaCCException(testName, s"""Invalid input '': expected a parameter or an identifier (line 1, column 24 (offset: 23))""")
+  test("CREATE DATABASE") {
+    assertJavaCCException(testName, s"""Invalid input '': expected a parameter or an identifier (line 1, column 16 (offset: 15))""")
   }
 
-  test("CATALOG CREATE DATABASE _foo-bar42 IF NOT EXISTS") {
+  test("CREATE DATABASE _foo-bar42 IF NOT EXISTS") {
     assertSameAST(testName)
   }
 
@@ -286,7 +282,7 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG CREATE OR REPLACE DATABASE _foo-bar42") {
+  test("CREATE OR REPLACE DATABASE _foo-bar42") {
     assertSameAST(testName)
   }
 
@@ -365,11 +361,11 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG DROP DATABASE `foo.bar`") {
+  test("DROP DATABASE `foo.bar`") {
     assertSameAST(testName)
   }
 
-  test("CATALOG DROP DATABASE foo.bar") {
+  test("DROP DATABASE foo.bar") {
     assertSameAST(testName)
   }
 
@@ -556,11 +552,11 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG START DATABASE `foo.bar`") {
+  test("START DATABASE `foo.bar`") {
     assertSameAST(testName)
   }
 
-  test("CATALOG START DATABASE foo.bar") {
+  test("START DATABASE foo.bar") {
     assertSameAST(testName)
   }
 
@@ -602,11 +598,11 @@ class MultiDatabaseAdministrationCommandJavaCcParserTest extends ParserCompariso
     assertSameAST(testName)
   }
 
-  test("CATALOG STOP DATABASE `foo.bar`") {
+  test("STOP DATABASE `foo.bar`") {
     assertSameAST(testName)
   }
 
-  test("CATALOG STOP DATABASE foo.bar") {
+  test("STOP DATABASE foo.bar") {
     assertSameAST(testName)
   }
 

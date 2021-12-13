@@ -62,8 +62,6 @@ case class DeprecatedDefaultDatabaseSyntax(position: InputPosition) extends Inte
 
 case class DeprecatedDefaultGraphSyntax(position: InputPosition) extends InternalNotification
 
-case class DeprecatedCatalogKeywordForAdminCommandSyntax(position: InputPosition) extends InternalNotification
-
 case class DeprecatedPeriodicCommit(position: InputPosition) extends InternalNotification
 
 case class DeprecatedCoercionOfListToBoolean(position: InputPosition) extends InternalNotification
