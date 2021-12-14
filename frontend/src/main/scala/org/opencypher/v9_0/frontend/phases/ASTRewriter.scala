@@ -40,7 +40,6 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.normalizePatternComprehensionPredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
-import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 import org.opencypher.v9_0.rewriting.rewriters.rewriteOrderById
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -72,7 +71,6 @@ object ASTRewriter {
     replaceLiteralDynamicPropertyLookups,
     inlineNamedPathsInPatternComprehensions,
     parameterValueTypeReplacement,
-    projectNamedPaths,
     rewriteOrderById,
   ), initialConditions = Set(ProjectionClausesHaveSemanticInfo, PatternExpressionsHaveSemanticInfo))
 
