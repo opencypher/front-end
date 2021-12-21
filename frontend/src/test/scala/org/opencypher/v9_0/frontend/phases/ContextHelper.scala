@@ -23,7 +23,7 @@ import org.opencypher.v9_0.util.InternalNotificationLogger
 import org.opencypher.v9_0.util.NotImplementedErrorMessageProvider
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.devNullLogger
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 object ContextHelper extends MockitoSugar {
   def create(): BaseContext = {
