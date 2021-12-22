@@ -225,7 +225,9 @@ import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowTransactionAction
 import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserAction
+import org.opencypher.v9_0.ast.ShowUserPrivileges
 import org.opencypher.v9_0.ast.ShowUsers
+import org.opencypher.v9_0.ast.ShowUsersPrivileges
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Skip
 import org.opencypher.v9_0.ast.SortItem
@@ -1429,6 +1431,19 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                                  returnWithoutGraph: Return,
                                  where: Where): ShowPrivileges = {
     ShowPrivileges(ShowAllPrivileges()(p), yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+  }
+
+  override def showUserPrivileges(p: InputPosition,
+                                  users:  util.List[SimpleEither[String, Parameter]],
+                                  yieldExpr: Yield,
+                                  returnWithoutGraph: Return,
+                                  where: Where): ShowPrivileges = {
+    val showPrivilegeScope = if (Option(users).isDefined) {
+      ShowUsersPrivileges(users.asScala.map(_.asScala).toList)(p)
+    } else {
+      ShowUserPrivileges(None)(p)
+    }
+    ShowPrivileges(showPrivilegeScope, yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
   }
 
   override def grantPrivilege(p: InputPosition,
