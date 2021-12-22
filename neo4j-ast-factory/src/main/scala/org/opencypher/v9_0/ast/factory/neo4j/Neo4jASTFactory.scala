@@ -208,6 +208,7 @@ import org.opencypher.v9_0.ast.SetPropertyAction
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetUserStatusAction
+import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintAction
 import org.opencypher.v9_0.ast.ShowConstraintType
 import org.opencypher.v9_0.ast.ShowConstraintsClause
@@ -217,6 +218,7 @@ import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexAction
 import org.opencypher.v9_0.ast.ShowIndexesClause
 import org.opencypher.v9_0.ast.ShowPrivilegeAction
+import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
@@ -1421,6 +1423,13 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
   }
 
   // Privilege commands
+
+  override def showAllPrivileges(p: InputPosition,
+                                 yieldExpr: Yield,
+                                 returnWithoutGraph: Return,
+                                 where: Where): ShowPrivileges = {
+    ShowPrivileges(ShowAllPrivileges()(p), yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+  }
 
   override def grantPrivilege(p: InputPosition,
                               roles: util.List[SimpleEither[String, Parameter]],

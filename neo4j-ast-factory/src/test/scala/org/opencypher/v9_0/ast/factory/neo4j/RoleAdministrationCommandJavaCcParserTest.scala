@@ -105,6 +105,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "NODE"
          |  "POINT"
          |  "POPULATED"
+         |  "PRIVILEGE"
+         |  "PRIVILEGES"
          |  "PROCEDURE"
          |  "PROCEDURES"
          |  "PROPERTY"
@@ -131,6 +133,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
         |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
+        |  "PRIVILEGE"
+        |  "PRIVILEGES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)
   }
 
@@ -163,6 +167,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "NODE"
          |  "POINT"
          |  "POPULATED"
+         |  "PRIVILEGE"
+         |  "PRIVILEGES"
          |  "PROCEDURE"
          |  "PROCEDURES"
          |  "PROPERTY"
@@ -205,6 +211,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "NODE"
          |  "POINT"
          |  "POPULATED"
+         |  "PRIVILEGE"
+         |  "PRIVILEGES"
          |  "PROCEDURE"
          |  "PROCEDURES"
          |  "PROPERTY"
@@ -251,6 +259,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
          |  "NODE"
          |  "POINT"
          |  "POPULATED"
+         |  "PRIVILEGE"
+         |  "PRIVILEGES"
          |  "PROCEDURE"
          |  "PROCEDURES"
          |  "PROPERTY"
@@ -277,6 +287,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
         |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
+        |  "PRIVILEGE"
+        |  "PRIVILEGES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)
   }
 
@@ -293,6 +305,8 @@ class RoleAdministrationCommandJavaCcParserTest extends ParserComparisonTestBase
         |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
+        |  "PRIVILEGE"
+        |  "PRIVILEGES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)
   }
 

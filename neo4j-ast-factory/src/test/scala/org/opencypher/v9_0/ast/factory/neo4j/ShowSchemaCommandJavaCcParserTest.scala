@@ -211,6 +211,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "FUNCTIONS"
         |  "INDEX"
         |  "INDEXES"
+        |  "PRIVILEGE"
+        |  "PRIVILEGES"
         |  "ROLES" (line 1, column 10 (offset: 9))""".stripMargin)
   }
 
@@ -481,6 +483,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "NODE"
         |  "POINT"
         |  "POPULATED"
+        |  "PRIVILEGE"
+        |  "PRIVILEGES"
         |  "PROCEDURE"
         |  "PROCEDURES"
         |  "PROPERTY"
@@ -529,6 +533,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "NODE"
         |  "POINT"
         |  "POPULATED"
+        |  "PRIVILEGE"
+        |  "PRIVILEGES"
         |  "PROCEDURE"
         |  "PROCEDURES"
         |  "PROPERTY"
@@ -577,6 +583,8 @@ class ShowSchemaCommandJavaCcParserTest extends ParserComparisonTestBase with Fu
         |  "NODE"
         |  "POINT"
         |  "POPULATED"
+        |  "PRIVILEGE"
+        |  "PRIVILEGES"
         |  "PROCEDURE"
         |  "PROCEDURES"
         |  "PROPERTY"
