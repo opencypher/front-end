@@ -19,14 +19,9 @@ import org.opencypher.v9_0.util.InputPosition
 
 trait LabelExpression extends Expression
 
-case class LabelConjunction(lhs: LabelExpression, rhs: LabelExpression)(val position: InputPosition) extends LabelExpression {
-}
-
-case class LabelDisjunction(lhs: LabelExpression, rhs: LabelExpression)(val position: InputPosition) extends LabelExpression {
-}
-
-case class LabelNegation(e: LabelExpression)(val position: InputPosition) extends LabelExpression {
-}
-
-case class LabelLeaf(label: LabelOrRelTypeName)(val position: InputPosition) extends LabelExpression {
+object LabelExpression {
+  case class Conjunction(lhs: LabelExpression, rhs: LabelExpression)(val position: InputPosition) extends LabelExpression
+  case class Disjunction(lhs: LabelExpression, rhs: LabelExpression)(val position: InputPosition) extends LabelExpression
+  case class Negation(e: LabelExpression)(val position: InputPosition) extends LabelExpression
+  case class Label(label: LabelOrRelTypeName)(val position: InputPosition) extends LabelExpression
 }

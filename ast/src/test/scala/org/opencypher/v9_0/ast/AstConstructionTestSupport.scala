@@ -46,6 +46,7 @@ import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
+import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LessThan
@@ -377,6 +378,14 @@ trait AstConstructionTestSupport extends CypherTestSupport {
   def ors(expressions: Expression*): Ors = Ors(expressions)(pos)
 
   def and(lhs: Expression, rhs: Expression): And = And(lhs, rhs)(pos)
+
+  def labelConjunction(lhs: LabelExpression, rhs: LabelExpression): LabelExpression = LabelExpression.Conjunction(lhs, rhs)(pos)
+
+  def labelDisjunction(lhs: LabelExpression, rhs: LabelExpression): LabelExpression = LabelExpression.Disjunction(lhs, rhs)(pos)
+
+  def labelNegation(e: LabelExpression): LabelExpression = LabelExpression.Negation(e)(pos)
+
+  def labelAtom(name: String): LabelExpression = LabelExpression.Label(LabelOrRelTypeName(name)(pos))(pos)
 
   def ands(expressions: Expression*): Ands = Ands(expressions)(pos)
 
