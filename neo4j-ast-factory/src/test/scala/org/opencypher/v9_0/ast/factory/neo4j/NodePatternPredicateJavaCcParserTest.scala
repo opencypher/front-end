@@ -30,6 +30,7 @@ class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName 
         Some(varFor("n")),
         Seq.empty,
         None,
+        None,
         Some(greaterThan(prop("n", "prop"), literalInt(123)))
       )(pos)
     )
@@ -42,6 +43,7 @@ class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName 
       NodePattern(
         Some(varFor("n")),
         Seq("A", "B", "C").map(labelName(_)),
+        None,
         Some(mapOf("prop" -> literalInt(42))),
         Some(lessThan(prop("n", "otherProp"), literalInt(123)))
       )(pos)
@@ -54,6 +56,7 @@ class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName 
         Some(varFor("WHERE")),
         Seq.empty,
         None,
+        None,
         Some(greaterThan(prop("WHERE", "prop"), literalInt(123)))
       )(pos)
     )
@@ -65,11 +68,13 @@ class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName 
         Some(varFor("n")),
         Seq(labelName("A")),
         None,
+        None,
         Some(greaterThanOrEqual(prop("n", "prop"), literalInt(123)))
       )(pos),
       NodePattern(
         Some(varFor("end")),
         Seq.empty,
+        None,
         None,
         Some(lessThan(prop("end", "prop"), literalInt(42)))
       )(pos),
@@ -81,12 +86,14 @@ class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName 
       NodePattern(
         Some(varFor("n")),
         Seq.empty,
+        None,
         Some(mapOf("prop" -> literalString("test"))),
         Some(equals(prop("n", "otherProp"), literalInt(123)))
       )(pos),
       NodePattern(
         Some(varFor("end")),
         Seq.empty,
+        None,
         None,
         Some(equals(prop("end", "prop"), literalInt(42)))
       )(pos),
@@ -98,6 +105,7 @@ class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName 
       NodePattern(
         Some(varFor("WHERE")),
         Seq.empty,
+        None,
         Some(mapOf("prop" -> literal(123))),
         None
       )(pos)

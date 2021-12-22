@@ -177,7 +177,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     // RETURN a
     singleQuery(
       subqueryCall(
-        create(NodePattern(Some(varFor("a")), Seq.empty, None, None)(pos)),
+        create(NodePattern(Some(varFor("a")), Seq.empty, None, None, None)(pos)),
       ),
       return_(varFor("a").as("a"))
     )
@@ -196,8 +196,8 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     singleQuery(
       subqueryCall(
         union(
-          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None)(pos))),
-          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None)(pos)))
+          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None, None)(pos))),
+          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None, None)(pos)))
         )
       ),
       return_(varFor("a").as("a"))
@@ -257,8 +257,8 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     singleQuery(
       subqueryCall(
         union(
-          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None)(pos))),
-          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None)(pos)))
+          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None, None)(pos))),
+          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None, None)(pos)))
         )
       ),
       return_(countStar().as("count"))
@@ -277,8 +277,8 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     singleQuery(
       subqueryCall(
         union(
-          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None)(pos)), return_(varFor("a").as("a"))),
-          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None)(pos)), return_(varFor("a").as("a")))
+          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None, None)(pos)), return_(varFor("a").as("a"))),
+          singleQuery(create(NodePattern(Some(varFor("a")), Seq.empty, None, None, None)(pos)), return_(varFor("a").as("a")))
         )
       ),
       return_(countStar().as("count"))

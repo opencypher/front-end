@@ -324,6 +324,7 @@ import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
+import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LessThan
@@ -709,8 +710,14 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
                            v: Variable,
                            labels: util.List[StringPos[InputPosition]],
                            properties: Expression,
-                           predicate: Expression): NodePattern =
-    NodePattern(Option(v), labels.asScala.toList.map(sp => LabelName(sp.string)(sp.pos)), Option(properties), Option(predicate))(p)
+                           predicate: Expression): NodePattern = {
+//    // FIXME: Temporary hack
+//    val maybeSingleLabelExpression = labelExpression match {
+//      case LabelLeaf(label) => Some(LabelName(label.name)(label.position))
+//      case _                => None
+//    }
+    NodePattern(Option(v), labels.asScala.toList.map(sp => LabelName(sp.string)(sp.pos)), None, Option(properties), Option(predicate))(p)
+  }
 
   override def relationshipPattern(p: InputPosition,
                                    left: Boolean,
