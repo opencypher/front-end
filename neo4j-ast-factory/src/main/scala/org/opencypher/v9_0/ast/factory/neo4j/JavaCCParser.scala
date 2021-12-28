@@ -25,8 +25,8 @@ import org.opencypher.v9_0.util.InputPosition
 case object JavaCCParser {
 
   // Triggers to fallback to parboiled parser
-  // The various SHOW PRIVILEGE commands and the EXECUTE privileges are still left to be ported.
-  private val FALLBACK_TRIGGERS = Seq("PRIVILEGE", "EXECUTE")
+  // The EXECUTE privileges are still left to be ported.
+  private val FALLBACK_TRIGGERS = Seq("EXECUTE")
 
   def shouldFallback(errorMsg: String): Boolean = {
     val upper = errorMsg.toUpperCase()
