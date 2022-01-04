@@ -25,7 +25,7 @@ import org.opencypher.v9_0.util.test_helpers.TestName
 class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
 
   test("MATCH (n WHERE n.prop > 123)") {
-    parseNodePatterns(testName) shouldBe Seq(
+    val expected = Seq(
       NodePattern(
         Some(varFor("n")),
         Seq.empty,
@@ -33,6 +33,8 @@ class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName 
         Some(greaterThan(prop("n", "prop"), literalInt(123)))
       )(pos)
     )
+    parseNodePatterns(testName) shouldBe expected
+    parseNodePatterns(testName.replaceAllLiterally("WHERE", "wHeRe")) shouldBe expected
   }
 
   test("MATCH (n:A:B:C {prop: 42} WHERE n.otherProp < 123)") {

@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.Clause
 
 class SubqueryCallParserTest extends JavaccParserAstTestBase[Clause] {
 
-  implicit private val parser: JavaccRule[Clause] = JavaccRule.fromParser(_.SubqueryClause())
+  implicit private val parser: JavaccRule[Clause] = JavaccRule.SubqueryClause
 
   test("CALL { RETURN 1 }") {
     gives(subqueryCall(return_(literalInt(1).unaliased)))
