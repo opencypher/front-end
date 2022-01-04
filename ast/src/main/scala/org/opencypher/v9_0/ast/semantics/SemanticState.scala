@@ -26,6 +26,7 @@ import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.helpers.TreeElem
 import org.opencypher.v9_0.util.helpers.TreeZipper
+import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.TypeSpec
 
 import scala.collection.immutable.HashMap
@@ -277,6 +278,8 @@ case class SemanticState(currentScope: ScopeLocation,
   def symbol(name: String): Option[Symbol] = currentScope.symbol(name)
 
   def symbolTypes(name: String): TypeSpec = symbol(name).map(_.types).getOrElse(TypeSpec.all)
+
+  def isNode(name: String): Boolean = symbolTypes(name) == CTNode.invariant
 
   def importValuesFromScope(scope: Scope, exclude: Set[String] = Set.empty): SemanticState =
     copy(currentScope = currentScope.importValuesFromScope(scope, exclude))
