@@ -52,9 +52,13 @@ case class PatternStringifier(expr: ExpressionStringifier) {
         .filter(_.nonEmpty)
         .map(_.map(expr(_)).mkString(":", ":", ""))
 
+    val labelExpression =
+      nodePattern.labelExpression
+        .map(le => s":${le.toString}")
+
     val body =
       concatenate(" ", Seq(
-        concatenate("", Seq(variable, labels)),
+        concatenate("", Seq(variable, labels, labelExpression)),
         nodePattern.properties.map(expr(_)),
         nodePattern.predicate.map(stringifyPredicate),
       )).getOrElse("")
