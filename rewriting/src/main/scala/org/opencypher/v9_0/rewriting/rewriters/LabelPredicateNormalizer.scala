@@ -15,18 +15,45 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.expressions.And
+import org.opencypher.v9_0.expressions.BooleanExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.HasLabels
+import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.Or
 
 object LabelPredicateNormalizer extends MatchPredicateNormalizer {
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
-    // TODO
     case p@NodePattern(Some(id), labels, _, _, _) if labels.nonEmpty => Vector(HasLabels(id.copyId, labels)(p.position))
+    case NodePattern(Some(id), _, Some(expression), _, _)            => Vector(extractLabelExpressionPredicates(id, expression))
   }
 
   override val replace: PartialFunction[AnyRef, AnyRef] = {
-    // TODO
     case p@NodePattern(Some(_), labels, _, _, _) if labels.nonEmpty => p.copy(labels = Seq.empty)(p.position)
+    case p@NodePattern(Some(_), _, Some(_), _, _)                   => p.copy(labelExpression = None)(p.position)
+  }
+
+  private def extractLabelExpressionPredicates(variable: LogicalVariable, e: LabelExpression): BooleanExpression = {
+    e match {
+      case c: LabelExpression.Conjunction => And(
+        extractLabelExpressionPredicates(variable.copyId, c.lhs),
+        extractLabelExpressionPredicates(variable.copyId, c.rhs)
+      )(c.position)
+
+      case d: LabelExpression.Disjunction => Or(
+        extractLabelExpressionPredicates(variable.copyId, d.lhs),
+        extractLabelExpressionPredicates(variable.copyId, d.rhs)
+      )(d.position)
+
+      case n: LabelExpression.Negation => Not(
+        extractLabelExpressionPredicates(variable.copyId, n.e)
+      )(n.position)
+
+      case n: LabelExpression.Label => HasLabels(variable.copyId, Seq(LabelName(n.label.name)(n.position)))(n.position)
+    }
   }
 }
