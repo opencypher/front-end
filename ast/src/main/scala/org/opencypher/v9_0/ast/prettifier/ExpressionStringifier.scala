@@ -89,6 +89,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.expressions.functions.UserDefinedFunctionInvocation
+import org.opencypher.v9_0.logical.plans.CoerceToPredicate
 import org.opencypher.v9_0.util.InputPosition
 
 case class ExpressionStringifier(
@@ -315,6 +316,10 @@ case class ExpressionStringifier(
 
       case CoerceTo(expr, typ) =>
         apply(expr)
+
+      case CoerceToPredicate(expr) =>
+        val inner = apply(expr)
+        s"CoerceToPredicate($inner)"
 
       case _ =>
         extension(this)(ast)
