@@ -19,7 +19,9 @@ import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InternalNotificationLogger
+import org.opencypher.v9_0.util.NotImplementedErrorMessageProvider
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.scalatest.mockito.MockitoSugar.mock
 
@@ -32,4 +34,6 @@ case class TestContext(override val notificationLogger: InternalNotificationLogg
   override def monitors = mock[Monitors]
 
   override def errorHandler = _ => ()
+
+  override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
 }

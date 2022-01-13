@@ -17,6 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InternalNotificationLogger
 
 trait BaseContext {
@@ -25,4 +26,6 @@ trait BaseContext {
   def cypherExceptionFactory: CypherExceptionFactory
   def monitors: Monitors
   def errorHandler: Seq[SemanticErrorDef] => Unit
+
+  def errorMessageProvider: ErrorMessageProvider
 }

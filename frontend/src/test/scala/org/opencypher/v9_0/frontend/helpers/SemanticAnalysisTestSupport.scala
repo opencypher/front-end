@@ -21,6 +21,8 @@ import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.ErrorMessageProvider
+import org.opencypher.v9_0.util.NotImplementedErrorMessageProvider
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.devNullLogger
 import org.scalatest.matchers.MatchResult
@@ -36,6 +38,8 @@ class ErrorCollectingContext extends BaseContext {
   override def monitors: Monitors = ???
   override def errorHandler: Seq[SemanticErrorDef] => Unit = (errs: Seq[SemanticErrorDef]) =>
     errors = errs
+
+  override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
 }
 
 object ErrorCollectingContext {

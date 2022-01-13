@@ -42,8 +42,10 @@ import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotificationLogger
+import org.opencypher.v9_0.util.NotImplementedErrorMessageProvider
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Condition
@@ -247,4 +249,6 @@ class TestContext(override val monitors: Monitors) extends BaseContext {
   override def cypherExceptionFactory: CypherExceptionFactory = ???
 
   override def errorHandler: Seq[SemanticErrorDef] => Unit = _ => ()
+
+  override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
 }
