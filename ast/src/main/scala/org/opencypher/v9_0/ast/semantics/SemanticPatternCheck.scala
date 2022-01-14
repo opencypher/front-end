@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.InvalidNodePattern
 import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.NamedPatternPart
@@ -237,7 +238,8 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
 
       case x: NodePattern =>
         checkNodeProperties(ctx, x.properties) chain
-          checkValidLabels(x.labels, x.position)
+          checkValidLabels(x.labels, x.position) chain
+          checkValidLabelOrRelTypes(x.labelExpression.findAllByClass[LabelOrRelTypeName], x.position)
 
     }
 
@@ -369,6 +371,13 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
   def checkValidRelTypes(relTypeNames: Seq[RelTypeName], pos: InputPosition): SemanticCheck = {
     val errorMessage = relTypeNames.collectFirst { case relType if checkValidTokenName(relType.name).nonEmpty =>
       checkValidTokenName(relType.name).get
+    }
+    if (errorMessage.nonEmpty) SemanticError(errorMessage.get, pos) else None
+  }
+
+  def checkValidLabelOrRelTypes(names: Seq[LabelOrRelTypeName], pos: InputPosition): SemanticCheck = {
+    val errorMessage = names.collectFirst { case name if checkValidTokenName(name.name).nonEmpty =>
+      checkValidTokenName(name.name).get
     }
     if (errorMessage.nonEmpty) SemanticError(errorMessage.get, pos) else None
   }
