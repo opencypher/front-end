@@ -116,9 +116,12 @@ import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
+import org.opencypher.v9_0.ast.ExecuteFunctionAction
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FulltextIndexes
+import org.opencypher.v9_0.ast.FunctionQualifier
 import org.opencypher.v9_0.ast.GrantPrivilege
 import org.opencypher.v9_0.ast.GrantRolesToUsers
 import org.opencypher.v9_0.ast.GraphAction
@@ -1536,6 +1539,8 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     case ActionType.PRIVILEGE_ASSIGN => AssignPrivilegeAction
     case ActionType.PRIVILEGE_REMOVE => RemovePrivilegeAction
     case ActionType.PRIVILEGE_SHOW => ShowPrivilegeAction
+    case ActionType.EXECUTE_FUNCTION => ExecuteFunctionAction
+    case ActionType.EXECUTE_BOOSTED_FUNCTION => ExecuteBoostedFunctionAction
 
     case ActionType.GRAPH_ALL => AllGraphAction
     case ActionType.GRAPH_WRITE => WriteAction
@@ -1597,6 +1602,12 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
   override def allUsersQualifier(): util.List[PrivilegeQualifier] = {
     val list = new util.ArrayList[PrivilegeQualifier]()
     list.add(UserAllQualifier()(InputPosition.NONE))
+    list
+  }
+
+  override def functionQualifier(p: InputPosition, functions: util.List[String]): util.List[PrivilegeQualifier] = {
+    val list = new util.ArrayList[PrivilegeQualifier]()
+    functions.forEach(f => list.add(FunctionQualifier(f)(p)))
     list
   }
 

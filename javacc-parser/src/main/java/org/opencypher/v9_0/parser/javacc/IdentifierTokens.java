@@ -31,6 +31,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.AS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ASC;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ASSERT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ASSIGN;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.BOOSTED;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.BRIEF;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.BTREE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.BUILT;
@@ -72,6 +73,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.END;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ENDS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ESCAPED_SYMBOLIC_NAME;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXECUTABLE;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXECUTE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXIST;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXISTENCE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EXISTS;
@@ -210,6 +212,7 @@ public class IdentifierTokens
             ASC,
             ASSERT,
             ASSIGN,
+            BOOSTED,
             BRIEF,
             BTREE,
             BUILT,
@@ -250,6 +253,7 @@ public class IdentifierTokens
             END,
             ENDS,
             EXECUTABLE,
+            EXECUTE,
             EXIST,
             EXISTENCE,
             EXISTS,

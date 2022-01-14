@@ -313,6 +313,7 @@ TOKEN [IGNORE_CASE] :
     | < ASSERT: "ASSERT" >
     | < ASSIGN: "ASSIGN" >
     | < BAR: "|" >
+    | < BOOSTED: "BOOSTED" >
     | < BRIEF: "BRIEF" >
     | < BTREE: "BTREE" >
     | < BUILT: "BUILT" >
@@ -358,6 +359,7 @@ TOKEN [IGNORE_CASE] :
     | < ENDS: "ENDS" >
     | < EQ: "=" >
     | < EXECUTABLE: "EXECUTABLE" >
+    | < EXECUTE: "EXECUTE" >
     | < EXIST: "EXIST" >
     | < EXISTENCE: "EXISTENCE" >
     | < EXISTS: "EXISTS" >
@@ -431,6 +433,7 @@ TOKEN [IGNORE_CASE] :
     | < PROCEDURE: "PROCEDURE" >
     | < PROCEDURES: "PROCEDURES" >
     | < PROPERTY: "PROPERTY" >
+    | < QUESTION: "?" >
     | < RANGE: "RANGE" >
     | < RBRACKET: "]" >
     | < RCURLY: "}" >
@@ -2948,17 +2951,6 @@ List<String> Namespace() :
     }
 }
 
-String FunctionName() :
-{
-    Token t;
-}
-{
-    t=SymbolicNameString()
-    {
-        return t.image;
-    }
-}
-
 List<VARIABLE> VariableList1() :
 {
     Token t;
@@ -4740,7 +4732,6 @@ PRIVILEGE_TYPE databasePrivilege(Token start):
     }
 }
 
-// all dbms privileges apart from EXECUTE PROCEDURE/FUNCTION since we have to solve globbing for that first
 PRIVILEGE_TYPE dbmsPrivilege(Token start):
 {
     ADMINISTRATION_ACTION action = null;
@@ -4758,6 +4749,16 @@ PRIVILEGE_TYPE dbmsPrivilege(Token start):
             | <ROLE> { action = astFactory.privilegeAction( ActionType.ROLE_ASSIGN ); }
         )
         | <DATABASE> <MANAGEMENT> { action = astFactory.privilegeAction( ActionType.DATABASE_MANAGEMENT ); }
+        | LOOKAHEAD(<EXECUTE> <BOOSTED>) <EXECUTE> <BOOSTED> ( <USER> ( <DEFINED> )? )? ( <FUNCTION> | <FUNCTIONS> )
+          qualifier = executeFunctionQualifier(start)
+           {
+                action = astFactory.privilegeAction( ActionType.EXECUTE_BOOSTED_FUNCTION );
+            }
+        | <EXECUTE> ( <USER> ( <DEFINED> )? )? ( <FUNCTION> | <FUNCTIONS> ) qualifier = executeFunctionQualifier(start)
+           {
+                action = astFactory.privilegeAction( ActionType.EXECUTE_FUNCTION );
+            }
+
         | <PRIVILEGE> <MANAGEMENT> { action = astFactory.privilegeAction( ActionType.PRIVILEGE_ALL ); }
         | <RENAME> (
             <ROLE> { action = astFactory.privilegeAction( ActionType.ROLE_RENAME ); }
@@ -4771,6 +4772,27 @@ PRIVILEGE_TYPE dbmsPrivilege(Token start):
     <ON> <DBMS>
     {
         return astFactory.dbmsPrivilege( pos(start), action, qualifier );
+    }
+}
+
+List<PRIVILEGE_QUALIFIER> executeFunctionQualifier(Token start):
+{
+    List<String> functionList = new ArrayList<>();
+    String functionName = null;
+}
+{
+    functionName=Glob()
+    {
+        functionList.add(functionName);
+    }
+    (
+        "," functionName=Glob()
+        {
+            functionList.add(functionName);
+        }
+    )*
+    {
+        return astFactory.functionQualifier(pos(start), functionList);
     }
 }
 
@@ -5143,6 +5165,38 @@ SimpleEither<String, PARAMETER> SymbolicNameOrStringParameter():
     | parameter=Parameter(ParameterType.STRING) { return SimpleEither.<String, PARAMETER>right( parameter ); }
 }
 
+String Glob() :
+{
+    String globString = "";
+    String nextGlob = "";
+}
+{
+    (
+        LOOKAHEAD(GlobPart() ("," | (<ON> <DBMS> (<TO> | <FROM>) SymbolicNameOrStringParameterList() <EOF>))) globString=GlobPart()
+        | globString=GlobPart() nextGlob=Glob() { globString += nextGlob; }
+    )
+    {
+        return globString;
+    }
+}
+
+String GlobPart() :
+{
+    String globPartString = null;
+    Token glob = null;
+}
+{
+    (
+        <QUESTION> { globPartString = "?"; }
+        | <TIMES> { globPartString = "*"; }
+        | <DOT> { globPartString = "."; }
+        | glob = SymbolicNameString() { globPartString = glob.image; }
+    )
+    {
+        return globPartString;
+    }
+}
+
 String TransactionIdString():
 {
     Token t;
@@ -5227,6 +5281,7 @@ Token SymbolicNameString() :
         | t=<ASC>
         | t=<ASSERT>
         | t=<ASSIGN>
+        | t=<BOOSTED>
         | t=<BRIEF>
         | t=<BTREE>
         | t=<BUILT>
@@ -5267,6 +5322,7 @@ Token SymbolicNameString() :
         | t=<END>
         | t=<ENDS>
         | t=<EXECUTABLE>
+        | t=<EXECUTE>
         | t=<EXIST>
         | t=<EXISTENCE>
         | t=<EXISTS>
