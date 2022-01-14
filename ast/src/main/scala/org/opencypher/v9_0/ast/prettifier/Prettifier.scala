@@ -199,7 +199,6 @@ import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
 import org.opencypher.v9_0.expressions.LabelName
-import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.RelTypeName
@@ -986,21 +985,15 @@ object Prettifier {
   }
 
   def extractQualifierPart(qualifier: List[PrivilegeQualifier]): Option[String] = {
-    def stringifyQualifiedName(nameSpace: Namespace, name: String) = {
-      val namespace = nameSpace.parts.map(ExpressionStringifier.backtick(_, globbing = true)).mkString(".")
-      val prefix = if (namespace.isEmpty) "" else namespace + "."
-      prefix + ExpressionStringifier.backtick(name, globbing = true)
-    }
+    def stringifyQualifiedName(glob: String) = glob.split('.').map(ExpressionStringifier.backtick(_, globbing = true)).mkString(".")
 
     def stringify: PartialFunction[PrivilegeQualifier,String] = {
       case LabelQualifier(name) => ExpressionStringifier.backtick(name)
       case RelationshipQualifier(name) => ExpressionStringifier.backtick(name)
       case ElementQualifier(name) => ExpressionStringifier.backtick(name)
       case UserQualifier(name) => escapeName(name)
-      case ProcedureQualifier(nameSpace, procedureName) =>
-        stringifyQualifiedName(nameSpace, procedureName.name)
-      case FunctionQualifier(nameSpace, functionName) =>
-        stringifyQualifiedName(nameSpace, functionName.name)
+      case ProcedureQualifier(glob) => stringifyQualifiedName(glob)
+      case FunctionQualifier(glob) => stringifyQualifiedName(glob)
     }
 
     qualifier match {
@@ -1017,9 +1010,9 @@ object Prettifier {
       case UserAllQualifier() :: Nil => Some("(*)")
       case AllQualifier() :: Nil => None
       case AllDatabasesQualifier() :: Nil => None
-      case p@ProcedureQualifier(_, _) :: _ => Some(p.map(stringify).mkString(", "))
+      case p@ProcedureQualifier(_) :: _ => Some(p.map(stringify).mkString(", "))
       case ProcedureAllQualifier() :: Nil => Some("*")
-      case p@FunctionQualifier(_, _) :: _ => Some(p.map(stringify).mkString(", "))
+      case p@FunctionQualifier(_) :: _ => Some(p.map(stringify).mkString(", "))
       case FunctionAllQualifier() :: Nil => Some("*")
       case _ => Some("<unknown>")
     }

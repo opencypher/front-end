@@ -18,13 +18,10 @@ package org.opencypher.v9_0.parser.privilege
 import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
 import org.opencypher.v9_0.ast.ExecuteFunctionAction
 import org.opencypher.v9_0.ast.FunctionQualifier
-import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.parser.AdministrationCommandParserTestBase
 import org.opencypher.v9_0.util.InputPosition
 
 class ExecuteFunctionPrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
-  private val apocString = "apoc"
-  private val mathString = "math"
 
   Seq(
     ("GRANT", "TO", grantExecuteFunctionPrivilege: executeFunctionPrivilegeFunc),
@@ -58,15 +55,15 @@ class ExecuteFunctionPrivilegeAdministrationCommandParserTest extends Administra
           }
 
           test(s"$verb $execute apoc.function ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List(apocString), "function")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("apoc.function")), Seq(literalRole)))
           }
 
           test(s"$verb ${execute}S apoc.function ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List(apocString), "function")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("apoc.function")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.math.sin ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List(apocString, mathString), "sin")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("apoc.math.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc* ON DBMS $preposition role") {
@@ -77,28 +74,52 @@ class ExecuteFunctionPrivilegeAdministrationCommandParserTest extends Administra
             yields(func(action, List(functionQualifier("*apoc")), Seq(literalRole)))
           }
 
+          test(s"$verb $execute *apoc, *.sin ON DBMS $preposition role") {
+            yields(func(action, List(functionQualifier("*apoc"), functionQualifier("*.sin")), Seq(literalRole)))
+          }
+
+          test(s"$verb $execute *.sin, apoc* ON DBMS $preposition role") {
+            yields(func(action, List(functionQualifier("*.sin"), functionQualifier("apoc*")), Seq(literalRole)))
+          }
+
           test(s"$verb $execute *.sin ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List("*"), "sin")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("*.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.*.math.* ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List(apocString, "*", mathString), "*")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("apoc.*.math.*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute math.*n ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List(mathString), "*n")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("math.*n")), Seq(literalRole)))
+          }
+
+          test(s"$verb $execute math.si? ON DBMS $preposition role") {
+            yields(func(action, List(functionQualifier("math.si?")), Seq(literalRole)))
+          }
+
+          test(s"$verb $execute mat*.sin ON DBMS $preposition role") {
+            yields(func(action, List(functionQualifier("mat*.sin")), Seq(literalRole)))
+          }
+
+          test(s"$verb $execute mat?.sin ON DBMS $preposition role") {
+            yields(func(action, List(functionQualifier("mat?.sin")), Seq(literalRole)))
+          }
+
+          test(s"$verb $execute ?ath.sin ON DBMS $preposition role") {
+            yields(func(action, List(functionQualifier("?ath.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute mat?.`a.\n`.*n ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List("mat?", "a.\n"), "*n")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("mat?.a.\n.*n")), Seq(literalRole)))
           }
 
           test(s"$verb $execute math.sin, math.cos ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List(mathString), "sin"), functionQualifier(List(mathString), "cos")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("math.sin"), functionQualifier("math.cos")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.math.sin, math.* ON DBMS $preposition role") {
-            yields(func(action, List(functionQualifier(List(apocString, mathString), "sin"), functionQualifier(List(mathString), "*")), Seq(literalRole)))
+            yields(func(action, List(functionQualifier("apoc.math.sin"), functionQualifier("math.*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute * $preposition role") {
@@ -111,8 +132,5 @@ class ExecuteFunctionPrivilegeAdministrationCommandParserTest extends Administra
       }
   }
 
-  private def functionQualifier(funcName: String): InputPosition => FunctionQualifier = functionQualifier(List.empty, funcName)
-
-  private def functionQualifier(nameSpace: List[String], funcName: String): InputPosition => FunctionQualifier =
-    FunctionQualifier(expressions.Namespace(nameSpace)(_), expressions.FunctionName(funcName)(_))(_)
+  private def functionQualifier(glob: String): InputPosition => FunctionQualifier = FunctionQualifier(glob)(_)
 }
