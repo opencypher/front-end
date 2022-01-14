@@ -20,19 +20,6 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class JavaCCParserFallbackTest extends CypherFunSuite {
 
-  test("should fall back") {
-    Seq(
-      // Not (yet) supported commands
-      "GRANT EXECUTE FUNCTION * ON DBMS TO role",
-      "DENY EXECUTE BOOSTED PROCEDURE apoc.match ON DBMS TO role",
-
-      // Supported commands containing fallback keywords
-      "MATCH (n) RETURN n // EXECUTE",
-    ).foreach(t => {
-      withClue(t) { JavaCCParser.shouldFallback(t) shouldBe true }
-    })
-  }
-
   test("should not fall back") {
     Seq(
       "MATCH (n) RETURN n",
@@ -43,7 +30,9 @@ class JavaCCParserFallbackTest extends CypherFunSuite {
       "CREATE USER username SET PASSWORD 'secret'",
       "SHOW ROLES",
       "GRANT ACCESS ON DATABASE foo TO role",
-      "SHOW PRIVILEGES AS COMMANDS"
+      "SHOW PRIVILEGES AS COMMANDS",
+      "GRANT EXECUTE FUNCTION * ON DBMS TO role",
+      "DENY EXECUTE BOOSTED PROCEDURE apoc.match ON DBMS TO role",
     ).foreach(t => {
       withClue(t) { JavaCCParser.shouldFallback(t) shouldBe false }
     })

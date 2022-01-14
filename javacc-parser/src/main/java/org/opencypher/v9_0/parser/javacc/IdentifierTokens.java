@@ -21,6 +21,8 @@ import java.util.Set;
 
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ACCESS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ACTIVE;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ADMIN;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ADMINISTRATOR;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALIAS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALL;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALL_SHORTEST_PATH;
@@ -202,6 +204,8 @@ public class IdentifierTokens
             //keywords
             ACCESS,
             ACTIVE,
+            ADMIN,
+            ADMINISTRATOR,
             ALIAS,
             ALL_SHORTEST_PATH,
             ALL,

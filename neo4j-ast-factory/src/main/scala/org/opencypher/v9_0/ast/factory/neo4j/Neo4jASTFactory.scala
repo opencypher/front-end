@@ -116,8 +116,11 @@ import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
+import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteFunctionAction
+import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.ExistsConstraints
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FulltextIndexes
@@ -162,6 +165,7 @@ import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.PrivilegeType
+import org.opencypher.v9_0.ast.ProcedureQualifier
 import org.opencypher.v9_0.ast.ProcedureResult
 import org.opencypher.v9_0.ast.ProcedureResultItem
 import org.opencypher.v9_0.ast.PropertiesResource
@@ -1541,6 +1545,9 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     case ActionType.PRIVILEGE_SHOW => ShowPrivilegeAction
     case ActionType.EXECUTE_FUNCTION => ExecuteFunctionAction
     case ActionType.EXECUTE_BOOSTED_FUNCTION => ExecuteBoostedFunctionAction
+    case ActionType.EXECUTE_PROCEDURE => ExecuteProcedureAction
+    case ActionType.EXECUTE_BOOSTED_PROCEDURE => ExecuteBoostedProcedureAction
+    case ActionType.EXECUTE_ADMIN_PROCEDURE => ExecuteAdminProcedureAction
 
     case ActionType.GRAPH_ALL => AllGraphAction
     case ActionType.GRAPH_WRITE => WriteAction
@@ -1608,6 +1615,12 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
   override def functionQualifier(p: InputPosition, functions: util.List[String]): util.List[PrivilegeQualifier] = {
     val list = new util.ArrayList[PrivilegeQualifier]()
     functions.forEach(f => list.add(FunctionQualifier(f)(p)))
+    list
+  }
+
+  override def procedureQualifier(p: InputPosition, procedures: util.List[String]): util.List[PrivilegeQualifier] = {
+    val list = new util.ArrayList[PrivilegeQualifier]()
+    procedures.forEach(proc => list.add(ProcedureQualifier(proc)(p)))
     list
   }
 
