@@ -53,6 +53,7 @@ import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
+import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
@@ -490,6 +491,20 @@ case class Match(
       case RelationshipPattern(Some(Variable(id)), types, _, _, _, _, _) if variable == id =>
         list => list ++ types.map(_.name)
     }
+
+    val labelExpressionLabels: Seq[String] = pattern.fold(Seq.empty[String]) {
+      case NodePattern(Some(Variable(id)), _, Some(labelExpression), _, _) if variable == id =>
+        list => list ++
+          labelExpression.treeFold(Seq.empty[String]) {
+            case l: LabelExpression.Label =>
+              acc => SkipChildren(acc :+ l.label.name)
+            case _: LabelExpression.Conjunction | _: LabelExpression.Disjunction =>
+              acc => TraverseChildren(acc)
+            case _ =>
+              acc => SkipChildren(acc)
+          }
+    }
+
     val (predicateLabels, predicateRelTypes) = where match {
       case Some(innerWhere) => innerWhere.treeFold((Seq.empty[String], Seq.empty[String])) {
         case HasLabels(Variable(id), predicateLabels) if id == variable => {
@@ -508,7 +523,7 @@ case class Match(
       }
       case None => (inlinedLabels, inlinedRelTypes)
     }
-    val allLabels = inlinedLabels ++ predicateLabels
+    val allLabels = inlinedLabels ++ labelExpressionLabels ++ predicateLabels
     val allRelTypes = inlinedRelTypes ++ predicateRelTypes
     allLabels ++ allRelTypes
   }
