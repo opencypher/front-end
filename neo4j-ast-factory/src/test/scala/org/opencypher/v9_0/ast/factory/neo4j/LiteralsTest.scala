@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.ast.factory.ParameterType
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
 import org.opencypher.v9_0.expressions.Expression
@@ -31,7 +30,7 @@ import org.opencypher.v9_0.util.symbols.CTAny
 class LiteralsTest extends JavaccParserTestBase[Any, Any] with AstConstructionTestSupport {
 
   private val Variable = JavaccRule.Variable
-  private val NumberLiteral = JavaccRule.fromParser(_.NumberLiteral())
+  private val NumberLiteral = JavaccRule.NumberLiteral
 
   private val t = DummyPosition(0)
 
@@ -94,7 +93,7 @@ class LiteralsTest extends JavaccParserTestBase[Any, Any] with AstConstructionTe
   }
 
   test("can parse parameter syntax") {
-    implicit val parserToTest: JavaccRule[Parameter] = JavaccRule.fromParser(_.Parameter(ParameterType.ANY))
+    implicit val parserToTest: JavaccRule[Parameter] = JavaccRule.Parameter
 
     parsing("$p") shouldGive expressions.Parameter("p", CTAny)(t)
     parsing("$`the funny horse`") shouldGive expressions.Parameter("the funny horse", CTAny)(t)

@@ -17,8 +17,11 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.factory.ParameterType
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.parser.javacc.Cypher
 import org.opencypher.v9_0.parser.javacc.CypherCharStream
@@ -42,13 +45,22 @@ object JavaccRule {
     res
   }
 
-  def Statement: JavaccRule[Statement] = fromParser(_.Statement())
-  def Clause: JavaccRule[Clause] = fromParser(_.Clause())
-  def SubqueryClause: JavaccRule[Clause] = fromParser(_.SubqueryClause())
-  def Expression: JavaccRule[Expression] = fromParser(_.Expression())
-  def Variable: JavaccRule[Variable] = fromParser(_.Variable())
+  def CallClause: JavaccRule[Clause] = fromParser(_.CallClause())
   def CaseExpression: JavaccRule[Expression] = fromParser(_.CaseExpression())
+  def Clause: JavaccRule[Clause] = fromParser(_.Clause())
+  def Expression: JavaccRule[Expression] = fromParser(_.Expression())
+  def FunctionInvocation: JavaccRule[Expression] = fromParser(_.FunctionInvocation())
+  def ListComprehension: JavaccRule[Expression] = fromParser(_.ListComprehension())
+  def MapLiteral: JavaccRule[Expression] = fromParser(_.MapLiteral())
+  def MapProjection: JavaccRule[Expression] = fromParser(_.MapProjection())
   def NodePattern: JavaccRule[NodePattern] = fromParser(_.NodePattern())
+  def NumberLiteral: JavaccRule[Expression] = fromParser(_.NumberLiteral())
+  def Parameter: JavaccRule[Parameter] = fromParser(_.Parameter(ParameterType.ANY))
+  def PatternComprehension: JavaccRule[Expression] = fromParser(_.PatternComprehension())
+  def RelationshipPattern: JavaccRule[RelationshipPattern] = fromParser(_.RelationshipPattern())
+  def Statement: JavaccRule[Statement] = fromParser(_.Statement())
+  def SubqueryClause: JavaccRule[Clause] = fromParser(_.SubqueryClause())
+  def Variable: JavaccRule[Variable] = fromParser(_.Variable())
 
   // ParserFactory is only really needed to create the Parser type alias above without writing down all 30+ type parameters that Cypher[A,B,C,..] has.
   trait ParserFactory[P] {

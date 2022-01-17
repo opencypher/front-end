@@ -82,7 +82,7 @@ class MiscParserTest extends JavaccParserAstTestBase[Any] {
   }
 
   test("-[:Person*1..2]-") {
-    implicit val parser: JavaccRule[RelationshipPattern] = JavaccRule.fromParser(_.RelationshipPattern())
+    implicit val parser: JavaccRule[RelationshipPattern] = JavaccRule.RelationshipPattern
     yields {
       RelationshipPattern(None, List(relTypeName("Person")),
         Some(Some(
@@ -111,7 +111,7 @@ class MiscParserTest extends JavaccParserAstTestBase[Any] {
   }
 
   test("should not parse pattern comprehensions with single nodes") {
-    implicit val parser: JavaccRule[Expression] = JavaccRule.fromParser(_.PatternComprehension())
+    implicit val parser: JavaccRule[Expression] = JavaccRule.PatternComprehension
     assertFails("[p = (x) | p]")
   }
 }
