@@ -23,7 +23,7 @@ import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.DummyPosition
 
-class ListComprehensionTest extends JavaccParserTestBase[Expression, Any] {
+class ListComprehensionJavaccParserTest extends JavaccParserTestBase[Expression, Any] {
   private val t = DummyPosition(0)
 
   implicit private val parser: JavaccRule[Expression] = JavaccRule.ListComprehension

@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.Clause
 
-class ProcedureCallParserTest extends JavaccParserAstTestBase[Clause] {
+class ProcedureCallJavaccParserTest extends JavaccParserAstTestBase[Clause] {
 
   implicit private val parser: JavaccRule[Clause] = JavaccRule.CallClause
 

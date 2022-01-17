@@ -17,22 +17,31 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.expressions.Expression
 
-class FunctionInvocationParserTest extends JavaccParserAstTestBase[Expression] {
+class ComparisonJavaccParserTest extends JavaccParserAstTestBase[Expression] {
 
-  implicit private val parser: JavaccRule[Expression] = JavaccRule.FunctionInvocation
+  implicit private val parser: JavaccRule[Expression] = JavaccRule.Expression
 
-  test("foo()") {
-    gives(function("foo"))
+  test("a < b") {
+    gives(lt(id("a"), id("b")))
   }
 
-  test("foo('test', 1 + 2)") {
-    gives(function("foo", literalString("test"), add(literalInt(1), literalInt(2))))
-  }
-  test("my.namespace.foo()") {
-    gives(function(List("my", "namespace"), "foo"))
+  test("a > b") {
+    gives(gt(id("a"), id("b")))
   }
 
-  test("my.namespace.foo('test', 1 + 2)") {
-    gives(function(List("my", "namespace"), "foo", literalString("test"), add(literalInt(1), literalInt(2))))
+  test("a > b AND b > c") {
+    gives(and(gt(id("a"), id("b")), gt(id("b"), id("c"))))
+  }
+
+  test("a > b > c") {
+    gives(ands(gt(id("a"), id("b")), gt(id("b"), id("c"))))
+  }
+
+  test("a > b > c > d") {
+    gives(ands(gt(id("a"), id("b")), gt(id("b"), id("c")), gt(id("c"), id("d"))))
+  }
+
+  test("a < b > c = d <= e >= f") {
+    gives(ands(lt(id("a"), id("b")), gt(id("b"), id("c")), eq(id("c"), id("d")), lte(id("d"), id("e")), gte(id("e"), id("f"))))
   }
 }

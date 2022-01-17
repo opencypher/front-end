@@ -28,7 +28,7 @@ import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 
-class MiscParserTest extends JavaccParserAstTestBase[Any] {
+class MiscJavaccParserTest extends JavaccParserAstTestBase[Any] {
 
   test("RETURN 1 AS x //l33t comment") {
     implicit val parser: JavaccRule[Statement] = JavaccRule.Statement

@@ -15,33 +15,31 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
+import org.opencypher.v9_0.expressions.CaseExpression
 import org.opencypher.v9_0.expressions.Expression
 
-class ComparisonTest extends JavaccParserAstTestBase[Expression] {
+class CaseExpressionJavaccParserTest extends JavaccParserAstTestBase[Expression] {
+  implicit private val parser: JavaccRule[Expression] = JavaccRule.CaseExpression
 
-  implicit private val parser: JavaccRule[Expression] = JavaccRule.Expression
-
-  test("a < b") {
-    gives(lt(id("a"), id("b")))
+  test("CASE WHEN (e) THEN e ELSE null END") {
+    yields {
+      CaseExpression(
+        None,
+        List(varFor("e") -> varFor("e")),
+        Some(nullLiteral))
+    }
   }
 
-  test("a > b") {
-    gives(gt(id("a"), id("b")))
+  test("CASE when(e) WHEN (e) THEN e ELSE null END") {
+    yields {
+      CaseExpression(
+        Some(function("when", varFor("e"))),
+        List(varFor("e") -> varFor("e")),
+        Some(nullLiteral))
+    }
   }
 
-  test("a > b AND b > c") {
-    gives(and(gt(id("a"), id("b")), gt(id("b"), id("c"))))
-  }
-
-  test("a > b > c") {
-    gives(ands(gt(id("a"), id("b")), gt(id("b"), id("c"))))
-  }
-
-  test("a > b > c > d") {
-    gives(ands(gt(id("a"), id("b")), gt(id("b"), id("c")), gt(id("c"), id("d"))))
-  }
-
-  test("a < b > c = d <= e >= f") {
-    gives(ands(lt(id("a"), id("b")), gt(id("b"), id("c")), eq(id("c"), id("d")), lte(id("d"), id("e")), gte(id("e"), id("f"))))
+  test("CASE when(v1) + 1 WHEN THEN v2 ELSE null END") {
+    failsToParse
   }
 }

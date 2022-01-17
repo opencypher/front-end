@@ -27,7 +27,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 
-class LiteralsTest extends JavaccParserTestBase[Any, Any] with AstConstructionTestSupport {
+class LiteralsJavaccParserTest extends JavaccParserTestBase[Any, Any] with AstConstructionTestSupport {
 
   private val Variable = JavaccRule.Variable
   private val NumberLiteral = JavaccRule.NumberLiteral
