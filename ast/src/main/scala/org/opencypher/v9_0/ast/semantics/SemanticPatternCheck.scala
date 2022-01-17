@@ -20,6 +20,7 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.InvalidNodePattern
+import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LogicalVariable
@@ -239,7 +240,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
       case x: NodePattern =>
         checkNodeProperties(ctx, x.properties) chain
           checkValidLabels(x.labels, x.position) chain
-          checkValidLabelOrRelTypes(x.labelExpression.findAllByClass[LabelOrRelTypeName], x.position)
+          checkLabelExpressions(ctx, x.labelExpression, x.position)
 
     }
 
@@ -348,6 +349,16 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
       checkValidPropertyKeyNamesInPattern(properties) chain
       SemanticExpressionCheck.simple(properties) chain
       expectType(CTMap.covariant, properties)
+
+
+
+  def checkLabelExpressions(ctx: SemanticContext, labelExpression: Option[LabelExpression], inputPosition: InputPosition): SemanticCheck =
+  labelExpression.foldSemanticCheck { predicate =>
+    when (ctx != SemanticContext.Match) {
+      error(s"Label expressions are not allowed in ${ctx.name}, but only in MATCH clause", predicate.position)
+    } chain
+    checkValidLabelOrRelTypes(labelExpression.findAllByClass[LabelOrRelTypeName], inputPosition)
+  }
 
   def checkValidPropertyKeyNamesInReturnItems(returnItems: ReturnItems, position: InputPosition): SemanticCheck = {
     val propertyKeys = returnItems.items.collect { case item => item.expression.findAllByClass[Property]map(prop => prop.propertyKey) }.flatten
