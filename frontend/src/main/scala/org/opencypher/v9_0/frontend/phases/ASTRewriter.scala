@@ -17,7 +17,6 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.frontend.phases.rewriting.cnf.mergeDuplicateBooleanOperators
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.normalizeSargablePredicates
 import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.RewriterStep
@@ -59,7 +58,6 @@ object ASTRewriter {
     moveWithPastMatch,
     normalizeComparisons,
     foldConstants,
-    mergeDuplicateBooleanOperators,
     normalizeExistsPatternExpressions,
     nameAllPatternElements,
     normalizeMatchPredicates,
