@@ -19,5 +19,6 @@ public enum HintIndexType
 {
     ANY,
     BTREE,
-    TEXT
+    TEXT,
+    RANGE
 }

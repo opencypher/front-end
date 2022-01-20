@@ -271,6 +271,7 @@ import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHintType
 import org.opencypher.v9_0.ast.UsingJoinHint
+import org.opencypher.v9_0.ast.UsingRangeIndexType
 import org.opencypher.v9_0.ast.UsingScanHint
 import org.opencypher.v9_0.ast.UsingTextIndexType
 import org.opencypher.v9_0.ast.ValidSyntax
@@ -565,6 +566,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     case HintIndexType.ANY   => UsingAnyIndexType
     case HintIndexType.BTREE => UsingBtreeIndexType
     case HintIndexType.TEXT  => UsingTextIndexType
+    case HintIndexType.RANGE => UsingRangeIndexType
   }
 
   override def usingJoin(p: InputPosition, joinVariables: util.List[Variable]): UsingHint =
