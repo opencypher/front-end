@@ -29,6 +29,7 @@ import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.NoneIterablePredicate
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.PatternPart
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
@@ -66,7 +67,7 @@ case class AddUniquenessPredicates(anonymousVariableNameGenerator: AnonymousVari
         val newWhere = addPredicate(m, uniqueRels, where)
         m.copy(where = newWhere)(m.position)
       }
-    case m@Merge(pattern: Pattern, _, where: Option[Where]) =>
+    case m@Merge(pattern: PatternPart, _, where: Option[Where]) =>
       val uniqueRels: Seq[UniqueRel] = collectUniqueRels(pattern)
       if (uniqueRels.size < 2) {
         m

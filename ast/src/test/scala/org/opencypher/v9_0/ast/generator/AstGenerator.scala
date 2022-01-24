@@ -916,10 +916,6 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     parts <- oneOrMore(_patternPart)
   } yield Pattern(parts)(pos)
 
-  def _patternSingle: Gen[Pattern] = for {
-    part <- _patternPart
-  } yield Pattern(Seq(part))(pos)
-
   // CLAUSES
   // ==========================================================================
 
@@ -1058,7 +1054,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield action
 
   def _merge: Gen[Merge] = for {
-    pattern <- _patternSingle
+    pattern <- _patternPart
     actions <- oneOrMore(_mergeAction)
   } yield Merge(pattern, actions)(pos)
 

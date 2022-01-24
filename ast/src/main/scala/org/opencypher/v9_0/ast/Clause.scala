@@ -63,6 +63,7 @@ import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternElement
+import org.opencypher.v9_0.expressions.PatternPart
 import org.opencypher.v9_0.expressions.ProcedureName
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
@@ -228,11 +229,14 @@ final case class GraphRefParameter(parameter: Parameter)(val position: InputPosi
 trait SingleRelTypeCheck {
   self: Clause =>
 
-  protected def checkRelTypes(pattern: Pattern): SemanticCheck =
-    pattern.patternParts.foldSemanticCheck {
+  protected def checkRelTypes(patternPart: PatternPart): SemanticCheck =
+    patternPart match {
       case EveryPath(element) => checkRelTypes(element)
       case _ => success
     }
+
+  protected def checkRelTypes(pattern: Pattern): SemanticCheck =
+    pattern.patternParts.foldSemanticCheck(checkRelTypes)
 
   private def checkRelTypes(patternElement: PatternElement): SemanticCheck = {
     patternElement match {
@@ -739,13 +743,13 @@ object TerminateTransactionsClause {
   }
 }
 
-case class Merge(pattern: Pattern, actions: Seq[MergeAction], where: Option[Where] = None)(val position: InputPosition)
+case class Merge(pattern: PatternPart, actions: Seq[MergeAction], where: Option[Where] = None)(val position: InputPosition)
   extends UpdateClause with SingleRelTypeCheck {
 
   override def name = "MERGE"
 
   override def semanticCheck: SemanticCheck =
-    SemanticPatternCheck.check(Pattern.SemanticContext.Merge, pattern) chain
+    SemanticPatternCheck.check(Pattern.SemanticContext.Merge, Pattern(Seq(pattern))(pattern.position)) chain
       actions.semanticCheck chain
       checkRelTypes(pattern)
 }
