@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
+import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.TestName
 
@@ -265,6 +266,42 @@ class NodeLabelExpressionsJavaCcParserTest extends CypherFunSuite with TestName 
         None
       )(pos)
     )
+  }
+
+  test("MATCH (n:A&:B)") {
+    val errorMessage = intercept[SyntaxException] (
+      parseNodePatterns(testName)
+    ).getMessage
+
+    errorMessage should include("Invalid input ':'")
+    errorMessage should include("column 12")
+  }
+
+  test("MATCH (n:A|:B)") {
+    val errorMessage = intercept[SyntaxException] (
+      parseNodePatterns(testName)
+    ).getMessage
+
+    errorMessage should include("Invalid input ':'")
+    errorMessage should include("column 12")
+  }
+
+  test("MATCH (n:A|B&(:C)") {
+    val errorMessage = intercept[SyntaxException] (
+      parseNodePatterns(testName)
+    ).getMessage
+
+    errorMessage should include("Invalid input ':'")
+    errorMessage should include("column 15")
+  }
+
+  test("MATCH (n:A:B&C)") {
+    val errorMessage = intercept[SyntaxException] (
+      parseNodePatterns(testName)
+    ).getMessage
+
+    errorMessage should include("Invalid input '&'")
+    errorMessage should include("column 13")
   }
 
   private val exceptionFactory = OpenCypherExceptionFactory(None)
