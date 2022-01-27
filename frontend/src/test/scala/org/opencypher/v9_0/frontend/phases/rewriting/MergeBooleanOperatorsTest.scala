@@ -27,7 +27,7 @@ import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
-import org.opencypher.v9_0.frontend.phases.rewriting.cnf.mergeDuplicateBooleanOperators
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.mergeDuplicateBooleanOperatorsRewriter
 import org.opencypher.v9_0.logical.plans.CoerceToPredicate
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.Foldable.FoldableAny
@@ -91,7 +91,7 @@ class MergeBooleanOperatorsTest extends CypherFunSuite {
       Equals(ExplicitParameter("n", CTAny)(position), AutoExtractedParameter("AUTOINT0", CTInteger, SignedDecimalIntegerLiteral("2")(position))(position))(position),
       Equals(ExplicitParameter("n", CTAny)(position), AutoExtractedParameter("AUTOINT1", CTInteger, SignedDecimalIntegerLiteral("3")(position))(position))(position)
     ))(position)
-    val rewriter = mergeDuplicateBooleanOperators(SemanticState.clean)
+    val rewriter = mergeDuplicateBooleanOperatorsRewriter(SemanticState.clean)
     val result = ast.rewrite(rewriter)
     ast should equal(result)
   }
@@ -101,7 +101,7 @@ class MergeBooleanOperatorsTest extends CypherFunSuite {
   private def assertRewrittenMatches(originalQuery: String, matcher: PartialFunction[Any, Unit]): Unit = {
     val original = JavaCCParser.parse("RETURN " +  originalQuery, exceptionFactory, new AnonymousVariableNameGenerator())
     val checkResult = original.semanticCheck(SemanticState.clean)
-    val rewriter = mergeDuplicateBooleanOperators(checkResult.state)
+    val rewriter = mergeDuplicateBooleanOperatorsRewriter(checkResult.state)
     val result = original.rewrite(rewriter)
     val maybeReturnExp = result.treeFind ({
       case UnaliasedReturnItem(expression, _) => {
