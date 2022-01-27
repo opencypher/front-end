@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
+import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.TestName
 
@@ -44,6 +45,18 @@ class NodeLabelExpressionsJavaCcParserTest extends CypherFunSuite with TestName 
         Seq(labelName("A")),
         None,
         None,
+        None
+      )(pos)
+    )
+  }
+
+  test("MATCH (n:A $param)") {
+    parseNodePatterns(testName) shouldBe Seq(
+      NodePattern(
+        Some(varFor("n")),
+        Seq(labelName("A")),
+        None,
+        Some(parameter("param", CTAny)),
         None
       )(pos)
     )
