@@ -27,6 +27,7 @@ trait ErrorMessageProvider {
                                           entityName: String,
                                           additionalInfo: String): String
 
+  def createSelfReferenceError(name: String, variableType: String): String
 }
 
 object NotImplementedErrorMessageProvider extends ErrorMessageProvider {
@@ -37,4 +38,6 @@ object NotImplementedErrorMessageProvider extends ErrorMessageProvider {
                                                    entityDescription: String,
                                                    entityName: String,
                                                    additionalInfo: String): String = ???
+
+  override def createSelfReferenceError(name: String, variableType: String): String = ???
 }
