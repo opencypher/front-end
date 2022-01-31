@@ -17,7 +17,7 @@ package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
-import org.opencypher.v9_0.ast.factory.neo4j.OpenCypherJavaCCParserWithFallback
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -91,6 +91,6 @@ trait PrettifierTestUtils extends Matchers {
   }
 
   private def parse(original: String): Statement =
-    OpenCypherJavaCCParserWithFallback.parse(original, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
+    JavaCCParser.parse(original, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
 
 }

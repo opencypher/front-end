@@ -16,16 +16,16 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
-import org.opencypher.v9_0.ast.factory.neo4j.OpenCypherJavaCCParserWithFallback
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 
-case object OpenCypherJavaCCWithFallbackParsing extends Phase[BaseContext, BaseState, BaseState] {
+case object OpenCypherJavaCCParsing extends Phase[BaseContext, BaseState, BaseState] {
   private val exceptionFactory = OpenCypherExceptionFactory(None)
 
   override def process(in: BaseState, context: BaseContext): BaseState = {
-    val statement = OpenCypherJavaCCParserWithFallback.parse(in.queryText, exceptionFactory, new AnonymousVariableNameGenerator)
+    val statement = JavaCCParser.parse(in.queryText, exceptionFactory, new AnonymousVariableNameGenerator)
     in.withStatement(statement)
   }
 

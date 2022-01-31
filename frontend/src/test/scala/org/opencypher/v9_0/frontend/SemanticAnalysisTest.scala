@@ -25,7 +25,7 @@ import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.frontend.phases.InitialState
-import org.opencypher.v9_0.frontend.phases.OpenCypherJavaCCWithFallbackParsing
+import org.opencypher.v9_0.frontend.phases.OpenCypherJavaCCParsing
 import org.opencypher.v9_0.frontend.phases.Parsing
 import org.opencypher.v9_0.frontend.phases.Phase
 import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
@@ -40,7 +40,7 @@ class SemanticAnalysisTest extends CypherFunSuite {
 
   // This test invokes SemanticAnalysis twice because that's what the production pipeline does
   private def pipelineWithSemanticFeatures(semanticFeatures: SemanticFeature*) =
-    OpenCypherJavaCCWithFallbackParsing andThen PreparatoryRewriting andThen SemanticAnalysis(warn = true, semanticFeatures:_*) andThen SemanticAnalysis(warn = false, semanticFeatures:_*)
+    OpenCypherJavaCCParsing andThen PreparatoryRewriting andThen SemanticAnalysis(warn = true, semanticFeatures:_*) andThen SemanticAnalysis(warn = false, semanticFeatures:_*)
 
   private val pipeline = pipelineWithSemanticFeatures()
   private val pipelineWithRelationshipPatternPredicates = pipelineWithSemanticFeatures(SemanticFeature.RelationshipPatternPredicates)

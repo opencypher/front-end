@@ -20,7 +20,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticFeature.UseGraphSelector
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
 import org.opencypher.v9_0.frontend.helpers.NoPlannerName
 import org.opencypher.v9_0.frontend.phases.InitialState
-import org.opencypher.v9_0.frontend.phases.OpenCypherJavaCCWithFallbackParsing
+import org.opencypher.v9_0.frontend.phases.OpenCypherJavaCCParsing
 import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -39,7 +39,7 @@ class SemanticAnalysisErrorMessagesTest extends CypherFunSuite {
 
   // This test invokes SemanticAnalysis twice because that's what the production pipeline does
   private def pipelineWithFeatures(features: Seq[SemanticFeature]) =
-    OpenCypherJavaCCWithFallbackParsing andThen
+    OpenCypherJavaCCParsing andThen
       PreparatoryRewriting andThen
       SemanticAnalysis(warn = true, features: _*) andThen
       SemanticAnalysis(warn = false, features: _*)

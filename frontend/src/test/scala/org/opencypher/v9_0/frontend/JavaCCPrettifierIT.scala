@@ -21,7 +21,6 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
-import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.WindowsStringSafe
 
@@ -96,23 +95,9 @@ class JavaCCPrettifierIT extends CypherFunSuite {
   (parboiledPrettifier.tests ++ javaCcOnlyTests) foreach {
     case (inputString, expected) =>
       test(inputString) {
-        try {
-          val parsingResults: Statement = JavaCCParser.parse(inputString, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator())
-          val str = prettifier.asString(parsingResults)
-          str should equal(expected)
-        } catch {
-          case _: SyntaxException if JavaCCParser.shouldFallback(inputString) =>
-          // Should not succeed in new parser so this is correct
-        }
+        val parsingResults: Statement = JavaCCParser.parse(inputString, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator())
+        val str = prettifier.asString(parsingResults)
+        str should equal(expected)
       }
-  }
-
-  test("Ensure tests don't include fallback triggers") {
-    // Sanity check
-    (parboiledPrettifier.queryTests() ++ javaCcOnlyTests) foreach {
-      case (inputString, _) if JavaCCParser.shouldFallback(inputString) =>
-        fail(s"should not use fallback strings in tests: $inputString")
-      case _ =>
-    }
   }
 }
