@@ -20,13 +20,13 @@ import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.RevokeBothType
 import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
-import org.opencypher.v9_0.ast.factory.neo4j.AdministrationCommandParserTestBase
+import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTString
 
-class ImpersonatePrivilegeParserTest extends AdministrationCommandParserTestBase {
+class ImpersonatePrivilegeParserTest extends AdministrationAndSchemaCommandParserTestBase {
   type impersonatePrivilegeFunc = (List[PrivilegeQualifier], Seq[Either[String, Parameter]]) => InputPosition => ast.Statement
 
   def grantImpersonatePrivilege(q: List[PrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =

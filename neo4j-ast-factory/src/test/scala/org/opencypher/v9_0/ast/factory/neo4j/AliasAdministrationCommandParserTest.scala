@@ -28,7 +28,7 @@ import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.test_helpers.TestName
 import org.scalatest.FunSuiteLike
 
-class AliasAdministrationCommandJavaCcParserTest extends AdministrationCommandParserTestBase {
+class AliasAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   // CREATE ALIAS
   test("CREATE ALIAS alias FOR DATABASE target") {

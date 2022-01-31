@@ -40,7 +40,7 @@ import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTString
 
-class MultiDatabaseAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class MultiDatabaseAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
   private val literalFooBar = literal("foo.bar")
 
   // SHOW DATABASE

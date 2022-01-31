@@ -28,7 +28,7 @@ import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Variable
 
 /* Tests for listing procedures */
-class ShowProceduresCommandParserTest extends AdministrationCommandParserTestBase {
+class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   Seq("PROCEDURE", "PROCEDURES").foreach { procKeyword =>
 

@@ -19,10 +19,10 @@ import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
 import org.opencypher.v9_0.ast.ProcedureQualifier
-import org.opencypher.v9_0.ast.factory.neo4j.AdministrationCommandParserTestBase
+import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 import org.opencypher.v9_0.util.InputPosition
 
-class ExecuteProcedurePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class ExecuteProcedurePrivilegeAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   Seq(
     ("GRANT", "TO", grantExecuteProcedurePrivilege: executeProcedurePrivilegeFunc),

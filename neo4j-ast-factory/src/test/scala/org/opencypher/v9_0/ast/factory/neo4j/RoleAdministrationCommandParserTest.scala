@@ -23,7 +23,7 @@ import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 
-class RoleAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class RoleAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
   private val roleString = "role"
 
   //  Showing roles

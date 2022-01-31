@@ -18,9 +18,9 @@ package org.opencypher.v9_0.ast.factory.neo4j.privilege
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.MergeAdminAction
-import org.opencypher.v9_0.ast.factory.neo4j.AdministrationCommandParserTestBase
+import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 
-class MergePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class MergePrivilegeAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   Seq(
     ("GRANT", "TO", grantGraphPrivilege: resourcePrivilegeFunc),

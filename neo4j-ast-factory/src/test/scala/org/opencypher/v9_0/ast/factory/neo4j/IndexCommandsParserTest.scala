@@ -33,7 +33,7 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTMap
 
 /* Tests for creating and dropping indexes */
-class IndexCommandsParserTest extends AdministrationCommandParserTestBase {
+class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   // Create node index (old syntax)
 

@@ -19,9 +19,9 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.AllLabelResource
 import org.opencypher.v9_0.ast.RemoveLabelAction
 import org.opencypher.v9_0.ast.SetLabelAction
-import org.opencypher.v9_0.ast.factory.neo4j.AdministrationCommandParserTestBase
+import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 
-class LabelPrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class LabelPrivilegeAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
   private val labelResource = ast.LabelsResource(Seq("label"))(_)
 
   Seq(

@@ -24,7 +24,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.symbols.CTAny
 
 /* Tests for listing transactions */
-class ShowTransactionsCommandParserTest extends AdministrationCommandParserTestBase {
+class ShowTransactionsCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   Seq("TRANSACTION", "TRANSACTIONS").foreach { transactionKeyword =>
 

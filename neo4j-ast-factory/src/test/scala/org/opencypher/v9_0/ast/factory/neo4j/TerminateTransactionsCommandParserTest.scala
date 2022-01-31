@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.util.symbols.CTAny
 
 /* Tests for terminating transactions */
-class TerminateTransactionsCommandParserTest extends AdministrationCommandParserTestBase {
+class TerminateTransactionsCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   Seq("TRANSACTION", "TRANSACTIONS").foreach { transactionKeyword =>
 

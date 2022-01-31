@@ -16,9 +16,9 @@
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.factory.neo4j.AdministrationCommandParserTestBase
+import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 
-class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
+class DatabasePrivilegeAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
   private val databaseScopeFoo = ast.NamedDatabaseScope(literalFoo)(_)
   private val databaseScopeParamFoo = ast.NamedDatabaseScope(paramFoo)(_)
   private val databaseScopeBar = ast.NamedDatabaseScope(literalBar)(_)

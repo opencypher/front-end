@@ -41,7 +41,7 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.symbols.CTMap
 
 /* Tests for creating and dropping constraints */
-class ConstraintCommandsParserTest extends AdministrationCommandParserTestBase {
+class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   Seq("ON", "FOR")
     .foreach { forOrOnString =>

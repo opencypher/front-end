@@ -34,7 +34,7 @@ import org.opencypher.v9_0.ast.UniqueConstraints
 import org.opencypher.v9_0.ast.ValidSyntax
 
 /* Tests for listing indexes and constraints */
-class ShowSchemaCommandParserTest extends AdministrationCommandParserTestBase {
+class ShowSchemaCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   // Show indexes
 

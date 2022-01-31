@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.ReturnItems
 
 /* Tests for listing functions */
-class ShowFunctionsCommandParserTest extends AdministrationCommandParserTestBase {
+class ShowFunctionsCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
   Seq("FUNCTION", "FUNCTIONS").foreach { funcKeyword =>
     Seq(
       ("", ast.AllFunctions),
