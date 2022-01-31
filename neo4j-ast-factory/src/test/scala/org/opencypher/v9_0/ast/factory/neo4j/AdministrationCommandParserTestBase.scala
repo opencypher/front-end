@@ -25,24 +25,47 @@ import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.FunctionPrivilegeQualifier
 import org.opencypher.v9_0.ast.GraphPrivilegeQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
+import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.PrivilegeType
 import org.opencypher.v9_0.ast.ProcedurePrivilegeQualifier
+import org.opencypher.v9_0.ast.ReadAdministrationCommand
 import org.opencypher.v9_0.ast.RelationshipQualifier
+import org.opencypher.v9_0.ast.RemovePropertyItem
+import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.RevokeBothType
 import org.opencypher.v9_0.ast.RevokeDenyType
 import org.opencypher.v9_0.ast.RevokeGrantType
+import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
+import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
+import org.opencypher.v9_0.ast.SetPropertyItem
+import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UseGraph
+import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions
+import org.opencypher.v9_0.expressions.ContainerIndex
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.HasLabelsOrTypes
+import org.opencypher.v9_0.expressions.ListSlice
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.Property
+import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.Foldable.SkipChildren
+import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTString
+import org.scalatest.Assertions
+import org.scalatest.Matchers
 
 import java.nio.charset.StandardCharsets
+import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
 
@@ -52,14 +75,13 @@ class AdministrationCommandParserTestBase extends JavaccParserAstTestBase[ast.St
 
     protected def assertAst(expected: Statement, comparePosition: Boolean = true )(implicit p: JavaccRule[ast.Statement]): Unit = {
       parseRule(p, testName) match {
-        case Success(statement) => {
+        case Success(statement) =>
           statement shouldBe expected
           if (comparePosition) {
             //change flag to true to get basic print methods for position of words
             printQueryPositions(testName, printFlag = false)
             verifyPositions(statement, expected)
           }
-        }
         case Failure(exception) =>
           fail(exception)
       }
@@ -235,4 +257,50 @@ class AdministrationCommandParserTestBase extends JavaccParserAstTestBase[ast.St
                    limit: Option[ast.Limit] = None,
                    distinct: Boolean = false): ast.Return =
     ast.Return(distinct, returnItems, orderBy, None, limit)(pos)
+}
+
+trait VerifyAstPositionTestSupport extends Assertions with Matchers {
+
+  def verifyPositions(javaCCAstNode: ASTNode, parboiledASTNode: ASTNode): Unit = {
+
+    def astWithPosition(astNode: ASTNode) = {
+      {
+        lazy val containsReadAdministratorCommand = astNode.treeExists {
+          case _: ReadAdministrationCommand => true
+        }
+
+        astNode.treeFold(Seq.empty[(ASTNode, InputPosition)]) {
+          case _: Property |
+               _: SetPropertyItem |
+               _: RemovePropertyItem |
+               _: LoadCSV |
+               _: UseGraph |
+               _: EveryPath |
+               _: RelationshipChain |
+               _: Yield |
+               _: ContainerIndex |
+               _: ListSlice |
+               _: HasLabelsOrTypes |
+               _: SingleQuery |
+               _: PeriodicCommitHint |
+               _: ReadAdministrationCommand |
+               _: SetIncludingPropertiesFromMapItem |
+               _: SetExactPropertiesFromMapItem => acc => TraverseChildren(acc)
+          case returnItems: ReturnItems if returnItems.items.isEmpty => acc => SkipChildren(acc)
+          case _: Variable if containsReadAdministratorCommand => acc => TraverseChildren(acc)
+          case astNode: ASTNode => acc => TraverseChildren(acc :+ (astNode -> astNode.position))
+          case _ => acc => TraverseChildren(acc)
+        }
+      }
+    }
+
+    astWithPosition(javaCCAstNode).zip(astWithPosition(parboiledASTNode))
+      .foreach {
+        case ((astChildNode1, pos1), (_, pos2)) => withClue(
+          s"AST node $astChildNode1 was parsed with different positions (javaCC: $pos1, expected: $pos2):")(pos1 shouldBe pos2)
+        case _ => // Do nothing
+      }
+  }
+
+  implicit protected def lift(pos: (Int, Int, Int)): InputPosition = InputPosition(pos._3, pos._1, pos._2)
 }

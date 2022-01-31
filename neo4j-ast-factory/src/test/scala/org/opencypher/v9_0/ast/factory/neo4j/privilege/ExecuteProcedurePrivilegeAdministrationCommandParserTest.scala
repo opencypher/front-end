@@ -15,23 +15,14 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
-import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.DbmsAction
+import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
 import org.opencypher.v9_0.ast.ExecuteProcedureAction
-import org.opencypher.v9_0.ast.ProcedurePrivilegeQualifier
 import org.opencypher.v9_0.ast.ProcedureQualifier
-import org.opencypher.v9_0.ast.RevokeBothType
-import org.opencypher.v9_0.ast.RevokeDenyType
-import org.opencypher.v9_0.ast.RevokeGrantType
-import org.opencypher.v9_0.ast.factory.neo4j.ParserComparisonTestBase
-import org.opencypher.v9_0.expressions.Parameter
-import org.opencypher.v9_0.util.DummyPosition
+import org.opencypher.v9_0.ast.factory.neo4j.AdministrationCommandParserTestBase
 import org.opencypher.v9_0.util.InputPosition
-import org.opencypher.v9_0.util.test_helpers.TestName
-import org.scalatest.FunSuiteLike
 
-class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends ParserComparisonTestBase with FunSuiteLike with TestName {
+class ExecuteProcedurePrivilegeAdministrationCommandParserTest extends AdministrationCommandParserTestBase {
 
   Seq(
     ("GRANT", "TO", grantExecuteProcedurePrivilege: executeProcedurePrivilegeFunc),
@@ -49,106 +40,106 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
         case (execute, action) =>
 
           test(s"$verb $execute * ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("*")), Seq(literalRole)))
           }
 
           // The following two tests check that the plural form EXECUTE [BOOSTED] PROCEDURES is valid
 
           test(s"$verb ${execute}S * ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("*")), Seq(literalRole)))
           }
 
           test(s"$verb ${execute}S `*` ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.procedure ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("apoc.procedure")), Seq(literalRole)))
           }
 
           test(s"$verb ${execute}S apoc.procedure ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("apoc.procedure")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.math.sin ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("apoc.math.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc* ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("apoc*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute *apoc ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("*apoc")), Seq(literalRole)))
           }
 
           test(s"$verb $execute *apoc, *.sin ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("*apoc"), procedureQualifier("*.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute *.sin, apoc* ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("*.sin"), procedureQualifier("apoc*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute *.sin ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("*.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.*.math.* ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("apoc.*.math.*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute math.*n ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("math.*n")), Seq(literalRole)))
           }
 
           test(s"$verb $execute math.si? ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("math.si?")), Seq(literalRole)))
           }
 
           test(s"$verb $execute mat*.sin ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("mat*.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute mat?.sin ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("mat?.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute ?ath.sin ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("?ath.sin")), Seq(literalRole)))
           }
 
           test(s"$verb $execute mat?.`a.\n`.*n ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("mat?.a.\n.*n")), Seq(literalRole)))
           }
 
           test(s"$verb $execute `mat?`.`a.\n`.`*n` ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("mat?.a.\n.*n")), Seq(literalRole)))
           }
 
           test(s"$verb $execute `a b` ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("a b")), Seq(literalRole)))
           }
 
           test(s"$verb $execute a b ON DBMS $preposition role") {
-            assertJavaCCAST(testName, func(action, List(ProcedureQualifier("ab")(defaultPos)), Seq(Left("role")))(defaultPos))
+            assertAst(func(action, List(ProcedureQualifier("ab")(defaultPos)), Seq(Left("role")))(defaultPos))
           }
 
           test(s"$verb $execute apoc.math.* ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("apoc.math.*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute math.sin, math.cos ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("math.sin"), procedureQualifier("math.cos")), Seq(literalRole)))
           }
 
           test(s"$verb $execute apoc.math.sin, math.* ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(action, List(procedureQualifier("apoc.math.sin"), procedureQualifier("math.*")), Seq(literalRole)))
           }
 
           test(s"$verb $execute * $preposition role") {
             val offset = testName.length
-            assertJavaCCException(testName, s"""Invalid input '': expected
+            assertFailsWithMessage(testName, s"""Invalid input '': expected
                                                |  "*"
                                                |  "."
                                                |  "?"
@@ -158,7 +149,7 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
 
           test(s"$verb $execute * ON DATABASE * $preposition role") {
             val offset = testName.length
-            assertJavaCCException(testName, s"""Invalid input '': expected
+            assertFailsWithMessage(testName, s"""Invalid input '': expected
                                                |  "*"
                                                |  "."
                                                |  "?"
@@ -170,13 +161,13 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
 
           test(s"$verb $execute `ab?`* ON DBMS $preposition role") {
             val offset = s"$verb $execute ".length
-            assertJavaCCException(testName,
+            assertFailsWithMessage(testName,
               s"""Invalid input 'ab?': expected "*", ".", "?" or an identifier (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
           }
 
           test(s"$verb $execute a`ab?` ON DBMS $preposition role") {
             val offset = s"$verb $execute a".length
-            assertJavaCCException(testName,
+            assertFailsWithMessage(testName,
               s"""Invalid input 'ab?': expected
                  |  "*"
                  |  "."
@@ -187,7 +178,7 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
 
           test(s"$verb $execute ab?`%ab`* ON DBMS $preposition role") {
             val offset = s"$verb $execute ab?".length
-            assertJavaCCException(testName,
+            assertFailsWithMessage(testName,
               s"""Invalid input '%ab': expected
                  |  "*"
                  |  "."
@@ -199,7 +190,7 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
 
           test(s"$verb $execute apoc.`*`ab? ON DBMS $preposition role") {
             val offset = s"$verb $execute apoc.".length
-            assertJavaCCException(testName,
+            assertFailsWithMessage(testName,
               s"""Invalid input '*': expected
                  |  "*"
                  |  "."
@@ -210,7 +201,7 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
 
           test(s"$verb $execute apoc.*`ab?` ON DBMS $preposition role") {
             val offset = s"$verb $execute apoc.*".length
-            assertJavaCCException(testName,
+            assertFailsWithMessage(testName,
               s"""Invalid input 'ab?': expected
                  |  "*"
                  |  "."
@@ -221,13 +212,13 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
 
           test(s"$verb $execute `ap`oc.ab? ON DBMS $preposition role") {
             val offset = s"$verb $execute ".length
-            assertJavaCCException(testName,
+            assertFailsWithMessage(testName,
               s"""Invalid input 'ap': expected "*", ".", "?" or an identifier (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
           }
 
           test(s"$verb $execute ap`oc`.ab? ON DBMS $preposition role") {
             val offset = s"$verb $execute ap".length
-            assertJavaCCException(testName,
+            assertFailsWithMessage(testName,
               s"""Invalid input 'oc': expected
                  |  "*"
                  |  "."
@@ -239,13 +230,13 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
   }
 
   Seq(
-    ("GRANT", "TO"),
-    ("DENY", "TO"),
-    ("REVOKE GRANT", "FROM"),
-    ("REVOKE DENY", "FROM"),
-    ("REVOKE", "FROM")
+    ("GRANT", "TO", grantDbmsPrivilege: dbmsPrivilegeFunc),
+    ("DENY", "TO", denyDbmsPrivilege: dbmsPrivilegeFunc),
+    ("REVOKE GRANT", "FROM", revokeGrantDbmsPrivilege: dbmsPrivilegeFunc),
+    ("REVOKE DENY", "FROM", revokeDenyDbmsPrivilege: dbmsPrivilegeFunc),
+    ("REVOKE", "FROM", revokeDbmsPrivilege: dbmsPrivilegeFunc)
   ).foreach {
-    case (verb: String, preposition: String) =>
+    case (verb: String, preposition: String, func: dbmsPrivilegeFunc) =>
       Seq(
         "EXECUTE ADMIN PROCEDURES",
         "EXECUTE ADMINISTRATOR PROCEDURES"
@@ -253,42 +244,26 @@ class ExecuteProcedurePrivilegeAdministrationCommandJavaccParserTest extends Par
         command =>
 
           test(s"$verb $command ON DBMS $preposition role") {
-            assertSameAST(testName)
+            yields(func(ExecuteAdminProcedureAction, Seq(literalRole)))
           }
 
           test(s"$verb $command * ON DBMS $preposition role") {
             val offset = s"$verb $command ".length
-            assertJavaCCException(testName, s"""Invalid input '*': expected "ON" (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
+            assertFailsWithMessage(testName, s"""Invalid input '*': expected "ON" (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
           }
 
           test(s"$verb $command ON DATABASE * $preposition role") {
             val offset = s"$verb $command ON ".length
-            assertJavaCCException(testName, s"""Invalid input 'DATABASE': expected "DBMS" (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
+            assertFailsWithMessage(testName, s"""Invalid input 'DATABASE': expected "DBMS" (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
           }
+          
       }
 
       test(s"$verb EXECUTE ADMIN PROCEDURE ON DBMS $preposition role") {
         val offset = s"$verb EXECUTE ADMIN ".length
-        assertJavaCCException(testName, s"""Invalid input 'PROCEDURE': expected "PROCEDURES" (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
+        assertFailsWithMessage(testName, s"""Invalid input 'PROCEDURE': expected "PROCEDURES" (line 1, column ${offset + 1} (offset: $offset))""".stripMargin)
       }
   }
 
-  private val defaultPos: InputPosition = InputPosition(0, 1, 1)
-
-  private type executeProcedurePrivilegeFunc = (DbmsAction, List[ProcedurePrivilegeQualifier], Seq[Either[String, Parameter]]) => InputPosition => ast.Statement
-
-  private def grantExecuteProcedurePrivilege(a: DbmsAction, q: List[ProcedurePrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.GrantPrivilege.dbmsAction(a, r, q)
-
-  private def denyExecuteProcedurePrivilege(a: DbmsAction, q: List[ProcedurePrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.DenyPrivilege.dbmsAction(a, r, q)
-
-  private def revokeGrantExecuteProcedurePrivilege(a: DbmsAction, q: List[ProcedurePrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.dbmsAction(a, r, RevokeGrantType()(DummyPosition(0)), q)
-
-  private def revokeDenyExecuteProcedurePrivilege(a: DbmsAction, q: List[ProcedurePrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.dbmsAction(a, r, RevokeDenyType()(DummyPosition(0)), q)
-
-  private def revokeExecuteProcedurePrivilege(a: DbmsAction, q: List[ProcedurePrivilegeQualifier], r: Seq[Either[String, Parameter]]): InputPosition => ast.Statement =
-    ast.RevokePrivilege.dbmsAction(a, r, RevokeBothType()(DummyPosition(0)), q)
+  private def procedureQualifier(procName: String): InputPosition => ProcedureQualifier = ProcedureQualifier(procName)(_)
 }
