@@ -18,6 +18,9 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.BooleanExpression
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FunctionInvocation
+import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelName
@@ -25,6 +28,7 @@ import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 
 object LabelPredicateNormalizer extends MatchPredicateNormalizer {
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
@@ -52,6 +56,13 @@ object LabelPredicateNormalizer extends MatchPredicateNormalizer {
       case n: LabelExpression.Negation => Not(
         extractLabelExpressionPredicates(variable.copyId, n.e)
       )(n.position)
+
+      case n: LabelExpression.Wildcard =>
+        val size: Expression => FunctionInvocation = FunctionInvocation(FunctionName("size")(n.position), _)(n.position)
+        val labels: Expression => FunctionInvocation = FunctionInvocation(FunctionName("labels")(n.position), _)(n.position)
+        val zero = SignedDecimalIntegerLiteral("0")(n.position)
+
+        GreaterThan(size(labels(variable.copyId)), zero)(n.position)
 
       case n: LabelExpression.Label => HasLabels(variable.copyId, Seq(LabelName(n.label.name)(n.position)))(n.position)
     }

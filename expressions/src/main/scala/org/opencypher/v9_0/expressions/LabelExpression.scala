@@ -25,6 +25,7 @@ object LabelExpression {
   case class Conjunction(lhs: LabelExpression, rhs: LabelExpression)(val position: InputPosition) extends LabelExpression
   case class Disjunction(lhs: LabelExpression, rhs: LabelExpression)(val position: InputPosition) extends LabelExpression
   case class Negation(e: LabelExpression)(val position: InputPosition) extends LabelExpression
+  case class Wildcard()(val position: InputPosition) extends LabelExpression
   case class Label(label: LabelOrRelTypeName)(val position: InputPosition) extends LabelExpression
 
   private def stringify(labelExpression: LabelExpression): String =
@@ -47,6 +48,7 @@ object LabelExpression {
 
   private def stringify1(labelExpression: LabelExpression): String = labelExpression match {
     case le: Label    => s"${le.label.name}"
+    case _: Wildcard  => s"%"
     case le           => s"(${stringify4(le)})"
   }
 }
