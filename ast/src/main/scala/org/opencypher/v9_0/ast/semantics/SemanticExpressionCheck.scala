@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.AndedPropertyInequalities
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.BooleanLiteral
+import org.opencypher.v9_0.expressions.CachedHasProperty
 import org.opencypher.v9_0.expressions.CachedProperty
 import org.opencypher.v9_0.expressions.CaseExpression
 import org.opencypher.v9_0.expressions.CoerceTo
@@ -295,6 +296,9 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           }
 
       case x:CachedProperty =>
+        specifyType(CTAny.covariant, x)
+
+      case x:CachedHasProperty =>
         specifyType(CTAny.covariant, x)
 
       // Check the variable is defined and, if not, define it so that later errors are suppressed

@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.AndedPropertyInequalities
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
+import org.opencypher.v9_0.expressions.CachedHasProperty
 import org.opencypher.v9_0.expressions.CachedProperty
 import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.ContainerIndex
@@ -163,6 +164,12 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def cachedNodeProp(variable: String, propKey: String, currentVarName: String, knownToAccessStore: Boolean = false): CachedProperty =
     CachedProperty(variable, varFor(currentVarName), propName(propKey), NODE_TYPE, knownToAccessStore)(pos)
+
+  def cachedNodeHasProp(variable: String, propKey: String): CachedHasProperty =
+    cachedNodeHasProp(variable, propKey, variable)
+
+  def cachedNodeHasProp(variable: String, propKey: String, currentVarName: String, knownToAccessStore: Boolean = false): CachedHasProperty =
+    CachedHasProperty(variable, varFor(currentVarName), propName(propKey), NODE_TYPE, knownToAccessStore)(pos)
 
   def cachedRelProp(variable: String, propKey: String): CachedProperty =
     cachedRelProp(variable, propKey, variable)
