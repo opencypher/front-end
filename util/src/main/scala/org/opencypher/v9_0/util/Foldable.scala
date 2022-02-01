@@ -160,7 +160,7 @@ object Foldable {
           case x: A => result += x
           case _ =>
         }
-        remaining ++= that.reverseTreeChildren
+        remaining.pushAll(that.reverseTreeChildren)
       }
 
       result
@@ -219,7 +219,7 @@ object Foldable {
         case Some(true) =>
           true
         case _ =>
-          existsAcc(remaining ++= that.reverseTreeChildren, f)
+          existsAcc(remaining.pushAll(that.reverseTreeChildren), f)
       }
     }
 
@@ -240,7 +240,7 @@ object Foldable {
           acc
       }
 
-      countAcc(remaining ++= that.reverseTreeChildren, f, next)
+      countAcc(remaining.pushAll(that.reverseTreeChildren), f, next)
     }
 
   @tailrec
@@ -251,7 +251,7 @@ object Foldable {
       val that = remaining.pop()
       that match {
         case x: A => x
-        case _ => findAcc(remaining ++= that.reverseTreeChildren)
+        case _ => findAcc(remaining.pushAll(that.reverseTreeChildren))
       }
     }
 
@@ -266,7 +266,7 @@ object Foldable {
       val that = remaining.pop()
       that match {
         case x: A if predicate(x).isDefined => Some(x)
-        case _ => findAcc(remaining ++= that.reverseTreeChildren, predicate)
+        case _ => findAcc(remaining.pushAll(that.reverseTreeChildren), predicate)
       }
     }
 }
