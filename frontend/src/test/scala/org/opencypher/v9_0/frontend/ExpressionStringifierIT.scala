@@ -15,12 +15,16 @@
  */
 package org.opencypher.v9_0.frontend
 
-import org.opencypher.v9_0.ast.factory.neo4j.JavaccRule
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
+import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.parser.Expressions
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.parboiled.scala.Parser
+import org.parboiled.scala.ReportingParseRunner
 
-class ExpressionStringifierIT extends CypherFunSuite {
-  val stringifier: ExpressionStringifier = ExpressionStringifier()
+class ExpressionStringifierIT extends CypherFunSuite with Parser with Expressions {
+  val stringifier = ExpressionStringifier()
+  val parser = ReportingParseRunner(Expression)
 
   val tests: Seq[(String, String)] =
     Seq[(String, String)](
@@ -79,8 +83,13 @@ class ExpressionStringifierIT extends CypherFunSuite {
   tests foreach {
     case (inputString, expected) =>
       test(inputString) {
-        val expression = JavaccRule.Expression.apply(inputString)
-        val str = stringifier(expression)
+        val parsingResults = parser.run(inputString)
+        if (parsingResults.parseErrors.nonEmpty) {
+          fail("Parsing failed")
+        }
+        val value1: Expression = parsingResults.result.get
+
+        val str = stringifier(value1)
         str should equal(expected)
       }
   }
