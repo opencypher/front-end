@@ -15,24 +15,31 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
+import org.opencypher.v9_0.expressions.CaseExpression
 import org.opencypher.v9_0.expressions.Expression
 
-class FunctionInvocationJavaccParserTest extends JavaccParserAstTestBase[Expression] {
+class CaseExpressionParserTest extends JavaccParserAstTestBase[Expression] {
+  implicit private val parser: JavaccRule[Expression] = JavaccRule.CaseExpression
 
-  implicit private val parser: JavaccRule[Expression] = JavaccRule.FunctionInvocation
-
-  test("foo()") {
-    gives(function("foo"))
+  test("CASE WHEN (e) THEN e ELSE null END") {
+    yields {
+      CaseExpression(
+        None,
+        List(varFor("e") -> varFor("e")),
+        Some(nullLiteral))
+    }
   }
 
-  test("foo('test', 1 + 2)") {
-    gives(function("foo", literalString("test"), add(literalInt(1), literalInt(2))))
-  }
-  test("my.namespace.foo()") {
-    gives(function(List("my", "namespace"), "foo"))
+  test("CASE when(e) WHEN (e) THEN e ELSE null END") {
+    yields {
+      CaseExpression(
+        Some(function("when", varFor("e"))),
+        List(varFor("e") -> varFor("e")),
+        Some(nullLiteral))
+    }
   }
 
-  test("my.namespace.foo('test', 1 + 2)") {
-    gives(function(List("my", "namespace"), "foo", literalString("test"), add(literalInt(1), literalInt(2))))
+  test("CASE when(v1) + 1 WHEN THEN v2 ELSE null END") {
+    failsToParse
   }
 }

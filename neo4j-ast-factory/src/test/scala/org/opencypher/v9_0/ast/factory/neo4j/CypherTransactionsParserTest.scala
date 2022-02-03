@@ -21,7 +21,7 @@ import org.opencypher.v9_0.ast.SubqueryCall
 import org.opencypher.v9_0.ast.SubqueryCall.InTransactionsParameters
 import org.opencypher.v9_0.util.symbols.CTAny
 
-class CypherTransactionsJavaCcParserTest extends JavaccParserAstTestBase[Clause] with VerifyAstPositionTestSupport {
+class CypherTransactionsParserTest extends JavaccParserAstTestBase[Clause] with VerifyAstPositionTestSupport {
 
   implicit private val parser: JavaccRule[Clause] = JavaccRule.SubqueryClause
 

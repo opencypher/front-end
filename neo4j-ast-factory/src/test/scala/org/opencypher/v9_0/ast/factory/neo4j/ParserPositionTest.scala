@@ -41,7 +41,7 @@ import org.opencypher.v9_0.util.test_helpers.TestName
 
 import scala.util.Try
 
-class JavaCcParserPositionTest extends CypherFunSuite with TestName  {
+class ParserPositionTest extends CypherFunSuite with TestName  {
   private val exceptionFactory = new OpenCypherExceptionFactory(None)
   private val javaCcAST = (query: String) => Try(JavaCCParser.parse(query, exceptionFactory, new AnonymousVariableNameGenerator()))
 

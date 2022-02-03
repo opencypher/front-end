@@ -20,7 +20,7 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.DummyPosition
 
-class MapProjectionJavaccParserTest extends JavaccParserTestBase[Any, Any] {
+class MapProjectionParserTest extends JavaccParserTestBase[Any, Any] {
 
   private val t = DummyPosition(0)
 

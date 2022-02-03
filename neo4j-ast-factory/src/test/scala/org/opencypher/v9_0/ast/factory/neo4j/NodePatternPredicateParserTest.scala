@@ -22,7 +22,7 @@ import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.TestName
 
-class NodePatternPredicateJavaCcParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
+class NodePatternPredicateParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
 
   test("MATCH (n WHERE n.prop > 123)") {
     val expected = Seq(
