@@ -31,7 +31,7 @@ import org.opencypher.v9_0.util.test_helpers.TestName
 
 import scala.reflect.ClassTag
 
-class HintsJavaCcParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
+class HintsParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
 
   test("MATCH (n) USING INDEX n:N(p)") {
     parseAndFind[UsingIndexHint](testName) shouldBe Seq(

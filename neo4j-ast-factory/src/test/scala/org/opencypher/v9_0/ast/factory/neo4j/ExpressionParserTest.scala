@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.expressions.Expression
 
-class ExpressionJavaccParserTest extends JavaccParserAstTestBase[Expression] {
+class ExpressionParserTest extends JavaccParserAstTestBase[Expression] {
 
   implicit private val parser: JavaccRule[Expression] = JavaccRule.Expression
 

@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast
 
-class ProjectionClauseJavaccParserTest extends JavaccParserAstTestBase[ast.Clause] {
+class ProjectionClauseParserTest extends JavaccParserAstTestBase[ast.Clause] {
 
   implicit val parser: JavaccRule[ast.Clause] = JavaccRule.Clause
 

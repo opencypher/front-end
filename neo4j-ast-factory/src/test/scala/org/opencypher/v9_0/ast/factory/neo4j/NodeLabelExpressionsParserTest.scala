@@ -24,7 +24,7 @@ import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.TestName
 
-class NodeLabelExpressionsJavaCcParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
+class NodeLabelExpressionsParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
 
   test("MATCH (n)") {
     parseNodePatterns(testName) shouldBe Seq(

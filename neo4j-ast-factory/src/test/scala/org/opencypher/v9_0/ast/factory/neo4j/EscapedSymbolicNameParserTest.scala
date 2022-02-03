@@ -18,7 +18,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Variable
 
-class EscapedSymbolicNameJavaccParserTest extends JavaccParserAstTestBase[Any] {
+class EscapedSymbolicNameParserTest extends JavaccParserAstTestBase[Any] {
 
   test("escaped variable name") {
     implicit val parser: JavaccRule[Variable] = JavaccRule.Variable
