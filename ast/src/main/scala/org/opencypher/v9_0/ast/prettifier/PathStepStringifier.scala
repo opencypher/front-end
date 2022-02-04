@@ -23,7 +23,15 @@ import org.opencypher.v9_0.expressions.PathStep
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.SingleRelationshipPathStep
 
-case class PathStepStringifier(expr: ExpressionStringifier) {
+trait PathStepStringifier {
+  def apply(pathStep: PathStep): String
+}
+
+object PathStepStringifier {
+  def apply(expr: ExpressionStringifier): PathStepStringifier = new DefaultPathStepStringifier(expr)
+}
+
+private class DefaultPathStepStringifier(expr: ExpressionStringifier) extends PathStepStringifier {
 
   def apply(pathStep: PathStep): String = pathStep match {
     case SingleRelationshipPathStep(rel, direction, toNode, next) => relationshipPathStep(rel, direction, toNode, next, isMultiRel = false)

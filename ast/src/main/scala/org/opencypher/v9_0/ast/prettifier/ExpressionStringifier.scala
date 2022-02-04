@@ -92,25 +92,36 @@ import org.opencypher.v9_0.expressions.functions.UserDefinedFunctionInvocation
 import org.opencypher.v9_0.logical.plans.CoerceToPredicate
 import org.opencypher.v9_0.util.InputPosition
 
-case class ExpressionStringifier(
+trait ExpressionStringifier {
+  def apply(ast: Expression): String
+  def apply(s: SymbolicName): String
+  def apply(ns: Namespace): String
+  def patterns: PatternStringifier
+  def pathSteps: PathStepStringifier
+  def backtick(in: String): String
+  def quote(txt: String): String
+  def escapePassword(password: Expression): String
+}
+
+private class DefaultExpressionStringifier(
   extension: ExpressionStringifier.Extension,
   alwaysParens: Boolean,
   alwaysBacktick: Boolean,
   preferSingleQuotes: Boolean,
   sensitiveParamsAsParams: Boolean
-) {
+) extends ExpressionStringifier {
 
-  val patterns = PatternStringifier(this)
+  override val patterns: PatternStringifier = PatternStringifier(this)
 
-  val pathSteps = PathStepStringifier(this)
+  override val pathSteps: PathStepStringifier = PathStepStringifier(this)
 
-  def apply(ast: Expression): String =
+  override def apply(ast: Expression): String =
     stringify(ast)
 
-  def apply(s: SymbolicName): String =
+  override def apply(s: SymbolicName): String =
     backtick(s.name)
 
-  def apply(ns: Namespace): String =
+  override def apply(ns: Namespace): String =
     ns.parts.map(backtick).mkString(".")
 
   private def inner(outer: Expression)(inner: Expression): String = {
@@ -397,11 +408,11 @@ case class ExpressionStringifier(
 
   }
 
-  def backtick(txt: String): String = {
+  override def backtick(txt: String): String = {
     ExpressionStringifier.backtick(txt, alwaysBacktick)
   }
 
-  def quote(txt: String): String = {
+  override def quote(txt: String): String = {
     val str = txt.replaceAll("\\\\", "\\\\\\\\")
     val containsSingle = str.contains('\'')
     val containsDouble = str.contains('"')
@@ -413,7 +424,7 @@ case class ExpressionStringifier(
       "\"" + str + "\""
   }
 
-  def escapePassword(password: Expression): String = password match {
+  override def escapePassword(password: Expression): String = password match {
     case _: SensitiveAutoParameter if !sensitiveParamsAsParams => "'******'"
     case _: SensitiveLiteral => "'******'"
     case param: Parameter => s"$$${ExpressionStringifier.backtick(param.name)}"
@@ -423,12 +434,27 @@ case class ExpressionStringifier(
 object ExpressionStringifier {
 
   def apply(
+    extension: ExpressionStringifier.Extension,
+    alwaysParens: Boolean,
+    alwaysBacktick: Boolean,
+    preferSingleQuotes: Boolean,
+    sensitiveParamsAsParams: Boolean
+  ): ExpressionStringifier = new DefaultExpressionStringifier(extension, alwaysParens, alwaysBacktick, preferSingleQuotes, sensitiveParamsAsParams)
+
+  def apply(
     extender: Expression => String = failingExtender,
     alwaysParens: Boolean = false,
     alwaysBacktick: Boolean = false,
     preferSingleQuotes: Boolean = false,
     sensitiveParamsAsParams: Boolean = false
-  ): ExpressionStringifier = ExpressionStringifier(Extension.simple(extender), alwaysParens, alwaysBacktick, preferSingleQuotes, sensitiveParamsAsParams)
+  ): ExpressionStringifier = new DefaultExpressionStringifier(Extension.simple(extender), alwaysParens, alwaysBacktick, preferSingleQuotes, sensitiveParamsAsParams)
+
+  /**
+   * Generates pretty strings from expressions.
+   */
+  def pretty(onFailure: Expression => String): ExpressionStringifier = {
+    new PrettyExpressionStringifier(ExpressionStringifier(onFailure))
+  }
 
   trait Extension {
     def apply(ctx: ExpressionStringifier)(expression: Expression): String
