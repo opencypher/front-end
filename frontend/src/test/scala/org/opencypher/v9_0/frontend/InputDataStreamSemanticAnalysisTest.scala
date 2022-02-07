@@ -15,25 +15,25 @@
  */
 package org.opencypher.v9_0.frontend
 
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext.failWith
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestInitialState
-import org.opencypher.v9_0.frontend.helpers.InputDataStreamTestParsing
 import org.opencypher.v9_0.frontend.helpers.NoPlannerName
+import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
-import org.opencypher.v9_0.util.symbols.CTString
-import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
+class InputDataStreamSemanticAnalysisTest extends CypherFunSuite with AstConstructionTestSupport {
 
   // This test invokes SemanticAnalysis twice because that's what the production pipeline does
-  private val pipeline = InputDataStreamTestParsing andThen SemanticAnalysis(warn = true) andThen SemanticAnalysis(warn = false)
+  private val pipeline = SemanticAnalysis(warn = true) andThen SemanticAnalysis(warn = false)
 
   test("can parse INPUT DATA STREAM") {
-    val query = "INPUT DATA STREAM a, b, c RETURN *"
-    val startState = initStartState(query, Map("name" -> CTString))
+   // "INPUT DATA STREAM a, b, c RETURN *"
+    val ast = query(input(varFor("a"), varFor("b"), varFor("c")), returnAll)
+    val startState = initStartState(ast)
 
     val context = new ErrorCollectingContext()
     pipeline.transform(startState, context)
@@ -42,8 +42,9 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
   }
 
   test("cannot redeclare variable") {
-    val query = "INPUT DATA STREAM a, b, c UNWIND [] AS a RETURN *"
-    val startState = initStartState(query, Map("name" -> CTString))
+    // "INPUT DATA STREAM a, b, c UNWIND [] AS a RETURN *"
+    val ast = query(input(varFor("a"), varFor("b"), varFor("c")), unwind(listOf(), varFor("a")), returnAll)
+    val startState = initStartState(ast)
 
     val context = new ErrorCollectingContext()
     pipeline.transform(startState, context)
@@ -52,8 +53,13 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
   }
 
   test("INPUT DATA STREAM must be the first clause in a query") {
-    val query = "UNWIND [0, 1] AS x INPUT DATA STREAM a, b, c RETURN *"
-    val startState = initStartState(query, Map("name" -> CTString))
+    // "UNWIND [0, 1] AS x INPUT DATA STREAM a, b, c RETURN *"
+    val ast = query(
+      unwind(listOf(literalInt(0), literalInt(1)), varFor("x")),
+      input(varFor("a"), varFor("b"), varFor("c")), returnAll
+    )
+
+    val startState = initStartState(ast)
 
     val context = new ErrorCollectingContext()
     pipeline.transform(startState, context)
@@ -62,8 +68,9 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
   }
 
   test("There can be only one INPUT DATA STREAM in a query") {
-    val query = "INPUT DATA STREAM a INPUT DATA STREAM b RETURN *"
-    val startState = initStartState(query, Map("name" -> CTString))
+    // "INPUT DATA STREAM a INPUT DATA STREAM b RETURN *"
+    val ast = query(input(varFor("a")), input(varFor("b")), returnAll)
+    val startState = initStartState(ast)
 
     val context = new ErrorCollectingContext()
     pipeline.transform(startState, context)
@@ -72,8 +79,12 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
   }
 
   test("INPUT DATA STREAM is not supported in UNION queries") {
-    val query = "INPUT DATA STREAM x RETURN * UNION MATCH (x) RETURN *"
-    val startState = initStartState(query, Map("name" -> CTString))
+    // "INPUT DATA STREAM x RETURN * UNION MATCH (x) RETURN *"
+    val ast = query(union(
+      singleQuery(input(varFor("x")), returnAll),
+      singleQuery(match_(nodePat("x")), returnAll)
+    ))
+    val startState = initStartState(ast)
 
     val context = new ErrorCollectingContext()
     pipeline.transform(startState, context)
@@ -82,8 +93,12 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
   }
 
   test("INPUT DATA STREAM is not supported in UNION queries 2") {
-    val query = "MATCH (x) RETURN * UNION INPUT DATA STREAM x RETURN *"
-    val startState = initStartState(query, Map("name" -> CTString))
+    // "MATCH (x) RETURN * UNION INPUT DATA STREAM x RETURN *"
+    val ast = query(union(
+      singleQuery(match_(nodePat("x")), returnAll),
+      singleQuery(input(varFor("x")), returnAll)
+    ))
+    val startState = initStartState(ast)
 
     val context = new ErrorCollectingContext()
     pipeline.transform(startState, context)
@@ -91,6 +106,8 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite {
     context should failWith("INPUT DATA STREAM is not supported in UNION queries")
   }
 
-  private def initStartState(query: String, initialFields: Map[String, CypherType]) =
-    InputDataStreamTestInitialState(query, "RETURN 1", None, NoPlannerName, new AnonymousVariableNameGenerator(), initialFields)
+  private def initStartState(statement: Statement) = {
+      // As the test only checks ast -> semantic analysis, the query isn't used.
+      InitialState("whatever", None, NoPlannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(statement))
+  }
 }

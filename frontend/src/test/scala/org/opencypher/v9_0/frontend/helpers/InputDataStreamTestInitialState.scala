@@ -19,44 +19,14 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.PlannerName
-import org.opencypher.v9_0.frontend.phases.BaseContains
-import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState
-import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.PARSING
-import org.opencypher.v9_0.frontend.phases.Phase
-import org.opencypher.v9_0.parser.Expressions
-import org.opencypher.v9_0.parser.Statement
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
-import org.opencypher.v9_0.util.CypherException
-import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.ObfuscationMetadata
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
-import org.parboiled.scala.EOI
-import org.parboiled.scala.Parser
-import org.parboiled.scala.Rule1
-import org.parboiled.scala.group
 
-/**
- * Parse text into an AST object.
- */
-case object InputDataStreamTestParsing extends Phase[BaseContext, BaseState, BaseState] {
-  private val parser = new InputDataStreamTestCypherParser
-
-  override def process(in: BaseState, context: BaseContext): BaseState = {
-    val idsIn = in.asInstanceOf[InputDataStreamTestInitialState]
-    idsIn.withStatement(parser.parse(idsIn.idsQueryText, context.cypherExceptionFactory, in.startPosition))
-  }
-
-  override val phase = PARSING
-
-  override def postConditions = Set(BaseContains[ast.Statement])
-
-}
-
-case class InputDataStreamTestInitialState(idsQueryText: String,
-                                           queryText: String,
+case class InputDataStreamTestInitialState(queryText: String,
                                            startPosition: Option[InputPosition],
                                            plannerName: PlannerName,
                                            anonymousVariableNameGenerator: AnonymousVariableNameGenerator,
@@ -89,33 +59,4 @@ case class InputDataStreamTestInitialState(idsQueryText: String,
   override def withReturnColumns(cols: Seq[String]): InputDataStreamTestInitialState = copy(maybeReturnColumns = Some(cols))
 
   override def withObfuscationMetadata(o: ObfuscationMetadata): InputDataStreamTestInitialState = copy(maybeObfuscationMetadata = Some(o))
-}
-
-class InputDataStreamTestCypherParser extends Parser
-  with Statement
-  with Expressions {
-
-
-  @throws(classOf[CypherException])
-  def parse(queryText: String, cypherExceptionFactory: CypherExceptionFactory, offset: Option[InputPosition] = None): ast.Statement =
-    parseOrThrow(queryText, cypherExceptionFactory, offset, InputDataStreamTestCypherParser.Statements)
-}
-
-object InputDataStreamTestCypherParser extends Parser with Statement with Expressions {
-  val Statements: Rule1[Seq[ast.Statement]] = rule {
-    oneOrMore(WS ~ Statement ~ WS, separator = ch(';')) ~~ optional(ch(';')) ~~ EOI.label("end of input")
-  }
-
-  override def Clause: Rule1[ast.Clause] = (
-    Unwind
-      | With
-      | Match
-      | Call
-      | Return
-      | InputDataStream
-    )
-
-  def InputDataStream: Rule1[ast.InputDataStream] = rule("INPUT DATA STREAM") {
-    group(keyword("INPUT DATA STREAM") ~~ oneOrMore(Variable, separator = CommaSep)) ~~>> (ast.InputDataStream(_))
-  }
 }
