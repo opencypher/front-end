@@ -26,7 +26,6 @@ import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
 import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.OpenCypherJavaCCParsing
-import org.opencypher.v9_0.frontend.phases.Parsing
 import org.opencypher.v9_0.frontend.phases.Phase
 import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
@@ -168,7 +167,7 @@ class SemanticAnalysisTest extends CypherFunSuite {
     val startState = initStartState(query)
     val context = new ErrorCollectingContext()
 
-    val pipeline = Parsing andThen ProjectNamedPathsPhase andThen SemanticAnalysis(warn = true)
+    val pipeline = OpenCypherJavaCCParsing andThen ProjectNamedPathsPhase andThen SemanticAnalysis(warn = true)
 
     val result = pipeline.transform(startState, context)
     val scopeTree = result.semantics().scopeTree

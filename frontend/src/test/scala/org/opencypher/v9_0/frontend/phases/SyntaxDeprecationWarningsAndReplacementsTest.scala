@@ -16,9 +16,9 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.helpers.TestContext
-import org.opencypher.v9_0.parser.ParserFixture.parser
 import org.opencypher.v9_0.rewriting.Deprecations.semanticallyDeprecatedFeaturesIn4_X
 import org.opencypher.v9_0.rewriting.Deprecations.syntacticallyDeprecatedFeaturesIn4_X
 import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
@@ -142,6 +142,7 @@ class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
     logger.notifications
   }
 
-  private def parse(queryText: String): Statement = parser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None))
+  private def parse(queryText: String): Statement = JavaCCParser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None),
+    new AnonymousVariableNameGenerator())
 
 }
