@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.AndedPropertyInequalities
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
+import org.opencypher.v9_0.expressions.AssertIsNode
 import org.opencypher.v9_0.expressions.BinaryOperatorExpression
 import org.opencypher.v9_0.expressions.CaseExpression
 import org.opencypher.v9_0.expressions.ChainableBinaryOperatorExpression
@@ -331,6 +332,9 @@ private class DefaultExpressionStringifier(
       case CoerceToPredicate(expr) =>
         val inner = apply(expr)
         s"CoerceToPredicate($inner)"
+
+      case AssertIsNode(argument) =>
+        s"assertIsNode(${apply(argument)})"
 
       case _ =>
         extension(this)(ast)
