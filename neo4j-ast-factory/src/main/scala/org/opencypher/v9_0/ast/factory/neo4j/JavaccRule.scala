@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.Statement
+import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.factory.ParameterType
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.NodePattern
@@ -59,6 +60,7 @@ object JavaccRule {
   def PatternComprehension: JavaccRule[Expression] = fromParser(_.PatternComprehension())
   def RelationshipPattern: JavaccRule[RelationshipPattern] = fromParser(_.RelationshipPattern())
   def Statement: JavaccRule[Statement] = fromParser(_.Statement())
+  def UseClause: JavaccRule[UseGraph] = fromParser(_.UseClause())
 
   // The reason for using Statements rather than Statement, is that it will wrap any ParseException in exceptionFactory.syntaxException(...),
   // just like the production code path, and thus produce correct assertable error messages.
