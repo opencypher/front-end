@@ -79,7 +79,7 @@ class ExpressionStringifierIT extends CypherFunSuite {
   tests foreach {
     case (inputString, expected) =>
       test(inputString) {
-        val expression = JavaccRule.fromParser(_.Expression()).apply(inputString)
+        val expression = JavaccRule.Expression.apply(inputString)
         val str = stringifier(expression)
         str should equal(expected)
       }
