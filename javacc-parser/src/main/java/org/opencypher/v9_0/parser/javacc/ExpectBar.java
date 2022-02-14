@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting.rewriters
+package org.opencypher.v9_0.parser.javacc;
 
-import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.NodePattern
-
-object NodePatternPredicateNormalizer extends MatchPredicateNormalizer {
-  override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
-    case NodePattern(_, _, _, Some(expr)) => Vector(expr)
-  }
-
-  override val replace: PartialFunction[AnyRef, AnyRef] = {
-    case p@NodePattern(_, _, _, Some(_)) => p.copy(predicate = None)(p.position)
-  }
+public enum ExpectBar
+{
+    /**
+     * Expect a bar to follow the label expression
+     */
+    EXPECT_BAR,
+    /**
+     * Do not expect a bar to follow the label expression
+     */
+    DO_NOT_EXPECT_BAR;
 }

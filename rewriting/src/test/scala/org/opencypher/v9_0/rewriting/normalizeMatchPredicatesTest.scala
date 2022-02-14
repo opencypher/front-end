@@ -21,6 +21,7 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticChecker
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.rewriting.rewriters.LabelExpressionPredicateNormalizer
 import org.opencypher.v9_0.rewriting.rewriters.normalizeHasLabelsAndHasType
 import org.opencypher.v9_0.rewriting.rewriters.normalizeMatchPredicates
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -36,18 +37,27 @@ class normalizeMatchPredicatesTest extends CypherFunSuite with TestName {
   private val prettifier = Prettifier(ExpressionStringifier(_.asCanonicalStringVal))
 
   def rewriter(semanticState: SemanticState): Rewriter = inSequence(
+    LabelExpressionPredicateNormalizer,
     normalizeHasLabelsAndHasType(semanticState),
     normalizeMatchPredicates.getRewriter(semanticState, Map.empty, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator),
+  )
+
+  def rewriterWithoutNormalizeMatchPredicates(semanticState: SemanticState): Rewriter = inSequence(
+    LabelExpressionPredicateNormalizer,
+    normalizeHasLabelsAndHasType(semanticState),
   )
 
   def parseForRewriting(queryText: String): Statement = JavaCCParser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
 
   private def assertRewrite(expectedQuery: String): Unit = {
-    val original = parseForRewriting(testName)
-    val result = original.endoRewrite(rewriter(SemanticChecker.check(original).state))
-    val expected = parseForRewriting(expectedQuery)
-    //For the test sake we need to rewrite away HasLabelsOrTypes to HasLabels alse on the expected
-    val expectedResult = expected.endoRewrite(normalizeHasLabelsAndHasType(SemanticChecker.check(expected).state))
+    def rewrite(query: String, rewriter: SemanticState => Rewriter): Statement = {
+      val ast = parseForRewriting(query)
+      ast.endoRewrite(rewriter(SemanticChecker.check(ast).state))
+    }
+
+    val result = rewrite(testName, rewriter)
+    //For the test sake we need to rewrite away HasLabelsOrTypes to HasLabels also on the expected
+    val expectedResult = rewrite(expectedQuery, rewriterWithoutNormalizeMatchPredicates)
     assert(result === expectedResult, s"\n$testName\nshould be rewritten to:\n$expectedQuery\nbut was rewritten to:${prettifier.asString(result.asInstanceOf[Statement])}")
   }
 

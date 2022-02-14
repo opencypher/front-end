@@ -46,7 +46,7 @@ object normalizePatternComprehensionPredicates extends Rewriter with StepSequenc
 
   private val normalizer = MatchPredicateNormalizerChain(
     NodePatternPredicateNormalizer,
-     RelationshipPatternPredicateNormalizer,
+    RelationshipPatternPredicateNormalizer,
   )
 
   private val rewriter = Rewriter.lift {

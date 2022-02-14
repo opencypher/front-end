@@ -15,15 +15,23 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.expressions.EntityType
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.NODE_TYPE
 import org.opencypher.v9_0.expressions.NodePattern
 
-object NodePatternPredicateNormalizer extends MatchPredicateNormalizer {
+object LabelExpressionsInPatternsNormalizer extends MatchPredicateNormalizer {
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
-    case NodePattern(_, _, _, Some(expr)) => Vector(expr)
+    case NodePattern(Some(id), Some(expression), _, _) => Vector(extractLabelExpressionPredicates(id, expression, entityType = Some(NODE_TYPE)))
   }
 
   override val replace: PartialFunction[AnyRef, AnyRef] = {
-    case p@NodePattern(_, _, _, Some(_)) => p.copy(predicate = None)(p.position)
+    case p@NodePattern(Some(_), Some(_), _, _) => p.copy(labelExpression = None)(p.position)
+  }
+
+  private def extractLabelExpressionPredicates(variable: LogicalVariable, e: LabelExpression, entityType: Option[EntityType]): Expression = {
+    LabelExpressionNormalizer(variable, entityType)(e).asInstanceOf[Expression]
   }
 }

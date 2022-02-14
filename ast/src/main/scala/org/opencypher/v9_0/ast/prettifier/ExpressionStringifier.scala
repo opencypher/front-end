@@ -48,6 +48,14 @@ import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
+import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Disjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Label
+import org.opencypher.v9_0.expressions.LabelExpression.Negation
+import org.opencypher.v9_0.expressions.LabelExpression.Wildcard
+import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
 import org.opencypher.v9_0.expressions.ListComprehension
@@ -228,6 +236,12 @@ private class DefaultExpressionStringifier(
       case HasTypes(arg, types) =>
         val l = types.map(apply).mkString(":", ":", "")
         s"${inner(ast)(arg)}$l"
+
+      case lep: LabelExpressionPredicate =>
+        s"${inner(ast)(lep.entity)}:${stringify(lep.labelExpression)}"
+
+      case le:LabelExpression =>
+        stringifyLabelExpression(le)
 
       case AllIterablePredicate(scope, e) =>
         s"all${prettyScope(scope, e)}"
@@ -432,6 +446,28 @@ private class DefaultExpressionStringifier(
     case _: SensitiveAutoParameter if !sensitiveParamsAsParams => "'******'"
     case _: SensitiveLiteral => "'******'"
     case param: Parameter => s"$$${ExpressionStringifier.backtick(param.name)}"
+  }
+
+  private def stringifyLabelExpression(labelExpression: LabelExpression): String = labelExpression match {
+    case le: Disjunction => s"${stringifyLabelExpression3(le.lhs)}|${stringifyLabelExpression3(le.rhs)}"
+    case le              => s"${stringifyLabelExpression3(le)}"
+  }
+
+  private def stringifyLabelExpression3(labelExpression: LabelExpression): String = labelExpression match {
+    case le: Conjunction => s"${stringifyLabelExpression2(le.lhs)}&${stringifyLabelExpression2(le.rhs)}"
+    case le: ColonConjunction => s"${stringifyLabelExpression2(le.lhs)}:${stringifyLabelExpression2(le.rhs)}"
+    case le              => s"${stringifyLabelExpression2(le)}"
+  }
+
+  private def stringifyLabelExpression2(labelExpression: LabelExpression): String = labelExpression match {
+    case le: Negation => s"!${stringifyLabelExpression2(le.e)}"
+    case le           => s"${stringifyLabelExpression1(le)}"
+  }
+
+  private def stringifyLabelExpression1(labelExpression: LabelExpression): String = labelExpression match {
+    case le: Label    => apply(le.label)
+    case _: Wildcard  => s"%"
+    case le           => s"(${stringifyLabelExpression(le)})"
   }
 }
 

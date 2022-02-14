@@ -18,16 +18,24 @@ package org.opencypher.v9_0.ast.factory.neo4j
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Variable
+import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.TestName
 
-trait JavaccParserAstTestBase[AST] extends JavaccParserTestBase[AST, AST] with TestName with AstConstructionTestSupport {
+trait JavaccParserAstTestBase[AST <: ASTNode] extends JavaccParserTestBase[AST, AST] with TestName with AstConstructionTestSupport with VerifyAstPositionTestSupport {
 
   final override def convert(astNode: AST): AST = astNode
 
   final def yields(expr: InputPosition => AST)(implicit parser: JavaccRule[AST]): Unit = parsing(testName) shouldGive expr
 
   final def gives(ast: AST)(implicit parser: JavaccRule[AST]): Unit = parsing(testName) shouldGive ast
+
+  final def givesIncludingPositions(expected: AST)(implicit parser: JavaccRule[AST]): Unit = {
+    parsing(testName) shouldVerify { actual =>
+      actual shouldBe expected
+      verifyPositions(actual, expected)
+    }
+  }
 
   final def failsToParse(implicit parser: JavaccRule[AST]): Unit = assertFails(testName)
 

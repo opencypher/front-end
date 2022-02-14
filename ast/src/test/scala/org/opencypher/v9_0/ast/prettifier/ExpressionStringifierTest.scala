@@ -17,11 +17,50 @@ package org.opencypher.v9_0.ast.prettifier
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.PatternComprehension
+import org.opencypher.v9_0.expressions.RelationshipChain
+import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.RelationshipsPattern
+import org.opencypher.v9_0.expressions.SemanticDirection.OUTGOING
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ExpressionStringifierTest extends CypherFunSuite with AstConstructionTestSupport {
 
   private val tests: Seq[(Expression, String)] = Seq(
+    (
+      PatternComprehension(
+        namedPath = None,
+        pattern = RelationshipsPattern(RelationshipChain(
+          nodePat(Some("u")),
+          RelationshipPattern(Some(varFor("r")), List(relTypeName("FOLLOWS")), None, None, None, OUTGOING)(pos),
+          nodePat(Some("u2"))
+        )(pos))(pos),
+        predicate = Some(hasLabels("u2", "User")),
+        projection = prop("u2", "id"))(
+        pos,
+        outerScope = Set(varFor("u.id"), varFor("u")),
+        variableToCollectName = "p",
+        collectionName = "v"
+      ),
+      "[(u)-[r:FOLLOWS]->(u2) WHERE u2:User | u2.id]"
+    ),
+    (
+      PatternComprehension(
+        namedPath = None,
+        pattern = RelationshipsPattern(RelationshipChain(
+          nodePat(Some("u")),
+          RelationshipPattern(Some(varFor("r")), List(relTypeName("FOLLOWS")), None, None, None, OUTGOING)(pos),
+          nodePat(Some("u2"), Some(labelAtom("User")))
+        )(pos))(pos),
+        predicate = None,
+        projection = prop("u2", "id"))(
+        pos,
+        outerScope = Set(varFor("u.id"), varFor("u")),
+        variableToCollectName = "p",
+        collectionName = "v"
+      ),
+      "[(u)-[r:FOLLOWS]->(u2:User) | u2.id]"
+    )
   )
 
   private val stringifier = ExpressionStringifier()

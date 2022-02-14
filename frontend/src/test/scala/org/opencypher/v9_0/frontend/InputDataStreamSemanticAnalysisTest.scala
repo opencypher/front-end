@@ -82,7 +82,7 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite with AstConstru
     // "INPUT DATA STREAM x RETURN * UNION MATCH (x) RETURN *"
     val ast = query(union(
       singleQuery(input(varFor("x")), returnAll),
-      singleQuery(match_(nodePat("x")), returnAll)
+      singleQuery(match_(nodePat(Some("x"))), returnAll)
     ))
     val startState = initStartState(ast)
 
@@ -95,7 +95,7 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite with AstConstru
   test("INPUT DATA STREAM is not supported in UNION queries 2") {
     // "MATCH (x) RETURN * UNION INPUT DATA STREAM x RETURN *"
     val ast = query(union(
-      singleQuery(match_(nodePat("x")), returnAll),
+      singleQuery(match_(nodePat(Some("x"))), returnAll),
       singleQuery(input(varFor("x")), returnAll)
     ))
     val startState = initStartState(ast)

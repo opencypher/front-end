@@ -71,7 +71,7 @@ class ShortestPathExpressionTest extends SemanticFunSuite {
   }
 
   private def node(id: Option[Variable]): NodePattern = {
-    expressions.NodePattern(id, Seq.empty, None, None, None)(pos)
+    expressions.NodePattern(id, None, None, None)(pos)
   }
 
 }

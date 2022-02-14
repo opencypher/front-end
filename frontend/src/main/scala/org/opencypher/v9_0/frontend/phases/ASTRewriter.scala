@@ -23,6 +23,7 @@ import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.RewriterStep
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
+import org.opencypher.v9_0.rewriting.rewriters.LabelExpressionPredicateNormalizer
 import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
@@ -74,6 +75,7 @@ object ASTRewriter {
     inlineNamedPathsInPatternComprehensions,
     parameterValueTypeReplacement,
     rewriteOrderById,
+    LabelExpressionPredicateNormalizer,
   ), initialConditions = Set(ProjectionClausesHaveSemanticInfo, PatternExpressionsHaveSemanticInfo))
 
   def rewrite(statement: Statement,

@@ -27,7 +27,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
   test("containsLabelOrRelTypePredicate with label in where clause") {
     // MATCH (n) WHERE n:N
     val `match` = Match(optional = false,
-      Pattern(Seq(EveryPath(nodePat("n"))))(pos),
+      Pattern(Seq(EveryPath(nodePat(Some("n")))))(pos),
       hints = Seq.empty,
       Some(Where(
         hasLabels("n", "N")
@@ -42,7 +42,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
   test("containsLabelOrRelTypePredicate with inlined label") {
     // MATCH (n) WHERE n:N
     val `match` = Match(optional = false,
-      Pattern(Seq(EveryPath(nodePat("n", "N"))))(pos),
+      Pattern(Seq(EveryPath(nodePat(Some("n"), Some(labelAtom("N"))))))(pos),
       hints = Seq.empty,
       where = None
     )(pos)
@@ -55,7 +55,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
   test("containsLabelOrRelTypePredicate with label in where clause nested in AND") {
     // MATCH (n) WHERE n:N AND n.prop = 1
     val `match` = Match(optional = false,
-      Pattern(Seq(EveryPath(nodePat("n"))))(pos),
+      Pattern(Seq(EveryPath(nodePat(Some("n")))))(pos),
       hints = Seq.empty,
       Some(Where(
       and(
@@ -73,7 +73,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
   test("containsLabelOrRelTypePredicate with label in where clause nested in ORs") {
     // MATCH (n) WHERE n:N OR n.prop = 1
     val `match` = Match(optional = false,
-      Pattern(Seq(EveryPath(nodePat("n"))))(pos),
+      Pattern(Seq(EveryPath(nodePat(Some("n")))))(pos),
       hints = Seq.empty,
       Some(Where(
         ors(
@@ -109,7 +109,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
     `match`.containsLabelOrRelTypePredicate("r", "R") should be(true)
   }
 
-  test("containsLabelOrRelTypePredicate with rel type in where clause checked by hasLabelOrTypes") {
+  test("containsLabelOrRelTypePredicate with rel type in where clause checked by labelExpressionPredicate") {
     // MATCH ()-[r]-() WHERE r:R
     val `match` = Match(optional = false,
       Pattern(Seq(EveryPath(
@@ -119,7 +119,7 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
       )))(pos),
       hints = Seq.empty,
       Some(Where(
-        hasLabelsOrTypes("r", "R")
+        labelExpressionPredicate("r", labelAtom("R"))
       )(pos))
     )(pos)
 

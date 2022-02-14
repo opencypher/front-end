@@ -15,20 +15,20 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.TestName
 
-class NodePatternPredicateParserTest extends CypherFunSuite with TestName with AstConstructionTestSupport {
+class NodePatternPredicateParserTest extends CypherFunSuite with TestName with JavaccParserAstTestBase[NodePattern] {
+
+  implicit val parser: JavaccRule[NodePattern] = JavaccRule.NodePattern
 
   test("MATCH (n WHERE n.prop > 123)") {
     val expected = Seq(
       NodePattern(
         Some(varFor("n")),
-        Seq.empty,
         None,
         None,
         Some(greaterThan(prop("n", "prop"), literalInt(123)))
@@ -38,23 +38,29 @@ class NodePatternPredicateParserTest extends CypherFunSuite with TestName with A
     parseNodePatterns(testName.replaceAllLiterally("WHERE", "wHeRe")) shouldBe expected
   }
 
-  test("MATCH (n:A:B:C {prop: 42} WHERE n.otherProp < 123)") {
-    parseNodePatterns(testName) shouldBe Seq(
+  test("(n:A:B:C {prop: 42} WHERE n.otherProp < 123)") {
+    givesIncludingPositions {
       NodePattern(
-        Some(varFor("n")),
-        Seq("A", "B", "C").map(labelName(_)),
-        None,
-        Some(mapOf("prop" -> literalInt(42))),
-        Some(lessThan(prop("n", "otherProp"), literalInt(123)))
-      )(pos)
-    )
+        variable = Some(varFor("n", (1, 2, 1))),
+        labelExpression = Some(
+          labelColonConjunction(
+            labelColonConjunction(
+              labelAtom("A", (1, 4, 3)),
+              labelAtom("B", (1, 6, 5))
+            ),
+            labelAtom("C", (1, 8, 7))
+          )
+        ),
+        properties = Some(mapOf("prop" -> literalInt(42))),
+        predicate = Some(lessThan(prop("n", "otherProp"), literalInt(123)))
+      )(1, 1, 0)
+    }
   }
 
   test("MATCH (WHERE WHERE WHERE.prop > 123)") {
     parseNodePatterns(testName) shouldBe Seq(
       NodePattern(
         Some(varFor("WHERE")),
-        Seq.empty,
         None,
         None,
         Some(greaterThan(prop("WHERE", "prop"), literalInt(123)))
@@ -66,14 +72,12 @@ class NodePatternPredicateParserTest extends CypherFunSuite with TestName with A
     parseNodePatterns(testName).toSet shouldBe Set(
       NodePattern(
         Some(varFor("n")),
-        Seq(labelName("A")),
-        None,
+        Some(labelAtom("A")),
         None,
         Some(greaterThanOrEqual(prop("n", "prop"), literalInt(123)))
       )(pos),
       NodePattern(
         Some(varFor("end")),
-        Seq.empty,
         None,
         None,
         Some(lessThan(prop("end", "prop"), literalInt(42)))
@@ -85,14 +89,12 @@ class NodePatternPredicateParserTest extends CypherFunSuite with TestName with A
     parseNodePatterns(testName).toSet shouldBe Set(
       NodePattern(
         Some(varFor("n")),
-        Seq.empty,
         None,
         Some(mapOf("prop" -> literalString("test"))),
         Some(equals(prop("n", "otherProp"), literalInt(123)))
       )(pos),
       NodePattern(
         Some(varFor("end")),
-        Seq.empty,
         None,
         None,
         Some(equals(prop("end", "prop"), literalInt(42)))
@@ -104,7 +106,6 @@ class NodePatternPredicateParserTest extends CypherFunSuite with TestName with A
     parseNodePatterns(testName) shouldBe Seq(
       NodePattern(
         Some(varFor("WHERE")),
-        Seq.empty,
         None,
         Some(mapOf("prop" -> literal(123))),
         None

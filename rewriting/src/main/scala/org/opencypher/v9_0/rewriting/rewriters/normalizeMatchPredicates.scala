@@ -20,6 +20,7 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -40,7 +41,11 @@ object normalizeMatchPredicates extends StepSequencer.Step with ASTRewriterFacto
 
   override def postConditions: Set[StepSequencer.Condition] = Set(NoPredicatesInNamedPartsOfMatchPattern)
 
-  override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
+  override def invalidatedConditions: Set[StepSequencer.Condition] = Set(
+    HasLabelsOrTypesReplacedIfPossible,
+    ProjectionClausesHaveSemanticInfo, // It can invalidate this condition by rewriting things inside WITH/RETURN.
+    PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
+  )
 
   override def getRewriter(semanticState: SemanticState,
                            parameterTypeMapping: Map[String, CypherType],
@@ -49,7 +54,7 @@ object normalizeMatchPredicates extends StepSequencer.Step with ASTRewriterFacto
     normalizeMatchPredicates(
       MatchPredicateNormalizerChain(
         PropertyPredicateNormalizer(anonymousVariableNameGenerator),
-        LabelPredicateNormalizer,
+        LabelExpressionsInPatternsNormalizer,
         NodePatternPredicateNormalizer,
         RelationshipPatternPredicateNormalizer,
       )

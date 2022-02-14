@@ -29,7 +29,7 @@ import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.ExistsSubClause
-import org.opencypher.v9_0.expressions.HasLabelsOrTypes
+import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.ListSlice
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.Property
@@ -85,7 +85,7 @@ class ParserPositionTest extends CypherFunSuite with TestName  {
   }
 
   test("MATCH (a) WHERE NOT (a:A)") {
-    validatePosition(testName, _.isInstanceOf[HasLabelsOrTypes], InputPosition(21, 1, 22))
+    validatePosition(testName, _.isInstanceOf[LabelExpressionPredicate], InputPosition(21, 1, 22))
   }
 
   test("MATCH (n) WHERE exists { (n) --> () }") {

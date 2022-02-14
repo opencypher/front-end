@@ -27,8 +27,9 @@ import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.util.ASTNode
 
-class MiscParserTest extends JavaccParserAstTestBase[Any] {
+class MiscParserTest extends JavaccParserAstTestBase[ASTNode] {
 
   test("RETURN 1 AS x //l33t comment") {
     implicit val parser: JavaccRule[Statement] = JavaccRule.Statement
@@ -74,11 +75,11 @@ class MiscParserTest extends JavaccParserAstTestBase[Any] {
   test("should allow True and False as label name") {
     implicit val parser: JavaccRule[NodePattern] = JavaccRule.NodePattern
 
-    parsing("(:True)") shouldGive NodePattern(None, Seq(labelName("True")), None, None, None)_
-    parsing("(:False)") shouldGive NodePattern(None, Seq(labelName("False")), None, None, None)_
+    parsing("(:True)") shouldGive NodePattern(None, Some(labelAtom("True")), None, None)_
+    parsing("(:False)") shouldGive NodePattern(None, Some(labelAtom("False")), None, None)_
 
-    parsing("(t:True)") shouldGive nodePat("t", "True")
-    parsing("(f:False)") shouldGive nodePat("f", "False")
+    parsing("(t:True)") shouldGive nodePat(name = Some("t"), labelExpression = Some(labelAtom("True")))
+    parsing("(f:False)") shouldGive nodePat(name = Some("f"), labelExpression = Some(labelAtom("False")))
   }
 
   test("-[:Person*1..2]-") {

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck.checkValidLabels
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
 import org.opencypher.v9_0.expressions.And
@@ -56,6 +57,8 @@ import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.IterablePredicateExpression
+import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
 import org.opencypher.v9_0.expressions.ListComprehension
@@ -121,7 +124,6 @@ import org.opencypher.v9_0.util.symbols.TypeSpec
 
 import scala.annotation.tailrec
 import scala.util.Try
-import scala.Iterable
 
 object SemanticExpressionCheck extends SemanticAnalysisTooling {
 
@@ -338,6 +340,19 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
       case x:HasLabelsOrTypes =>
         check(ctx, x.expression, x +: parents) chain
           expectType(CTNode.covariant | CTRelationship.covariant, x.expression) chain
+          specifyType(CTBoolean, x)
+
+      case x:LabelExpression =>
+        lazy val legacySymbols = x.folder.findAllByClass[LabelExpression.ColonConjunction]
+        when (!x.isNonGpm && legacySymbols.nonEmpty) {
+          error(s"Mixing label expression symbols ('|', '&', '!', and '%') with colon (':') is not allowed. Please only use one set of symbols.", legacySymbols.head.position)
+        } chain
+        checkValidLabels(x.flatten, x.position)
+
+      case x:LabelExpressionPredicate =>
+        check(ctx, x.entity, x +: parents) chain
+          expectType(CTNode.covariant | CTRelationship.covariant, x.entity) chain
+          check(ctx, x.labelExpression, x +: parents) chain
           specifyType(CTBoolean, x)
 
       case x:HasLabels =>

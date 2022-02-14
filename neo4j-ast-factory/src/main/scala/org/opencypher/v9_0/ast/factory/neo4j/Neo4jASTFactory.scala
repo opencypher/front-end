@@ -325,6 +325,7 @@ import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.LessThan
@@ -394,6 +395,7 @@ import java.lang
 import java.nio.charset.StandardCharsets
 import java.util
 import java.util.stream.Collectors
+
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.util.Either
@@ -702,11 +704,10 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
   override def nodePattern(p: InputPosition,
                            v: Variable,
-                           labels: util.List[StringPos[InputPosition]],
                            labelExpression: LabelExpression,
                            properties: Expression,
                            predicate: Expression): NodePattern = {
-    NodePattern(Option(v), labels.asScala.toList.map(sp => LabelName(sp.string)(sp.pos)), Option(labelExpression), Option(properties), Option(predicate))(p)
+    NodePattern(Option(v), Option(labelExpression), Option(properties), Option(predicate))(p)
   }
 
   override def relationshipPattern(p: InputPosition,
@@ -1786,6 +1787,12 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
   override def labelWildcard(p: InputPosition): LabelExpression = LabelExpression.Wildcard()(p)
 
-  override def labelAtom(p: InputPosition, n: String): LabelExpression = LabelExpression.Label(LabelOrRelTypeName(n)(p))(p)
+  override def labelAtom(p: InputPosition, n: String): LabelExpression = LabelExpression.Label(LabelName(n)(p))(p)
+
+  override def labelColonConjunction(p: InputPosition,
+                                     lhs: LabelExpression,
+                                     rhs: LabelExpression): LabelExpression = LabelExpression.ColonConjunction(lhs, rhs)(p)
+
+  override def labelExpressionPredicate(subject: Expression, exp: LabelExpression): Expression = LabelExpressionPredicate(subject, exp)(subject.position)
 }
 
