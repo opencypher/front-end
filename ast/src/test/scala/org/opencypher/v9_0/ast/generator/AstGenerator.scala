@@ -102,15 +102,10 @@ import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAction
 import org.opencypher.v9_0.ast.DropDatabaseAlias
-import org.opencypher.v9_0.ast.DropIndex
 import org.opencypher.v9_0.ast.DropIndexAction
 import org.opencypher.v9_0.ast.DropIndexOnName
-import org.opencypher.v9_0.ast.DropNodeKeyConstraint
-import org.opencypher.v9_0.ast.DropNodePropertyExistenceConstraint
-import org.opencypher.v9_0.ast.DropRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropRoleAction
-import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
@@ -1360,12 +1355,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     use      <- option(_use)
   } yield DropIndexOnName(name, ifExists, use)(pos)
 
-  def _indexCommandsOldSyntax: Gen[SchemaCommand] = for {
+  def _indexCommandsOldCreateSyntax: Gen[SchemaCommand] = for {
     labelName <- _labelName
     props     <- oneOrMore(_propertyKeyName)
     use       <- option(_use)
-    command   <- oneOf(CreateIndexOldSyntax(labelName, props, use)(pos), DropIndex(labelName, props, use)(pos))
-  } yield command
+  } yield CreateIndexOldSyntax(labelName, props, use)(pos)
 
   def _createConstraint: Gen[SchemaCommand] = for {
     variable            <- _variable
@@ -1388,30 +1382,15 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     command             <- oneOf(nodeKey, uniqueness, compositeUniqueness, nodeExistence, relExistence)
   } yield command
 
-  def _dropConstraintOldSyntax: Gen[SchemaCommand] = for {
-    variable            <- _variable
-    labelName           <- _labelName
-    relTypeName         <- _relTypeName
-    props               <- _listOfProperties
-    prop                <- _variableProperty
-    use                 <- option(_use)
-    nodeKey             = DropNodeKeyConstraint(variable, labelName, props, use)(pos)
-    uniqueness          = DropUniquePropertyConstraint(variable, labelName, Seq(prop), use)(pos)
-    compositeUniqueness = DropUniquePropertyConstraint(variable, labelName, props, use)(pos)
-    nodeExistence       = DropNodePropertyExistenceConstraint(variable, labelName, prop, use)(pos)
-    relExistence        = DropRelationshipPropertyExistenceConstraint(variable, relTypeName, prop, use)(pos)
-    command             <- oneOf(nodeKey, uniqueness, compositeUniqueness, nodeExistence, relExistence)
-  } yield command
-
   def _dropConstraint: Gen[DropConstraintOnName] = for {
     name     <- _identifier
     ifExists <- boolean
     use      <- option(_use)
   } yield DropConstraintOnName(name, ifExists, use)(pos)
 
-  def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex, _indexCommandsOldSyntax)
+  def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex, _indexCommandsOldCreateSyntax)
 
-  def _constraintCommand: Gen[SchemaCommand] = oneOf(_createConstraint, _dropConstraint, _dropConstraintOldSyntax)
+  def _constraintCommand: Gen[SchemaCommand] = oneOf(_createConstraint, _dropConstraint)
 
   def _schemaCommand: Gen[SchemaCommand] = oneOf(_indexCommand, _constraintCommand)
 

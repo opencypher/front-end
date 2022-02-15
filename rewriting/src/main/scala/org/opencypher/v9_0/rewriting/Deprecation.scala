@@ -54,8 +54,6 @@ import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDefaultDatabaseSyntax
 import org.opencypher.v9_0.util.DeprecatedDefaultGraphSyntax
-import org.opencypher.v9_0.util.DeprecatedDropConstraintSyntax
-import org.opencypher.v9_0.util.DeprecatedDropIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
@@ -148,36 +146,6 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
-
-      case i: ast.DropIndex =>
-        Deprecation(
-          None,
-          Some(DeprecatedDropIndexSyntax(i.position))
-        )
-
-      case c: ast.DropNodeKeyConstraint =>
-        Deprecation(
-          None,
-          Some(DeprecatedDropConstraintSyntax(c.position))
-        )
-
-      case c: ast.DropUniquePropertyConstraint =>
-        Deprecation(
-          None,
-          Some(DeprecatedDropConstraintSyntax(c.position))
-        )
-
-      case c: ast.DropNodePropertyExistenceConstraint =>
-        Deprecation(
-          None,
-          Some(DeprecatedDropConstraintSyntax(c.position))
-        )
-
-      case c: ast.DropRelationshipPropertyExistenceConstraint =>
-        Deprecation(
-          None,
-          Some(DeprecatedDropConstraintSyntax(c.position))
         )
 
       // CREATE CONSTRAINT ... OPTIONS {<btree options>}
