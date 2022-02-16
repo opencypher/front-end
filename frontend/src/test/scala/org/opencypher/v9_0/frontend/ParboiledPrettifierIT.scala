@@ -223,8 +223,8 @@ class ParboiledPrettifierIT extends CypherFunSuite {
     "CREATE index FOR (n:Person) on (n.name) OPtiONS {indexProvider: 'native-btree-1.0'}" ->
       """CREATE INDEX FOR (n:Person) ON (n.name) OPTIONS {indexProvider: "native-btree-1.0"}""",
 
-    "create INDEX for (n:Person) ON (n.name) OPTIONS {`indexProvider`: 'lucene+native-3.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
-      """CREATE INDEX FOR (n:Person) ON (n.name) OPTIONS {indexProvider: "lucene+native-3.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
+    "create INDEX for (n:Person) ON (n.name) OPTIONS {`indexProvider`: 'native-btree-1.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
+      """CREATE INDEX FOR (n:Person) ON (n.name) OPTIONS {indexProvider: "native-btree-1.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
 
     "create INDEX myIndex for (n:Person) ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0,40.0], `spatial.wgs-84.min`: [-60.0,-40.0] }}" ->
       """CREATE INDEX myIndex FOR (n:Person) ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0, 40.0], `spatial.wgs-84.min`: [-60.0, -40.0]}}""",
@@ -265,8 +265,8 @@ class ParboiledPrettifierIT extends CypherFunSuite {
     "CREATE index FOR ()-[n:R]->() on (n.name) OPtiONS {indexProvider: 'native-btree-1.0'}" ->
       """CREATE INDEX FOR ()-[n:R]-() ON (n.name) OPTIONS {indexProvider: "native-btree-1.0"}""",
 
-    "create INDEX for ()-[n:R]-() ON (n.name) OPTIONS {`indexProvider`: 'lucene+native-3.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
-      """CREATE INDEX FOR ()-[n:R]-() ON (n.name) OPTIONS {indexProvider: "lucene+native-3.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
+    "create INDEX for ()-[n:R]-() ON (n.name) OPTIONS {`indexProvider`: 'native-btree-1.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
+      """CREATE INDEX FOR ()-[n:R]-() ON (n.name) OPTIONS {indexProvider: "native-btree-1.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
 
     "create INDEX myIndex for ()-[n:R]-() ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0,40.0], `spatial.wgs-84.min`: [-60.0,-40.0] }}" ->
       """CREATE INDEX myIndex FOR ()-[n:R]-() ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0, 40.0], `spatial.wgs-84.min`: [-60.0, -40.0]}}""",
@@ -380,8 +380,8 @@ class ParboiledPrettifierIT extends CypherFunSuite {
     "CREATE BTREE index FOR (n:Person) on (n.name) OPtiONS {indexProvider: 'native-btree-1.0'}" ->
       """CREATE BTREE INDEX FOR (n:Person) ON (n.name) OPTIONS {indexProvider: "native-btree-1.0"}""",
 
-    "create BTREE INDEX for (n:Person) ON (n.name) OPTIONS {`indexProvider`: 'lucene+native-3.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
-      """CREATE BTREE INDEX FOR (n:Person) ON (n.name) OPTIONS {indexProvider: "lucene+native-3.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
+    "create BTREE INDEX for (n:Person) ON (n.name) OPTIONS {`indexProvider`: 'native-btree-1.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
+      """CREATE BTREE INDEX FOR (n:Person) ON (n.name) OPTIONS {indexProvider: "native-btree-1.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
 
     "create BTREE INDEX myIndex for (n:Person) ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0,40.0], `spatial.wgs-84.min`: [-60.0,-40.0] }}" ->
       """CREATE BTREE INDEX myIndex FOR (n:Person) ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0, 40.0], `spatial.wgs-84.min`: [-60.0, -40.0]}}""",
@@ -419,8 +419,8 @@ class ParboiledPrettifierIT extends CypherFunSuite {
     "CREATE BTREE index FOR ()-[n:R]->() on (n.name) OPtiONS {indexProvider: 'native-btree-1.0'}" ->
       """CREATE BTREE INDEX FOR ()-[n:R]-() ON (n.name) OPTIONS {indexProvider: "native-btree-1.0"}""",
 
-    "create BTREE INDEX for ()-[n:R]-() ON (n.name) OPTIONS {`indexProvider`: 'lucene+native-3.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
-      """CREATE BTREE INDEX FOR ()-[n:R]-() ON (n.name) OPTIONS {indexProvider: "lucene+native-3.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
+    "create BTREE INDEX for ()-[n:R]-() ON (n.name) OPTIONS {`indexProvider`: 'native-btree-1.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
+      """CREATE BTREE INDEX FOR ()-[n:R]-() ON (n.name) OPTIONS {indexProvider: "native-btree-1.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
 
     "create BTREE INDEX myIndex for ()-[n:R]-() ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0,40.0], `spatial.wgs-84.min`: [-60.0,-40.0] }}" ->
       """CREATE BTREE INDEX myIndex FOR ()-[n:R]-() ON (n.name) OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0, 40.0], `spatial.wgs-84.min`: [-60.0, -40.0]}}""",
@@ -781,8 +781,8 @@ class ParboiledPrettifierIT extends CypherFunSuite {
         s"CREATE constraint $onOrFor (n:A) $assertOrRequired (n.p) IS NODE KEY OPtiONS {indexProvider: 'native-btree-1.0'}" ->
           s"""CREATE CONSTRAINT $onOrFor (n:A) $assertOrRequired (n.p) IS NODE KEY OPTIONS {indexProvider: "native-btree-1.0"}""",
 
-        s"create CONSTRAINT myConstraint $onOrFor (n:A) ${assertOrRequired.toLowerCase} (n.p) IS NODE KEY OPTIONS {`indexProvider`: 'lucene+native-3.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
-          s"""CREATE CONSTRAINT myConstraint $onOrFor (n:A) $assertOrRequired (n.p) IS NODE KEY OPTIONS {indexProvider: "lucene+native-3.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
+        s"create CONSTRAINT myConstraint $onOrFor (n:A) ${assertOrRequired.toLowerCase} (n.p) IS NODE KEY OPTIONS {`indexProvider`: 'native-btree-1.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
+          s"""CREATE CONSTRAINT myConstraint $onOrFor (n:A) $assertOrRequired (n.p) IS NODE KEY OPTIONS {indexProvider: "native-btree-1.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
 
         s"create CONSTRAINT $onOrFor (n:A) ${assertOrRequired.toLowerCase} (n.p) IS NODE KEY OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0,40.0], `spatial.wgs-84.min`: [-60.0,-40.0] }}" ->
           s"""CREATE CONSTRAINT $onOrFor (n:A) $assertOrRequired (n.p) IS NODE KEY OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0, 40.0], `spatial.wgs-84.min`: [-60.0, -40.0]}}""",
@@ -814,8 +814,8 @@ class ParboiledPrettifierIT extends CypherFunSuite {
         s"CREATE constraint $onOrFor (n:A) $assertOrRequired (n.p) IS UNIQUE OPtiONS {indexProvider: 'native-btree-1.0'}" ->
           s"""CREATE CONSTRAINT $onOrFor (n:A) $assertOrRequired (n.p) IS UNIQUE OPTIONS {indexProvider: "native-btree-1.0"}""",
 
-        s"create CONSTRAINT myConstraint $onOrFor (n:A) ${assertOrRequired.toLowerCase} (n.p) IS UNIQUE OPTIONS {`indexProvider`: 'lucene+native-3.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
-          s"""CREATE CONSTRAINT myConstraint $onOrFor (n:A) $assertOrRequired (n.p) IS UNIQUE OPTIONS {indexProvider: "lucene+native-3.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
+        s"create CONSTRAINT myConstraint $onOrFor (n:A) ${assertOrRequired.toLowerCase} (n.p) IS UNIQUE OPTIONS {`indexProvider`: 'native-btree-1.0', indexConfig: {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}" ->
+          s"""CREATE CONSTRAINT myConstraint $onOrFor (n:A) $assertOrRequired (n.p) IS UNIQUE OPTIONS {indexProvider: "native-btree-1.0", indexConfig: {`spatial.cartesian.max`: [100.0, 100.0], `spatial.cartesian.min`: [-100.0, -100.0]}}""",
 
         s"create CONSTRAINT $onOrFor (n:A) ${assertOrRequired.toLowerCase} (n.p) IS UNIQUE OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0,40.0], `spatial.wgs-84.min`: [-60.0,-40.0] }}" ->
           s"""CREATE CONSTRAINT $onOrFor (n:A) $assertOrRequired (n.p) IS UNIQUE OPTIONS {indexConfig: {`spatial.wgs-84.max`: [60.0, 40.0], `spatial.wgs-84.min`: [-60.0, -40.0]}}""",
