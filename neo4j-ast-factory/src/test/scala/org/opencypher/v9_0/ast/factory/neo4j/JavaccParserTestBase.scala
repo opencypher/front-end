@@ -15,6 +15,7 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
+import org.opencypher.v9_0.parser.javacc.ParseException
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -115,6 +116,23 @@ trait JavaccParserTestBase[T, J] extends CypherFunSuite {
       }
       ResultCheck(Seq(converted), input)
 
-    case Failure(exception) => fail(s"'$input' failed with: $exception")
+    case Failure(exception) => fail(generateErrorMessage(input, exception))
+  }
+
+  private def generateErrorMessage(input: String, exception: Throwable): String = {
+    val defaultMessage = s"'$input' failed with: $exception"
+    exception match {
+      case e: ParseException => if (input.contains("\n")) {
+        defaultMessage
+      } else {
+        val pos = e.currentToken.beginOffset
+        val indentation = " ".repeat(pos)
+        s"""
+           |'$input'
+           | $indentation^
+           |failed with $exception""".stripMargin
+      }
+      case _ => defaultMessage
+    }
   }
 }
