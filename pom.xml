@@ -38,7 +38,7 @@
     <scala.binary.version>2.12</scala.binary.version>
     <scala.test.version>3.0.5</scala.test.version>
     <scala.check.version>1.14.0</scala.check.version>
-    <opencypher.version>1.0.0-M16</opencypher.version>
+    <opencypher.version>1.0.0-M18</opencypher.version>
     <scala.target.vm>1.8</scala.target.vm>
     <scala.java9.arg/>
     <maven.compiler.source>11</maven.compiler.source>
