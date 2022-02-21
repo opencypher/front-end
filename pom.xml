@@ -34,10 +34,11 @@
 
   <properties>
     <licensing.prepend.text>ASL-2-header.txt</licensing.prepend.text>
-    <scala.version>2.12.13</scala.version>
-    <scala.binary.version>2.12</scala.binary.version>
-    <scala.test.version>3.0.5</scala.test.version>
+    <scala.version>2.13.8</scala.version>
+    <scala.binary.version>2.13</scala.binary.version>
+    <scala.test.version>3.0.9</scala.test.version>
     <scala.check.version>1.14.0</scala.check.version>
+    <parboiled.version>1.3.1</parboiled.version>
     <opencypher.version>1.0.0-M18</opencypher.version>
     <scala.target.vm>1.8</scala.target.vm>
     <scala.java9.arg/>
@@ -148,8 +149,6 @@
             <scalaVersion>${scala.version}</scalaVersion>
             <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
             <args>
-              <arg>-Xmax-classfile-name</arg>
-              <arg>100</arg>
               <arg>-Xlint</arg>
               <arg>-target:jvm-${scala.target.vm}</arg>
               <arg>${scala.java9.arg}</arg>
