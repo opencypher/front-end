@@ -17,6 +17,7 @@ package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.NO_TRACING
+import org.opencypher.v9_0.util.CancellationChecker
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InternalNotificationLogger
@@ -40,6 +41,8 @@ object ContextHelper extends MockitoSugar {
         (errors: Seq[SemanticErrorDef]) => errors.foreach(e => throw cypherExceptionFactory.syntaxException(e.msg, e.position))
 
       override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
+
+      override def cancellationChecker: CancellationChecker = CancellationChecker.NeverCancelled
     }
   }
 }

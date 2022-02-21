@@ -18,6 +18,7 @@ package org.opencypher.v9_0.frontend.helpers
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
+import org.opencypher.v9_0.util.CancellationChecker
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InternalNotificationLogger
@@ -36,4 +37,6 @@ case class TestContext(override val notificationLogger: InternalNotificationLogg
   override def errorHandler = _ => ()
 
   override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
+
+  override def cancellationChecker: CancellationChecker = CancellationChecker.NeverCancelled
 }

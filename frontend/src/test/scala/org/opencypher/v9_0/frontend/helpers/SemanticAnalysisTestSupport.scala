@@ -20,6 +20,7 @@ import org.opencypher.v9_0.frontend.PlannerName
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.Monitors
+import org.opencypher.v9_0.util.CancellationChecker
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.NotImplementedErrorMessageProvider
@@ -40,6 +41,8 @@ class ErrorCollectingContext extends BaseContext {
     errors = errs
 
   override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
+
+  override def cancellationChecker: CancellationChecker = CancellationChecker.NeverCancelled
 }
 
 object ErrorCollectingContext {

@@ -41,6 +41,7 @@ import org.opencypher.v9_0.rewriting.AstRewritingMonitor
 import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.rewriting.PredicateTestSupport
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.CancellationChecker
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InputPosition
@@ -251,4 +252,6 @@ class TestContext(override val monitors: Monitors) extends BaseContext {
   override def errorHandler: Seq[SemanticErrorDef] => Unit = _ => ()
 
   override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
+
+  override def cancellationChecker: CancellationChecker = CancellationChecker.NeverCancelled
 }
