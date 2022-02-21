@@ -9,7 +9,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>test-util-9.0</artifactId>
+    <artifactId>test-util-9.0_2.13</artifactId>
     <packaging>jar</packaging>
     <version>9.0-SNAPSHOT</version>
     <name>openCypher Test Utils</name>
@@ -70,7 +70,7 @@
         </dependency>
         <dependency>
             <groupId>org.opencypher</groupId>
-            <artifactId>tck-api_2.12</artifactId>
+            <artifactId>tck-api_${scala.binary.version}</artifactId>
             <version>${opencypher.version}</version>
             <exclusions>
                 <exclusion>

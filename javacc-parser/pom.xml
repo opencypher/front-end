@@ -71,20 +71,6 @@
 
     <dependencies>
 
-        <!-- scala -->
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-             <version>${scala.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-reflect</artifactId>
-             <version>${scala.version}</version>
-        </dependency>
-
         <!-- shared versions are defined in the parent pom -->
 
         <dependency>
