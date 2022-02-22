@@ -59,7 +59,7 @@ import org.opencypher.v9_0.util.topDown
  */
 case object isolateAggregation extends StatementRewriter with StepSequencer.Step with PlanPipelineTransformerFactory {
 
-  override def instance(from: BaseState, context: BaseContext): Rewriter = bottomUp(rewriter(from), _.isInstanceOf[Expression])
+  override def instance(from: BaseState, context: BaseContext): Rewriter = bottomUp(rewriter(from), _.isInstanceOf[Expression], context.cancellationChecker)
 
   private def rewriter(from: BaseState) = Rewriter.lift {
     case q@SingleQuery(clauses) =>
