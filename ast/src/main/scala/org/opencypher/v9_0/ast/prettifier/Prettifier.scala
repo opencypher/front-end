@@ -184,6 +184,7 @@ import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
+import org.opencypher.v9_0.ast.UsingPointIndexType
 import org.opencypher.v9_0.ast.UsingRangeIndexType
 import org.opencypher.v9_0.ast.UsingScanHint
 import org.opencypher.v9_0.ast.UsingTextIndexType
@@ -671,6 +672,7 @@ case class Prettifier(
             case UsingBtreeIndexType => "BTREE INDEX "
             case UsingTextIndexType  => "TEXT INDEX "
             case UsingRangeIndexType  => "RANGE INDEX "
+            case UsingPointIndexType  => "POINT INDEX "
           },
           if (s == SeekOnly) "SEEK " else "",
           expr(v), ":", expr(l),
