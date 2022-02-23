@@ -27,7 +27,7 @@ import org.opencypher.v9_0.util.Foldable.TraverseChildren
 object inliningContextCreator extends (ast.Statement => InliningContext) {
 
   def apply(input: ast.Statement): InliningContext = {
-    input.treeFold(InliningContext()) {
+    input.folder.treeFold(InliningContext()) {
       // We cannot inline expressions in a DISTINCT with clause, projecting the result of the expression
       // would change the result of the distinctification
       case withClause: ast.With if !withClause.distinct =>

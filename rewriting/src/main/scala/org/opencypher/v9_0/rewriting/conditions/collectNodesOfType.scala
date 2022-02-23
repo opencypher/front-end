@@ -21,5 +21,5 @@ import org.opencypher.v9_0.util.Foldable.FoldableAny
 import scala.reflect.ClassTag
 
 case class collectNodesOfType[T <: ASTNode]()(implicit tag: ClassTag[T]) extends (Any => Seq[T]) {
-  def apply(that: Any): Seq[T] = that.findAllByClass[T]
+  def apply(that: Any): Seq[T] = that.folder.findAllByClass[T]
 }

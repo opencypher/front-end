@@ -107,6 +107,6 @@ class RelationshipPatternPredicateParserTest extends CypherFunSuite with TestNam
 
   private def parseRelationshipPatterns(query: String): Seq[RelationshipPattern] = {
     val ast = JavaCCParser.parse(query, exceptionFactory, new AnonymousVariableNameGenerator())
-    ast.findAllByClass[RelationshipPattern]
+    ast.folder.findAllByClass[RelationshipPattern]
   }
 }

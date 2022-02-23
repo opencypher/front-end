@@ -49,7 +49,6 @@ import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
-import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.InternalNotification
@@ -178,7 +177,7 @@ object Deprecations {
 
     override def findWithContext(statement: ast.Statement): Set[Deprecation] = {
       def findExistsToIsNotNullReplacements(astNode: ASTNode): Set[Deprecation] = {
-        astNode.treeFold[Set[Deprecation]](Set.empty) {
+        astNode.folder.treeFold[Set[Deprecation]](Set.empty) {
           case _: ast.Where | _: And | _: Ands | _: Set[_] | _: Seq[_] | _: Or | _: Ors =>
             acc => TraverseChildren(acc)
 
@@ -194,7 +193,7 @@ object Deprecations {
         }
       }
 
-      val replacementsFromExistsToIsNotNull = statement.treeFold[Set[Deprecation]](Set.empty) {
+      val replacementsFromExistsToIsNotNull = statement.folder.treeFold[Set[Deprecation]](Set.empty) {
         case w: ast.Where =>
           val deprecations = findExistsToIsNotNullReplacements(w)
           acc => SkipChildren(acc ++ deprecations)
@@ -233,7 +232,7 @@ object Deprecations {
 
     override def findWithContext(statement: ast.Statement,
                                  semanticTable: SemanticTable): Set[Deprecation] = {
-      val deprecationsOfPatternExpressionsOutsideExists = statement.treeFold[Set[Deprecation]](Set.empty) {
+      val deprecationsOfPatternExpressionsOutsideExists = statement.folder.treeFold[Set[Deprecation]](Set.empty) {
         case Exists(_) =>
           // Don't look inside exists()
           deprecations => SkipChildren(deprecations)

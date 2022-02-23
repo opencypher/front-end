@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.SensitiveAutoParameter
 import org.opencypher.v9_0.expressions.SensitiveLiteral
 import org.opencypher.v9_0.expressions.SensitiveParameter
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.METADATA_COLLECTION
+import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.LiteralOffset
 import org.opencypher.v9_0.util.ObfuscationMetadata
@@ -38,7 +39,7 @@ case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, 
   override def process(from: BaseState, context: BaseContext): BaseState = {
     val extractedParamNames = from.maybeExtractedParams.map(_.keys.toSet).getOrElse(Set.empty)
     val preParserOffset = from.startPosition.map(_.offset).getOrElse(0)
-    val parameters = from.statement().findAllByClass[Parameter]
+    val parameters = from.statement().folder.findAllByClass[Parameter]
 
     val offsets = collectSensitiveLiteralOffsets(from.statement(), extractedParamNames, preParserOffset)
     val sensitiveParams = collectSensitiveParameterNames(parameters, extractedParamNames)
@@ -47,7 +48,7 @@ case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, 
   }
 
   private def collectSensitiveLiteralOffsets(statement: Statement, extractedParamNames: Set[String], preParserOffset: Int): Vector[LiteralOffset] =
-    statement.treeFold(Vector.empty[LiteralOffset]) {
+    statement.folder.treeFold(Vector.empty[LiteralOffset]) {
       case literal: SensitiveLiteral =>
         acc => SkipChildren(acc :+ LiteralOffset(preParserOffset + literal.position.offset, literal.literalLength))
       case p: SensitiveAutoParameter if extractedParamNames.contains(p.name) =>
@@ -56,5 +57,5 @@ case object ObfuscationMetadataCollection extends Phase[BaseContext, BaseState, 
     }.distinct.sortBy(_.start)
 
   private def collectSensitiveParameterNames(queryParams: Seq[Parameter], extractedParamNames: Set[String]): Set[String] =
-    queryParams.findAllByClass[SensitiveParameter].map(_.name).toSet -- extractedParamNames
+    queryParams.folder.findAllByClass[SensitiveParameter].map(_.name).toSet -- extractedParamNames
 }

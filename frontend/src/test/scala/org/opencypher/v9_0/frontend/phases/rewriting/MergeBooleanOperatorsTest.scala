@@ -30,7 +30,6 @@ import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.mergeDuplicateBooleanOperatorsRewriter
 import org.opencypher.v9_0.logical.plans.CoerceToPredicate
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
-import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.symbols.CTAny
@@ -102,8 +101,8 @@ class MergeBooleanOperatorsTest extends CypherFunSuite {
     val original = JavaCCParser.parse("RETURN " +  originalQuery, exceptionFactory, new AnonymousVariableNameGenerator())
     val checkResult = original.semanticCheck(SemanticState.clean)
     val rewriter = mergeDuplicateBooleanOperatorsRewriter(checkResult.state)
-    val result = original.rewrite(rewriter)
-    val maybeReturnExp = result.treeFind ({
+    val result = original.endoRewrite(rewriter)
+    val maybeReturnExp = result.folder.treeFind ({
       case UnaliasedReturnItem(expression, _) => {
         assert(matcher.isDefinedAt(expression), expression)
         true
