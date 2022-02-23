@@ -15,20 +15,32 @@ It is also the shared front end for Neo4j and Morpheus.
 * AST
 ** Contains the AST classes (except expressions), and the semantic analysis.
 
+* AST Factory
+** Contains simple Java classes and enums working as a bridge between the Javacc parser and the AST which is in Scala.
+
+* Cypher AST factory
+** Works as a Scala wrapper around the Javacc parser and contains error handling for the parser.
+
+* Cypher macros
+** Contains macros for Cypher.
+
 * Expressions
 ** This contains all expressions.
 
 * Front End
 ** This module contains a prettifier for the AST, and infrastructure data structures for compiler pipelines.
 
-* Parser
-** Contains a parser for the Cypher Query Language.
+* Javacc Parser
+** Contains a parser for the Cypher Query Language, implemented using Javacc.
 
 * Rewriting
 ** This contains a set of AST rewriters that simplify and canonicalize the tree before further processing.
 
+* Test Util
+** Contains shared test utilities.
+
 * Util
-** Contains shared code and test utilities.
+** Contains shared code.
 
 == Why do the modules have the version number in the name?
 
