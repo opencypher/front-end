@@ -81,12 +81,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>parser-9.0</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- neo4j testing -->
 
     <dependency>
@@ -107,14 +101,6 @@
     <dependency>
       <groupId>org.opencypher</groupId>
       <artifactId>ast-9.0</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>parser-9.0</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

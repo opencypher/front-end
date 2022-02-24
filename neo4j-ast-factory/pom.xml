@@ -67,12 +67,6 @@
 
         <dependency>
             <groupId>org.opencypher</groupId>
-            <artifactId>parser-9.0</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.opencypher</groupId>
             <artifactId>cypher-javacc-parser-9.0</artifactId>
             <version>${project.version}</version>
         </dependency>
