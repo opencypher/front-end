@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.UsingBtreeIndexType
@@ -29,14 +28,11 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
-import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
-import org.opencypher.v9_0.expressions.NamedPatternPart
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
-import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
@@ -49,9 +45,6 @@ import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedBtreeIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
-import org.opencypher.v9_0.util.DeprecatedCreateConstraintOnAssertSyntax
-import org.opencypher.v9_0.util.DeprecatedCreateIndexSyntax
-import org.opencypher.v9_0.util.DeprecatedCreatePropertyExistenceConstraintSyntax
 import org.opencypher.v9_0.util.DeprecatedDefaultDatabaseSyntax
 import org.opencypher.v9_0.util.DeprecatedDefaultGraphSyntax
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
@@ -60,7 +53,6 @@ import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPeriodicCommit
 import org.opencypher.v9_0.util.DeprecatedPointsComparison
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
-import org.opencypher.v9_0.util.DeprecatedSelfReferenceToVariableInCreatePattern
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 import org.opencypher.v9_0.util.Foldable.SkipChildren
@@ -114,12 +106,6 @@ object Deprecations {
           Some(DeprecatedVarLengthBindingNotification(p.position, variable.name))
         )
 
-      case i: ast.CreateIndexOldSyntax =>
-        Deprecation(
-          None,
-          Some(DeprecatedCreateIndexSyntax(i.position))
-        )
-
         // CREATE BTREE INDEX ...
       case i: ast.CreateBtreeNodeIndex =>
         Deprecation(
@@ -160,48 +146,6 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedBtreeIndexSyntax(c.position))
-        )
-
-      // ASSERT EXISTS
-      case c: ast.CreateNodePropertyExistenceConstraint if c.constraintVersion == ast.ConstraintVersion0 =>
-        Deprecation(
-          None,
-          Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
-        )
-
-      // ASSERT EXISTS
-      case c: ast.CreateRelationshipPropertyExistenceConstraint if c.constraintVersion == ast.ConstraintVersion0 =>
-        Deprecation(
-          None,
-          Some(DeprecatedCreatePropertyExistenceConstraintSyntax(c.position))
-        )
-
-      // CREATE CONSTRAINT ON ... ASSERT ...
-      case c: ast.CreateNodePropertyExistenceConstraint if c.constraintVersion == ast.ConstraintVersion1 =>
-        Deprecation(
-          None,
-          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
-        )
-
-      // CREATE CONSTRAINT ON ... ASSERT ...
-      case c: ast.CreateRelationshipPropertyExistenceConstraint if c.constraintVersion == ast.ConstraintVersion1 =>
-        Deprecation(
-          None,
-          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
-        )
-
-      // CREATE CONSTRAINT ON ... ASSERT ...
-      case c: ast.CreateNodeKeyConstraint if c.constraintVersion == ast.ConstraintVersion0 =>
-        Deprecation(
-          None,
-          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
-        )
-
-      // CREATE CONSTRAINT ON ... ASSERT ...
-      case c: ast.CreateUniquePropertyConstraint if c.constraintVersion == ast.ConstraintVersion0 =>
-        Deprecation(
-          None,
-          Some(DeprecatedCreateConstraintOnAssertSyntax(c.position))
         )
 
       case e@Exists(_: Property | _: ContainerIndex) =>

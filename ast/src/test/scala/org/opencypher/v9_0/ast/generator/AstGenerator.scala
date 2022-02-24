@@ -51,9 +51,6 @@ import org.opencypher.v9_0.ast.AssignRoleAction
 import org.opencypher.v9_0.ast.BtreeIndexes
 import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
-import org.opencypher.v9_0.ast.ConstraintVersion
-import org.opencypher.v9_0.ast.ConstraintVersion0
-import org.opencypher.v9_0.ast.ConstraintVersion1
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
@@ -67,7 +64,6 @@ import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
-import org.opencypher.v9_0.ast.CreateIndexOldSyntax
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
@@ -1317,10 +1313,6 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     props <- oneOrMore(_variableProperty)
   } yield props
 
-  def _constraintVersion: Gen[ConstraintVersion] = oneOf(ConstraintVersion0, ConstraintVersion1, ConstraintVersion2)
-
-  def _constraintVersionZeroOrTwo: Gen[ConstraintVersion] = oneOf(ConstraintVersion0, ConstraintVersion2)
-
   def _createIndex: Gen[CreateIndex] = for {
     variable          <- _variable
     labelName         <- _labelName
@@ -1355,12 +1347,6 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     use      <- option(_use)
   } yield DropIndexOnName(name, ifExists, use)(pos)
 
-  def _indexCommandsOldCreateSyntax: Gen[SchemaCommand] = for {
-    labelName <- _labelName
-    props     <- oneOrMore(_propertyKeyName)
-    use       <- option(_use)
-  } yield CreateIndexOldSyntax(labelName, props, use)(pos)
-
   def _createConstraint: Gen[SchemaCommand] = for {
     variable            <- _variable
     labelName           <- _labelName
@@ -1370,15 +1356,13 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     name                <- option(_identifier)
     ifExistsDo          <- _ifExistsDo
     containsOn          <- boolean
-    constraintVersion   <- _constraintVersion
-    constraintVersion2  <- _constraintVersionZeroOrTwo
     options             <- _optionsMapAsEither
     use                 <- option(_use)
-    nodeKey             = CreateNodeKeyConstraint(variable, labelName, props, name, ifExistsDo, options, containsOn, constraintVersion2, use)(pos)
-    uniqueness          = CreateUniquePropertyConstraint(variable, labelName, Seq(prop), name, ifExistsDo, options, containsOn, constraintVersion2, use)(pos)
-    compositeUniqueness = CreateUniquePropertyConstraint(variable, labelName, props, name, ifExistsDo, options, containsOn, constraintVersion2, use)(pos)
-    nodeExistence       = CreateNodePropertyExistenceConstraint(variable, labelName, prop, name, ifExistsDo, options, containsOn, constraintVersion, use)(pos)
-    relExistence        = CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, prop, name, ifExistsDo, options, containsOn, constraintVersion, use)(pos)
+    nodeKey             = CreateNodeKeyConstraint(variable, labelName, props, name, ifExistsDo, options, containsOn, ConstraintVersion2, use)(pos)
+    uniqueness          = CreateUniquePropertyConstraint(variable, labelName, Seq(prop), name, ifExistsDo, options, containsOn, ConstraintVersion2, use)(pos)
+    compositeUniqueness = CreateUniquePropertyConstraint(variable, labelName, props, name, ifExistsDo, options, containsOn, ConstraintVersion2, use)(pos)
+    nodeExistence       = CreateNodePropertyExistenceConstraint(variable, labelName, prop, name, ifExistsDo, options, containsOn, ConstraintVersion2, use)(pos)
+    relExistence        = CreateRelationshipPropertyExistenceConstraint(variable, relTypeName, prop, name, ifExistsDo, options, containsOn, ConstraintVersion2, use)(pos)
     command             <- oneOf(nodeKey, uniqueness, compositeUniqueness, nodeExistence, relExistence)
   } yield command
 
@@ -1388,7 +1372,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     use      <- option(_use)
   } yield DropConstraintOnName(name, ifExists, use)(pos)
 
-  def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex, _indexCommandsOldCreateSyntax)
+  def _indexCommand: Gen[SchemaCommand] = oneOf(_createIndex, _dropIndex)
 
   def _constraintCommand: Gen[SchemaCommand] = oneOf(_createConstraint, _dropConstraint)
 
