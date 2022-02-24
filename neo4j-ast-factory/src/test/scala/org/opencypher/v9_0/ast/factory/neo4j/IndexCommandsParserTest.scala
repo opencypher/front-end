@@ -995,6 +995,16 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
     failsToParse
   }
 
+  test("CREATE INDEX FOR (n1) ON (n2.name)") {
+    // missing label
+    failsToParse
+  }
+
+  test("CREATE INDEX FOR ()-[n1]-() ON (n2.name)") {
+    // missing relationship type
+    failsToParse
+  }
+
   test("CREATE INDEX FOR -[r1:R]-() ON (r2.name)") {
     failsToParse
   }
@@ -1015,6 +1025,16 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
     failsToParse
   }
 
+  test("CREATE TEXT INDEX FOR (n1) ON (n2.name)") {
+    // missing label
+    failsToParse
+  }
+
+  test("CREATE TEXT INDEX FOR ()-[n1]-() ON (n2.name)") {
+    // missing relationship type
+    failsToParse
+  }
+
   test("CREATE TEXT INDEX FOR -[r1:R]-() ON (r2.name)") {
     failsToParse
   }
@@ -1032,6 +1052,16 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
   }
 
   test("CREATE POINT INDEX FOR n1:Person ON (n2.name)") {
+    failsToParse
+  }
+
+  test("CREATE POINT INDEX FOR (n1) ON (n2.name)") {
+    // missing label
+    failsToParse
+  }
+
+  test("CREATE POINT INDEX FOR ()-[n1]-() ON (n2.name)") {
+    // missing relationship type
     failsToParse
   }
 
@@ -1092,10 +1122,12 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
   }
 
   test("CREATE FULLTEXT INDEX FOR (n1) ON EACH [n2.x]") {
+    // missing label
     failsToParse
   }
 
   test("CREATE FULLTEXT INDEX FOR ()-[n1]-() ON EACH [n2.x]") {
+    // missing relationship type
     failsToParse
   }
 
