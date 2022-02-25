@@ -21,7 +21,6 @@ import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.ShowDatabase
-import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.ContainerIndex
