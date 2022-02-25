@@ -47,7 +47,6 @@ import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
-import org.opencypher.v9_0.util.DeprecatedPeriodicCommit
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.FoldableAny
@@ -153,12 +152,6 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
-
-      case p: ast.PeriodicCommitHint =>
-        Deprecation(
-          None,
-          Some(DeprecatedPeriodicCommit(p.position))
         )
 
       case h@ast.UsingIndexHint(_, _, _, _, UsingBtreeIndexType) =>

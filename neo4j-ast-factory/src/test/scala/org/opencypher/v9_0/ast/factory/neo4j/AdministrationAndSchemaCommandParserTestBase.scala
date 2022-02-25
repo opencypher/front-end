@@ -27,7 +27,6 @@ import org.opencypher.v9_0.ast.GraphPrivilegeQualifier
 import org.opencypher.v9_0.ast.LabelQualifier
 import org.opencypher.v9_0.ast.LoadCSV
 import org.opencypher.v9_0.ast.NamedGraphScope
-import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.PrivilegeType
 import org.opencypher.v9_0.ast.ProcedurePrivilegeQualifier
@@ -282,7 +281,6 @@ trait VerifyAstPositionTestSupport extends Assertions with Matchers {
                _: ListSlice |
                _: HasLabelsOrTypes |
                _: SingleQuery |
-               _: PeriodicCommitHint |
                _: ReadAdministrationCommand |
                _: SetIncludingPropertiesFromMapItem |
                _: SetExactPropertiesFromMapItem => acc => TraverseChildren(acc)

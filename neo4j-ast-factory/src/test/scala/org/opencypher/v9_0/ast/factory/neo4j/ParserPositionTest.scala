@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.LoadCSV
-import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
@@ -83,11 +82,6 @@ class ParserPositionTest extends CypherFunSuite with TestName  {
 
   test("MATCH (a) WHERE NOT (a:A)") {
     validatePosition(testName, _.isInstanceOf[HasLabelsOrTypes], InputPosition(21, 1, 22))
-  }
-
-  test("USING PERIODIC COMMIT LOAD CSV FROM 'url' AS line RETURN line") {
-    validatePosition(testName, _.isInstanceOf[SingleQuery], InputPosition(22, 1, 23))
-    validatePosition(testName, _.isInstanceOf[PeriodicCommitHint], InputPosition(6, 1, 7))
   }
 
   test("MATCH (n) SET n += {name: null}") {

@@ -21,7 +21,6 @@ import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.Limit
 import org.opencypher.v9_0.ast.Match
 import org.opencypher.v9_0.ast.Merge
-import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.Unwind
@@ -76,7 +75,6 @@ object literalReplacement {
          _: CallClause =>
       acc => TraverseChildren(acc)
     case _: Clause |
-         _: PeriodicCommitHint |
          _: Limit =>
       acc => SkipChildren(acc)
     case n: NodePattern =>

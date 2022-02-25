@@ -152,7 +152,6 @@ import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.OrderBy
-import org.opencypher.v9_0.ast.PeriodicCommitHint
 import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.PrivilegeCommand
 import org.opencypher.v9_0.ast.PrivilegeQualifier
@@ -1171,23 +1170,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     1 -> lzy(_union)
   )
 
-  def _regularQuery: Gen[Query] = for {
+  def _query: Gen[Query] = for {
     part <- _queryPart
-  } yield Query(None, part)(pos)
-
-  def _periodicCommitHint: Gen[PeriodicCommitHint] = for {
-    size <- option(_unsignedDecIntLit)
-  } yield PeriodicCommitHint(size)(pos)
-
-  def _bulkImportQuery: Gen[Query] = for {
-    periodicCommitHint <- option(_periodicCommitHint)
-    load <- _loadCsv
-  } yield Query(periodicCommitHint, SingleQuery(Seq(load))(pos))(pos)
-
-  def _query: Gen[Query] = frequency(
-    10 -> _regularQuery,
-    1 -> _bulkImportQuery
-  )
+  } yield Query(part)(pos)
 
   // Show commands
   // ----------------------------------
@@ -1221,7 +1206,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
       case _                        => Seq(ShowIndexesClause(indexType, brief = false, verbose = false, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
-    Query(None, SingleQuery(fullClauses)(pos))(pos)
+    Query(SingleQuery(fullClauses)(pos))(pos)
   }
 
   def _showConstraints: Gen[Query] = for {
@@ -1235,7 +1220,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
       case _                        => Seq(ShowConstraintsClause(constraintType, brief = false, verbose = false, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
-    Query(None, SingleQuery(fullClauses)(pos))(pos)
+    Query(SingleQuery(fullClauses)(pos))(pos)
   }
 
   def _showProcedures: Gen[Query] = for {
@@ -1251,7 +1236,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
       case _                        => Seq(ShowProceduresClause(exec, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
-    Query(None, SingleQuery(fullClauses)(pos))(pos)
+    Query(SingleQuery(fullClauses)(pos))(pos)
   }
 
   def _showFunctions: Gen[Query] = for {
@@ -1268,7 +1253,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
       case _                        => Seq(ShowFunctionsClause(funcType, exec, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
-    Query(None, SingleQuery(fullClauses)(pos))(pos)
+    Query(SingleQuery(fullClauses)(pos))(pos)
   }
 
   def _showTransactions: Gen[Query] = for {
@@ -1285,7 +1270,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
       case _                        => Seq(ShowTransactionsClause(ids, None, hasYield = false)(pos))
     }
     val fullClauses = use.map(u => u +: showClauses).getOrElse(showClauses)
-    Query(None, SingleQuery(fullClauses)(pos))(pos)
+    Query(SingleQuery(fullClauses)(pos))(pos)
   }
 
   def _terminateTransactions: Gen[Query] = for {
@@ -1296,7 +1281,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield {
     val terminateClause = Seq(TerminateTransactionsClause(ids)(pos))
     val fullClauses = use.map(u => u +: terminateClause).getOrElse(terminateClause)
-    Query(None, SingleQuery(fullClauses)(pos))(pos)
+    Query(SingleQuery(fullClauses)(pos))(pos)
   }
 
   def _showCommands: Gen[Query] = oneOf(_showIndexes, _showConstraints, _showProcedures, _showFunctions, _showTransactions, _terminateTransactions)
