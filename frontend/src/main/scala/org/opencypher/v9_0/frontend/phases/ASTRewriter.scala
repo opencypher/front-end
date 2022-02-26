@@ -42,6 +42,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizePatternComprehensionPred
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 import org.opencypher.v9_0.rewriting.rewriters.rewriteOrderById
+import org.opencypher.v9_0.rewriting.rewriters.simplifyIterablePredicates
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.StepSequencer
@@ -68,6 +69,7 @@ object ASTRewriter {
     normalizeArgumentOrder,
     normalizeSargablePredicates,
     AddUniquenessPredicates,
+    simplifyIterablePredicates,
     replaceLiteralDynamicPropertyLookups,
     inlineNamedPathsInPatternComprehensions,
     parameterValueTypeReplacement,
