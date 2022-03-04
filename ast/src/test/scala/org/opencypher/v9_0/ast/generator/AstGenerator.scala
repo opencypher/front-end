@@ -259,10 +259,11 @@ import org.opencypher.v9_0.ast.UserDefinedFunctions
 import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingAnyIndexType
-import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
+import org.opencypher.v9_0.ast.UsingPointIndexType
+import org.opencypher.v9_0.ast.UsingRangeIndexType
 import org.opencypher.v9_0.ast.UsingScanHint
 import org.opencypher.v9_0.ast.UsingTextIndexType
 import org.opencypher.v9_0.ast.ValidSyntax
@@ -1100,7 +1101,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     labelOrRelType <- _labelOrTypeName
     properties <- oneOrMore(_propertyKeyName)
     spec <- oneOf(SeekOnly, SeekOrScan)
-    indexType <- oneOf(UsingAnyIndexType, UsingBtreeIndexType, UsingTextIndexType)
+    indexType <- oneOf(UsingAnyIndexType, UsingRangeIndexType, UsingTextIndexType, UsingPointIndexType)
   } yield UsingIndexHint(variable, labelOrRelType, properties, spec, indexType)(pos)
 
   def _usingJoinHint: Gen[UsingJoinHint] = for {

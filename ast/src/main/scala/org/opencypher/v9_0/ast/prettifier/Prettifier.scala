@@ -180,7 +180,6 @@ import org.opencypher.v9_0.ast.User
 import org.opencypher.v9_0.ast.UserAllQualifier
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingAnyIndexType
-import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingJoinHint
@@ -663,7 +662,6 @@ case class Prettifier(
           s"${INDENT}USING ",
           t match {
             case UsingAnyIndexType   => "INDEX "
-            case UsingBtreeIndexType => "BTREE INDEX "
             case UsingTextIndexType  => "TEXT INDEX "
             case UsingRangeIndexType  => "RANGE INDEX "
             case UsingPointIndexType  => "POINT INDEX "
