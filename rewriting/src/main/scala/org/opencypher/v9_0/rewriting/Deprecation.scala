@@ -45,8 +45,6 @@ import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedBtreeIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
-import org.opencypher.v9_0.util.DeprecatedDefaultDatabaseSyntax
-import org.opencypher.v9_0.util.DeprecatedDefaultGraphSyntax
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
@@ -158,42 +156,6 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
-
-      case c@ast.GrantPrivilege(ast.DatabasePrivilege(_, List(ast.DefaultDatabaseScope())), _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedDefaultDatabaseSyntax(c.position))
-        )
-
-      case c@ast.DenyPrivilege(ast.DatabasePrivilege(_, List(ast.DefaultDatabaseScope())), _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedDefaultDatabaseSyntax(c.position))
-        )
-
-      case c@ast.RevokePrivilege(ast.DatabasePrivilege(_, List(ast.DefaultDatabaseScope())), _, _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedDefaultDatabaseSyntax(c.position))
-        )
-
-      case c@ast.GrantPrivilege(ast.GraphPrivilege(_, List(ast.DefaultGraphScope())), _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedDefaultGraphSyntax(c.position))
-        )
-
-      case c@ast.DenyPrivilege(ast.GraphPrivilege(_, List(ast.DefaultGraphScope())), _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedDefaultGraphSyntax(c.position))
-        )
-
-      case c@ast.RevokePrivilege(ast.GraphPrivilege(_, List(ast.DefaultGraphScope())), _, _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedDefaultGraphSyntax(c.position))
         )
 
       case p: ast.PeriodicCommitHint =>
