@@ -533,7 +533,7 @@ object ShowDatabase {
     val showColumns = List(
       // (column, brief)
       (ShowColumn("name")(position), true),
-      (ShowColumn("aliases")(position), true),
+      (ShowColumn("aliases", CTList(CTString))(position), true),
       (ShowColumn("access")(position), true),
       (ShowColumn("databaseID")(position), false),
       (ShowColumn("serverID")(position), false),
