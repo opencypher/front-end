@@ -25,16 +25,14 @@ Apache Software License, Version 2.0
   openCypher TCK Features and Graphs
   org.apiguardian:apiguardian-api
   org.opentest4j:opentest4j
+  Scala Compiler
   scala-collection-compat
+  scala-xml
   scalactic
   scalatest
 
 BSD - Scala License
   Scala Library
-
-BSD License
-  Scala Compiler
-  scala-xml
 
 Eclipse Public License - v 1.0
   JUnit
@@ -54,8 +52,8 @@ MIT License
   Cucumber-JVM: Gherkin Vintage
   Cucumber-JVM: Plugin
   DataTable
-  fastparse_2.12
-  geny_2.12
+  fastparse_2.13
+  geny_2.13
   mockito-core
-  sourcecode_2.12
+  sourcecode_2.13
 

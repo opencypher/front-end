@@ -13,6 +13,7 @@ Apache Software License, Version 2.0
   org.apiguardian:apiguardian-api
   org.opentest4j:opentest4j
   Scala Compiler
+  scala-xml
   scalactic
   scalatest
 ------------------------------------------------------------------------------
@@ -266,7 +267,6 @@ SUCH DAMAGE.
 
 ------------------------------------------------------------------------------
 BSD License
-  scala-xml
   scalacheck
   test-interface
 ------------------------------------------------------------------------------
