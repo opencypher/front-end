@@ -26,7 +26,6 @@ import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
-import org.opencypher.v9_0.expressions.InequalityExpression
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.Namespace
@@ -49,7 +48,6 @@ import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.DeprecatedPeriodicCommit
-import org.opencypher.v9_0.util.DeprecatedPointsComparison
 import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.Foldable.FoldableAny
@@ -60,7 +58,6 @@ import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTList
-import org.opencypher.v9_0.util.symbols.CTPoint
 
 object Deprecations {
 
@@ -234,9 +231,6 @@ object Deprecations {
       typeInfo => typeInfo.expected.fold(false)(CTBoolean.covariant.containsAll)
     )
 
-    private def isPoint(semanticTable: SemanticTable, e: Expression) =
-      semanticTable.types(e).actual == CTPoint.invariant
-
     private def isListCoercedToBoolean(semanticTable: SemanticTable, e: Expression): Boolean = semanticTable.types.get(e).exists(
       typeInfo =>
         CTList(CTAny).covariant.containsAll(typeInfo.specified) && isExpectedTypeBoolean(semanticTable, e)
@@ -247,12 +241,6 @@ object Deprecations {
         Deprecation(
           None,
           Some(DeprecatedCoercionOfListToBoolean(e.position))
-        )
-
-      case x: InequalityExpression if isPoint(semanticTable, x.lhs) || isPoint(semanticTable, x.rhs) =>
-        Deprecation(
-          None,
-          Some(DeprecatedPointsComparison(x.position))
         )
     }
 

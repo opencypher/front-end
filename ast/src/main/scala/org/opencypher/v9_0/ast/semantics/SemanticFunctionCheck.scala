@@ -18,7 +18,6 @@ package org.opencypher.v9_0.ast.semantics
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.DoubleLiteral
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.IntegerLiteral
 import org.opencypher.v9_0.expressions.Literal
@@ -36,7 +35,6 @@ import org.opencypher.v9_0.expressions.functions.Function
 import org.opencypher.v9_0.expressions.functions.Head
 import org.opencypher.v9_0.expressions.functions.IsEmpty
 import org.opencypher.v9_0.expressions.functions.Last
-import org.opencypher.v9_0.expressions.functions.Length
 import org.opencypher.v9_0.expressions.functions.Max
 import org.opencypher.v9_0.expressions.functions.Min
 import org.opencypher.v9_0.expressions.functions.PercentileCont
@@ -49,13 +47,11 @@ import org.opencypher.v9_0.expressions.functions.ToBoolean
 import org.opencypher.v9_0.expressions.functions.ToString
 import org.opencypher.v9_0.expressions.functions.UnresolvedFunction
 import org.opencypher.v9_0.expressions.functions.WithinBBox
-import org.opencypher.v9_0.util.LengthOnNonPathNotification
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
-import org.opencypher.v9_0.util.symbols.CTPath
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.CypherType
 
@@ -126,19 +122,6 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
           expectType(CTList(CTAny).covariant, invocation.arguments.head) chain
             specifyType(possibleTypes(invocation.arguments.head), invocation)
         }
-
-      case Length =>
-        def checkForInvalidUsage(ctx: SemanticContext, invocation: FunctionInvocation) = (originalState: SemanticState) => {
-          val newState = invocation.args.foldLeft(originalState) {
-            case (state, expr) if state.expressionType(expr).actual != CTPath.invariant =>
-              state.addNotification(LengthOnNonPathNotification(expr.position))
-            case (state, expr) =>
-              state
-          }
-
-          SemanticCheckResult(newState, Seq.empty)
-        }
-        checkTypeSignatures(ctx, Length, invocation) chain checkForInvalidUsage(ctx, invocation)
 
       case Max =>
         checkTypeSignatures(ctx, Max, invocation) ifOkChain {
