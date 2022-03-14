@@ -18,6 +18,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.ast.factory.ConstraintType
 import org.opencypher.v9_0.ast.factory.CreateIndexTypes
+import org.opencypher.v9_0.ast.factory.HintIndexType
 import org.opencypher.v9_0.ast.factory.ShowCommandFilterTypes
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
@@ -41,5 +42,9 @@ class Neo4jASTFactoryTest extends CypherFunSuite {
 
   test("invalidCreateIndexType") {
     ASTExceptionFactory.invalidCreateIndexType(CreateIndexTypes.INVALID) shouldBe "Index type INVALID is not defined for create index command."
+  }
+
+  test("invalidBTREEHintIndexType") {
+    ASTExceptionFactory.invalidHintIndexType(HintIndexType.BTREE) shouldBe "Index type BTREE is no longer supported for USING index hint. Use TEXT, RANGE or POINT instead."
   }
 }

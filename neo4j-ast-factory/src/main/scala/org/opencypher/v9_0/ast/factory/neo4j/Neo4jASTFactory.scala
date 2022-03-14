@@ -266,7 +266,6 @@ import org.opencypher.v9_0.ast.UserDefinedFunctions
 import org.opencypher.v9_0.ast.UserOptions
 import org.opencypher.v9_0.ast.UserQualifier
 import org.opencypher.v9_0.ast.UsingAnyIndexType
-import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingHint
 import org.opencypher.v9_0.ast.UsingIndexHintType
 import org.opencypher.v9_0.ast.UsingJoinHint
@@ -555,7 +554,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
   private def usingIndexType(indexType: HintIndexType): UsingIndexHintType = indexType match {
     case HintIndexType.ANY   => UsingAnyIndexType
-    case HintIndexType.BTREE => UsingBtreeIndexType
+    case HintIndexType.BTREE => throw new Neo4jASTConstructionException(ASTExceptionFactory.invalidHintIndexType(indexType))
     case HintIndexType.TEXT  => UsingTextIndexType
     case HintIndexType.RANGE => UsingRangeIndexType
     case HintIndexType.POINT => UsingPointIndexType
