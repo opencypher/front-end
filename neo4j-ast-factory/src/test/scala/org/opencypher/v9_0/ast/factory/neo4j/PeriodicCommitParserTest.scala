@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.Statement
 
-class PeriodicCommitParserTest extends JavaccParserAstTestBase[Statement] with VerifyAstPositionTestSupport {
+class PeriodicCommitParserTest extends JavaccParserAstTestBase[Statement] {
 
   implicit private val parser: JavaccRule[Statement] = JavaccRule.Statement
 
