@@ -16,10 +16,12 @@
 package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.AllIterablePredicate
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.BooleanExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.False
+import org.opencypher.v9_0.expressions.FilterScope
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.Not
@@ -74,6 +76,13 @@ case class simplifyPredicates(semanticState: SemanticState) extends Rewriter {
         simplifyToInnerExpression(p, nonFalse.head)
       else
         Ors(nonFalse)(p.position)
+
+    // technically, this is not simplification but it helps addressing the separate predicates in the conjunction
+    case all@AllIterablePredicate(fs@FilterScope(variable, Some(Ands(preds))), expression) =>
+      val predicates = preds.map { predicate =>
+        AllIterablePredicate(FilterScope(variable, Some(predicate))(fs.position), expression)(all.position)
+      }
+      Ands(predicates)(all.position)
     case expression => expression
   }
 
