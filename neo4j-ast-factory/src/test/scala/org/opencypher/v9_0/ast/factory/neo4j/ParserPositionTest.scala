@@ -22,11 +22,14 @@ import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.UseGraph
+import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.ListSlice
+import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.Variable
@@ -81,6 +84,26 @@ class ParserPositionTest extends CypherFunSuite with TestName  {
 
   test("MATCH (a) WHERE NOT (a:A)") {
     validatePosition(testName, _.isInstanceOf[HasLabelsOrTypes], InputPosition(21, 1, 22))
+  }
+
+  test("MATCH (n) WHERE exists { (n) --> () }") {
+    val exists = javaCcAST(testName).findByClass[ExistsSubClause]
+    exists.position shouldBe InputPosition(16, 1, 17)
+    exists.findByClass[Pattern].position shouldBe InputPosition(25, 1, 26)
+  }
+
+  test("MATCH (n) WHERE exists { MATCH (n)-[r]->(m) }") {
+    val exists = javaCcAST(testName).findByClass[ExistsSubClause]
+    exists.position shouldBe InputPosition(16, 1, 17)
+    exists.findByClass[Pattern].position shouldBe InputPosition(31, 1, 32)
+  }
+
+  test("MATCH (n) WHERE exists { MATCH (m) WHERE exists { (n)-[]->(m) } }") {
+    val exists :: existsNested :: Nil = javaCcAST(testName).findAllByClass[ExistsSubClause]
+    exists.position shouldBe InputPosition(16, 1, 17)
+    exists.findByClass[Pattern].position shouldBe InputPosition(31, 1, 32)
+    existsNested.position shouldBe InputPosition(41, 1, 42)
+    existsNested.findByClass[Pattern].position shouldBe InputPosition(50, 1, 51)
   }
 
   test("MATCH (n) SET n += {name: null}") {
