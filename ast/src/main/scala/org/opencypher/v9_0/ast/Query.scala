@@ -19,8 +19,9 @@ import org.opencypher.v9_0.ast.Union.UnionMapping
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.success
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
@@ -203,7 +204,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  private def checkStandaloneCall(clauses: Seq[Clause]): SemanticCheck = s => {
+  private def checkStandaloneCall(clauses: Seq[Clause]): SemanticCheck = (s: SemanticState) => {
     clauses match {
       case Seq(_: UnresolvedCall, where: With) =>
         SemanticCheckResult.error(
@@ -230,7 +231,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  private def checkOrder(clauses: Seq[Clause]): SemanticCheck = s => {
+  private def checkOrder(clauses: Seq[Clause]): SemanticCheck = (s: SemanticState) => {
     val sequenceErrors = clauses.sliding(2).foldLeft(Vector.empty[SemanticError]) {
       case (semanticErrors, pair) =>
         val optError = pair match {
@@ -307,7 +308,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     errors
   }
 
-  private def checkClauses(clauses: Seq[Clause], outerScope: Option[Scope]): SemanticCheck = initialState => {
+  private def checkClauses(clauses: Seq[Clause], outerScope: Option[Scope]): SemanticCheck = (initialState: SemanticState) => {
     val lastIndex = clauses.size - 1
     clauses.zipWithIndex.foldLeft(SemanticCheckResult.success(initialState)) {
       case (lastResult, (clause, idx)) =>
@@ -371,7 +372,7 @@ case class SingleQuery(clauses: Seq[Clause])(val position: InputPosition) extend
     }
   }
 
-  private def checkShadowedVariables(outer: SemanticState): SemanticCheck = { inner =>
+  private def checkShadowedVariables(outer: SemanticState): SemanticCheck = { inner: SemanticState =>
     val outerScopeSymbols: Map[String, Symbol] = outer.currentScope.scope.symbolTable
     val innerScopeSymbols: Map[String, Set[Symbol]] = inner.currentScope.scope.allSymbols
 
@@ -590,7 +591,7 @@ sealed trait UnmappedUnion extends Union {
 
 sealed trait ProjectingUnion extends Union {
   // If we have a ProjectingUnion we have already checked this before and now they have been rewritten to actually not match.
-  override def checkColumnNamesAgree: SemanticCheck = SemanticCheckResult.success
+  override def checkColumnNamesAgree: SemanticCheck = SemanticCheck.success
 }
 
 final case class UnionAll(part: QueryPart, query: SingleQuery)(val position: InputPosition) extends UnmappedUnion

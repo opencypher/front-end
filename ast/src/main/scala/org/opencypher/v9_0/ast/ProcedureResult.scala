@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
 
@@ -31,5 +30,5 @@ case class ProcedureResult(items: IndexedSeq[ProcedureResultItem], where: Option
 ) extends ASTNode {
 
   def semanticCheck: SemanticCheck =
-    items.foldSemanticCheck(_.semanticCheck) chain where.map(_.semanticCheck).getOrElse(success)
+    items.foldSemanticCheck(_.semanticCheck) chain where.foldSemanticCheck(_.semanticCheck)
 }

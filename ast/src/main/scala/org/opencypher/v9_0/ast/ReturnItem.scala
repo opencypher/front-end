@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
@@ -67,7 +68,7 @@ final case class ReturnItems(
 
   def declareVariables(previousScope: Scope): SemanticCheck =
     when(includeExisting) {
-      s => success(s.importValuesFromScope(previousScope))
+      s: SemanticState => success(s.importValuesFromScope(previousScope))
     } chain items.foldSemanticCheck(item =>
       item.alias match {
         case Some(variable) if item.expression == variable =>
@@ -80,14 +81,11 @@ final case class ReturnItems(
     )
 
   private def ensureProjectedToUniqueIds: SemanticCheck = {
-    items.groupBy(_.name).foldLeft(success) {
-      case (acc, (_, groupedItems)) if groupedItems.size > 1 =>
-        acc chain SemanticError(
-          "Multiple result columns with the same name are not supported",
-          groupedItems.head.position
-        )
-      case (acc, _) =>
-        acc
+    items.groupBy(_.name).foldSemanticCheck {
+      case (_, groupedItems) if groupedItems.size > 1 =>
+        SemanticError("Multiple result columns with the same name are not supported", groupedItems.head.position)
+       case _ =>
+        SemanticCheck.success
     }
   }
 

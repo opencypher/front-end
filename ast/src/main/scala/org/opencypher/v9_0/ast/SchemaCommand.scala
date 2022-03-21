@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
@@ -54,7 +54,7 @@ sealed trait SchemaCommand extends StatementWithGraph with SemanticAnalysisTooli
         s"Failed to create $schemaString: Invalid option provided, valid options are `indexProvider` and `indexConfig`.",
         position
       )
-    case _ => SemanticCheckResult.success
+    case _ => SemanticCheck.success
   }
 
   protected def checkSingleProperty(schemaString: String, properties: List[Property]): SemanticCheck =

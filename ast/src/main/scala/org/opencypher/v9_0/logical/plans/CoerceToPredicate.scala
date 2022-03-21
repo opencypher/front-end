@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.logical.plans
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticCheckableExpression
 import org.opencypher.v9_0.expressions.BooleanExpression
 import org.opencypher.v9_0.expressions.Expression
@@ -25,7 +24,7 @@ import org.opencypher.v9_0.util.InputPosition
 
 case class CoerceToPredicate(inner: Expression) extends BooleanExpression with SemanticCheckableExpression {
 
-  override def semanticCheck(ctx: SemanticContext): SemanticCheck = SemanticCheckResult.success
+  override def semanticCheck(ctx: SemanticContext): SemanticCheck = SemanticCheck.success
 
   override def asCanonicalStringVal: String = {
     s"CoerceToPredicate(${inner.asCanonicalStringVal})"

@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck.checkValidLabels
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -315,7 +316,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
       // Check the variable is defined and, if not, define it so that later errors are suppressed
       // This is used in expressions; in graphs we must make sure to sem check variables explicitly (!)
       case x: Variable =>
-        s =>
+        (s: SemanticState) =>
           s.ensureVariableDefined(x) match {
             case Right(ss) => SemanticCheckResult.success(ss)
             case Left(error) =>
@@ -388,9 +389,9 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
             specifyType(outerTypes, x)
           }
 
-      case _: FilterScope  => SemanticCheckResult.success
-      case _: ExtractScope => SemanticCheckResult.success
-      case _: ReduceScope  => SemanticCheckResult.success
+      case _: FilterScope  => SemanticCheck.success
+      case _: ExtractScope => SemanticCheck.success
+      case _: ReduceScope  => SemanticCheck.success
 
       case x: CountStar =>
         specifyType(CTInteger, x)
@@ -405,16 +406,16 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
 
       case x: SingleRelationshipPathStep =>
         check(ctx, x.rel) chain
-          x.toNode.map(check(ctx, _)).getOrElse(SemanticCheckResult.success) chain
+          x.toNode.foldSemanticCheck(check(ctx, _)) chain
           check(ctx, x.next)
 
       case x: MultiRelationshipPathStep =>
         check(ctx, x.rel) chain
-          x.toNode.map(check(ctx, _)).getOrElse(SemanticCheckResult.success) chain
+          x.toNode.foldSemanticCheck(check(ctx, _)) chain
           check(ctx, x.next)
 
       case _: NilPathStep =>
-        SemanticCheckResult.success
+        SemanticCheck.success
 
       case x: ShortestPathExpression =>
         SemanticPatternCheck.checkElementPredicates(Pattern.SemanticContext.Expression)(x.pattern) chain
@@ -538,7 +539,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
                   }
               }
             case _ =>
-              SemanticCheckResult.success
+              SemanticCheck.success
           }
 
       // MAPS
@@ -560,10 +561,10 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         check(ctx, x.id, x +: parents)
 
       case _: PropertySelector =>
-        SemanticCheckResult.success
+        SemanticCheck.success
 
       case _: AllPropertiesSelector =>
-        SemanticCheckResult.success
+        SemanticCheck.success
 
       case x: DesugaredMapProjection =>
         check(ctx, x.items, x +: parents) chain
@@ -694,14 +695,12 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
     labelExpression: LabelExpression
   ): SemanticCheck =
     labelExpression.folder.treeFindByClass[ColonDisjunction]
-      .foldSemanticCheck(disjunction =>
-        state => {
-          val isNode = state.expressionType(entity).actual == CTNode.invariant
-          val sanitizedLabelExpression = stringifier.stringifyLabelExpression(labelExpression.replaceColonSyntax)
-          val errorMessage = SemanticPatternCheck.legacyRelationshipDisjunctionError(sanitizedLabelExpression, isNode)
-          SemanticCheckResult.error(state, SemanticError(errorMessage, disjunction.position))
-        }
-      )
+      .foldSemanticCheck(disjunction => { state: SemanticState =>
+        val isNode = state.expressionType(entity).actual == CTNode.invariant
+        val sanitizedLabelExpression = stringifier.stringifyLabelExpression(labelExpression.replaceColonSyntax)
+        val errorMessage = SemanticPatternCheck.legacyRelationshipDisjunctionError(sanitizedLabelExpression, isNode)
+        SemanticCheckResult.error(state, SemanticError(errorMessage, disjunction.position))
+      })
 
   def checkLabelExpressionForWildcard(labelExpression: LabelExpression): SemanticCheck =
     labelExpression.folder.treeFindByClass[Wildcard]
@@ -791,7 +790,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
               SemanticExpressionCheck.check(SemanticContext.Simple, predicate, e +: parents) chain
               SemanticExpressionCheck.expectType(CTBoolean.covariant, predicate)
           }
-        case None => SemanticCheckResult.success
+        case None => SemanticCheck.success
       }
 
     def possibleInnerTypes(e: FilteringExpression): TypeGenerator = s =>
@@ -802,7 +801,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
     (add.lhs, add.rhs) match {
       case (l: IntegerLiteral, r: IntegerLiteral) if Try(Math.addExact(l.value, r.value)).isFailure =>
         SemanticError(s"result of ${l.stringVal} + ${r.stringVal} cannot be represented as an integer", add.position)
-      case _ => SemanticCheckResult.success
+      case _ => SemanticCheck.success
     }
 
   private def checkSubtractBoundary(subtract: Subtract): SemanticCheck =
@@ -812,14 +811,14 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           s"result of ${l.stringVal} - ${r.stringVal} cannot be represented as an integer",
           subtract.position
         )
-      case _ => SemanticCheckResult.success
+      case _ => SemanticCheck.success
     }
 
   private def checkUnarySubtractBoundary(subtract: UnarySubtract): SemanticCheck =
     subtract.rhs match {
       case r: IntegerLiteral if Try(Math.subtractExact(0, r.value)).isFailure =>
         SemanticError(s"result of -${r.stringVal} cannot be represented as an integer", subtract.position)
-      case _ => SemanticCheckResult.success
+      case _ => SemanticCheck.success
     }
 
   private def checkMultiplyBoundary(multiply: Multiply): SemanticCheck =
@@ -829,7 +828,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           s"result of ${l.stringVal} * ${r.stringVal} cannot be represented as an integer",
           multiply.position
         )
-      case _ => SemanticCheckResult.success
+      case _ => SemanticCheck.success
     }
 
   private def infixAddRhsTypes(lhs: Expression): TypeGenerator = s => {

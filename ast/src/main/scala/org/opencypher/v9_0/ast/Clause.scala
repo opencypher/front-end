@@ -23,9 +23,9 @@ import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.Scope
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.success
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.error
-import org.opencypher.v9_0.ast.semantics.SemanticCheckResult.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
@@ -317,7 +317,7 @@ case class Match(
     semantics.SemanticCheckResult(newState, Seq.empty)
   }
 
-  private def checkHints: SemanticCheck = { semanticState =>
+  private def checkHints: SemanticCheck = { semanticState: SemanticState =>
     def getMissingEntityKindError(variable: String, labelOrRelTypeName: String, hint: Hint): String = {
       val isNode = semanticState.isNode(variable)
       val typeName = if (isNode) "label" else "relationship type"
@@ -1037,8 +1037,8 @@ case class UnresolvedCall(
     val resultsCheck = declaredResult.map(_.semanticCheck).getOrElse(success)
     val invalidExpressionsCheck = declaredArguments.map(_.map {
       case arg if arg.containsAggregate =>
-        error(
-          _: SemanticState,
+        SemanticCheck.error(
+
           SemanticError(
             """Procedure call cannot take an aggregating function as argument, please add a 'WITH' to your statement.
               |For example:
@@ -1126,16 +1126,16 @@ sealed trait ProjectionClause extends HorizonClause {
     returnItems.semanticCheck
 
   override def semanticCheckContinuation(previousScope: Scope, outerScope: Option[Scope] = None): SemanticCheck = {
-    state =>
-      def runChecks(scopeInUse: Scope): SemanticCheck = innerState =>
-        (
-          returnItems.declareVariables(scopeInUse) chain
-            orderBy.foldSemanticCheck(_.checkAmbiguousOrdering(returnItems, if (isReturn) "RETURN" else "WITH")) chain
-            orderBy.semanticCheck chain
-            checkSkip chain
-            checkLimit chain
-            where.semanticCheck
-        )(innerState)
+    state: SemanticState =>
+
+      def runChecks(scopeInUse: Scope): SemanticCheck = {
+        returnItems.declareVariables(scopeInUse) chain
+          orderBy.foldSemanticCheck(_.checkAmbiguousOrdering(returnItems, if (isReturn) "RETURN" else "WITH")) chain
+          orderBy.semanticCheck chain
+          checkSkip chain
+          checkLimit chain
+          where.semanticCheck
+      }
 
       // The two clauses ORDER BY and WHERE, following a WITH clause where there is no DISTINCT nor aggregation, have a special scope such that they
       // can see both variables from before the WITH and variables introduced by the WITH
@@ -1416,7 +1416,7 @@ case class SubqueryCall(part: QueryPart, inTransactionsParameters: Option[Subque
     SemanticCheckResult(merged.state, allErrors)
   }
 
-  override def semanticCheckContinuation(previousScope: Scope, outerScope: Option[Scope] = None): SemanticCheck = { s =>
+  override def semanticCheckContinuation(previousScope: Scope, outerScope: Option[Scope] = None): SemanticCheck = { s: SemanticState =>
     SemanticCheckResult(s.importValuesFromScope(previousScope), Vector())
   }
 

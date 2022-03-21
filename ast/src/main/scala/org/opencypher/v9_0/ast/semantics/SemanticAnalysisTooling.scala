@@ -35,21 +35,17 @@ import org.opencypher.v9_0.util.symbols.TypeSpec
 trait SemanticAnalysisTooling {
 
   def semanticCheckFold[A](
-    traversable: Iterable[A]
-  )(
-    f: A => SemanticCheck
-  ): SemanticCheck =
-    state =>
-      traversable.foldLeft(SemanticCheckResult.success(state)) {
-        (r1: SemanticCheckResult, o: A) =>
-          {
-            val r2 = f(o)(r1.state)
-            SemanticCheckResult(r2.state, r1.errors ++ r2.errors)
-          }
-      }
+                     traversable: Iterable[A]
+                   )(
+                     f:A => SemanticCheck
+  ): SemanticCheck = {
+    traversable.foldLeft(SemanticCheck.success) {
+      (prevCheck, o: A) => prevCheck chain f(o)
+    }
+  }
 
   def semanticCheck[A <: SemanticCheckable](traversable: IterableOnce[A]): SemanticCheck =
-    state =>
+    (state: SemanticState) =>
       traversable.foldLeft(SemanticCheckResult.success(state)) {
         (r1: SemanticCheckResult, o: A) =>
           {
@@ -59,14 +55,14 @@ trait SemanticAnalysisTooling {
       }
 
   /** Runs `check` on `state`. Discards produced state, but retains produced errors */
-  def withState(state: SemanticState)(check: SemanticCheck): SemanticCheck = s =>
+  def withState(state: SemanticState)(check: SemanticCheck): SemanticCheck = (s: SemanticState) =>
     check(state).copy(state = s)
 
   def specifyType(
     typeGen: TypeGenerator,
     expression: Expression
   ): SemanticState => Either[SemanticError, SemanticState] =
-    s => specifyType(typeGen(s), expression)(s)
+    (s: SemanticState) => specifyType(typeGen(s), expression)(s)
 
   def specifyType(
     possibleTypes: => TypeSpec,
@@ -75,20 +71,20 @@ trait SemanticAnalysisTooling {
     _.specifyType(expression, possibleTypes)
 
   def expectType(typeGen: TypeGenerator, expression: Expression): SemanticCheck =
-    s => expectType(typeGen(s), expression)(s)
+    (s: SemanticState) => expectType(typeGen(s), expression)(s)
 
   def expectType(possibleTypes: TypeSpec, opt: Option[Expression]): SemanticCheck =
-    opt.map(expectType(possibleTypes, _)).getOrElse(SemanticCheckResult.success)
+    opt.foldSemanticCheck(expectType(possibleTypes, _))
 
   def expectType(
     typeGen: TypeGenerator,
     expression: Expression,
     messageGen: (String, String) => String
   ): SemanticCheck =
-    s => expectType(typeGen(s), expression, messageGen)(s)
+    (s: SemanticState) => expectType(typeGen(s), expression, messageGen)(s)
 
   def expectType[Exp <: Expression](possibleTypes: TypeSpec, expressions: Iterable[Exp]): SemanticCheck =
-    state =>
+    (state: SemanticState) =>
       expressions.foldLeft(SemanticCheckResult.success(state)) {
         (r1: SemanticCheckResult, o: Exp) =>
           {
@@ -108,7 +104,7 @@ trait SemanticAnalysisTooling {
     possibleTypes: => TypeSpec,
     expression: Expression,
     messageGen: (String, String) => String = DefaultTypeMismatchMessageGenerator
-  ): SemanticCheck = s => {
+  ): SemanticCheck = (s: SemanticState) => {
     s.expectType(expression, possibleTypes) match {
       case (ss, TypeSpec.none) =>
         val existingTypesString = ss.expressionType(expression).specified.mkString(", ", " or ")
@@ -139,7 +135,7 @@ trait SemanticAnalysisTooling {
     }
   }
 
-  def checkTypes(expression: Expression, signatures: Seq[TypeSignature]): SemanticCheck = s => {
+  def checkTypes(expression: Expression, signatures: Seq[TypeSignature]): SemanticCheck = (s: SemanticState) => {
     val initSignatures = signatures.filter(_.argumentTypes.length == expression.arguments.length)
 
     val (remainingSignatures: Seq[TypeSignature], result) =
@@ -170,35 +166,29 @@ trait SemanticAnalysisTooling {
     }
   }
 
-  def when(condition: Boolean)(check: => SemanticCheck): SemanticCheck = state =>
-    if (condition)
-      check(state)
-    else
-      SemanticCheckResult.success(state)
-
   def whenState(condition: SemanticState => Boolean)(
     thenBranch: => SemanticCheck,
-    elseBranch: => SemanticCheck = SemanticCheckResult.success
-  ): SemanticCheck = state =>
+    elseBranch: => SemanticCheck = SemanticCheck.success
+  ): SemanticCheck = (state: SemanticState) =>
     if (condition(state))
       thenBranch(state)
     else
       elseBranch(state)
 
-  def unless(condition: Boolean)(check: => SemanticCheck): SemanticCheck = state =>
+  def unless(condition: Boolean)(check: => SemanticCheck): SemanticCheck =
     if (condition)
-      SemanticCheckResult.success(state)
+      SemanticCheck.success
     else
-      check(state)
+      check
 
-  def unionOfTypes(traversable: IterableOnce[Expression]): TypeGenerator = state =>
+  def unionOfTypes(traversable: IterableOnce[Expression]): TypeGenerator = (state: SemanticState) =>
     TypeSpec.union(traversable.map(types(_)(state)).toSeq: _*)
 
   def leastUpperBoundsOfTypes(traversable: IterableOnce[Expression]): TypeGenerator =
     if (traversable.isEmpty)
       _ => CTAny.invariant
     else
-      state => traversable.map { types(_)(state) } reduce { _ leastUpperBounds _ }
+      (state: SemanticState) => traversable.map { types(_)(state) } reduce { _ leastUpperBounds _ }
 
   def withScopedState(check: => SemanticCheck): SemanticCheck =
     SemanticAnalysisTooling.pushStateScope chain
@@ -253,12 +243,12 @@ trait SemanticAnalysisTooling {
   def declareVariables(symbols: Iterable[Symbol]): SemanticCheck =
     symbols.foldSemanticCheck(symbol => declareVariable(symbol.definition.asVariable, symbol.types))
 
-  def recordCurrentScope(astNode: ASTNode): SemanticCheck = { state =>
+  def recordCurrentScope(astNode: ASTNode): SemanticCheck = { state: SemanticState =>
     SemanticCheckResult.success(state.recordCurrentScope(astNode))
   }
 
   def requireFeatureSupport(msg: String, feature: SemanticFeature, position: InputPosition): SemanticCheck =
-    s => {
+    (s: SemanticState) => {
       if (!s.features(feature))
         SemanticCheckResult.error(
           s,
@@ -273,8 +263,7 @@ trait SemanticAnalysisTooling {
         SemanticCheckResult.success(s)
     }
 
-  def error(msg: String, position: InputPosition)(state: SemanticState): SemanticCheckResult =
-    SemanticCheckResult.error(state, SemanticError(msg, position))
+  def error(msg: String, position: InputPosition): SemanticCheck = SemanticCheck.error(SemanticError(msg, position))
 
   def possibleTypes(expression: Expression): TypeGenerator =
     types(expression)(_).unwrapLists
@@ -283,6 +272,6 @@ trait SemanticAnalysisTooling {
 }
 
 object SemanticAnalysisTooling {
-  private val pushStateScope: SemanticCheck = state => SemanticCheckResult.success(state.newChildScope)
-  private val popStateScope: SemanticCheck = state => SemanticCheckResult.success(state.popScope)
+  private val pushStateScope: SemanticCheck = (state: SemanticState) => SemanticCheckResult.success(state.newChildScope)
+  private val popStateScope: SemanticCheck = (state: SemanticState) => SemanticCheckResult.success(state.popScope)
 }
