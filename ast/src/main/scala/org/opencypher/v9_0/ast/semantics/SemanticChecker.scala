@@ -20,7 +20,7 @@ import org.opencypher.v9_0.ast.Statement
 object SemanticChecker {
 
   def check(statement: Statement, state: SemanticState = SemanticState.clean): SemanticCheckResult = {
-    val result = statement.semanticCheck(state)
+    val result = statement.semanticCheck.run(state)
     val scopeTreeIssues = ScopeTreeVerifier.verify(result.state.scopeTree)
     if (scopeTreeIssues.nonEmpty)
       throw new IllegalStateException(scopeTreeIssues.mkString(s"\n"))

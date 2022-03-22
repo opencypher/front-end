@@ -20,7 +20,12 @@ import org.opencypher.v9_0.expressions.Expression.SemanticContext
 
 sealed trait SemanticCheck {
 
+  @deprecated(message = "Use `run` instead", since = "5.0")
   def apply(state: SemanticState): SemanticCheckResult = {
+    run(state)
+  }
+
+  def run(state: SemanticState): SemanticCheckResult = {
     SemanticCheckInterpreter.runCheck(this, state)
   }
 
