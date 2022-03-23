@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
+import org.opencypher.v9_0.util.InputPosition
 
 sealed trait SemanticCheck {
 
@@ -78,6 +79,7 @@ object SemanticCheckResult {
   def error(state: SemanticState, error: SemanticErrorDef): SemanticCheckResult =
     SemanticCheckResult(state, Vector(error))
 
+  def error(state: SemanticState, msg: String, position: InputPosition): SemanticCheckResult = error(state, SemanticError(msg, position))
   def error(state: SemanticState, error: Option[SemanticErrorDef]): SemanticCheckResult =
     SemanticCheckResult(state, error.toVector)
 }
