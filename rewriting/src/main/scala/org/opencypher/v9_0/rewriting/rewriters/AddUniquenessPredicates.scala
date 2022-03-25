@@ -25,6 +25,14 @@ import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
+import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Disjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Leaf
+import org.opencypher.v9_0.expressions.LabelExpression.Negation
+import org.opencypher.v9_0.expressions.LabelExpression.Wildcard
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.NoneIterablePredicate
 import org.opencypher.v9_0.expressions.Not
@@ -35,10 +43,13 @@ import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.ScopeExpression
 import org.opencypher.v9_0.expressions.ShortestPaths
+import org.opencypher.v9_0.expressions.SymbolicName
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
+import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates.getRelTypesToConsider
+import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates.overlaps
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -51,6 +62,9 @@ import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols.CypherType
+
+import scala.util.control.TailCalls
+import scala.util.control.TailCalls.TailRec
 
 case object RelationshipUniquenessPredicatesInMatchAndMerge extends StepSequencer.Condition
 
@@ -101,11 +115,11 @@ case class AddUniquenessPredicates(anonymousVariableNameGenerator: AnonymousVari
       case _: ShortestPaths =>
         acc => SkipChildren(acc)
 
-      case RelationshipChain(_, patRel @ RelationshipPattern(optIdent, types, _, _, _, _, _), _) =>
+      case RelationshipChain(_, patRel @ RelationshipPattern(optIdent, labelExpression, _, _, _, _), _) =>
         acc => {
           val ident =
             optIdent.getOrElse(throw new IllegalStateException("This rewriter cannot work with unnamed patterns"))
-          TraverseChildren(acc :+ UniqueRel(ident, types.toSet, patRel.isSingleLength))
+          TraverseChildren(acc :+ UniqueRel(ident, labelExpression, patRel.isSingleLength))
         }
     }
 
@@ -141,11 +155,18 @@ case class AddUniquenessPredicates(anonymousVariableNameGenerator: AnonymousVari
       }
     }
 
-  case class UniqueRel(variable: LogicalVariable, types: Set[RelTypeName], singleLength: Boolean) {
+  case class UniqueRel(variable: LogicalVariable, labelExpression: Option[LabelExpression], singleLength: Boolean) {
     def name: String = variable.name
 
-    def isAlwaysDifferentFrom(other: UniqueRel): Boolean =
-      types.nonEmpty && other.types.nonEmpty && (types intersect other.types).isEmpty
+    def isAlwaysDifferentFrom(other: UniqueRel): Boolean = {
+      val relTypesToConsider =
+        getRelTypesToConsider(labelExpression).concat(getRelTypesToConsider(other.labelExpression)).distinct
+      val labelExpressionOverlaps = overlaps(relTypesToConsider, labelExpression)
+      labelExpressionOverlaps.isEmpty || (labelExpressionOverlaps intersect overlaps(
+        relTypesToConsider,
+        other.labelExpression
+      )).isEmpty
+    }
   }
 }
 
@@ -169,4 +190,38 @@ object AddUniquenessPredicates extends Step with ASTRewriterFactory {
     cypherExceptionFactory: CypherExceptionFactory,
     anonymousVariableNameGenerator: AnonymousVariableNameGenerator
   ): Rewriter = AddUniquenessPredicates(anonymousVariableNameGenerator)
+
+  def evaluate(expression: LabelExpression, relType: SymbolicName): TailRec[Boolean] =
+    expression match {
+      case Conjunction(lhs, rhs)                => and(lhs, rhs, relType)
+      case ColonConjunction(lhs, rhs)           => and(lhs, rhs, relType)
+      case Disjunction(lhs, rhs)                => or(lhs, rhs, relType)
+      case ColonDisjunction(lhs, rhs)           => or(lhs, rhs, relType)
+      case Negation(e)                          => TailCalls.tailcall(evaluate(e, relType)).map(value => !value)
+      case Wildcard()                           => TailCalls.done(true)
+      case Leaf(expressionRelType: RelTypeName) => TailCalls.done(expressionRelType == relType)
+      case x =>
+        throw new IllegalArgumentException(s"Unexpected label expression $x when evaluating relationship overlap")
+    }
+
+  def and(lhs: LabelExpression, rhs: LabelExpression, relType: SymbolicName): TailRec[Boolean] =
+    TailCalls.tailcall(evaluate(lhs, relType)).flatMap {
+      case true  => TailCalls.tailcall(evaluate(rhs, relType))
+      case false => TailCalls.done(false)
+    }
+
+  def or(lhs: LabelExpression, rhs: LabelExpression, relType: SymbolicName): TailRec[Boolean] =
+    TailCalls.tailcall(evaluate(lhs, relType)).flatMap {
+      case true  => TailCalls.done(true)
+      case false => TailCalls.tailcall(evaluate(rhs, relType))
+    }
+
+  def overlaps(relTypesToConsider: Seq[SymbolicName], labelExpression: Option[LabelExpression]): Seq[SymbolicName] = {
+    relTypesToConsider.filter(relType => labelExpression.forall(le => evaluate(le, relType).result))
+  }
+
+  def getRelTypesToConsider(labelExpression: Option[LabelExpression]): Seq[SymbolicName] = {
+    // also add the arbitrary rel type "" to check for rel types which are not explicitly named (such as in -[r]-> or -[r:%]->)
+    labelExpression.map(_.flatten).getOrElse(Seq.empty) appended RelTypeName("")(InputPosition.NONE)
+  }
 }

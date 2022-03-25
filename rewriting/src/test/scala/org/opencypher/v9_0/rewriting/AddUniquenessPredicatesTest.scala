@@ -15,12 +15,31 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AstConstructionTestSupport
+import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
+import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Disjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Leaf
+import org.opencypher.v9_0.expressions.LabelExpression.Negation
+import org.opencypher.v9_0.expressions.LabelExpression.Wildcard
+import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
+import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates.evaluate
+import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates.getRelTypesToConsider
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import org.scalactic.anyvals.PosZInt
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class AddUniquenessPredicatesTest extends CypherFunSuite with RewriteTest {
+import scala.annotation.tailrec
+
+class AddUniquenessPredicatesTest extends CypherFunSuite with RewriteTest with AstConstructionTestSupport {
 
   test("does not introduce predicate not needed") {
     assertIsNotRewritten("RETURN 42")
@@ -83,6 +102,55 @@ class AddUniquenessPredicatesTest extends CypherFunSuite with RewriteTest {
       "MATCH (a)-[r1]->(b)-[r2]->(c) RETURN *",
       "MATCH (a)-[r1]->(b)-[r2]->(c) WHERE not(r1 = r2) RETURN *"
     )
+
+    assertRewrite(
+      "MATCH (a)-[r1]->(b)-[r2:%]->(c) RETURN *",
+      "MATCH (a)-[r1]->(b)-[r2:%]->(c) WHERE not(r1 = r2) RETURN *"
+    )
+
+    assertRewrite(
+      "MATCH (a)-[r1:%]->(b)-[r2:%]->(c) RETURN *",
+      "MATCH (a)-[r1:%]->(b)-[r2:%]->(c) WHERE not(r1 = r2) RETURN *"
+    )
+
+    assertIsNotRewritten("MATCH (a)-[r1]->(b)-[r2:!%]->(c) RETURN *")
+
+    assertIsNotRewritten("MATCH (a)-[r1:X]->(b)-[r2:!X]->(c) RETURN *")
+
+    assertRewrite(
+      "MATCH (a)-[r1]->(b)-[r2:!X]->(c) RETURN *",
+      "MATCH (a)-[r1]->(b)-[r2:!X]->(c) WHERE not(r1 = r2) RETURN *"
+    )
+
+    assertIsNotRewritten("MATCH (a)-[r1:A&B]->(b)-[r2:B&C]->(c) RETURN *")
+  }
+
+  test("getRelTypesToConsider should return all relevant relationship types") {
+    getRelTypesToConsider(None) shouldEqual Seq(relTypeName(""))
+
+    getRelTypesToConsider(Some(labelRelTypeLeaf("A"))) should contain theSameElementsAs Seq(
+      relTypeName(""),
+      relTypeName("A")
+    )
+
+    getRelTypesToConsider(Some(
+      labelConjunction(
+        labelRelTypeLeaf("A"),
+        labelDisjunction(labelNegation(labelRelTypeLeaf("B")), labelRelTypeLeaf("C"))
+      )
+    )) should contain theSameElementsAs Seq(relTypeName(""), relTypeName("A"), relTypeName("B"), relTypeName("C"))
+  }
+
+  test("overlaps") {
+    evaluate(labelRelTypeLeaf("A"), relTypeName("A")).result shouldBe true
+
+    evaluate(labelDisjunction(labelRelTypeLeaf("A"), labelRelTypeLeaf("B")), relTypeName("B")).result shouldBe true
+    evaluate(labelConjunction(labelRelTypeLeaf("A"), labelRelTypeLeaf("B")), relTypeName("B")).result shouldBe false
+    evaluate(labelConjunction(labelWildcard(), labelRelTypeLeaf("B")), relTypeName("B")).result shouldBe true
+    evaluate(
+      labelConjunction(labelNegation(labelRelTypeLeaf("A")), labelRelTypeLeaf("B")),
+      relTypeName("B")
+    ).result shouldBe true
   }
 
   test("ignores shortestPath relationships for uniqueness") {
@@ -110,4 +178,144 @@ class AddUniquenessPredicatesTest extends CypherFunSuite with RewriteTest {
   }
 
   def rewriterUnderTest: Rewriter = AddUniquenessPredicates(new AnonymousVariableNameGenerator)
+}
+
+class AddUniquenessPredicatesPropertyTest extends CypherFunSuite with ScalaCheckPropertyChecks
+    with RelationshipTypeExpressionGenerators {
+
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
+    PropertyCheckConfiguration(
+      minSuccessful = 100,
+      minSize = PosZInt(0),
+      sizeRange = PosZInt(20)
+    )
+
+  test("overlaps is commutative") {
+    forAll { (expression1: RelationshipTypeExpression, expression2: RelationshipTypeExpression) =>
+      expression1.overlaps(expression2) shouldEqual expression2.overlaps(expression1)
+    }
+  }
+
+  test("never overlap with nothing") {
+    forAll { (expression: RelationshipTypeExpression) =>
+      expression.overlaps(!wildcard) shouldBe false
+    }
+  }
+
+  test("overlaps boolean logic") {
+    forAll {
+      (
+        expression1: RelationshipTypeExpression,
+        expression2: RelationshipTypeExpression,
+        expression3: RelationshipTypeExpression
+      ) =>
+        val doesOverlap = expression1.overlaps(expression2)
+        if (doesOverlap)
+          withClue("expression1.overlaps(expression2) ==> expression1.overlaps(expression2.or(expression3))") {
+            expression1.overlaps(expression2.or(expression3)) shouldBe true
+          }
+        else
+          withClue("!expression1.overlaps(expression2) ==> !expression1.overlaps(expression2.and(expression3))") {
+            expression1.overlaps(expression2.and(expression3)) shouldBe false
+          }
+    }
+  }
+
+  test("overlaps is stack-safe") {
+    @tailrec
+    def buildExpression(i: Int, expression: RelationshipTypeExpression): RelationshipTypeExpression =
+      if (i <= 0) expression else buildExpression(i - 1, !expression)
+
+    buildExpression(10_000, wildcard).overlaps(wildcard) shouldBe true
+  }
+}
+
+trait RelationshipTypeExpressionGenerators {
+
+  /**
+   * Finite (small) set of names used to build arbitrary relationship type expressions.
+   * It's all Greek to me.
+   * Keeping it small and hard-coded ensures that the expressions will contain overlaps
+   */
+  val names = Set("ALPHA", "BETA", "GAMMA", "DELTA", "EPSILON")
+
+  val position: InputPosition = InputPosition.NONE
+
+  /**
+   * Wrapper type around a [[LabelExpression]] that can be found in a relationship pattern
+   * @param value Underlying [[LabelExpression]] that doesn't contain any [[Label]] or [[LabelOrRelType]]
+   */
+  case class RelationshipTypeExpression(value: LabelExpression) {
+
+    def overlaps(other: RelationshipTypeExpression): Boolean = {
+      val allTypes = AddUniquenessPredicates.getRelTypesToConsider(Some(value)).concat(
+        AddUniquenessPredicates.getRelTypesToConsider(Some(other.value))
+      )
+      (AddUniquenessPredicates.overlaps(allTypes, Some(value)) intersect AddUniquenessPredicates.overlaps(
+        allTypes,
+        Some(other.value)
+      )).nonEmpty
+    }
+
+    def unary_! : RelationshipTypeExpression =
+      RelationshipTypeExpression(Negation(value)(position))
+
+    def and(other: RelationshipTypeExpression): RelationshipTypeExpression =
+      RelationshipTypeExpression(Conjunction(value, other.value)(position))
+
+    def or(other: RelationshipTypeExpression): RelationshipTypeExpression =
+      RelationshipTypeExpression(Disjunction(value, other.value)(position))
+  }
+
+  val wildcard: RelationshipTypeExpression = RelationshipTypeExpression(Wildcard()(position))
+
+  val genWildCard: Gen[Wildcard] = Gen.const(Wildcard()(position))
+
+  val genRelType: Gen[Leaf] =
+    Gen.oneOf(names.toSeq).map(name => Leaf(RelTypeName(name)(position)))
+
+  def genBinary[A](f: (LabelExpression, LabelExpression) => A): Gen[A] =
+    Gen.sized(size =>
+      for {
+        lhs <- Gen.resize(size / 2, genLabelExpression)
+        rhs <- Gen.resize(size / 2, genLabelExpression)
+      } yield f(lhs, rhs)
+    )
+
+  val genConjunction: Gen[Conjunction] =
+    genBinary((lhs, rhs) => Conjunction(lhs, rhs)(position))
+
+  val genColonConjunction: Gen[ColonConjunction] =
+    genBinary((lhs, rhs) => ColonConjunction(lhs, rhs)(position))
+
+  val genDisjunction: Gen[Disjunction] =
+    genBinary((lhs, rhs) => Disjunction(lhs, rhs)(position))
+
+  val genColonDisjunction: Gen[ColonDisjunction] =
+    genBinary((lhs, rhs) => ColonDisjunction(lhs, rhs)(position))
+
+  val genNegation: Gen[Negation] =
+    Gen.sized(size => Gen.resize(size - 1, genLabelExpression)).map(Negation(_)(position))
+
+  val genLabelExpression: Gen[LabelExpression] =
+    Gen.sized(size =>
+      if (size <= 0)
+        Gen.oneOf(
+          genWildCard,
+          genRelType
+        )
+      else
+        Gen.oneOf(
+          genConjunction,
+          genColonConjunction,
+          genDisjunction,
+          genColonDisjunction,
+          genNegation,
+          genWildCard,
+          genRelType
+        )
+    )
+
+  implicit val arbitraryRelationshipTypeExpression: Arbitrary[RelationshipTypeExpression] =
+    Arbitrary(genLabelExpression.map(RelationshipTypeExpression))
 }

@@ -35,7 +35,7 @@ class noUnnamedPatternElementsInPatternComprehensionTest extends CypherFunSuite 
       RelationshipsPattern(
         RelationshipChain(
           NodePattern(None, None, None, None) _,
-          RelationshipPattern(None, Seq.empty, None, None, None, SemanticDirection.OUTGOING) _,
+          RelationshipPattern(None, None, None, None, None, SemanticDirection.OUTGOING) _,
           NodePattern(None, None, None, None) _
         ) _
       ) _,
@@ -52,7 +52,7 @@ class noUnnamedPatternElementsInPatternComprehensionTest extends CypherFunSuite 
       RelationshipsPattern(
         RelationshipChain(
           NodePattern(Some(varFor("a")), None, None, None) _,
-          RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, None, SemanticDirection.OUTGOING) _,
+          RelationshipPattern(Some(varFor("r")), None, None, None, None, SemanticDirection.OUTGOING) _,
           NodePattern(Some(varFor("b")), None, None, None) _
         ) _
       ) _,

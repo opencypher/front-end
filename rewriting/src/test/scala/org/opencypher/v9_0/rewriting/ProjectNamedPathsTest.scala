@@ -284,7 +284,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
         EveryPath(
           RelationshipChain(
             NodePattern(Some(a), None, None, None)(pos),
-            RelationshipPattern(Some(r), Seq.empty, None, None, None, SemanticDirection.OUTGOING)(pos),
+            RelationshipPattern(Some(r), None, None, None, None, SemanticDirection.OUTGOING)(pos),
             NodePattern(Some(b), None, None, None)(pos)
           )(pos)
         )
@@ -392,14 +392,14 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
         EveryPath(
           RelationshipChain(
             NodePattern(Some(a), None, None, None)(pos),
-            RelationshipPattern(Some(r), Seq.empty, None, None, None, SemanticDirection.OUTGOING)(pos),
+            RelationshipPattern(Some(r), None, None, None, None, SemanticDirection.OUTGOING)(pos),
             NodePattern(Some(b), None, None, None)(pos)
           )(pos)
         ),
         EveryPath(
           RelationshipChain(
             NodePattern(Some(b), None, None, None)(pos),
-            RelationshipPattern(Some(s), Seq.empty, None, None, None, SemanticDirection.OUTGOING)(pos),
+            RelationshipPattern(Some(s), None, None, None, None, SemanticDirection.OUTGOING)(pos),
             NodePattern(Some(c), None, None, None)(pos)
           )(pos)
         )
@@ -516,10 +516,10 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
           RelationshipChain(
             RelationshipChain(
               NodePattern(Some(a), None, None, None)(pos),
-              RelationshipPattern(Some(r), Seq.empty, None, None, None, SemanticDirection.OUTGOING)(pos),
+              RelationshipPattern(Some(r), None, None, None, None, SemanticDirection.OUTGOING)(pos),
               NodePattern(Some(b), None, None, None)(pos)
             )(pos),
-            RelationshipPattern(Some(s), Seq.empty, None, None, None, SemanticDirection.INCOMING)(pos),
+            RelationshipPattern(Some(s), None, None, None, None, SemanticDirection.INCOMING)(pos),
             NodePattern(Some(c), None, None, None)(pos)
           )(pos)
         )
@@ -1218,7 +1218,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
           EveryPath(
             RelationshipChain(
               NodePattern(Some(aId), None, None, None)(pos),
-              RelationshipPattern(Some(rId), List(), None, None, None, SemanticDirection.OUTGOING)(pos),
+              RelationshipPattern(Some(rId), None, None, None, None, SemanticDirection.OUTGOING)(pos),
               NodePattern(Some(bId), None, None, None)(pos)
             )(pos)
           )
@@ -1281,7 +1281,7 @@ class ProjectNamedPathsTest extends CypherFunSuite with AstRewritingTestSupport 
           EveryPath(
             RelationshipChain(
               NodePattern(Some(aId), None, None, None)(pos),
-              RelationshipPattern(Some(rId), List(), None, None, None, SemanticDirection.OUTGOING)(pos),
+              RelationshipPattern(Some(rId), None, None, None, None, SemanticDirection.OUTGOING)(pos),
               NodePattern(Some(bId), None, None, None)(pos)
             )(pos)
           )

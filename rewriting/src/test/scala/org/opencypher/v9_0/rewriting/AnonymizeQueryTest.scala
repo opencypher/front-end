@@ -18,7 +18,6 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.rewriting.rewriters.Anonymizer
 import org.opencypher.v9_0.rewriting.rewriters.anonymizeQuery
-import org.opencypher.v9_0.util.OpenCypherExceptionFactory.SyntaxException
 import org.opencypher.v9_0.util.Rewriter
 
 class AnonymizeQueryTest extends AnonymizerTestBase {
@@ -84,16 +83,8 @@ class AnonymizeQueryTest extends AnonymizerTestBase {
   }
 
   test("relationship type expression") {
-    val relationshipTypExpressionsImplemented = false
-
-    // This is to catch the eyes of relationship type expression implementers.
-    // When this test fails, keep only asserts in "else"-clause.
-    if (!relationshipTypExpressionsImplemented) {
-      assertThrows[SyntaxException](parseForRewriting("MATCH ()-[r:A&B]->() RETURN r"))
-    } else {
-      assertRewrite("MATCH ()-[r:A&(B|!C)]->() RETURN n", "MATCH ()-[Xr:xA&(xB|!xC)]->() RETURN Xr")
-      assertRewrite("MATCH ()-[r]->() WHERE r:A&(B|!C) RETURN r", "MATCH ()-[r]->() WHERE Xr:xA&(xB|!xC) RETURN Xr")
-    }
+    assertRewrite("MATCH ()-[r:A&(B|!C)]->() RETURN r", "MATCH ()-[Xr:xA&(xB|!xC)]->() RETURN Xr")
+    assertRewrite("MATCH ()-[r]->() WHERE r:A&(B|!C) RETURN r", "MATCH ()-[Xr]->() WHERE Xr:xA&(xB|!xC) RETURN Xr")
   }
 
   test("property key") {

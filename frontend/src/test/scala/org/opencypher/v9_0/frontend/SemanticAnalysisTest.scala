@@ -17,20 +17,15 @@ package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
-import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
-import org.opencypher.v9_0.frontend.helpers.NoPlannerName
 import org.opencypher.v9_0.frontend.phases.BaseContext
 import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.AST_REWRITE
-import org.opencypher.v9_0.frontend.phases.InitialState
 import org.opencypher.v9_0.frontend.phases.OpenCypherJavaCCParsing
 import org.opencypher.v9_0.frontend.phases.Phase
-import org.opencypher.v9_0.frontend.phases.PreparatoryRewriting
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
 import org.opencypher.v9_0.frontend.phases.Transformer
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedRepeatedRelVarInPatternExpression
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotification
@@ -38,16 +33,7 @@ import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.SubqueryVariableShadowing
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class SemanticAnalysisTest extends CypherFunSuite {
-
-  // This test invokes SemanticAnalysis twice because that's what the production pipeline does
-  private def pipelineWithSemanticFeatures(semanticFeatures: SemanticFeature*) =
-    OpenCypherJavaCCParsing andThen
-      PreparatoryRewriting andThen
-      SemanticAnalysis(warn = true, semanticFeatures: _*) andThen
-      SemanticAnalysis(warn = false, semanticFeatures: _*)
-
-  private val pipeline = pipelineWithSemanticFeatures()
+class SemanticAnalysisTest extends CypherFunSuite with SemanticAnalysisTestSuite {
 
   private val pipelineWithRelationshipPatternPredicates =
     pipelineWithSemanticFeatures(SemanticFeature.RelationshipPatternPredicates)
@@ -103,9 +89,11 @@ class SemanticAnalysisTest extends CypherFunSuite {
     )
     queries.foreach { query =>
       withClue(query) {
-        val context = new ErrorCollectingContext()
-        pipeline.transform(initStartState(query).withParams(Map("p" -> 42)), context)
-        context.errors shouldBe empty
+        val pipeline = pipelineWithSemanticFeatures()
+        val initialState = initialStateWithQuery(query).withParams(Map("p" -> 42))
+        val result = runSemanticAnalysisWithPipelineAndState(pipeline, initialState)
+
+        result.errors shouldBe empty
       }
     }
   }
@@ -166,13 +154,9 @@ class SemanticAnalysisTest extends CypherFunSuite {
   test("Should register uses in PathExpressions") {
     val query = "MATCH p = (a)-[r]-(b) RETURN p AS p"
 
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
-
     val pipeline = OpenCypherJavaCCParsing andThen ProjectNamedPathsPhase andThen SemanticAnalysis(warn = true)
-
-    val result = pipeline.transform(startState, context)
-    val scopeTree = result.semantics().scopeTree
+    val result = runSemanticAnalysisWithPipeline(pipeline, query)
+    val scopeTree = result.state.semantics().scopeTree
 
     Set("a", "r", "b").foreach { name =>
       scopeTree.allSymbols(name).head.uses shouldNot be(empty)
@@ -380,60 +364,6 @@ class SemanticAnalysisTest extends CypherFunSuite {
     )
   }
 
-  test("should not allow label expression in CREATE") {
-    val query = "CREATE (n:A&B)"
-    expectErrorMessagesFrom(
-      query,
-      Set(
-        "Label expressions are not allowed in CREATE, but only in MATCH clause"
-      )
-    )
-  }
-
-  test("should not allow label expression in MERGE") {
-    val query = "MERGE (n:A&B)"
-    expectErrorMessagesFrom(
-      query,
-      Set(
-        "Label expressions are not allowed in MERGE, but only in MATCH clause"
-      )
-    )
-  }
-
-  test(
-    "should not allow mixing colon as label conjunction symbol with GPM label expression symbols in label expression"
-  ) {
-    val query = "MATCH (n:A&B:C) RETURN n"
-    expectErrorMessagesFrom(
-      query,
-      Set(
-        "Mixing label expression symbols ('|', '&', '!', and '%') with colon (':') is not allowed. Please only use one set of symbols."
-      )
-    )
-  }
-
-  test(
-    "should not allow mixing colon as label conjunction symbol with GPM label expression symbols in label expression predicate"
-  ) {
-    val query = "MATCH (n) WHERE n:A&B:C RETURN n"
-    expectErrorMessagesFrom(
-      query,
-      Set(
-        "Mixing label expression symbols ('|', '&', '!', and '%') with colon (':') is not allowed. Please only use one set of symbols."
-      )
-    )
-  }
-
-  test("should allow mixing colon as label conjunction symbols on node pattern with GPM label expression predicate") {
-    val query = "MATCH (n:A:B) WHERE n:C&D|E RETURN n"
-    expectNoErrorsFrom(query)
-  }
-
-  test("should allow mixing GPM label expression predicate with colon as label conjunction symbols on node pattern") {
-    val query = "MATCH (n:C&D|E) WHERE n:A:B RETURN n"
-    expectNoErrorsFrom(query)
-  }
-
   test("should allow node pattern predicates in pattern comprehension") {
     val query =
       "WITH 123 AS minValue RETURN [(n {prop: 42} WHERE n.otherProp > minValue)-->(m:Label WHERE m.prop = 42) | n] AS result"
@@ -496,6 +426,42 @@ class SemanticAnalysisTest extends CypherFunSuite {
       query,
       Set(
         "WHERE is not allowed inside a relationship pattern"
+      )
+    )
+  }
+
+  test("should not allow label expressions in shortestPath expression") {
+    val query =
+      """
+        |MATCH (a), (b)
+        |WITH shortestPath((a:A|B)-[:REL*]->(b:B|C)) AS p
+        |RETURN length(p) AS result""".stripMargin
+    expectErrorMessagesFrom(
+      query,
+      Set(
+        "Label expressions in patterns are not allowed in expression, but only in MATCH clause"
+      )
+    )
+  }
+
+  test("should allow relationship type expressions in shortestPath in MATCH") {
+    val query =
+      """
+        |MATCH p = shortestPath((a)-[:REL|!BAR]->(b))
+        |RETURN length(p) AS result""".stripMargin
+    expectNoErrorsFrom(query)
+  }
+
+  test("should not allow relationship type expressions in shortestPath expression") {
+    val query =
+      """
+        |MATCH (a), (b)
+        |WITH shortestPath((a)-[:REL|!BAR]->(b)) AS p
+        |RETURN length(p) AS result""".stripMargin
+    expectErrorMessagesFrom(
+      query,
+      Set(
+        "Relationship type expressions in patterns are not allowed in expression, but only in MATCH clause"
       )
     )
   }
@@ -1226,12 +1192,9 @@ class SemanticAnalysisTest extends CypherFunSuite {
         |RETURN i
         |""".stripMargin
 
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
+    val result = runSemanticAnalysis(query)
 
-    pipeline.transform(startState, context)
-
-    context.errors.map(e => (e.msg, e.position.line, e.position.column)) should equal(List(
+    result.errors.map(e => (e.msg, e.position.line, e.position.column)) should equal(List(
       ("Variable `i` already declared in outer scope", 4, 10)
     ))
   }
@@ -1249,12 +1212,9 @@ class SemanticAnalysisTest extends CypherFunSuite {
         |RETURN i
         |""".stripMargin
 
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
+    val result = runSemanticAnalysis(query)
 
-    pipeline.transform(startState, context)
-
-    context.errors.map(e => (e.msg, e.position.line, e.position.column)) should equal(List(
+    result.errors.map(e => (e.msg, e.position.line, e.position.column)) should equal(List(
       ("Variable `i` already declared in outer scope", 4, 10),
       ("Variable `i` already declared in outer scope", 7, 15)
     ))
@@ -1270,12 +1230,9 @@ class SemanticAnalysisTest extends CypherFunSuite {
         |RETURN i
         |""".stripMargin
 
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
+    val result = runSemanticAnalysis(query)
 
-    pipeline.transform(startState, context)
-
-    context.errors.map(e => (e.msg, e.position.line)) should equal(List(
+    result.errors.map(e => (e.msg, e.position.line)) should equal(List(
       ("Variable `i` already declared in outer scope", 4)
     ))
   }
@@ -1293,12 +1250,9 @@ class SemanticAnalysisTest extends CypherFunSuite {
         |RETURN i
         |""".stripMargin
 
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
+    val result = runSemanticAnalysis(query)
 
-    pipeline.transform(startState, context)
-
-    context.errors.map(e => (e.msg, e.position.line)) should equal(List(
+    result.errors.map(e => (e.msg, e.position.line)) should equal(List(
       ("Variable `i` already declared in outer scope", 4),
       ("Variable `i` already declared in outer scope", 7)
     ))
@@ -1563,51 +1517,35 @@ class SemanticAnalysisTest extends CypherFunSuite {
 
   // ------- Helpers ------------------------------
 
-  private def initStartState(query: String) =
-    InitialState(query, None, NoPlannerName, new AnonymousVariableNameGenerator)
-
   private def expectNoErrorsFrom(
     query: String,
-    pipeline: Transformer[BaseContext, BaseState, BaseState] = this.pipeline
-  ): Unit = {
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
-    pipeline.transform(startState, context)
-    context.errors shouldBe empty
-  }
+    pipeline: Transformer[BaseContext, BaseState, BaseState] = pipelineWithSemanticFeatures()
+  ): Unit =
+    runSemanticAnalysisWithPipeline(pipeline, query).errors shouldBe empty
 
   private def expectErrorsFrom(
     query: String,
     expectedErrors: Set[SemanticError],
-    pipeline: Transformer[BaseContext, BaseState, BaseState] = this.pipeline
-  ): Unit = {
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
-    pipeline.transform(startState, context)
-    context.errors.toSet should equal(expectedErrors)
-  }
+    pipeline: Transformer[BaseContext, BaseState, BaseState] = pipelineWithSemanticFeatures()
+  ): Unit =
+    runSemanticAnalysisWithPipeline(pipeline, query).errors.toSet shouldEqual expectedErrors
 
   private def expectErrorMessagesFrom(
     query: String,
     expectedErrors: Set[String],
-    pipeline: Transformer[BaseContext, BaseState, BaseState] = this.pipeline
-  ): Unit = {
-    val startState = initStartState(query)
-    val context = new ErrorCollectingContext()
-    pipeline.transform(startState, context)
-    context.errors.map(_.msg).toSet should equal(expectedErrors)
-  }
+    pipeline: Transformer[BaseContext, BaseState, BaseState] = pipelineWithSemanticFeatures()
+  ): Unit =
+    runSemanticAnalysisWithPipeline(pipeline, query).errorMessages.toSet shouldEqual expectedErrors
 
   private def expectNotificationsFrom(
     query: String,
     expectedNotifications: Set[InternalNotification],
-    pipeline: Transformer[BaseContext, BaseState, BaseState] = this.pipeline
+    pipeline: Transformer[BaseContext, BaseState, BaseState] = pipelineWithSemanticFeatures()
   ): Unit = {
-    val startState = initStartState(normalizeNewLines(query))
-    val context = new ErrorCollectingContext()
-    val resultState = pipeline.transform(startState, context)
-    resultState.semantics().notifications should equal(expectedNotifications)
-    context.errors should be(empty)
+    val normalisedQuery = normalizeNewLines(query)
+    val result = runSemanticAnalysisWithPipeline(pipeline, normalisedQuery)
+    result.state.semantics().notifications shouldEqual expectedNotifications
+    result.errors shouldBe empty
   }
 
   final case object ProjectNamedPathsPhase extends Phase[BaseContext, BaseState, BaseState] {

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck.checkValidLabels
 import org.opencypher.v9_0.expressions.Add
 import org.opencypher.v9_0.expressions.AllPropertiesSelector
@@ -35,6 +36,7 @@ import org.opencypher.v9_0.expressions.DecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.DesugaredMapProjection
 import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.EndsWith
+import org.opencypher.v9_0.expressions.EntityType
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
@@ -58,6 +60,8 @@ import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.IterablePredicateExpression
 import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Wildcard
 import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
@@ -70,6 +74,7 @@ import org.opencypher.v9_0.expressions.MapProjection
 import org.opencypher.v9_0.expressions.Modulo
 import org.opencypher.v9_0.expressions.MultiRelationshipPathStep
 import org.opencypher.v9_0.expressions.Multiply
+import org.opencypher.v9_0.expressions.NODE_TYPE
 import org.opencypher.v9_0.expressions.NilPathStep
 import org.opencypher.v9_0.expressions.NodePathStep
 import org.opencypher.v9_0.expressions.Not
@@ -87,6 +92,7 @@ import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Pow
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertySelector
+import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
 import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.ReduceExpression.AccumulatorExpressionTypeMismatchMessageGenerator
 import org.opencypher.v9_0.expressions.ReduceScope
@@ -345,20 +351,12 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
           expectType(CTNode.covariant | CTRelationship.covariant, x.expression) chain
           specifyType(CTBoolean, x)
 
-      case x: LabelExpression =>
-        lazy val legacySymbols = x.folder.findAllByClass[LabelExpression.ColonConjunction]
-        when(!x.isNonGpm && legacySymbols.nonEmpty) {
-          error(
-            s"Mixing label expression symbols ('|', '&', '!', and '%') with colon (':') is not allowed. Please only use one set of symbols.",
-            legacySymbols.head.position
-          )
-        } chain
-          checkValidLabels(x.flatten, x.position)
-
       case x: LabelExpressionPredicate =>
         check(ctx, x.entity, x +: parents) chain
           expectType(CTNode.covariant | CTRelationship.covariant, x.entity) chain
-          check(ctx, x.labelExpression, x +: parents) chain
+          checkLabelExpressionForLegacyRelationshipTypeDisjunction(x.entity, x.labelExpression) ifOkChain
+          checkLabelExpressionForWildcard(x.labelExpression) chain
+          checkLabelExpression(None, x.labelExpression) chain
           specifyType(CTBoolean, x)
 
       case x: HasLabels =>
@@ -577,19 +575,21 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
 
       case x: DecimalIntegerLiteral =>
         when(!validNumber(x)) {
-          if (x.stringVal matches "^-?[1-9][0-9]*$")
+          if (x.stringVal matches "^-?[1-9][0-9]*$") {
             SemanticError("integer is too large", x.position)
-          else
+          } else {
             SemanticError("invalid literal number", x.position)
+          }
         } chain specifyType(CTInteger, x)
 
       case x: OctalIntegerLiteral =>
         val stringVal = x.stringVal
         when(!validNumber(x)) {
-          if (stringVal matches "^-?0o?[0-7]+$")
+          if (stringVal matches "^-?0o?[0-7]+$") {
             SemanticError("integer is too large", x.position)
-          else
+          } else {
             SemanticError("invalid literal number", x.position)
+          }
         } ifOkChain {
           (state: SemanticState) =>
             {
@@ -614,10 +614,11 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
       case x: HexIntegerLiteral =>
         val stringVal = x.stringVal
         when(!validNumber(x)) {
-          if (stringVal matches "^-?0x[0-9a-fA-F]+$")
+          if (stringVal matches "^-?0x[0-9a-fA-F]+$") {
             SemanticError("integer is too large", x.position)
-          else
+          } else {
             SemanticError("invalid literal number", x.position)
+          }
         } ifOkChain {
           (state: SemanticState) =>
             {
@@ -678,6 +679,64 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
 
       case x: Expression => semanticCheckFallback(ctx, x)
     }
+
+  def getExpressionEntityType(s: SemanticState, entity: Expression): Option[EntityType] =
+    s.expressionType(entity).actual match {
+      case CTNode.invariant         => Some(NODE_TYPE)
+      case CTRelationship.invariant => Some(RELATIONSHIP_TYPE)
+      case _                        => None
+    }
+
+  private val stringifier = ExpressionStringifier()
+
+  def checkLabelExpressionForLegacyRelationshipTypeDisjunction(
+    entity: Expression,
+    labelExpression: LabelExpression
+  ): SemanticCheck =
+    labelExpression.folder.treeFindByClass[ColonDisjunction]
+      .foldSemanticCheck(disjunction =>
+        state => {
+          val isNode = state.expressionType(entity).actual == CTNode.invariant
+          val sanitizedLabelExpression = stringifier.stringifyLabelExpression(labelExpression.replaceColonSyntax)
+          val errorMessage = SemanticPatternCheck.legacyRelationshipDisjunctionError(sanitizedLabelExpression, isNode)
+          SemanticCheckResult.error(state, SemanticError(errorMessage, disjunction.position))
+        }
+      )
+
+  def checkLabelExpressionForWildcard(labelExpression: LabelExpression): SemanticCheck =
+    labelExpression.folder.treeFindByClass[Wildcard]
+      .foldSemanticCheck(wildcard =>
+        error(
+          "Wildcards ('%') in label/relationship type expression predicates are not supported yet",
+          wildcard.position
+        )
+      )
+
+  def checkLabelExpression(entityType: Option[EntityType], labelExpression: LabelExpression): SemanticCheck = {
+    lazy val colonConjunctions = labelExpression.folder.findAllByClass[LabelExpression.ColonConjunction]
+    lazy val colonDisjunctions = labelExpression.folder.findAllByClass[LabelExpression.ColonDisjunction]
+    lazy val legacySymbols = colonConjunctions ++ colonDisjunctions
+    when(entityType.contains(NODE_TYPE) && colonDisjunctions.nonEmpty) {
+      error(s"Label expressions are not allowed to contain '|:'.", colonDisjunctions.head.position)
+    } chain
+      when(entityType.contains(RELATIONSHIP_TYPE) && colonConjunctions.nonEmpty) {
+        error(
+          "Relationship types in a relationship type expressions may not be combined using ':'",
+          colonConjunctions.head.position
+        )
+      } ifOkChain
+      when(
+        // if we have a colon conjunction, this implies a node, so we can search the label expression with that in mind
+        colonConjunctions.nonEmpty && labelExpression.containsGpmSpecificLabelExpression
+      ) {
+        val sanitizedLabelExpression = stringifier.stringifyLabelExpression(labelExpression.replaceColonSyntax)
+        error(
+          s"Mixing label expression symbols ('|', '&', '!', and '%') with colon (':') is not allowed. Please only use one set of symbols. This expression could be expressed as :$sanitizedLabelExpression.",
+          legacySymbols.head.position
+        )
+      } chain
+      checkValidLabels(labelExpression.flatten, labelExpression.position)
+  }
 
   /**
    * Build a semantic check over a traversable of expressions.
@@ -792,27 +851,27 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
     // Duration + T => T
     // Duration + Duration => Duration
     val valueTypes =
-      if (lhsTypes containsAny (CTInteger.covariant | CTFloat.covariant | CTString.covariant))
+      if (lhsTypes containsAny (CTInteger.covariant | CTFloat.covariant | CTString.covariant)) {
         CTString.covariant | CTInteger.covariant | CTFloat.covariant
-      else
+      } else {
         TypeSpec.none
-
+      }
     val temporalTypes =
       if (
         lhsTypes containsAny (CTDate.covariant | CTTime.covariant | CTLocalTime.covariant |
           CTDateTime.covariant | CTLocalDateTime.covariant | CTDuration.covariant)
-      )
+      ) {
         CTDuration.covariant
-      else
+      } else {
         TypeSpec.none
-
+      }
     val durationTypes =
-      if (lhsTypes containsAny CTDuration.covariant)
+      if (lhsTypes containsAny CTDuration.covariant) {
         CTDate.covariant | CTTime.covariant | CTLocalTime.covariant |
           CTDateTime.covariant | CTLocalDateTime.covariant | CTDuration.covariant
-      else
+      } else {
         TypeSpec.none
-
+      }
     // [a] + [b] => [a, b]
     val listTypes = (lhsTypes leastUpperBounds CTList(CTAny) constrain CTList(CTAny)).covariant
 
@@ -832,11 +891,11 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
     def when(fst: TypeSpec, snd: TypeSpec)(result: CypherType): TypeSpec =
       if (
         lhsTypes.containsAny(fst) && rhsTypes.containsAny(snd) || lhsTypes.containsAny(snd) && rhsTypes.containsAny(fst)
-      )
+      ) {
         result.invariant
-      else
+      } else {
         TypeSpec.none
-
+      }
     // "a" + "b" => "ab"
     // "a" + 1 => "a1"
     // "a" + 1.1 => "a1.1"

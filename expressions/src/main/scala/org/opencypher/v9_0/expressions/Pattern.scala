@@ -103,7 +103,7 @@ object RelationshipChain {
    */
   def findDuplicateRelationships(treeNode: ASTNode): Seq[LogicalVariable] = {
     val duplicates = treeNode.folder.fold(Map[String, List[LogicalVariable]]().withDefaultValue(Nil)) {
-      case RelationshipChain(_, RelationshipPattern(Some(rel), _, None, _, _, _, _), _) =>
+      case RelationshipChain(_, RelationshipPattern(Some(rel), _, None, _, _, _), _) =>
         map =>
           map.updated(rel.name, rel :: map(rel.name))
       case _ =>
@@ -164,12 +164,11 @@ case class NodePattern(
 
 case class RelationshipPattern(
   variable: Option[LogicalVariable],
-  types: Seq[RelTypeName],
+  labelExpression: Option[LabelExpression],
   length: Option[Option[Range]],
   properties: Option[Expression],
   predicate: Option[Expression],
-  direction: SemanticDirection,
-  legacyTypeSeparator: Boolean = false
+  direction: SemanticDirection
 )(val position: InputPosition) extends ASTNode {
 
   def isSingleLength: Boolean = length.isEmpty

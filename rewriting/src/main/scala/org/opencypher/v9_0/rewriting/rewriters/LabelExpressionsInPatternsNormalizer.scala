@@ -21,23 +21,31 @@ import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.NODE_TYPE
 import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
+import org.opencypher.v9_0.expressions.RelationshipPattern
 
 object LabelExpressionsInPatternsNormalizer extends MatchPredicateNormalizer {
 
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
     case NodePattern(Some(id), Some(expression), _, _) =>
-      Vector(extractLabelExpressionPredicates(id, expression, entityType = Some(NODE_TYPE)))
+      Vector(extractLabelExpressionPredicates(id, expression, NODE_TYPE))
+    case RelationshipPattern(Some(id), Some(expression), None, _, _, _)
+      if expression.containsGpmSpecificRelTypeExpression =>
+      Vector(extractLabelExpressionPredicates(id, expression, RELATIONSHIP_TYPE))
   }
 
   override val replace: PartialFunction[AnyRef, AnyRef] = {
     case p @ NodePattern(Some(_), Some(_), _, _) => p.copy(labelExpression = None)(p.position)
+    case p @ RelationshipPattern(Some(_), Some(expression), None, _, _, _)
+      if expression.containsGpmSpecificRelTypeExpression =>
+      p.copy(labelExpression = None)(p.position)
   }
 
   private def extractLabelExpressionPredicates(
     variable: LogicalVariable,
     e: LabelExpression,
-    entityType: Option[EntityType]
+    entityType: EntityType
   ): Expression = {
-    LabelExpressionNormalizer(variable, entityType)(e).asInstanceOf[Expression]
+    LabelExpressionNormalizer(variable, Some(entityType))(e).asInstanceOf[Expression]
   }
 }

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.ast.prettifier
 
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.PathStep
@@ -85,4 +86,6 @@ private class PrettyExpressionStringifier(inner: ExpressionStringifier) extends 
   override def quote(txt: String): String = inner.quote(txt)
 
   override def escapePassword(password: Expression): String = inner.escapePassword(password)
+
+  override def stringifyLabelExpression(le: LabelExpression): String = inner.stringifyLabelExpression(le)
 }

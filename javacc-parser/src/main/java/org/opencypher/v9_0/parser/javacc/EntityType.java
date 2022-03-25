@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.rewriting.rewriters
+package org.opencypher.v9_0.parser.javacc;
 
-import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.RelationshipPattern
-
-object RelationshipPatternPredicateNormalizer extends MatchPredicateNormalizer {
-
-  override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
-    case RelationshipPattern(_, _, _, _, Some(predicate), _) => Vector(predicate)
-  }
-
-  override val replace: PartialFunction[AnyRef, AnyRef] = {
-    case p @ RelationshipPattern(_, _, _, _, Some(_), _) => p.copy(predicate = None)(p.position)
-  }
+public enum EntityType {
+    NODE,
+    RELATIONSHIP,
+    NODE_OR_RELATIONSHIP
 }

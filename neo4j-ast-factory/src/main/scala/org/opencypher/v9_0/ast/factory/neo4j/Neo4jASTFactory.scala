@@ -333,6 +333,7 @@ import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.LabelExpression
+import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LabelOrRelTypeName
@@ -393,6 +394,7 @@ import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
+import org.opencypher.v9_0.parser.javacc.EntityType
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
@@ -468,7 +470,8 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       ActionResource,
       PrivilegeQualifier,
       SubqueryCall.InTransactionsParameters,
-      InputPosition
+      InputPosition,
+      EntityType
     ] {
 
   override def newSingleQuery(p: InputPosition, clauses: util.List[Clause]): Query = {
@@ -739,11 +742,10 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     left: Boolean,
     right: Boolean,
     v: Variable,
-    relTypes: util.List[StringPos[InputPosition]],
+    labelExpression: LabelExpression,
     pathLength: Option[Range],
     properties: Expression,
-    predicate: Expression,
-    legacyTypeSeparator: Boolean
+    predicate: Expression
   ): RelationshipPattern = {
     val direction =
       if (left && !right) SemanticDirection.INCOMING
@@ -759,12 +761,11 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
     RelationshipPattern(
       Option(v),
-      relTypes.asScala.toList.map(sp => RelTypeName(sp.string)(sp.pos)),
+      Option(labelExpression),
       range,
       Option(properties),
       Option(predicate),
-      direction,
-      legacyTypeSeparator
+      direction
     )(p)
   }
 
@@ -2172,11 +2173,24 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
   override def labelWildcard(p: InputPosition): LabelExpression = LabelExpression.Wildcard()(p)
 
-  override def labelAtom(p: InputPosition, n: String): LabelExpression = LabelExpression.Label(LabelName(n)(p))(p)
+  override def labelLeaf(p: InputPosition, n: String, entityType: EntityType): LabelExpression = entityType match {
+    case EntityType.NODE                 => Leaf(LabelName(n)(p))
+    case EntityType.NODE_OR_RELATIONSHIP => Leaf(LabelOrRelTypeName(n)(p))
+    case EntityType.RELATIONSHIP         => Leaf(RelTypeName(n)(p))
+  }
 
   override def labelColonConjunction(p: InputPosition, lhs: LabelExpression, rhs: LabelExpression): LabelExpression =
     LabelExpression.ColonConjunction(lhs, rhs)(p)
 
+  override def labelColonDisjunction(p: InputPosition, lhs: LabelExpression, rhs: LabelExpression): LabelExpression =
+    LabelExpression.ColonDisjunction(lhs, rhs)(p)
+
   override def labelExpressionPredicate(subject: Expression, exp: LabelExpression): Expression =
     LabelExpressionPredicate(subject, exp)(subject.position)
+
+  override def nodeType(): EntityType = EntityType.NODE
+
+  override def relationshipType(): EntityType = EntityType.RELATIONSHIP
+
+  override def nodeOrRelationshipType(): EntityType = EntityType.NODE_OR_RELATIONSHIP
 }
