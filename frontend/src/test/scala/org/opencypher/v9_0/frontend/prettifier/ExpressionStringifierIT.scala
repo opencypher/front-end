@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.v9_0.frontend
+package org.opencypher.v9_0.frontend.prettifier
 
 import org.opencypher.v9_0.ast.factory.neo4j.JavaccRule
 import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
