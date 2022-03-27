@@ -181,12 +181,14 @@ trait SemanticAnalysisTooling {
   def whenState(condition: SemanticState => Boolean)(
     thenBranch: => SemanticCheck,
     elseBranch: => SemanticCheck = SemanticCheck.success
-  ): SemanticCheck = (state: SemanticState) =>
-    if (condition(state))
-      thenBranch.run(state)
-    else
-      elseBranch.run(state)
-
+  ): SemanticCheck = {
+    SemanticCheck.fromState { state =>
+      if (condition(state))
+        thenBranch
+      else
+        elseBranch
+    }
+  }
   def unless(condition: Boolean)(check: => SemanticCheck): SemanticCheck =
     if (condition)
       SemanticCheck.success
@@ -208,7 +210,7 @@ trait SemanticAnalysisTooling {
       SemanticAnalysisTooling.popStateScope
 
   def typeSwitch(expr: Expression)(choice: TypeSpec => SemanticCheck): SemanticCheck =
-    (state: SemanticState) => choice(state.expressionType(expr).actual).run(state)
+    SemanticCheck.fromState(state => choice(state.expressionType(expr).actual))
 
   def validNumber(long: IntegerLiteral): Boolean =
     try {
