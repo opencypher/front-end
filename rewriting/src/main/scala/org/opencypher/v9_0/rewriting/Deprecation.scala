@@ -24,10 +24,8 @@ import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
-import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
-import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.symbols.CTAny
@@ -55,13 +53,6 @@ object Deprecations {
         Deprecation(
           Some(Ref(f) -> renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f)),
           None
-        )
-
-      // var-length binding
-      case p @ RelationshipPattern(Some(variable), _, Some(_), _, _, _) =>
-        Deprecation(
-          None,
-          Some(DeprecatedVarLengthBindingNotification(p.position, variable.name))
         )
     }
 
