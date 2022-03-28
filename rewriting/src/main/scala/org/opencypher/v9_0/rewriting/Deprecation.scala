@@ -18,7 +18,6 @@ package org.opencypher.v9_0.rewriting
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
-import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Ands
@@ -223,7 +222,7 @@ object Deprecations {
     )
 
     override def find(semanticTable: SemanticTable): PartialFunction[Any, Deprecation] = {
-      case e: Expression if isListCoercedToBoolean(semanticTable, e) =>
+      case e: Expression if isListCoercedToBoolean(semanticTable, e) && !e.isInstanceOf[PatternExpression] =>
         Deprecation(
           None,
           Some(DeprecatedCoercionOfListToBoolean(e.position))
