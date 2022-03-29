@@ -104,6 +104,7 @@ import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.expressions.functions.Avg
 import org.opencypher.v9_0.expressions.functions.Collect
 import org.opencypher.v9_0.expressions.functions.Count
+import org.opencypher.v9_0.expressions.functions.ElementId
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Id
 import org.opencypher.v9_0.expressions.functions.Max
@@ -285,6 +286,9 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def id(expression: Expression): FunctionInvocation =
     FunctionInvocation(expression, FunctionName(Id.name)(pos))
+
+  def elementId(expression: Expression): FunctionInvocation =
+    FunctionInvocation(expression, FunctionName(ElementId.name)(pos))
 
   def not(expression: Expression): Not = Not(expression)(pos)
 
