@@ -46,6 +46,16 @@ sealed trait SemanticCheck {
 
   def map(f: SemanticCheckResult => SemanticCheckResult): SemanticCheck = SemanticCheck.Map(this, f)
   def flatMap(f: SemanticCheckResult => SemanticCheck): SemanticCheck = SemanticCheck.FlatMap(this, f)
+
+  def annotate(annotation: => String): SemanticCheck = {
+    if (SemanticCheck.DEBUG_ENABLED)
+      SemanticCheck.Annotated(this, annotation)
+    else
+      this
+  }
+
+  def :|(annotation: => String): SemanticCheck = annotate(annotation)
+  def |:(annotation: => String): SemanticCheck = annotate(annotation)
 }
 
 object SemanticCheck {
@@ -68,6 +78,8 @@ object SemanticCheck {
       SemanticCheck.success
   }
 
+  private[semantics] val DEBUG_ENABLED = false
+
   final private[semantics] case class Leaf(f: SemanticState => SemanticCheckResult) extends SemanticCheck
 
   final private[semantics] case class Map(check: SemanticCheck, f: SemanticCheckResult => SemanticCheckResult)
@@ -75,6 +87,7 @@ object SemanticCheck {
 
   final private[semantics] case class FlatMap(check: SemanticCheck, f: SemanticCheckResult => SemanticCheck)
       extends SemanticCheck
+  final private[semantics] case class Annotated(check: SemanticCheck, annotation: String) extends SemanticCheck
 }
 
 final case class SemanticCheckResult(state: SemanticState, errors: Seq[SemanticErrorDef])
