@@ -17,17 +17,19 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
+import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.NotImplementedErrorMessageProvider
 
 sealed trait SemanticCheck {
 
   @deprecated(message = "Use `run` instead", since = "5.0")
   def apply(state: SemanticState): SemanticCheckResult = {
-    run(state)
+    run(state, SemanticCheckContext.default)
   }
 
-  def run(state: SemanticState): SemanticCheckResult = {
-    SemanticCheckInterpreter.runCheck(this, state)
+  def run(state: SemanticState, context: SemanticCheckContext): SemanticCheckResult = {
+    SemanticCheckInterpreter.runCheck(this, state, context)
   }
 
   def chain(next: SemanticCheck): SemanticCheck = {
@@ -68,6 +70,11 @@ object SemanticCheck {
 
   def fromFunction(f: SemanticState => SemanticCheckResult): SemanticCheck = Leaf(f)
   def fromState(f: SemanticState => SemanticCheck): SemanticCheck = success.flatMap(res => f(res.state))
+  def fromContext(f: SemanticCheckContext => SemanticCheck): SemanticCheck = CheckFromContext(f)
+
+  def fromFunctionWithContext(f: (SemanticState, SemanticCheckContext) => SemanticCheckResult): SemanticCheck = {
+    fromContext(context => fromFunction(state => f(state, context)))
+  }
 
   def nestedCheck(check: => SemanticCheck): SemanticCheck = success.flatMap(_ => check)
 
@@ -87,6 +94,7 @@ object SemanticCheck {
 
   final private[semantics] case class FlatMap(check: SemanticCheck, f: SemanticCheckResult => SemanticCheck)
       extends SemanticCheck
+  final private[semantics] case class CheckFromContext(f: SemanticCheckContext => SemanticCheck) extends SemanticCheck
   final private[semantics] case class Annotated(check: SemanticCheck, annotation: String) extends SemanticCheck
 }
 
@@ -103,6 +111,17 @@ object SemanticCheckResult {
 
   def error(state: SemanticState, error: Option[SemanticErrorDef]): SemanticCheckResult =
     SemanticCheckResult(state, error.toVector)
+}
+
+trait SemanticCheckContext {
+  def errorMessageProvider: ErrorMessageProvider
+}
+
+object SemanticCheckContext {
+
+  object default extends SemanticCheckContext {
+    override def errorMessageProvider: ErrorMessageProvider = NotImplementedErrorMessageProvider
+  }
 }
 
 class OptionSemanticChecking[A](val option: Option[A]) extends AnyVal {

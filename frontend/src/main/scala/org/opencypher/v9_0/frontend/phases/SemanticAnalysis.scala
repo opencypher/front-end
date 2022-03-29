@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
+import org.opencypher.v9_0.ast.semantics.SemanticCheckContext
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticChecker
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
@@ -27,6 +28,7 @@ import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.conditions.StateContainsSemanticTable
 import org.opencypher.v9_0.rewriting.conditions.containsNoNodesOfType
 import org.opencypher.v9_0.rewriting.rewriters.recordScopes
+import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.StepSequencer
 
 case object TokensResolved extends StepSequencer.Condition
@@ -39,9 +41,12 @@ case class SemanticAnalysis(warn: Boolean, features: SemanticFeature*)
 
   override def process(from: BaseState, context: BaseContext): BaseState = {
     val startState =
-      SemanticState.clean.withFeatures(features: _*).withErrorMessageProvider(context.errorMessageProvider)
+      SemanticState.clean.withFeatures(features: _*)
+    val checkContext = new SemanticCheckContext {
+      override def errorMessageProvider: ErrorMessageProvider = context.errorMessageProvider
+    }
 
-    val SemanticCheckResult(state, errors) = SemanticChecker.check(from.statement(), startState)
+    val SemanticCheckResult(state, errors) = SemanticChecker.check(from.statement(), startState, checkContext)
     if (warn) state.notifications.foreach(context.notificationLogger.log)
 
     context.errorHandler(errors)

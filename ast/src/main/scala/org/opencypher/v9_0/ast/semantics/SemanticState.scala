@@ -22,9 +22,7 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.ErrorMessageProvider
 import org.opencypher.v9_0.util.InternalNotification
-import org.opencypher.v9_0.util.NotImplementedErrorMessageProvider
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.helpers.TreeElem
 import org.opencypher.v9_0.util.helpers.TreeZipper
@@ -213,8 +211,7 @@ object SemanticState {
   val clean: SemanticState = SemanticState(
     Scope.empty.location,
     ASTAnnotationMap.empty,
-    ASTAnnotationMap.empty,
-    NotImplementedErrorMessageProvider
+    ASTAnnotationMap.empty
   )
 
   implicit class ScopeLocation(val location: ScopeZipper.Location) extends AnyVal {
@@ -258,15 +255,12 @@ object SemanticState {
     (s: SemanticState) => SemanticCheckResult.success(s.recordCurrentScope(node))
 }
 
-case class SemanticState(
-  currentScope: ScopeLocation,
-  typeTable: ASTAnnotationMap[Expression, ExpressionTypeInfo],
-  recordedScopes: ASTAnnotationMap[ASTNode, ScopeLocation],
-  errorMessageProvider: ErrorMessageProvider,
-  notifications: Set[InternalNotification] = Set.empty,
-  features: Set[SemanticFeature] = Set.empty,
-  declareVariablesToSuppressDuplicateErrors: Boolean = true
-) {
+case class SemanticState(currentScope: ScopeLocation,
+                         typeTable: ASTAnnotationMap[Expression, ExpressionTypeInfo],
+                         recordedScopes: ASTAnnotationMap[ASTNode, ScopeLocation],
+                         notifications: Set[InternalNotification] = Set.empty,
+                         features: Set[SemanticFeature] = Set.empty,
+                         declareVariablesToSuppressDuplicateErrors: Boolean = true) {
 
   def scopeTree: Scope = currentScope.rootScope
 
@@ -373,7 +367,4 @@ case class SemanticState(
     recordedScopes.get(astNode).map(_.scope)
 
   def withFeature(feature: SemanticFeature): SemanticState = copy(features = features + feature)
-
-  def withErrorMessageProvider(errorMessageProvider: ErrorMessageProvider): SemanticState =
-    copy(errorMessageProvider = errorMessageProvider)
 }
