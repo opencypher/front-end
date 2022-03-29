@@ -428,7 +428,7 @@ sealed trait Union extends QueryPart with SemanticAnalysisTooling {
 
   def semanticCheck: SemanticCheck =
     semanticCheckAbstract(
-      part => part.semanticCheck,
+      part => SemanticCheck.nestedCheck(part.semanticCheck),
       query => query.semanticCheck
     )
 
