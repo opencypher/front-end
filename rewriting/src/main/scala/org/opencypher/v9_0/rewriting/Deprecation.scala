@@ -20,12 +20,16 @@ import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
+import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.symbols.CTAny
@@ -53,6 +57,19 @@ object Deprecations {
         Deprecation(
           Some(Ref(f) -> renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f)),
           None
+        )
+
+      // legacy type separator -[:A|:B]->
+      case rel @ RelationshipPattern(variable, Some(labelExpression), None, None, None, _)
+        // this restriction is necessary because in all other cases, this is an error
+        if variable.forall(variable => !AnonymousVariableNameGenerator.isNamed(variable.name)) &&
+          !labelExpression.containsGpmSpecificRelTypeExpression &&
+          labelExpression.folder.findAllByClass[ColonDisjunction].nonEmpty =>
+        Deprecation(
+          Some(Ref(rel) -> rel.copy(labelExpression = Some(labelExpression.replaceColonSyntax))(rel.position)),
+          Some(DeprecatedRelTypeSeparatorNotification(
+            labelExpression.folder.findAllByClass[ColonDisjunction].head.position
+          ))
         )
     }
 

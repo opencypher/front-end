@@ -17,10 +17,12 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
 import org.opencypher.v9_0.expressions.LabelExpression.Disjunction
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.topDown
 
 /**
  * @param entity expression to evaluate to the entity we want to check
@@ -48,6 +50,12 @@ sealed trait LabelExpression extends ASTNode {
     case _: Leaf => false
     case _       => true
   }
+
+  def replaceColonSyntax: LabelExpression = this.endoRewrite(topDown({
+    case disj @ ColonDisjunction(lhs, rhs) => Disjunction(lhs, rhs)(disj.position)
+    case conj @ ColonConjunction(lhs, rhs) => Conjunction(lhs, rhs)(conj.position)
+    case expr                              => expr
+  }))
 
   def flatten: Seq[LabelExpressionLeafName]
 }
