@@ -26,7 +26,6 @@ import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
-import org.opencypher.v9_0.util.DeprecatedPropertyExistenceSyntax
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.RecordingNotificationLogger
@@ -92,18 +91,6 @@ class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
     check("RETURN NOT ()--()") should equal(Set.empty)
     check("RETURN ()--() AND ()--()--()") should equal(Set.empty)
     check("RETURN ()--() OR ()--()--()") should equal(Set.empty)
-  }
-
-  test("should warn about exists() in both union branches") {
-    val q = """MATCH (n:Label) WHERE exists(n.prop) RETURN n
-              |UNION
-              |MATCH (n:OtherLabel) WHERE exists(n.prop) RETURN n
-              |""".stripMargin
-
-    check(q) shouldBe Set(
-      DeprecatedPropertyExistenceSyntax(InputPosition(22, 1, 23)),
-      DeprecatedPropertyExistenceSyntax(InputPosition(79, 3, 28))
-    )
   }
 
   private val plannerName = new PlannerName {
