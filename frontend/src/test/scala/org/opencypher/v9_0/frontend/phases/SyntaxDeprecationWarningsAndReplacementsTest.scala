@@ -25,7 +25,6 @@ import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariable
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
-import org.opencypher.v9_0.util.DeprecatedPatternExpressionOutsideExistsSyntax
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.RecordingNotificationLogger
@@ -71,16 +70,6 @@ class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
 
   test("should not warn about correct hexadecimal syntax  (negative literal)") {
     check("RETURN -0x1277") should equal(Set.empty)
-  }
-
-  test("should warn about pattern expression in RETURN clause") {
-    check("RETURN ()--()") should equal(Set(
-      DeprecatedPatternExpressionOutsideExistsSyntax(InputPosition(7, 1, 8))
-    ))
-  }
-
-  test("should not warn about pattern expression in exists function") {
-    check("WITH 1 AS foo WHERE exists(()--()) RETURN *") should equal(Set.empty)
   }
 
   test("should not warn about coercion with a pattern expression in WHERE clause") {

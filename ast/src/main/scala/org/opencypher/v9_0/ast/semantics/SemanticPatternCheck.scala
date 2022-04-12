@@ -93,7 +93,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         }
     }
 
-  def checkRelationshipPatternPredicates(ctx: SemanticContext, pattern: RelationshipPattern): SemanticCheck =
+  private def checkRelationshipPatternPredicates(ctx: SemanticContext, pattern: RelationshipPattern): SemanticCheck =
     pattern.predicate.foldSemanticCheck { predicate =>
       whenState(state => !state.features.contains(SemanticFeature.RelationshipPatternPredicates)) {
         error("WHERE is not allowed inside a relationship pattern", predicate.position)
@@ -106,14 +106,13 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
       }
     }
 
-  def ensureNoSelfReferenceToVariableInPattern(ctx: SemanticContext, pattern: Pattern): SemanticCheck = { state =>
+  private def ensureNoSelfReferenceToVariableInPattern(ctx: SemanticContext, pattern: Pattern): SemanticCheck = { state =>
     ctx match {
-      case Create => {
+      case Create =>
         val errors = getSelfReferenceVariableInPattern(pattern, state)
           .map(variable => SemanticError(state.errorMessageProvider.createSelfReferenceError(variable.name, state.symbolTypes(variable.name).toShortString), variable.position)).toSeq
 
         SemanticCheckResult(state, errors)
-      }
       case _ => SemanticCheckResult.success(state)
     }
   }
@@ -236,11 +235,10 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
             x.element match {
               case RelationshipChain(_, rel, _) =>
                 rel.variable.flatMap(id => state.symbol(id.name)) match {
-                  case Some(symbol) if symbol.references.size > 1 => {
+                  case Some(symbol) if symbol.references.size > 1 =>
                     SemanticCheckResult.error(state, SemanticError(s"Bound relationships not allowed in ${
                       x.name
                     }(...)", rel.position))
-                  }
                   case _ =>
                     SemanticCheckResult.success(state)
                 }
@@ -257,7 +255,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
           check(ctx, x.element)
     }
 
-  def check(ctx: SemanticContext, element: PatternElement): SemanticCheck =
+  private def check(ctx: SemanticContext, element: PatternElement): SemanticCheck =
     element match {
       case x: RelationshipChain =>
         check(ctx, x.element) chain
@@ -273,7 +271,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
           checkLabelExpressions(ctx, x.labelExpression, x.position)
     }
 
-  def check(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck = {
+  private def check(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck = {
     def checkNotUndirectedWhenCreating: SemanticCheck = {
       ctx match {
         case SemanticContext.Create if x.direction == SemanticDirection.BOTH =>
@@ -319,7 +317,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
 
   def variableIsGenerated(variable: LogicalVariable): Boolean = !AnonymousVariableNameGenerator.isNamed(variable.name)
 
-  def declareVariables(ctx: SemanticContext, element: PatternElement): SemanticCheck =
+  private def declareVariables(ctx: SemanticContext, element: PatternElement): SemanticCheck =
     element match {
       case x: RelationshipChain =>
         declareVariables(ctx, x.element) chain
@@ -339,7 +337,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         }
     }
 
-  def declareVariables(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck =
+  private def declareVariables(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck =
     x.variable.foldSemanticCheck {
       variable =>
         val possibleType = if (x.length.isEmpty) CTRelationship else CTList(CTRelationship)
@@ -373,15 +371,13 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
     }
   }
 
-  def checkNodeProperties(ctx: SemanticContext, properties: Option[Expression]): SemanticCheck =
+  private def checkNodeProperties(ctx: SemanticContext, properties: Option[Expression]): SemanticCheck =
     checkNoParamMapsWhenMatching(properties, ctx) chain
       checkValidPropertyKeyNamesInPattern(properties) chain
       SemanticExpressionCheck.simple(properties) chain
       expectType(CTMap.covariant, properties)
 
-
-
-  def checkLabelExpressions(ctx: SemanticContext, labelExpression: Option[LabelExpression], inputPosition: InputPosition): SemanticCheck =
+  private def checkLabelExpressions(ctx: SemanticContext, labelExpression: Option[LabelExpression], inputPosition: InputPosition): SemanticCheck =
   labelExpression.foldSemanticCheck { labelExpression =>
     when (ctx != SemanticContext.Match && !labelExpression.isNonGpm) {
       error(s"Label expressions are not allowed in ${ctx.name}, but only in MATCH clause", labelExpression.position)
@@ -408,7 +404,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
     if (errorMessage.nonEmpty) SemanticError(errorMessage.get, pos) else None
   }
 
-  def checkValidRelTypes(relTypeNames: Seq[RelTypeName], pos: InputPosition): SemanticCheck = {
+  private def checkValidRelTypes(relTypeNames: Seq[RelTypeName], pos: InputPosition): SemanticCheck = {
     val errorMessage = relTypeNames.collectFirst { case relType if checkValidTokenName(relType.name).nonEmpty =>
       checkValidTokenName(relType.name).get
     }
