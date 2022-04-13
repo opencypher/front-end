@@ -34,13 +34,10 @@ import org.opencypher.v9_0.ast.ConstraintVersion
 import org.opencypher.v9_0.ast.ConstraintVersion0
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
-import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
-import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
-import org.opencypher.v9_0.ast.CreateIndexOldSyntax
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -252,14 +249,6 @@ case class Prettifier(
 
     val useString = asString(command.useGraph)
     val commandString = command match {
-
-      case CreateBtreeNodeIndex(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, _) =>
-        val startOfCommand = getStartOfCommand(name, ifExistsDo, "BTREE INDEX")
-        s"${startOfCommand}FOR (${backtick(variable)}:${backtick(label)}) ON ${propertiesToString(properties)}${asString(options)}"
-
-      case CreateBtreeRelationshipIndex(Variable(variable), RelTypeName(relType), properties, name, ifExistsDo, options, _) =>
-        val startOfCommand = getStartOfCommand(name, ifExistsDo, "BTREE INDEX")
-        s"${startOfCommand}FOR ()-[${backtick(variable)}:${backtick(relType)}]-() ON ${propertiesToString(properties)}${asString(options)}"
 
       case CreateRangeNodeIndex(Variable(variable), LabelName(label), properties, name, ifExistsDo, options, fromDefault, _) =>
         val schemaType = if (fromDefault) "INDEX" else "RANGE INDEX"

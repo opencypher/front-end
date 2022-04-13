@@ -16,13 +16,10 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.Options
-import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
-import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PatternExpression
@@ -30,9 +27,7 @@ import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
-import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.DeprecatedBtreeIndexSyntax
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
@@ -84,76 +79,8 @@ object Deprecations {
           None,
           Some(DeprecatedVarLengthBindingNotification(p.position, variable.name))
         )
-
-        // CREATE BTREE INDEX ...
-      case i: ast.CreateBtreeNodeIndex =>
-        Deprecation(
-          None,
-          Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
-
-        // CREATE BTREE INDEX ...
-      case i: ast.CreateBtreeRelationshipIndex =>
-        Deprecation(
-          None,
-          Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
-
-      // CREATE INDEX ... OPTIONS {<btree options>}
-      case i: ast.CreateRangeNodeIndex if i.fromDefault && hasBtreeOptions(i.options) =>
-        Deprecation(
-          None,
-          Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
-
-      // CREATE INDEX ... OPTIONS {<btree options>}
-      case i: ast.CreateRangeRelationshipIndex if i.fromDefault && hasBtreeOptions(i.options) =>
-        Deprecation(
-          None,
-          Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
-
-      // CREATE CONSTRAINT ... OPTIONS {<btree options>}
-      case c: ast.CreateNodeKeyConstraint if hasBtreeOptions(c.options) =>
-        Deprecation(
-          None,
-          Some(DeprecatedBtreeIndexSyntax(c.position))
-        )
-
-      // CREATE CONSTRAINT ... OPTIONS {<btree options>}
-      case c: ast.CreateUniquePropertyConstraint if hasBtreeOptions(c.options) =>
-        Deprecation(
-          None,
-          Some(DeprecatedBtreeIndexSyntax(c.position))
-        )
-
-      case i: ast.ShowIndexesClause if i.indexType == ast.BtreeIndexes =>
-        Deprecation(
-          None,
-          Some(DeprecatedBtreeIndexSyntax(i.position))
-        )
     }
 
-    private def hasBtreeOptions(options: Options): Boolean = options match {
-      case OptionsMap(opt) => opt.exists {
-        case (key, value: StringLiteral) if key.equalsIgnoreCase("indexProvider") =>
-          // Can't reach the GenericNativeIndexProvider and NativeLuceneFusionIndexProviderFactory30
-          // so have to hardcode the btree providers instead
-          value.value.equalsIgnoreCase("native-btree-1.0") || value.value.equalsIgnoreCase("lucene+native-3.0")
-
-        case (key, value: MapExpression) if key.equalsIgnoreCase("indexConfig") =>
-          // Can't reach the settings so have to hardcode them instead, only checks start of setting names
-          //  spatial.cartesian.{min | max}
-          //  spatial.cartesian-3d.{min | max}
-          //  spatial.wgs-84.{min | max}
-          //  spatial.wgs-84-3d.{min | max}
-          val settings = value.items.map(_._1.name)
-          settings.exists(name => name.toLowerCase.startsWith("spatial.cartesian") || name.toLowerCase.startsWith("spatial.wgs-84"))
-
-        case _ => false
-      }
-      case _ => false
-    }
   }
 
   case object semanticallyDeprecatedFeaturesIn4_X extends SemanticDeprecations {

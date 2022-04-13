@@ -36,7 +36,6 @@ import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelTypeName
-import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.symbols.CTMap
 
@@ -79,12 +78,13 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")), None, ast.IfExistsInvalidSyntax, NoOptions, containsOn, constraintVersion))
           }
 
-          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY OPTIONS {indexProvider : 'native-btree-1.0'}") {
+          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY OPTIONS {indexProvider : 'range-1.0'}") {
             yields(ast.CreateNodeKeyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")),
-              None, ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"))), containsOn, constraintVersion))
+              None, ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("range-1.0"))), containsOn, constraintVersion))
           }
 
           test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY OPTIONS {indexProvider : 'native-btree-1.0', indexConfig : {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}") {
+            // will fail in options converter
             yields(ast.CreateNodeKeyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), None, ast.IfExistsThrowError,
               OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
@@ -95,12 +95,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
             ))
           }
 
-          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY OPTIONS {indexConfig : {`spatial.wgs-84.max`: [60.0,60.0], `spatial.wgs-84.min`: [-40.0,-40.0] }}") {
+          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY OPTIONS {indexConfig : {someConfig: 'toShowItCanBeParsed' }}") {
             yields(ast.CreateNodeKeyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), None, ast.IfExistsThrowError,
-              OptionsMap(Map("indexConfig" -> mapOf(
-                "spatial.wgs-84.max" -> listOf(literalFloat(60.0), literalFloat(60.0)),
-                "spatial.wgs-84.min" -> listOf(literalFloat(-40.0), literalFloat(-40.0))
-              ))), containsOn, constraintVersion
+              OptionsMap(Map("indexConfig" -> mapOf("someConfig" -> literalString("toShowItCanBeParsed")))), containsOn, constraintVersion
             ))
           }
 
@@ -149,6 +146,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
           }
 
           test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE OPTIONS {indexConfig : {`spatial.wgs-84.max`: [60.0,60.0], `spatial.wgs-84.min`: [-40.0,-40.0]}, indexProvider : 'native-btree-1.0'}") {
+            // will fail in options converter
             yields(ast.CreateUniquePropertyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), None, ast.IfExistsThrowError,
               OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
@@ -242,6 +240,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
           }
 
           test(s"CREATE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY OPTIONS {indexProvider : 'native-btree-1.0', indexConfig : {`spatial.wgs-84.max`: [60.0,60.0], `spatial.wgs-84.min`: [-40.0,-40.0]}}") {
+            // will fail in options converter
             yields(ast.CreateNodeKeyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), Some("my_constraint"), ast.IfExistsThrowError,
               OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
@@ -279,12 +278,13 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")), Some("my_constraint"), ast.IfExistsDoNothing, NoOptions, containsOn, constraintVersion))
           }
 
-          test(s"CREATE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE OPTIONS {indexProvider : 'native-btree-1.0'}") {
+          test(s"CREATE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE OPTIONS {indexProvider : 'range-1.0'}") {
             yields(ast.CreateUniquePropertyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")),
-              Some("my_constraint"), ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"))), containsOn, constraintVersion))
+              Some("my_constraint"), ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("range-1.0"))), containsOn, constraintVersion))
           }
 
           test(s"CREATE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE OPTIONS {indexProvider : 'native-btree-1.0', indexConfig : {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}") {
+            // will fail in options converter
             yields(ast.CreateUniquePropertyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), Some("my_constraint"), ast.IfExistsThrowError,
               OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
@@ -295,12 +295,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
             ))
           }
 
-          test(s"CREATE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE OPTIONS {indexConfig : {`spatial.wgs-84.max`: [60.0,60.0], `spatial.wgs-84.min`: [-40.0,-40.0] }}") {
+          test(s"CREATE CONSTRAINT my_constraint $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE OPTIONS {indexConfig : {someConfig: 'toShowItCanBeParsed' }}") {
             yields(ast.CreateUniquePropertyConstraint(varFor("node"), labelName("Label"), Seq(prop("node", "prop")), Some("my_constraint"), ast.IfExistsThrowError,
-              OptionsMap(Map("indexConfig" -> mapOf(
-                "spatial.wgs-84.max" -> listOf(literalFloat(60.0), literalFloat(60.0)),
-                "spatial.wgs-84.min" -> listOf(literalFloat(-40.0), literalFloat(-40.0))
-              ))), containsOn, constraintVersion
+              OptionsMap(Map("indexConfig" -> mapOf("someConfig" -> literalString("toShowItCanBeParsed")))), containsOn, constraintVersion
             ))
           }
 
@@ -364,7 +361,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
 
           // Negative tests
 
-          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY {indexProvider : 'native-btree-1.0'}") {
+          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS NODE KEY {indexProvider : 'range-1.0'}") {
             failsToParse
           }
 
@@ -380,7 +377,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
             failsToParse
           }
 
-          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE {indexProvider : 'native-btree-1.0'}") {
+          test(s"CREATE CONSTRAINT $forOrOnString (node:Label) $requireOrAssertString (node.prop) IS UNIQUE {indexProvider : 'range-1.0'}") {
             failsToParse
           }
 
@@ -499,9 +496,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
 
   // Edge case tests
 
-  test("CREATE CONSTRAINT my_constraint FOR (n:Person) REQUIRE n.prop IS NOT NULL OPTIONS {indexProvider : 'native-btree-1.0'};") {
+  test("CREATE CONSTRAINT my_constraint FOR (n:Person) REQUIRE n.prop IS NOT NULL OPTIONS {indexProvider : 'range-1.0'};") {
     yields(ast.CreateNodePropertyExistenceConstraint(varFor("n"), labelName("Person"), prop("n", "prop"), Some("my_constraint"),
-      ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"))),
+      ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("range-1.0"))),
       containsOn = false, constraintVersion = ConstraintVersion2)
     )
   }

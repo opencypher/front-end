@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.IfExistsDo
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
@@ -28,7 +27,6 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.functions.Count
 import org.opencypher.v9_0.expressions.functions.Labels
 import org.opencypher.v9_0.expressions.functions.Type
-import org.opencypher.v9_0.util
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTMap
 
@@ -63,7 +61,7 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
     yields(rangeNodeIndex(List(prop("n2", "name")), None, posN2(testName), ast.IfExistsThrowError, NoOptions, fromDefault = true))
   }
 
-  // default type loop (parses as range, planned as btree)
+  // default type loop
   Seq(
     ("(n1:Person)", rangeNodeIndex: CreateRangeIndexFunction),
     ("()-[n1:R]-()", rangeRelIndex: CreateRangeIndexFunction),
@@ -123,12 +121,13 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
         yields(createIndex(List(prop("n2", "name")), Some("my_index"), posN2(testName), ast.IfExistsDoNothing, NoOptions, true))
       }
 
-      test(s"CREATE INDEX FOR $pattern ON (n2.name) OPTIONS {indexProvider : 'native-btree-1.0'}") {
+      test(s"CREATE INDEX FOR $pattern ON (n2.name) OPTIONS {indexProvider : 'range-1.0'}") {
         yields(createIndex(List(prop("n2", "name")),
-          None, posN2(testName), ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"))), true))
+          None, posN2(testName), ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("range-1.0"))), true))
       }
 
       test(s"CREATE INDEX FOR $pattern ON (n2.name) OPTIONS {indexProvider : 'native-btree-1.0', indexConfig : {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }}") {
+        // will fail in options converter
         yields(createIndex(List(prop("n2", "name")), None, posN2(testName), ast.IfExistsThrowError,
           OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"),
             "indexConfig"   -> mapOf(
@@ -140,6 +139,7 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
       }
 
       test(s"CREATE INDEX FOR $pattern ON (n2.name) OPTIONS {indexConfig : {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0] }, indexProvider : 'native-btree-1.0'}") {
+        // will fail in options converter
         yields(createIndex(List(prop("n2", "name")), None, posN2(testName), ast.IfExistsThrowError,
           OptionsMap(Map("indexProvider" -> literalString("native-btree-1.0"),
             "indexConfig"   -> mapOf(
@@ -150,12 +150,9 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
         ))
       }
 
-      test(s"CREATE INDEX FOR $pattern ON (n2.name) OPTIONS {indexConfig : {`spatial.wgs-84.max`: [60.0,60.0], `spatial.wgs-84.min`: [-40.0,-40.0] }}") {
+      test(s"CREATE INDEX FOR $pattern ON (n2.name) OPTIONS {indexConfig : {someConfig: 'toShowItCanBeParsed' }}") {
         yields(createIndex(List(prop("n2", "name")), None, posN2(testName), ast.IfExistsThrowError,
-          OptionsMap(Map("indexConfig" -> mapOf(
-            "spatial.wgs-84.max" -> listOf(literalFloat(60.0), literalFloat(60.0)),
-            "spatial.wgs-84.min" -> listOf(literalFloat(-40.0), literalFloat(-40.0))
-          ))), true
+          OptionsMap(Map("indexConfig" -> mapOf("someConfig" -> literalString("toShowItCanBeParsed")))), true
         ))
       }
 
@@ -190,7 +187,7 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
           ast.IfExistsInvalidSyntax, NoOptions, true)(defaultPos))
       }
 
-      test(s"CREATE INDEX FOR $pattern ON (n.name) {indexProvider : 'native-btree-1.0'}") {
+      test(s"CREATE INDEX FOR $pattern ON (n.name) {indexProvider : 'range-1.0'}") {
         failsToParse
       }
 
@@ -260,20 +257,20 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
           None, posN2(testName), ast.IfExistsThrowError, OptionsMap(Map("indexProvider" -> literalString("range-1.0"))), false))
       }
 
-      test(s"CREATE RANGE INDEX FOR $pattern ON (n2.name) OPTIONS {indexProvider : 'range-1.0', indexConfig : {someConfig: 'toShowItCanBePrettified'}}") {
+      test(s"CREATE RANGE INDEX FOR $pattern ON (n2.name) OPTIONS {indexProvider : 'range-1.0', indexConfig : {someConfig: 'toShowItCanBeParsed'}}") {
         yields(createIndex(List(prop("n2", "name")), None, posN2(testName), ast.IfExistsThrowError,
           OptionsMap(Map(
             "indexProvider" -> literalString("range-1.0"),
-            "indexConfig"   -> mapOf("someConfig" -> literalString("toShowItCanBePrettified"))
+            "indexConfig"   -> mapOf("someConfig" -> literalString("toShowItCanBeParsed"))
           )), false
         ))
       }
 
-      test(s"CREATE RANGE INDEX FOR $pattern ON (n2.name) OPTIONS {indexConfig : {someConfig: 'toShowItCanBePrettified'}, indexProvider : 'range-1.0'}") {
+      test(s"CREATE RANGE INDEX FOR $pattern ON (n2.name) OPTIONS {indexConfig : {someConfig: 'toShowItCanBeParsed'}, indexProvider : 'range-1.0'}") {
         yields(createIndex(List(prop("n2", "name")), None, posN2(testName), ast.IfExistsThrowError,
           OptionsMap(Map(
             "indexProvider" -> literalString("range-1.0"),
-            "indexConfig"   -> mapOf("someConfig" -> literalString("toShowItCanBePrettified"))
+            "indexConfig"   -> mapOf("someConfig" -> literalString("toShowItCanBeParsed"))
           )), false
         ))
       }
@@ -324,7 +321,7 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
       }
   }
 
-  // btree loop
+  // btree loop (will fail in semantic checking)
   Seq(
     ("(n1:Person)", btreeNodeIndex: CreateIndexFunction),
     ("()-[n1:R]-()", btreeRelIndex: CreateIndexFunction),
@@ -518,7 +515,7 @@ class IndexCommandsParserTest extends AdministrationAndSchemaCommandParserTestBa
         failsToParse
       }
 
-      test(s"CREATE LOOKUP INDEX FOR $pattern ON EACH $function {indexProvider : 'native-btree-1.0'}") {
+      test(s"CREATE LOOKUP INDEX FOR $pattern ON EACH $function {indexProvider : 'range-1.0'}") {
         failsToParse
       }
 
