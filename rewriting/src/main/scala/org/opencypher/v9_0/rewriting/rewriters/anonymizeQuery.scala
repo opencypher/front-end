@@ -18,6 +18,7 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LabelName
+import org.opencypher.v9_0.expressions.LabelOrRelTypeName
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelTypeName
@@ -40,6 +41,7 @@ trait Anonymizer {
   def unaliasedReturnItemName(anonymizedExpression: Expression, input: String): String
   def label(name: String): String
   def relationshipType(name: String): String
+  def labelOrRelationshipType(name: String): String
   def propertyKey(name: String): String
   def parameter(name: String): String
   def literal(value: String): String
@@ -54,6 +56,7 @@ case class anonymizeQuery(anonymizer: Anonymizer) extends Rewriter {
     case x: UnaliasedReturnItem => UnaliasedReturnItem(x.expression, anonymizer.unaliasedReturnItemName(x.expression, x.inputText))(x.position)
     case x: LabelName => LabelName(anonymizer.label(x.name))(x.position)
     case x: RelTypeName => RelTypeName(anonymizer.relationshipType(x.name))(x.position)
+    case x: LabelOrRelTypeName => LabelOrRelTypeName(anonymizer.labelOrRelationshipType(x.name))(x.position)
     case x: PropertyKeyName => PropertyKeyName(anonymizer.propertyKey(x.name))(x.position)
     case x: Parameter => Parameter(anonymizer.parameter(x.name), x.parameterType)(x.position)
     case x: StringLiteral => StringLiteral(anonymizer.literal(x.value))(x.position)
