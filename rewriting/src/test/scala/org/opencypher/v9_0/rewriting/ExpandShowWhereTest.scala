@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.ReadAdministrationCommand
-import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.ReturnItems
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.Statement

@@ -21,7 +21,6 @@ import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FilterScope
 import org.opencypher.v9_0.expressions.In
-import org.opencypher.v9_0.expressions.IterablePredicateExpression
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.NoneIterablePredicate
 import org.opencypher.v9_0.expressions.Not
@@ -37,7 +36,7 @@ import org.opencypher.v9_0.util.symbols.CypherType
 case object IterablePredicatesRewrittenToIn extends StepSequencer.Condition
 
 /**
- * Rewrites [[IterablePredicateExpression]]s to IN expressions when possible.
+ * Rewrites [[org.opencypher.v9_0.expressions.IterablePredicateExpression]]s to IN expressions when possible.
  *
  * For example:
  * any(x IN list WHERE x = 1) ==> 1 IN x

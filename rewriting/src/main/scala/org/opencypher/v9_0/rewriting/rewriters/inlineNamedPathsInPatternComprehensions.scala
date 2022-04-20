@@ -32,6 +32,8 @@ import org.opencypher.v9_0.util.StepSequencer.Step
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols.CypherType
 
+import scala.language.reflectiveCalls
+
 case object NoNamedPathsInPatternComprehensions extends StepSequencer.Condition
 
 case object inlineNamedPathsInPatternComprehensions extends Rewriter with Step with ASTRewriterFactory {
@@ -56,7 +58,7 @@ case object inlineNamedPathsInPatternComprehensions extends Rewriter with Step w
   })
 
   private implicit final class InliningExpression(val expr: Expression) extends AnyVal {
-    def inline(path: LogicalVariable, patternElement: PatternElement) =
+    def inline(path: LogicalVariable, patternElement: PatternElement): Expression =
       expr.copyAndReplace(path) by {
         PathExpression(projectNamedPaths.patternPartPathExpression(patternElement))(expr.position)
       }

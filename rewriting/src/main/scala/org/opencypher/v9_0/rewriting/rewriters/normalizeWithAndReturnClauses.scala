@@ -19,6 +19,7 @@ import org.opencypher.v9_0.ast.AliasedReturnItem
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.OrderBy
+import org.opencypher.v9_0.ast.ProjectingUnion
 import org.opencypher.v9_0.ast.ProjectionClause
 import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.QueryPart
@@ -112,6 +113,7 @@ case class normalizeWithAndReturnClauses(cypherExceptionFactory: CypherException
     case sq:SingleQuery => rewriteTopLevelSingleQuery(sq)
     case union@UnionAll(part, query) => union.copy(part = rewriteTopLevelQueryPart(part), query = rewriteTopLevelSingleQuery(query))(union.position)
     case union@UnionDistinct(part, query) => union.copy(part = rewriteTopLevelQueryPart(part), query = rewriteTopLevelSingleQuery(query))(union.position)
+    case _: ProjectingUnion => throw new IllegalStateException("Didn't expect ProjectingUnion, only SingleQuery, UnionAll, or UnionDistinct.")
   }
 
   /**
