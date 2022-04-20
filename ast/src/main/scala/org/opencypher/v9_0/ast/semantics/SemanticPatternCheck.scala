@@ -35,6 +35,7 @@ import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.Pattern.SemanticContext
 import org.opencypher.v9_0.expressions.Pattern.SemanticContext.Create
 import org.opencypher.v9_0.expressions.Pattern.SemanticContext.Match
+import org.opencypher.v9_0.expressions.Pattern.SemanticContext.Merge
 import org.opencypher.v9_0.expressions.Pattern.SemanticContext.name
 import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternPart
@@ -494,14 +495,9 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
 object checkNoParamMapsWhenMatching {
 
   def apply(properties: Option[Expression], ctx: SemanticContext): SemanticCheck = (properties, ctx) match {
-    case (Some(e: Parameter), SemanticContext.Match) =>
+    case (Some(e: Parameter), ctx) if ctx == Match || ctx == Merge =>
       SemanticError(
-        "Parameter maps cannot be used in MATCH patterns (use a literal map instead, eg. \"{id: {param}.id}\")",
-        e.position
-      )
-    case (Some(e: Parameter), SemanticContext.Merge) =>
-      SemanticError(
-        "Parameter maps cannot be used in MERGE patterns (use a literal map instead, eg. \"{id: {param}.id}\")",
+        s"Parameter maps cannot be used in `${ctx.name}` patterns (use a literal map instead, e.g. `{id: $$${e.name}.id}`)",
         e.position
       )
     case _ =>
