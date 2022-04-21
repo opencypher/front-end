@@ -36,8 +36,12 @@ class ExpressionCanonicalStringValTest extends CypherFunSuite {
     GetDegree(varFor("x"), None, OUTGOING)(pos).asCanonicalStringVal should equal("size((x)-->())")
     GetDegree(varFor("x"), None, INCOMING)(pos).asCanonicalStringVal should equal("size((x)<--())")
     GetDegree(varFor("x"), None, BOTH)(pos).asCanonicalStringVal should equal("size((x)--())")
-    GetDegree(varFor("x"), Some(relTypeName("Rel")), OUTGOING)(pos).asCanonicalStringVal should equal("size((x)-[:Rel]->())")
-    GetDegree(varFor("x"), Some(relTypeName("Rel")), INCOMING)(pos).asCanonicalStringVal should equal("size((x)<-[:Rel]-())")
+    GetDegree(varFor("x"), Some(relTypeName("Rel")), OUTGOING)(pos).asCanonicalStringVal should equal(
+      "size((x)-[:Rel]->())"
+    )
+    GetDegree(varFor("x"), Some(relTypeName("Rel")), INCOMING)(pos).asCanonicalStringVal should equal(
+      "size((x)<-[:Rel]-())"
+    )
     GetDegree(varFor("x"), Some(relTypeName("Rel")), BOTH)(pos).asCanonicalStringVal should equal("size((x)-[:Rel]-())")
   }
 
@@ -141,6 +145,4 @@ class ExpressionCanonicalStringValTest extends CypherFunSuite {
       .asCanonicalStringVal should equal("getDegree((node)-[:Rel]->()) = 10")
   }
 
-
 }
-

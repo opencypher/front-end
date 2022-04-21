@@ -25,6 +25,7 @@ object Id {
  * Generates IDs
  */
 trait IdGen {
+
   /**
    * @return an ID
    */
@@ -53,6 +54,7 @@ case class SameId(id: Id) extends IdGen
  * An entity that is defined by its ID.
  */
 trait Identifiable {
+
   /**
    * @return the ID of the entity.
    */

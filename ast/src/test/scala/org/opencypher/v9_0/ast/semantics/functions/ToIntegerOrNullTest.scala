@@ -25,7 +25,7 @@ import org.opencypher.v9_0.util.symbols.CTNumber
 import org.opencypher.v9_0.util.symbols.CTPoint
 import org.opencypher.v9_0.util.symbols.CTString
 
-class ToIntegerOrNullTest extends FunctionTestBase("toIntegerOrNull")  {
+class ToIntegerOrNullTest extends FunctionTestBase("toIntegerOrNull") {
 
   test("shouldAcceptCorrectTypes") {
     testValidTypes(CTString)(CTInteger)

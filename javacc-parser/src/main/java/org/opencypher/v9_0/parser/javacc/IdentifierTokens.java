@@ -15,10 +15,6 @@
  */
 package org.opencypher.v9_0.parser.javacc;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ACCESS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ACTIVE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ADMIN;
@@ -196,12 +192,14 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.WRITE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.XOR;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.YIELD;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-public class IdentifierTokens
-{
-    private static final Set<Integer> identifiers = new HashSet<>( Arrays.asList(
+public class IdentifierTokens {
+    private static final Set<Integer> identifiers = new HashSet<>(Arrays.asList(
             ESCAPED_SYMBOLIC_NAME,
-            //keywords
+            // keywords
             ACCESS,
             ACTIVE,
             ADMIN,
@@ -376,11 +374,9 @@ public class IdentifierTokens
             WITH,
             WRITE,
             XOR,
-            YIELD
-    ) );
+            YIELD));
 
-    public static Set<Integer> getIdentifierTokens()
-    {
+    public static Set<Integer> getIdentifierTokens() {
         return identifiers;
     }
 }

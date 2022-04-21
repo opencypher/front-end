@@ -15,8 +15,7 @@
  */
 package org.opencypher.v9_0.ast.factory;
 
-public enum ScopeType
-{
+public enum ScopeType {
     ALL,
     DEFAULT,
     HOME,

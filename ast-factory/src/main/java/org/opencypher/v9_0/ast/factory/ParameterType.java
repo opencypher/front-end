@@ -15,8 +15,7 @@
  */
 package org.opencypher.v9_0.ast.factory;
 
-public enum ParameterType
-{
+public enum ParameterType {
     ANY,
     STRING,
     MAP

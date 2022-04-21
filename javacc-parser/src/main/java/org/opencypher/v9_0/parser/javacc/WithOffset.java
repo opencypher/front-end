@@ -15,8 +15,7 @@
  */
 package org.opencypher.v9_0.parser.javacc;
 
-public class WithOffset
-{
+public class WithOffset {
     public int beginOffset;
     public int endOffset;
 }

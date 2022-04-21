@@ -45,7 +45,7 @@ abstract class TreeZipper[E <: TreeElem[E] : ClassTag] {
 
     def isLeaf: Boolean = self match {
       case Location(Children(Nil), _) => true
-      case _ => false
+      case _                          => false
     }
 
     @tailrec
@@ -59,8 +59,8 @@ abstract class TreeZipper[E <: TreeElem[E] : ClassTag] {
 
     def isLeftMost: Boolean = context match {
       case TreeContext(Nil, _, _) => true
-      case Top => true
-      case _ => false
+      case Top                    => true
+      case _                      => false
     }
 
     def left: Option[Location] = context match {
@@ -95,8 +95,8 @@ abstract class TreeZipper[E <: TreeElem[E] : ClassTag] {
 
     def isRightMost: Boolean = context match {
       case TreeContext(_, _, Nil) => true
-      case Top => true
-      case _ => false
+      case Top                    => true
+      case _                      => false
     }
 
     def right: Option[Location] = context match {
@@ -145,7 +145,7 @@ abstract class TreeZipper[E <: TreeElem[E] : ClassTag] {
         self
 
       case Location(tree, TreeContext(_, parent, right)) =>
-       Location(tree, TreeContext(newLeft, parent, right))
+        Location(tree, TreeContext(newLeft, parent, right))
     }
 
     def insertLeft(newElem: E): Option[Location] = self match {

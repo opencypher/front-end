@@ -68,7 +68,7 @@ class TreeZipperTest extends CypherFunSuite {
   }
 
   test("Can get and change left list") {
-    val elem = root.location.down.right.right.get //child3
+    val elem = root.location.down.right.right.get // child3
     elem.leftList should equal(List(child2, child1))
 
     val elemWithNewLeft = elem.replaceLeftList(List(child4, child2))
@@ -77,7 +77,13 @@ class TreeZipperTest extends CypherFunSuite {
   }
 
   test("Correctly infers tree structure") {
-    def assertRole(location: TestElemZipper.Location, isRoot: Boolean, isLeftMost: Boolean, isRightMost: Boolean, isLeaf: Boolean): Unit = {
+    def assertRole(
+      location: TestElemZipper.Location,
+      isRoot: Boolean,
+      isLeftMost: Boolean,
+      isRightMost: Boolean,
+      isLeaf: Boolean
+    ): Unit = {
       location.isRoot should equal(isRoot)
       location.isLeftMost should equal(isLeftMost)
       location.isRightMost should equal(isRightMost)
@@ -203,7 +209,9 @@ class TreeZipperTest extends CypherFunSuite {
 }
 
 object Tapper {
+
   implicit class Tapped[V](value: V) {
+
     def tap(f: V => Unit): V = {
       f(value)
       value
@@ -211,6 +219,7 @@ object Tapper {
   }
 
   implicit class TappedOption[V](value: Option[V]) {
+
     def tapSomeOrFail(f: V => Unit): Option[V] = {
       f(value.get)
       value

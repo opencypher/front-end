@@ -32,14 +32,13 @@ class ReduceExpressionTest extends SemanticFunSuite {
   test("shouldEvaluateReduceExpressionWithTypedVariables") {
     val error = SemanticError("dummy error", DummyPosition(10))
 
-    val reduceExpression = CustomExpression(
-      (ctx, self) =>
-        s => {
-          s.symbolTypes("x") should equal(CTString.invariant)
-          s.symbolTypes("y") should equal(CTInteger.invariant)
-          (specifyType(CTString, self) chain error)(s)
-        }
-      )
+    val reduceExpression = CustomExpression((ctx, self) =>
+      s => {
+        s.symbolTypes("x") should equal(CTString.invariant)
+        s.symbolTypes("y") should equal(CTInteger.invariant)
+        (specifyType(CTString, self) chain error)(s)
+      }
+    )
 
     val filter = ReduceExpression(
       accumulator = Variable("x")(DummyPosition(2)),
@@ -59,14 +58,13 @@ class ReduceExpressionTest extends SemanticFunSuite {
     val initType = CTString.covariant | CTFloat.covariant
     val listType = CTList(CTInteger)
 
-    val reduceExpression = CustomExpression(
-      (ctx, self) =>
-        s => {
-          s.symbolTypes("x") should equal(CTString | CTFloat)
-          s.symbolTypes("y") should equal(listType.innerType.invariant)
-          (specifyType(CTFloat, self) chain SemanticCheckResult.success)(s)
-        }
-      )
+    val reduceExpression = CustomExpression((ctx, self) =>
+      s => {
+        s.symbolTypes("x") should equal(CTString | CTFloat)
+        s.symbolTypes("y") should equal(listType.innerType.invariant)
+        (specifyType(CTFloat, self) chain SemanticCheckResult.success)(s)
+      }
+    )
 
     val filter = ReduceExpression(
       accumulator = Variable("x")(DummyPosition(2)),
@@ -85,14 +83,13 @@ class ReduceExpressionTest extends SemanticFunSuite {
     val accumulatorType = CTString | CTNumber
     val listType = CTList(CTInteger)
 
-    val reduceExpression = CustomExpression(
-      (ctx, self) =>
-        s => {
-          s.symbolTypes("x") should equal(accumulatorType)
-          s.symbolTypes("y") should equal(listType.innerType.invariant)
-          (specifyType(CTNode, self) chain SemanticCheckResult.success)(s)
-        }
-      )
+    val reduceExpression = CustomExpression((ctx, self) =>
+      s => {
+        s.symbolTypes("x") should equal(accumulatorType)
+        s.symbolTypes("y") should equal(listType.innerType.invariant)
+        (specifyType(CTNode, self) chain SemanticCheckResult.success)(s)
+      }
+    )
 
     val filter = ReduceExpression(
       accumulator = Variable("x")(DummyPosition(2)),

@@ -15,8 +15,7 @@
  */
 package org.opencypher.v9_0.ast.factory;
 
-public enum ActionType
-{
+public enum ActionType {
     // Database actions
     DATABASE_ALL,
     DATABASE_START,

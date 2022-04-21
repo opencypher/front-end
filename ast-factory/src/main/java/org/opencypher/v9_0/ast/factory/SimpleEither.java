@@ -15,16 +15,13 @@
  */
 package org.opencypher.v9_0.ast.factory;
 
-public interface SimpleEither<L, R>
-{
-    static <L, R> SimpleEither<L,R> left( L value )
-    {
-        return new EitherImpl( value, null );
+public interface SimpleEither<L, R> {
+    static <L, R> SimpleEither<L, R> left(L value) {
+        return new EitherImpl(value, null);
     }
 
-    static <L, R> SimpleEither<L,R> right( R value )
-    {
-        return new EitherImpl( null, value );
+    static <L, R> SimpleEither<L, R> right(R value) {
+        return new EitherImpl(null, value);
     }
 
     L getLeft();
@@ -32,30 +29,25 @@ public interface SimpleEither<L, R>
     R getRight();
 }
 
-class EitherImpl<L, R> implements SimpleEither<L,R>
-{
+class EitherImpl<L, R> implements SimpleEither<L, R> {
     private final L left;
     private final R right;
 
-    EitherImpl( L left, R right )
-    {
-        if ( left == null && right == null )
-        {
-            throw new IllegalStateException( "no value set for Either" );
+    EitherImpl(L left, R right) {
+        if (left == null && right == null) {
+            throw new IllegalStateException("no value set for Either");
         }
         this.left = left;
         this.right = right;
     }
 
     @Override
-    public L getLeft()
-    {
+    public L getLeft() {
         return left;
     }
 
     @Override
-    public R getRight()
-    {
+    public R getRight() {
         return right;
     }
 }

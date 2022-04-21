@@ -27,7 +27,9 @@ import org.opencypher.v9_0.util.symbols.CTNode
 
 sealed trait RemoveItem extends ASTNode with SemanticCheckable
 
-case class RemoveLabelItem(variable: LogicalVariable, labels: Seq[LabelName])(val position: InputPosition) extends RemoveItem {
+case class RemoveLabelItem(variable: LogicalVariable, labels: Seq[LabelName])(val position: InputPosition)
+    extends RemoveItem {
+
   def semanticCheck =
     SemanticExpressionCheck.simple(variable) chain
       SemanticPatternCheck.checkValidLabels(labels, position) chain

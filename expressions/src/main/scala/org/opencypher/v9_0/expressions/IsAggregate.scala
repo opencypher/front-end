@@ -18,8 +18,8 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.functions.AggregatingFunction
 import org.opencypher.v9_0.expressions.functions.UserDefinedFunctionInvocation
 
-
 object IsAggregate {
+
   def unapply(v: Any) = v match {
     case expr: CountStar =>
       Some(expr)
@@ -30,7 +30,7 @@ object IsAggregate {
     case fi: FunctionInvocation =>
       fi.function match {
         case _: AggregatingFunction => Some(fi)
-        case _                              => None
+        case _                      => None
       }
 
     case fi: UserDefinedFunctionInvocation if fi.isAggregate =>

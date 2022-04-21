@@ -24,6 +24,7 @@ import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ConstantExpressionTest extends CypherFunSuite {
+
   test("tests") {
     assertIsConstant(SignedDecimalIntegerLiteral("42")(null))
     assertIsConstant(Parameter("42", CTAny)(null))

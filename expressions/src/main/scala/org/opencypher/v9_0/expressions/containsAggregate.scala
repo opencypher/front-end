@@ -18,6 +18,7 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 
 object containsAggregate extends (Expression => Boolean) {
+
   def apply(expr: Expression): Boolean = {
     expr.folder.treeFold[Boolean](false) {
       case IsAggregate(_) => _ => SkipChildren(true)

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object GraphRefType {
+
   val instance = new GraphRefType() {
     override val parentType = CTAny
     override val toString = "GraphRef"

@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object FloatType {
+
   val instance = new FloatType() {
     val parentType = CTNumber
     override val toString = "Float"

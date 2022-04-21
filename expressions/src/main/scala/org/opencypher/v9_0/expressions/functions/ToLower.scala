@@ -18,7 +18,7 @@ package org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.expressions.TypeSignature
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object ToLower extends Function  {
+case object ToLower extends Function {
   def name = "toLower"
 
   override val signatures = Vector(

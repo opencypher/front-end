@@ -21,8 +21,8 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.Namespace
-import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PatternExpression
+import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
@@ -50,31 +50,34 @@ object Deprecations {
     f => f.copy(namespace = newNamespace, functionName = FunctionName(newName)(f.functionName.position))(f.position)
 
   case object syntacticallyDeprecatedFeaturesIn4_X extends SyntacticDeprecations {
+
     override val find: PartialFunction[Any, Deprecation] = {
 
       // old octal literal syntax, don't support underscores
-      case p@SignedOctalIntegerLiteral(stringVal) if stringVal.charAt(stringVal.indexOf('0') + 1) != 'o' && stringVal.charAt(stringVal.indexOf('0') + 1) != '_' =>
+      case p @ SignedOctalIntegerLiteral(stringVal)
+        if stringVal.charAt(stringVal.indexOf('0') + 1) != 'o' && stringVal.charAt(stringVal.indexOf('0') + 1) != '_' =>
         Deprecation(
           Some(Ref(p) -> SignedOctalIntegerLiteral(stringVal.patch(stringVal.indexOf('0') + 1, "o", 0))(p.position)),
           Some(DeprecatedOctalLiteralSyntax(p.position))
         )
 
       // old hex literal syntax
-      case p@SignedHexIntegerLiteral(stringVal) if stringVal.charAt(stringVal.indexOf('0') + 1) == 'X' =>
+      case p @ SignedHexIntegerLiteral(stringVal) if stringVal.charAt(stringVal.indexOf('0') + 1) == 'X' =>
         Deprecation(
           Some(Ref(p) -> SignedHexIntegerLiteral(stringVal.toLowerCase)(p.position)),
           Some(DeprecatedHexLiteralSyntax(p.position))
         )
 
       // timestamp
-      case f@FunctionInvocation(namespace, FunctionName(name), _, _) if namespace.parts.isEmpty && name.equalsIgnoreCase("timestamp") =>
+      case f @ FunctionInvocation(namespace, FunctionName(name), _, _)
+        if namespace.parts.isEmpty && name.equalsIgnoreCase("timestamp") =>
         Deprecation(
           Some(Ref(f) -> renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f)),
           None
         )
 
       // var-length binding
-      case p@RelationshipPattern(Some(variable), _, Some(_), _, _, _, _) =>
+      case p @ RelationshipPattern(Some(variable), _, Some(_), _, _, _, _) =>
         Deprecation(
           None,
           Some(DeprecatedVarLengthBindingNotification(p.position, variable.name))
@@ -85,14 +88,13 @@ object Deprecations {
 
   case object semanticallyDeprecatedFeaturesIn4_X extends SemanticDeprecations {
 
-    private def isExpectedTypeBoolean(semanticTable: SemanticTable, e: Expression) = semanticTable.types.get(e).exists(
-      typeInfo => typeInfo.expected.fold(false)(CTBoolean.covariant.containsAll)
-    )
+    private def isExpectedTypeBoolean(semanticTable: SemanticTable, e: Expression) =
+      semanticTable.types.get(e).exists(typeInfo => typeInfo.expected.fold(false)(CTBoolean.covariant.containsAll))
 
-    private def isListCoercedToBoolean(semanticTable: SemanticTable, e: Expression): Boolean = semanticTable.types.get(e).exists(
-      typeInfo =>
+    private def isListCoercedToBoolean(semanticTable: SemanticTable, e: Expression): Boolean =
+      semanticTable.types.get(e).exists(typeInfo =>
         CTList(CTAny).covariant.containsAll(typeInfo.specified) && isExpectedTypeBoolean(semanticTable, e)
-    )
+      )
 
     override def find(semanticTable: SemanticTable): PartialFunction[Any, Deprecation] = {
       case e: Expression if isListCoercedToBoolean(semanticTable, e) && !e.isInstanceOf[PatternExpression] =>

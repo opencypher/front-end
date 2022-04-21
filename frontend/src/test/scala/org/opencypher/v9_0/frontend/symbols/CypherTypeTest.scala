@@ -28,6 +28,7 @@ import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class CypherTypeTest extends CypherFunSuite {
+
   test("parents should be full path up type tree branch") {
     CTInteger.parents should equal(Seq(CTNumber, CTAny))
     CTNumber.parents should equal(Seq(CTAny))

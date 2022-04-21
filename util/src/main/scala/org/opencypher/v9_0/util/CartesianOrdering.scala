@@ -20,6 +20,7 @@ package org.opencypher.v9_0.util
  * The math is coincidentally the same as in [[PredicateOrdering]].
  */
 object VolcanoCartesianOrdering extends CartesianOrdering {
+
   override def compare(side0: (Cost, Cardinality), side1: (Cost, Cardinality)): Int = {
     costFor(side0, side1).compare(costFor(side1, side0))
   }
@@ -74,6 +75,7 @@ object VolcanoCartesianOrdering extends CartesianOrdering {
  * c0 + ⌈s0 / B⌉ * c2             > c2 + ⌈s2 / B⌉ * c0
  */
 class BatchedCartesianOrdering(batchSize: Int) extends CartesianOrdering {
+
   override def compare(side0: (Cost, Cardinality), side1: (Cost, Cardinality)): Int = {
     costFor(side0, side1).compare(costFor(side1, side0))
   }

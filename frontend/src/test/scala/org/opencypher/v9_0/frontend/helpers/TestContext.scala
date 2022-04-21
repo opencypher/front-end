@@ -27,7 +27,8 @@ import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.scalatestplus.mockito.MockitoSugar.mock
 
 //noinspection TypeAnnotation
-case class TestContext(override val notificationLogger: InternalNotificationLogger = mock[InternalNotificationLogger]) extends BaseContext {
+case class TestContext(override val notificationLogger: InternalNotificationLogger = mock[InternalNotificationLogger])
+    extends BaseContext {
   override def tracer = CompilationPhaseTracer.NO_TRACING
 
   override def cypherExceptionFactory: CypherExceptionFactory = OpenCypherExceptionFactory(None)

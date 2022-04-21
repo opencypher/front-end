@@ -19,6 +19,8 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.util.helpers.PartialFunctionSupport
 
 case class MatchPredicateNormalizerChain(normalizers: MatchPredicateNormalizer*) extends MatchPredicateNormalizer {
-  val extract = PartialFunctionSupport.reduceAnyDefined(normalizers.map(_.extract))(IndexedSeq.empty[Expression])(_ ++ _)
+
+  val extract =
+    PartialFunctionSupport.reduceAnyDefined(normalizers.map(_.extract))(IndexedSeq.empty[Expression])(_ ++ _)
   val replace = PartialFunctionSupport.composeIfDefined(normalizers.map(_.replace))
 }

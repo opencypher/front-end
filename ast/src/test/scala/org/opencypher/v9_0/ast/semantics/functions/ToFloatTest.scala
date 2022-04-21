@@ -24,7 +24,7 @@ import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTNumber
 import org.opencypher.v9_0.util.symbols.CTString
 
-class ToFloatTest extends FunctionTestBase("toFloat")  {
+class ToFloatTest extends FunctionTestBase("toFloat") {
 
   test("shouldAcceptCorrectTypes") {
     testValidTypes(CTString)(CTFloat)

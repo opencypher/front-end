@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object GeometryType {
+
   val instance = new GeometryType() {
     val parentType = CTAny
     override val toString = "Geometry"

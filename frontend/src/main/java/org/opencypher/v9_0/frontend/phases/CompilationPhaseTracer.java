@@ -15,10 +15,8 @@
  */
 package org.opencypher.v9_0.frontend.phases;
 
-public interface CompilationPhaseTracer
-{
-    enum CompilationPhase
-    {
+public interface CompilationPhaseTracer {
+    enum CompilationPhase {
         PARSING,
         DEPRECATION_WARNINGS,
         ADDITION_ERRORS,
@@ -31,10 +29,9 @@ public interface CompilationPhaseTracer
         METADATA_COLLECTION,
     }
 
-    CompilationPhaseEvent beginPhase( CompilationPhase phase );
+    CompilationPhaseEvent beginPhase(CompilationPhase phase);
 
-    interface CompilationPhaseEvent extends AutoCloseable
-    {
+    interface CompilationPhaseEvent extends AutoCloseable {
         @Override
         void close();
     }

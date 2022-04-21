@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object NumberType {
+
   val instance = new NumberType() {
     val parentType = CTAny
     override val isAbstract = true

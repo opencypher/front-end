@@ -22,12 +22,12 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.TypeSpec
 
 case class ErrorExpression(
-                            error: SemanticError,
-                            possibleTypes: TypeSpec,
-                            position: InputPosition = DummyPosition(0)
-                          ) extends Expression
+  error: SemanticError,
+  possibleTypes: TypeSpec,
+  position: InputPosition = DummyPosition(0)
+) extends Expression
 
 case class CustomExpression(
-                             semanticCheck: (SemanticContext, CustomExpression) => SemanticCheck,
-                             position: InputPosition = DummyPosition(0)
-                           ) extends Expression
+  semanticCheck: (SemanticContext, CustomExpression) => SemanticCheck,
+  position: InputPosition = DummyPosition(0)
+) extends Expression

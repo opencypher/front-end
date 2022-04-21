@@ -20,6 +20,7 @@ import org.opencypher.v9_0.util.symbols.CTInteger
 
 case object Linenumber extends Function {
   def name = "linenumber"
+
   override val signatures = Vector(
     TypeSignature.noArg(this, CTInteger, "Returns the line number that LOAD CSV is currently using.", Category.SCALAR)
   )

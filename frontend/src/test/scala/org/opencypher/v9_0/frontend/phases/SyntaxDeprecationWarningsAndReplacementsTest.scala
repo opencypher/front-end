@@ -91,7 +91,8 @@ class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
   private def check(query: String) = {
     val logger = new RecordingNotificationLogger()
     val statement = parse(query)
-    val initialState = InitialState(query, None, plannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(statement))
+    val initialState =
+      InitialState(query, None, plannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(statement))
 
     val pipeline =
       SyntaxDeprecationWarningsAndReplacements(syntacticallyDeprecatedFeaturesIn4_X) andThen
@@ -107,7 +108,10 @@ class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
     logger.notifications
   }
 
-  private def parse(queryText: String): Statement = JavaCCParser.parse(queryText.replace("\r\n", "\n"), OpenCypherExceptionFactory(None),
-    new AnonymousVariableNameGenerator())
+  private def parse(queryText: String): Statement = JavaCCParser.parse(
+    queryText.replace("\r\n", "\n"),
+    OpenCypherExceptionFactory(None),
+    new AnonymousVariableNameGenerator()
+  )
 
 }

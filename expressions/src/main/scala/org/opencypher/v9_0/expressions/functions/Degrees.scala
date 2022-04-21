@@ -18,7 +18,7 @@ package org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.expressions.TypeSignature
 import org.opencypher.v9_0.util.symbols.CTFloat
 
-case object Degrees extends Function  {
+case object Degrees extends Function {
   def name = "degrees"
 
   override val signatures = Vector(

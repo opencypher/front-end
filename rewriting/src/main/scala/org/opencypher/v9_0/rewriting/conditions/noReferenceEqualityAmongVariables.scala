@@ -20,6 +20,7 @@ import org.opencypher.v9_0.rewriting.ValidatingCondition
 import org.opencypher.v9_0.util.Ref
 
 case object noReferenceEqualityAmongVariables extends ValidatingCondition {
+
   def apply(that: Any): Seq[String] = {
     val ids = collectNodesOfType[Variable]().apply(that).map(Ref[Variable])
     ids.groupBy(x => x).collect {

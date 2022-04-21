@@ -27,11 +27,14 @@ import org.opencypher.v9_0.util.StepSequencer
 /**
  * Helper trait to embed a rewriter as transformation phase in the scope of the normalisation towards CNF.
  */
-trait CnfPhase extends Phase[BaseContext, BaseState, BaseState] with StepSequencer.Step with PlanPipelineTransformerFactory {
+trait CnfPhase extends Phase[BaseContext, BaseState, BaseState] with StepSequencer.Step
+    with PlanPipelineTransformerFactory {
   self: Product =>
 
-  override def getTransformer(pushdownPropertyReads: Boolean,
-                              semanticFeatures: Seq[SemanticFeature]): CnfPhase with Product = this
+  override def getTransformer(
+    pushdownPropertyReads: Boolean,
+    semanticFeatures: Seq[SemanticFeature]
+  ): CnfPhase with Product = this
 
   override def phase: CompilationPhase = CompilationPhase.AST_REWRITE
 
@@ -40,7 +43,7 @@ trait CnfPhase extends Phase[BaseContext, BaseState, BaseState] with StepSequenc
     from.withStatement(rewritten)
   }
 
-  def getRewriter(from: BaseState, context: BaseContext) : Rewriter
+  def getRewriter(from: BaseState, context: BaseContext): Rewriter
 }
 
 /**
@@ -56,7 +59,7 @@ object CNFNormalizer {
       normalizeInequalities,
       simplifyPredicates,
       normalizeSargablePredicates,
-      flattenBooleanOperators,
+      flattenBooleanOperators
     )
   }
 

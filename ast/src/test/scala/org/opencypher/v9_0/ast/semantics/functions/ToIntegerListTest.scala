@@ -24,7 +24,7 @@ import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTPoint
 import org.opencypher.v9_0.util.symbols.CTString
 
-class ToIntegerListTest extends FunctionTestBase("toIntegerList")  {
+class ToIntegerListTest extends FunctionTestBase("toIntegerList") {
 
   test("shouldAcceptCorrectTypes") {
     testValidTypes(CTList(CTAny))(CTList(CTInteger))
@@ -47,7 +47,6 @@ class ToIntegerListTest extends FunctionTestBase("toIntegerList")  {
       "Type mismatch: expected List<T> but was String"
     )
   }
-
 
   test("shouldFailIfWrongNumberOfArguments") {
     testInvalidApplication()(

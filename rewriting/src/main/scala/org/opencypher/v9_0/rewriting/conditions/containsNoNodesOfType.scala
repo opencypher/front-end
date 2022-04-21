@@ -22,6 +22,7 @@ import org.opencypher.v9_0.util.Foldable.FoldableAny
 import scala.reflect.ClassTag
 
 case class containsNoNodesOfType[T <: ASTNode]()(implicit val tag: ClassTag[T]) extends ValidatingCondition {
+
   def apply(that: Any): Seq[String] =
     that
       .folder
@@ -34,7 +35,7 @@ case class containsNoNodesOfType[T <: ASTNode]()(implicit val tag: ClassTag[T]) 
   override def hashCode(): Int = tag.hashCode()
 
   override def equals(obj: Any): Boolean = obj match {
-    case cc:containsNoNodesOfType[_] => tag.equals(cc.tag)
-    case  _ => false
+    case cc: containsNoNodesOfType[_] => tag.equals(cc.tag)
+    case _                            => false
   }
 }

@@ -21,7 +21,7 @@ import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTPoint
 
-class DistanceTest extends FunctionTestBase("point.distance")  {
+class DistanceTest extends FunctionTestBase("point.distance") {
 
   test("should accept correct types") {
     testValidTypes(CTGeometry, CTGeometry)(CTFloat)

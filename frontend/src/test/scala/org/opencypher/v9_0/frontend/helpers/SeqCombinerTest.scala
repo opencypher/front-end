@@ -29,7 +29,7 @@ class SeqCombinerTest extends CypherFunSuite {
         Seq(2, 5, 6),
         Seq(3, 4, 6),
         Seq(3, 5, 6)
-        ),
+      ),
     Seq(Seq(1, 2), Seq(3, 4)) ->
       Seq(Seq(1, 3), Seq(1, 4), Seq(2, 3), Seq(2, 4)),
     Seq(Seq(1, 2, 3), Seq.empty[Int], Seq(6)) -> Seq.empty,
@@ -41,11 +41,11 @@ class SeqCombinerTest extends CypherFunSuite {
         Seq(1, 3, 4),
         Seq(1, 3, 5),
         Seq(1, 3, 6)
-        ),
+      )
   )
 
   test("test combiners") {
-    table.foreach{
+    table.foreach {
       case (seq, expected) =>
         combine(seq) should equal(expected)
         combine(seq.map(_.toArray).toArray).map(_.toList).toList should equal(expected)

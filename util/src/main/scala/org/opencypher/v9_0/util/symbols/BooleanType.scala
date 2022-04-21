@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object BooleanType {
+
   val instance = new BooleanType() {
     val parentType = CTAny
     override val toString = "Boolean"

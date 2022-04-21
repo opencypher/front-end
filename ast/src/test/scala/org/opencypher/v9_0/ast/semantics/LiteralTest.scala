@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.symbols.CTString
 
 class LiteralTest extends SemanticFunSuite {
+
   test("has type CTString") {
     val literal = StringLiteral("foo")(pos)
     val result = SemanticExpressionCheck.simple(literal)(SemanticState.clean)

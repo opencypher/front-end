@@ -48,7 +48,7 @@ class ShortestPathExpressionTest extends SemanticFunSuite {
     val (exp, state) = makeShortestPathExpression(false)
 
     // When
-    val result =  SemanticExpressionCheck.simple(exp)(state)
+    val result = SemanticExpressionCheck.simple(exp)(state)
 
     // Then
     result.errors shouldBe empty
@@ -62,6 +62,7 @@ class ShortestPathExpressionTest extends SemanticFunSuite {
     val pattern = chain(node(Some(variable("n"))), relationship(None), node(Some(variable("k"))))
     (ShortestPathExpression(ShortestPaths(pattern, single)(pos)), state)
   }
+
   private def chain(left: PatternElement, rel: RelationshipPattern, right: NodePattern): RelationshipChain = {
     expressions.RelationshipChain(left, rel, right)(pos)
   }

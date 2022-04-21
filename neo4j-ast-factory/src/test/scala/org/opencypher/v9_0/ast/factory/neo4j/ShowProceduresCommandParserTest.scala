@@ -31,7 +31,6 @@ import org.opencypher.v9_0.expressions.Variable
 class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   Seq("PROCEDURE", "PROCEDURES").foreach { procKeyword =>
-
     test(s"SHOW $procKeyword") {
       assertAst(query(ast.ShowProceduresClause(None, None, hasYield = false)(defaultPos)))
     }
@@ -54,7 +53,8 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
 
     test(s"USE db SHOW $procKeyword") {
       assertAst(Query(SingleQuery(
-        List(use(Variable("db")(1, 5, 4)), ShowProceduresClause(None, None, hasYield = false)(1, 8, 7)))(1, 8, 7))(1, 8, 7))
+        List(use(Variable("db")(1, 5, 4)), ShowProceduresClause(None, None, hasYield = false)(1, 8, 7))
+      )(1, 8, 7))(1, 8, 7))
     }
 
   }
@@ -62,64 +62,91 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
   // Filtering tests
 
   test("SHOW PROCEDURE WHERE name = 'my.proc'") {
-    assertAst(query(ShowProceduresClause(None,
+    assertAst(query(ShowProceduresClause(
+      None,
       Some(Where(
         Equals(
           Variable("name")(1, 22, 21),
           StringLiteral("my.proc")(1, 29, 28)
-        )(1, 27, 26))
-        (1, 16, 15)
-      ), hasYield = false)(defaultPos)))
+        )(1, 27, 26)
+      )(1, 16, 15)),
+      hasYield = false
+    )(defaultPos)))
   }
 
   test("SHOW PROCEDURES YIELD description") {
-    assertAst(query(ShowProceduresClause(None, None, hasYield = true)(defaultPos),
+    assertAst(query(
+      ShowProceduresClause(None, None, hasYield = true)(defaultPos),
       yieldClause(
         ReturnItems(includeExisting = false, Seq(variableReturnItem("description", (1, 23, 22))))(1, 23, 22)
-      )))
+      )
+    ))
   }
 
   test("SHOW PROCEDURES EXECUTABLE BY user YIELD *") {
-    assertAst(query(ast.ShowProceduresClause(Some(ast.User("user")), None, hasYield = true)(defaultPos), yieldClause(returnAllItems)))
+    assertAst(query(
+      ast.ShowProceduresClause(Some(ast.User("user")), None, hasYield = true)(defaultPos),
+      yieldClause(returnAllItems)
+    ))
   }
 
   test("SHOW PROCEDURES YIELD * ORDER BY name SKIP 2 LIMIT 5") {
-    assertAst(query(ShowProceduresClause(None, None, hasYield = true)(defaultPos),
-      yieldClause(returnAllItems((1, 25, 24)),
+    assertAst(query(
+      ShowProceduresClause(None, None, hasYield = true)(defaultPos),
+      yieldClause(
+        returnAllItems((1, 25, 24)),
         Some(OrderBy(Seq(
-            AscSortItem(Variable("name")(1, 34, 33))((1, 34, 33)))
-        )(1, 25, 24)),
-        Some(skip(2, (1, 39, 38))), Some(limit(5, (1, 46, 45))))
+          AscSortItem(Variable("name")(1, 34, 33))((1, 34, 33))
+        ))(1, 25, 24)),
+        Some(skip(2, (1, 39, 38))),
+        Some(limit(5, (1, 46, 45)))
+      )
     ))
   }
 
   test("USE db SHOW PROCEDURES YIELD name, description AS pp WHERE pp < 50.0 RETURN name") {
-    assertAst(query(
-      use(varFor("db")),
-      ast.ShowProceduresClause(None, None, hasYield = true)(pos),
-      yieldClause(returnItems(variableReturnItem("name"), aliasedReturnItem("description", "pp")),
-        where = Some(where(lessThan(varFor("pp"), literalFloat(50.0))))),
-      return_(variableReturnItem("name"))
-    ), comparePosition = false)
+    assertAst(
+      query(
+        use(varFor("db")),
+        ast.ShowProceduresClause(None, None, hasYield = true)(pos),
+        yieldClause(
+          returnItems(variableReturnItem("name"), aliasedReturnItem("description", "pp")),
+          where = Some(where(lessThan(varFor("pp"), literalFloat(50.0))))
+        ),
+        return_(variableReturnItem("name"))
+      ),
+      comparePosition = false
+    )
   }
 
-  test("USE db SHOW PROCEDURES EXECUTABLE YIELD name, description AS pp ORDER BY pp SKIP 2 LIMIT 5 WHERE pp < 50.0 RETURN name") {
-    assertAst(query(
-      use(varFor("db")),
-      ast.ShowProceduresClause(Some(ast.CurrentUser), None, hasYield = true)(pos),
-      yieldClause(returnItems(variableReturnItem("name"), aliasedReturnItem("description", "pp")),
-        Some(orderBy(sortItem(varFor("pp")))),
-        Some(skip(2)),
-        Some(limit(5)),
-        Some(where(lessThan(varFor("pp"), literalFloat(50.0))))),
-      return_(variableReturnItem("name"))
-    ), comparePosition = false)
+  test(
+    "USE db SHOW PROCEDURES EXECUTABLE YIELD name, description AS pp ORDER BY pp SKIP 2 LIMIT 5 WHERE pp < 50.0 RETURN name"
+  ) {
+    assertAst(
+      query(
+        use(varFor("db")),
+        ast.ShowProceduresClause(Some(ast.CurrentUser), None, hasYield = true)(pos),
+        yieldClause(
+          returnItems(variableReturnItem("name"), aliasedReturnItem("description", "pp")),
+          Some(orderBy(sortItem(varFor("pp")))),
+          Some(skip(2)),
+          Some(limit(5)),
+          Some(where(lessThan(varFor("pp"), literalFloat(50.0))))
+        ),
+        return_(variableReturnItem("name"))
+      ),
+      comparePosition = false
+    )
   }
 
   test("SHOW PROCEDURES YIELD name AS PROCEDURE, mode AS OUTPUT") {
-    assertAst(query(ast.ShowProceduresClause(None, None, hasYield = true)(pos),
-      yieldClause(returnItems(aliasedReturnItem("name", "PROCEDURE"), aliasedReturnItem("mode", "OUTPUT")))),
-      comparePosition = false)
+    assertAst(
+      query(
+        ast.ShowProceduresClause(None, None, hasYield = true)(pos),
+        yieldClause(returnItems(aliasedReturnItem("name", "PROCEDURE"), aliasedReturnItem("mode", "OUTPUT")))
+      ),
+      comparePosition = false
+    )
   }
 
   // Negative tests
@@ -157,7 +184,8 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
   }
 
   test("SHOW EXECUTABLE PROCEDURE") {
-    assertFailsWithMessage(testName,
+    assertFailsWithMessage(
+      testName,
       """Invalid input 'EXECUTABLE': expected
         |  "ALL"
         |  "BTREE"
@@ -196,7 +224,8 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
         |  "TRANSACTIONS"
         |  "UNIQUE"
         |  "USER"
-        |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin)
+        |  "USERS" (line 1, column 6 (offset: 5))""".stripMargin
+    )
   }
 
   test("SHOW PROCEDURE EXECUTABLE user") {
@@ -208,7 +237,10 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
   }
 
   test("SHOW PROCEDURE EXEC") {
-    assertFailsWithMessage(testName, """Invalid input 'EXEC': expected "EXECUTABLE", "WHERE", "YIELD" or <EOF> (line 1, column 16 (offset: 15))""")
+    assertFailsWithMessage(
+      testName,
+      """Invalid input 'EXEC': expected "EXECUTABLE", "WHERE", "YIELD" or <EOF> (line 1, column 16 (offset: 15))"""
+    )
   }
 
   test("SHOW PROCEDURE EXECUTABLE BY") {
@@ -248,11 +280,17 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
   }
 
   test("SHOW user PROCEDURE") {
-    assertFailsWithMessage(testName, """Invalid input '': expected ",", "PRIVILEGE" or "PRIVILEGES" (line 1, column 20 (offset: 19))""")
+    assertFailsWithMessage(
+      testName,
+      """Invalid input '': expected ",", "PRIVILEGE" or "PRIVILEGES" (line 1, column 20 (offset: 19))"""
+    )
   }
 
   test("SHOW USER user PROCEDURE") {
-    assertFailsWithMessage(testName, """Invalid input 'PROCEDURE': expected ",", "PRIVILEGE" or "PRIVILEGES" (line 1, column 16 (offset: 15))""")
+    assertFailsWithMessage(
+      testName,
+      """Invalid input 'PROCEDURE': expected ",", "PRIVILEGE" or "PRIVILEGES" (line 1, column 16 (offset: 15))"""
+    )
   }
 
   test("SHOW PROCEDURE EXECUTABLE BY USER user") {

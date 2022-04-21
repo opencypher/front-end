@@ -17,9 +17,9 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.DummyExpression
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.TypeSpec
 import org.scalatest.Assertion
-import org.opencypher.v9_0.util.symbols.CTAny
 
 abstract class InfixExpressionTestBase(ctr: (Expression, Expression) => Expression) extends SemanticFunSuite {
 

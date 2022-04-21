@@ -16,6 +16,6 @@
 package org.opencypher.v9_0.util
 
 abstract class CypherException(protected val message: String, cause: Throwable)
-  extends RuntimeException(message, cause) {
+    extends RuntimeException(message, cause) {
   def this(message: String) = this(message, null)
 }

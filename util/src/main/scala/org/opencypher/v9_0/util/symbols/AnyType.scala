@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object AnyType {
+
   val instance = new AnyType() {
     val parentType = this
     override val isAbstract = true

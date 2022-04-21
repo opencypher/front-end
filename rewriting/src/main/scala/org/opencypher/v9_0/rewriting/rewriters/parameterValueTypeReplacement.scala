@@ -33,11 +33,10 @@ case object ExplicitParametersKnowTheirTypes extends StepSequencer.Condition
 case class parameterValueTypeReplacement(parameterTypeMapping: Map[String, CypherType]) extends Rewriter {
 
   private val rewriter: Rewriter = bottomUp(Rewriter.lift {
-    case p@ExplicitParameter(name, CTAny) =>
+    case p @ ExplicitParameter(name, CTAny) =>
       val cypherType = parameterTypeMapping.getOrElse(name, CTAny)
       ExplicitParameter(name, cypherType)(p.position)
   })
-
 
   override def apply(that: AnyRef): AnyRef = rewriter(that)
 }
@@ -49,11 +48,13 @@ object parameterValueTypeReplacement extends Step with ASTRewriterFactory {
 
   override def invalidatedConditions: Set[StepSequencer.Condition] = Set(
     ProjectionClausesHaveSemanticInfo, // It can invalidate this condition by rewriting things inside WITH/RETURN.
-    PatternExpressionsHaveSemanticInfo, // It can invalidate this condition by rewriting things inside PatternExpressions.
+    PatternExpressionsHaveSemanticInfo // It can invalidate this condition by rewriting things inside PatternExpressions.
   )
 
-  override def getRewriter(semanticState: SemanticState,
-                           parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory,
-                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = parameterValueTypeReplacement(parameterTypeMapping)
+  override def getRewriter(
+    semanticState: SemanticState,
+    parameterTypeMapping: Map[String, CypherType],
+    cypherExceptionFactory: CypherExceptionFactory,
+    anonymousVariableNameGenerator: AnonymousVariableNameGenerator
+  ): Rewriter = parameterValueTypeReplacement(parameterTypeMapping)
 }

@@ -23,12 +23,15 @@ sealed trait FeatureToString {
 }
 
 object SemanticFeature {
+
   case object MultipleDatabases extends SemanticFeature with FeatureToString {
     override def name: String = "multiple databases"
   }
+
   case object MultipleGraphs extends SemanticFeature with FeatureToString {
     override def name: String = "multiple graphs"
   }
+
   case object UseGraphSelector extends SemanticFeature with FeatureToString {
     override def name: String = "USE graph selector"
   }
@@ -46,7 +49,7 @@ object SemanticFeature {
     UseGraphSelector,
     ExpressionsInViewInvocations,
     WithInitialQuerySignature,
-    RelationshipPatternPredicates,
+    RelationshipPatternPredicates
   )
 
   def fromString(str: String): SemanticFeature =

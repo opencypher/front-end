@@ -19,10 +19,10 @@ import org.opencypher.v9_0.expressions.CanonicalStringHelper.nodeRelationCanonic
 import org.opencypher.v9_0.util.InputPosition
 
 case class GetDegree(
-                      node: Expression,
-                      relType: Option[RelTypeName],
-                      dir: SemanticDirection
-                    )(val position: InputPosition) extends Expression {
+  node: Expression,
+  relType: Option[RelTypeName],
+  dir: SemanticDirection
+)(val position: InputPosition) extends Expression {
 
   override def asCanonicalStringVal: String =
     s"size(${nodeRelationCanonicalString(node, relType, dir)})"

@@ -37,7 +37,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
         labelAtom("Bar")
       )),
       Some(mapOf("prop" -> literalString("test"))),
-      Some(greaterThan(prop("r", "otherProp"), literalInt(123))),
+      Some(greaterThan(prop("r", "otherProp"), literalInt(123)))
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -48,7 +48,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
       None,
       None,
       Some(mapOf("prop" -> literalString("test"))),
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -60,7 +60,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
       None,
       None,
       None,
-      Some(falseLiteral),
+      Some(falseLiteral)
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -71,7 +71,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
       None,
       None,
       None,
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -87,7 +87,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
         )
       ),
       None,
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -103,7 +103,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
         )
       ),
       None,
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -121,7 +121,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
         )
       ),
       None,
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -140,7 +140,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
         )
       ),
       None,
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -158,12 +158,12 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
           ),
           labelConjunction(
             labelAtom("C"),
-            labelAtom("B"),
+            labelAtom("B")
           )
         )
       ),
       None,
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -180,13 +180,13 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
                 labelConjunction(labelAtom("A"), labelAtom("B")),
                 labelAtom("C")
               ),
-              labelAtom("B"),
+              labelAtom("B")
             )
           )
         )
       ),
       None,
-      None,
+      None
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -199,7 +199,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
       Some(Some(range(Some(1), Some(5)))),
       Some(mapOf("prop" -> literalString("test"))),
       Some(greaterThan(prop("r", "otherProp"), literalInt(123))),
-      OUTGOING,
+      OUTGOING
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -212,7 +212,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
       Some(None),
       None,
       None,
-      INCOMING,
+      INCOMING
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -225,7 +225,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
       None,
       Some(mapOf("prop" -> literalString("test"))),
       None,
-      BOTH,
+      BOTH
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName
@@ -239,7 +239,7 @@ class PatternStringifierTest extends CypherFunSuite with TestName with AstConstr
       None,
       None,
       Some(falseLiteral),
-      BOTH,
+      BOTH
     )(pos)
 
     patternStringifier(pattern) shouldEqual testName

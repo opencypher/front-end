@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object PointType {
+
   val instance = new PointType() {
     val parentType = CTAny
     override val toString = "Point"

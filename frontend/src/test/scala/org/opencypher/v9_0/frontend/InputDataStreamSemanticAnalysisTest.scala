@@ -31,7 +31,7 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite with AstConstru
   private val pipeline = SemanticAnalysis(warn = true) andThen SemanticAnalysis(warn = false)
 
   test("can parse INPUT DATA STREAM") {
-   // "INPUT DATA STREAM a, b, c RETURN *"
+    // "INPUT DATA STREAM a, b, c RETURN *"
     val ast = query(input(varFor("a"), varFor("b"), varFor("c")), returnAll)
     val startState = initStartState(ast)
 
@@ -56,7 +56,8 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite with AstConstru
     // "UNWIND [0, 1] AS x INPUT DATA STREAM a, b, c RETURN *"
     val ast = query(
       unwind(listOf(literalInt(0), literalInt(1)), varFor("x")),
-      input(varFor("a"), varFor("b"), varFor("c")), returnAll
+      input(varFor("a"), varFor("b"), varFor("c")),
+      returnAll
     )
 
     val startState = initStartState(ast)
@@ -107,7 +108,7 @@ class InputDataStreamSemanticAnalysisTest extends CypherFunSuite with AstConstru
   }
 
   private def initStartState(statement: Statement) = {
-      // As the test only checks ast -> semantic analysis, the query isn't used.
-      InitialState("whatever", None, NoPlannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(statement))
+    // As the test only checks ast -> semantic analysis, the query isn't used.
+    InitialState("whatever", None, NoPlannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(statement))
   }
 }

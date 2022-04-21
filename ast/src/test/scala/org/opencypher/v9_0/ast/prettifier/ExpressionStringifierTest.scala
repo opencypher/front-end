@@ -36,7 +36,8 @@ class ExpressionStringifierTest extends CypherFunSuite with AstConstructionTestS
           nodePat(Some("u2"))
         )(pos))(pos),
         predicate = Some(hasLabels("u2", "User")),
-        projection = prop("u2", "id"))(
+        projection = prop("u2", "id")
+      )(
         pos,
         outerScope = Set(varFor("u.id"), varFor("u")),
         variableToCollectName = "p",
@@ -53,7 +54,8 @@ class ExpressionStringifierTest extends CypherFunSuite with AstConstructionTestS
           nodePat(Some("u2"), Some(labelAtom("User")))
         )(pos))(pos),
         predicate = None,
-        projection = prop("u2", "id"))(
+        projection = prop("u2", "id")
+      )(
         pos,
         outerScope = Set(varFor("u.id"), varFor("u")),
         variableToCollectName = "p",

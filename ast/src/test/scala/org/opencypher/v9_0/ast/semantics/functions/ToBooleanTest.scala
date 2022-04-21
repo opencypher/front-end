@@ -25,7 +25,7 @@ import org.opencypher.v9_0.util.symbols.CTNumber
 import org.opencypher.v9_0.util.symbols.CTPoint
 import org.opencypher.v9_0.util.symbols.CTString
 
-class ToBooleanTest extends FunctionTestBase("toBoolean")  {
+class ToBooleanTest extends FunctionTestBase("toBoolean") {
 
   test("shouldAcceptCorrectTypes") {
     testValidTypes(CTInteger)(CTBoolean)

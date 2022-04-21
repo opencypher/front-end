@@ -30,6 +30,7 @@ import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 
 case class distributeLawsRewriter()(implicit monitor: AstRewritingMonitor) extends Rewriter {
+
   def apply(that: AnyRef): AnyRef = {
     if (dnfCounts(that) < distributeLawsRewriter.DNF_CONVERSION_LIMIT) {
       instance(that)
@@ -45,8 +46,10 @@ case class distributeLawsRewriter()(implicit monitor: AstRewritingMonitor) exten
   }
 
   private val step = Rewriter.lift {
-    case p@Or(exp1, And(exp2, exp3)) => And(Or(exp1, exp2)(p.position), Or(exp1.endoRewrite(copyVariables), exp3)(p.position))(p.position)
-    case p@Or(And(exp1, exp2), exp3) => And(Or(exp1, exp3)(p.position), Or(exp2, exp3.endoRewrite(copyVariables))(p.position))(p.position)
+    case p @ Or(exp1, And(exp2, exp3)) =>
+      And(Or(exp1, exp2)(p.position), Or(exp1.endoRewrite(copyVariables), exp3)(p.position))(p.position)
+    case p @ Or(And(exp1, exp2), exp3) =>
+      And(Or(exp1, exp3)(p.position), Or(exp2, exp3.endoRewrite(copyVariables))(p.position))(p.position)
   }
 
   private val instance: Rewriter = repeatWithSizeLimit(bottomUp(step))(monitor)
@@ -57,8 +60,7 @@ case object distributeLawsRewriter extends CnfPhase {
   // see https://en.wikipedia.org/wiki/Conjunctive_normal_form#Conversion_into_CNF
   val DNF_CONVERSION_LIMIT = 8
 
-  override def getRewriter(from: BaseState,
-                           context: BaseContext): Rewriter = {
+  override def getRewriter(from: BaseState, context: BaseContext): Rewriter = {
     implicit val monitor: AstRewritingMonitor = context.monitors.newMonitor[AstRewritingMonitor]()
     distributeLawsRewriter()
   }

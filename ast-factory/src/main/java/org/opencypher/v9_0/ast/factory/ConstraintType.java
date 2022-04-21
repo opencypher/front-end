@@ -15,25 +15,22 @@
  */
 package org.opencypher.v9_0.ast.factory;
 
-public enum ConstraintType
-{
-    UNIQUE( "IS UNIQUE" ),
-    NODE_KEY( "IS NODE KEY" ),
-    NODE_EXISTS( "EXISTS" ),
-    NODE_IS_NOT_NULL( "IS NOT NULL" ),
-    REL_EXISTS( "EXISTS" ),
-    REL_IS_NOT_NULL( "IS NOT NULL" ),
-    INVALID( "INVALID" );
+public enum ConstraintType {
+    UNIQUE("IS UNIQUE"),
+    NODE_KEY("IS NODE KEY"),
+    NODE_EXISTS("EXISTS"),
+    NODE_IS_NOT_NULL("IS NOT NULL"),
+    REL_EXISTS("EXISTS"),
+    REL_IS_NOT_NULL("IS NOT NULL"),
+    INVALID("INVALID");
 
     private final String description;
 
-    ConstraintType( String description )
-    {
+    ConstraintType(String description) {
         this.description = description;
     }
 
-    public String description()
-    {
+    public String description() {
         return description;
     }
 }

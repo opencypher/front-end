@@ -23,12 +23,13 @@ import org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.rewriting.ValidatingCondition
 
 case object normalizedEqualsArguments extends ValidatingCondition {
+
   def apply(that: Any): Seq[String] = {
     val equals = collectNodesOfType[Equals]().apply(that)
     equals.collect {
-      case eq@Equals(expr, Property(_,_)) if !expr.isInstanceOf[Property] && notIdFunction(expr) =>
+      case eq @ Equals(expr, Property(_, _)) if !expr.isInstanceOf[Property] && notIdFunction(expr) =>
         s"Equals at ${eq.position} is not normalized: $eq"
-      case eq@Equals(expr, func@FunctionInvocation(_, _, _, _)) if isIdFunction(func) && notIdFunction(expr) =>
+      case eq @ Equals(expr, func @ FunctionInvocation(_, _, _, _)) if isIdFunction(func) && notIdFunction(expr) =>
         s"Equals at ${eq.position} is not normalized: $eq"
     }
   }

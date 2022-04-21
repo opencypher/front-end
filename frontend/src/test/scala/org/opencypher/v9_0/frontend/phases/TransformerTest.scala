@@ -21,17 +21,19 @@ import org.opencypher.v9_0.rewriting.ValidatingCondition
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class TransformerTest extends CypherFunSuite{
+class TransformerTest extends CypherFunSuite {
 
-  private case class TestPhase(override val postConditions: Set[StepSequencer.Condition],
-                               transformation: Any => Any = identity) extends Phase[BaseContext, Any, Any] {
+  private case class TestPhase(
+    override val postConditions: Set[StepSequencer.Condition],
+    transformation: Any => Any = identity
+  ) extends Phase[BaseContext, Any, Any] {
     override def phase: CompilationPhaseTracer.CompilationPhase = LOGICAL_PLANNING
     override def process(from: Any, context: BaseContext): Any = transformation(from)
   }
 
   private case class ExplodesWhen(condition: Any => Boolean = _ => false) extends ValidatingCondition {
     override def name: String = "Explodes"
-    override def apply(in: Any): Seq[String] = if(condition(in)) Seq(s"$in was not ok.") else Seq.empty
+    override def apply(in: Any): Seq[String] = if (condition(in)) Seq(s"$in was not ok.") else Seq.empty
   }
 
   private val dummyPhase = TestPhase(Set.empty)

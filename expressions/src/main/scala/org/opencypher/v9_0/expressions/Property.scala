@@ -17,6 +17,7 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
 
-case class Property(map: Expression, propertyKey: PropertyKeyName)(val position: InputPosition) extends LogicalProperty {
+case class Property(map: Expression, propertyKey: PropertyKeyName)(val position: InputPosition)
+    extends LogicalProperty {
   override def asCanonicalStringVal = s"${map.asCanonicalStringVal}.${propertyKey.asCanonicalStringVal}"
 }

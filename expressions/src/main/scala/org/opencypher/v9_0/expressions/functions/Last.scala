@@ -21,8 +21,15 @@ import org.opencypher.v9_0.util.symbols.CTList
 
 case object Last extends Function {
   def name = "last"
+
   override val signatures = Vector(
-     FunctionTypeSignature(function = this, names = Vector("list"), argumentTypes = Vector(CTList(CTAny)), outputType = CTAny,
-      description = "Returns the last element in a list.", category = Category.SCALAR)
+    FunctionTypeSignature(
+      function = this,
+      names = Vector("list"),
+      argumentTypes = Vector(CTList(CTAny)),
+      outputType = CTAny,
+      description = "Returns the last element in a list.",
+      category = Category.SCALAR
+    )
   )
 }

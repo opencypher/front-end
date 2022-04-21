@@ -19,25 +19,31 @@ package org.opencypher.v9_0.util
  * Formats error messages.
  */
 trait ErrorMessageProvider {
-  def createMissingPropertyLabelHintError(operatorDescription: String,
-                                          hintStringification: String,
-                                          missingThingDescription: String,
-                                          foundThingsDescription: String,
-                                          entityDescription: String,
-                                          entityName: String,
-                                          additionalInfo: String): String
+
+  def createMissingPropertyLabelHintError(
+    operatorDescription: String,
+    hintStringification: String,
+    missingThingDescription: String,
+    foundThingsDescription: String,
+    entityDescription: String,
+    entityName: String,
+    additionalInfo: String
+  ): String
 
   def createSelfReferenceError(name: String, variableType: String): String
 }
 
 object NotImplementedErrorMessageProvider extends ErrorMessageProvider {
-  override def createMissingPropertyLabelHintError(operatorDescription: String,
-                                                   hintStringification: String,
-                                                   missingThingDescription: String,
-                                                   foundThingsDescription: String,
-                                                   entityDescription: String,
-                                                   entityName: String,
-                                                   additionalInfo: String): String = ???
+
+  override def createMissingPropertyLabelHintError(
+    operatorDescription: String,
+    hintStringification: String,
+    missingThingDescription: String,
+    foundThingsDescription: String,
+    entityDescription: String,
+    entityName: String,
+    additionalInfo: String
+  ): String = ???
 
   override def createSelfReferenceError(name: String, variableType: String): String = ???
 }

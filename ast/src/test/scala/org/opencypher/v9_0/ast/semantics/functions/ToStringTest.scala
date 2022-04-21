@@ -31,7 +31,7 @@ import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.CTTime
 
-class ToStringTest extends FunctionTestBase("toString")  {
+class ToStringTest extends FunctionTestBase("toString") {
 
   test("should accept correct types or types that could be correct at runtime") {
     testValidTypes(CTString)(CTString)

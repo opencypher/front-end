@@ -33,7 +33,7 @@ import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CTString
 import org.opencypher.v9_0.util.symbols.CTTime
 
-class ToStringListTest extends FunctionTestBase("toStringList")  {
+class ToStringListTest extends FunctionTestBase("toStringList") {
 
   test("shouldAcceptCorrectTypes") {
     testValidTypes(CTList(CTAny))(CTList(CTString))

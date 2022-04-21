@@ -18,12 +18,18 @@ package org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.expressions.FunctionTypeSignature
 import org.opencypher.v9_0.util.symbols.CTString
 
-case object Replace extends Function  {
+case object Replace extends Function {
   def name = "replace"
 
   override val signatures = Vector(
-    FunctionTypeSignature(function = this, names = Vector("original", "search", "replace"), argumentTypes = Vector(CTString, CTString, CTString),
+    FunctionTypeSignature(
+      function = this,
+      names = Vector("original", "search", "replace"),
+      argumentTypes = Vector(CTString, CTString, CTString),
       outputType = CTString,
-      description = "Returns a string in which all occurrences of a specified search string in the original string have been replaced by another (specified) replace string.", category = Category.STRING)
+      description =
+        "Returns a string in which all occurrences of a specified search string in the original string have been replaced by another (specified) replace string.",
+      category = Category.STRING
+    )
   )
 }

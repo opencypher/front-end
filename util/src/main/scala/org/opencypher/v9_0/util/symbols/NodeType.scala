@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object NodeType {
+
   val instance = new NodeType() {
     val parentType = CTMap
     override val toString = "Node"

@@ -22,6 +22,7 @@ import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTString
 
 class EndsWithTest extends InfixExpressionTestBase(expressions.EndsWith(_, _)(DummyPosition(0))) {
+
   test("should combine strings and possible strings") {
     testValidTypes(CTString, CTString)(CTBoolean)
     testValidTypes(CTAny, CTString)(CTBoolean)

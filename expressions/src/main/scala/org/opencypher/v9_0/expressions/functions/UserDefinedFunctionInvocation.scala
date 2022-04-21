@@ -18,7 +18,7 @@ package org.opencypher.v9_0.expressions.functions
 import org.opencypher.v9_0.expressions.FunctionInvocation
 
 trait UserDefinedFunctionInvocation {
-  def isAggregate:Boolean
+  def isAggregate: Boolean
 
   def asUnresolvedFunction: FunctionInvocation
 }

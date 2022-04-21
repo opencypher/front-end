@@ -21,6 +21,9 @@ import org.opencypher.v9_0.frontend.phases.BaseState
 import org.opencypher.v9_0.frontend.phases.Transformer
 
 trait PlanPipelineTransformerFactory {
-  def getTransformer(pushdownPropertyReads: Boolean,
-                     semanticFeatures: Seq[SemanticFeature]): Transformer[_ <: BaseContext, _ <: BaseState, BaseState]
+
+  def getTransformer(
+    pushdownPropertyReads: Boolean,
+    semanticFeatures: Seq[SemanticFeature]
+  ): Transformer[_ <: BaseContext, _ <: BaseState, BaseState]
 }

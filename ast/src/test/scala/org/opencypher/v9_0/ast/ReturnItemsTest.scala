@@ -15,8 +15,8 @@
  */
 package org.opencypher.v9_0.ast
 
-import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
 
@@ -24,7 +24,7 @@ class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
     val item1 = AliasedReturnItem(literalString("a"), varFor("n"))(pos, isAutoAliased = false)
     val item2 = AliasedReturnItem(literalString("b"), varFor("n"))(pos, isAutoAliased = false)
 
-    val items = ReturnItems(includeExisting = false, Seq(item1, item2))_
+    val items = ReturnItems(includeExisting = false, Seq(item1, item2)) _
 
     val result = items.semanticCheck(SemanticState.clean)
 
@@ -33,10 +33,10 @@ class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
   }
 
   test("should forbid unaliased projections collisions, e.g., projecting more than one value to the same id") {
-    val item1 = UnaliasedReturnItem(literalString("a"), "a")_
-    val item2 = UnaliasedReturnItem(literalString("a"), "a")_
+    val item1 = UnaliasedReturnItem(literalString("a"), "a") _
+    val item2 = UnaliasedReturnItem(literalString("a"), "a") _
 
-    val items = ReturnItems(includeExisting = false, Seq(item1, item2))_
+    val items = ReturnItems(includeExisting = false, Seq(item1, item2)) _
 
     val result = items.semanticCheck(SemanticState.clean)
 
@@ -48,7 +48,7 @@ class ReturnItemsTest extends CypherFunSuite with AstConstructionTestSupport {
     val item1 = AliasedReturnItem(literalString("a"), varFor("n"))(pos, isAutoAliased = false)
     val item2 = AliasedReturnItem(literalString("a"), varFor("m"))(pos, isAutoAliased = false)
 
-    val items = ReturnItems(includeExisting = false, Seq(item1, item2))_
+    val items = ReturnItems(includeExisting = false, Seq(item1, item2)) _
 
     val result = items.semanticCheck(SemanticState.clean)
 

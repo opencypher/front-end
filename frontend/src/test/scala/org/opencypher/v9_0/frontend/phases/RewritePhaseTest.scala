@@ -42,8 +42,7 @@ trait RewritePhaseTest {
 
   def rewriterPhaseForExpected: Transformer[BaseContext, BaseState, BaseState] =
     new Transformer[BaseContext, BaseState, BaseState] {
-      override def transform(from: BaseState,
-                             context: BaseContext): BaseState = from
+      override def transform(from: BaseState, context: BaseContext): BaseState = from
 
       override def postConditions: Set[StepSequencer.Condition] = Set.empty
 
@@ -58,12 +57,16 @@ trait RewritePhaseTest {
     override def version: String = "fake"
   }
 
-
   def assertNotRewritten(from: String): Unit = assertRewritten(from, from)
 
   def assertRewritten(from: String, to: String): Unit = assertRewritten(from, to, List.empty)
 
-  def assertRewritten(from: String, to: String, semanticTableExpressions: List[Expression], features: SemanticFeature*): Unit = {
+  def assertRewritten(
+    from: String,
+    to: String,
+    semanticTableExpressions: List[Expression],
+    features: SemanticFeature*
+  ): Unit = {
     val fromOutState: BaseState = prepareFrom(from, rewriterPhaseUnderTest, features: _*)
 
     val toOutState = prepareFrom(to, rewriterPhaseForExpected, features: _*)
@@ -76,7 +79,12 @@ trait RewritePhaseTest {
     }
   }
 
-  def assertRewritten(from: String, to: Statement, semanticTableExpressions: List[Expression], features: SemanticFeature*): Unit = {
+  def assertRewritten(
+    from: String,
+    to: Statement,
+    semanticTableExpressions: List[Expression],
+    features: SemanticFeature*
+  ): Unit = {
     val fromOutState: BaseState = prepareFrom(from, rewriterPhaseUnderTest, features: _*)
 
     fromOutState.statement() should equal(to)
@@ -93,20 +101,32 @@ trait RewritePhaseTest {
     val parsedAst = JavaCCParser.parse(queryText, exceptionFactory, nameGenerator)
     val cleanedAst = parsedAst.endoRewrite(inSequence(normalizeWithAndReturnClauses(exceptionFactory, devNullLogger)))
     if (astRewriteAndAnalyze) {
-      ASTRewriter.rewrite(cleanedAst, cleanedAst.semanticState(features: _*), Map.empty, exceptionFactory, nameGenerator)
+      ASTRewriter.rewrite(
+        cleanedAst,
+        cleanedAst.semanticState(features: _*),
+        Map.empty,
+        exceptionFactory,
+        nameGenerator
+      )
     } else {
       cleanedAst
     }
   }
 
- def prepareFrom(from: String, transformer: Transformer[BaseContext, BaseState, BaseState], features: SemanticFeature*): BaseState = {
-   val fromAst = parseAndRewrite(from, features: _*)
-   val initialState = InitialState(from, None, plannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(fromAst))
-   val fromInState = if (astRewriteAndAnalyze) {
-     SemanticAnalysis(warn = false, features: _*).process(initialState, TestContext())
-   } else {
-     initialState
-   }
-   transformer.transform(fromInState, ContextHelper.create())
+  def prepareFrom(
+    from: String,
+    transformer: Transformer[BaseContext, BaseState, BaseState],
+    features: SemanticFeature*
+  ): BaseState = {
+    val fromAst = parseAndRewrite(from, features: _*)
+    val initialState =
+      InitialState(from, None, plannerName, new AnonymousVariableNameGenerator, maybeStatement = Some(fromAst))
+    val fromInState =
+      if (astRewriteAndAnalyze) {
+        SemanticAnalysis(warn = false, features: _*).process(initialState, TestContext())
+      } else {
+        initialState
+      }
+    transformer.transform(fromInState, ContextHelper.create())
   }
 }

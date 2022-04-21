@@ -20,10 +20,10 @@ import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTString
 
-class SplitTest extends FunctionTestBase("split")  {
+class SplitTest extends FunctionTestBase("split") {
 
   test("shouldAcceptCorrectTypes") {
-    testValidTypes(CTString,CTString)(CTList(CTString))
+    testValidTypes(CTString, CTString)(CTList(CTString))
   }
 
   test("shouldFailTypeCheckForIncompatibleArguments") {
@@ -43,7 +43,7 @@ class SplitTest extends FunctionTestBase("split")  {
     testInvalidApplication(CTString)(
       "Insufficient parameters for function 'split'"
     )
-    testInvalidApplication(CTString,CTString,CTString)(
+    testInvalidApplication(CTString, CTString, CTString)(
       "Too many parameters for function 'split'"
     )
   }

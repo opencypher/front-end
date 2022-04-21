@@ -19,7 +19,7 @@ import org.opencypher.v9_0.expressions.TypeSignature
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
 
-case object EndNode extends Function  {
+case object EndNode extends Function {
   def name = "endNode"
 
   override val signatures = Vector(

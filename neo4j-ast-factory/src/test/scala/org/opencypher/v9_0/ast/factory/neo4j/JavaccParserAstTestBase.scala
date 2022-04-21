@@ -22,11 +22,13 @@ import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.TestName
 
-trait JavaccParserAstTestBase[AST <: ASTNode] extends JavaccParserTestBase[AST, AST] with TestName with AstConstructionTestSupport with VerifyAstPositionTestSupport {
+trait JavaccParserAstTestBase[AST <: ASTNode] extends JavaccParserTestBase[AST, AST] with TestName
+    with AstConstructionTestSupport with VerifyAstPositionTestSupport {
 
   final override def convert(astNode: AST): AST = astNode
 
-  final def yields(expr: InputPosition => AST)(implicit parser: JavaccRule[AST]): Unit = parsing(testName) shouldGive expr
+  final def yields(expr: InputPosition => AST)(implicit parser: JavaccRule[AST]): Unit =
+    parsing(testName) shouldGive expr
 
   final def gives(ast: AST)(implicit parser: JavaccRule[AST]): Unit = parsing(testName) shouldGive ast
 

@@ -15,8 +15,7 @@
  */
 package org.opencypher.v9_0.ast.factory;
 
-public enum ConstraintVersion
-{
+public enum ConstraintVersion {
     CONSTRAINT_VERSION_0, // ASSERT EXISTS, ASSERT ... IS UNIQUE, ASSERT ... IS NODE KEY
     CONSTRAINT_VERSION_1, // ASSERT ... IS NOT NULL
     CONSTRAINT_VERSION_2 // REQUIRE

@@ -19,7 +19,7 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CypherType
 
 case class ImplicitProcedureArgument(name: String, parameterType: CypherType, defaultValue: AnyRef)
-  extends Expression {
+    extends Expression {
 
   override def asCanonicalStringVal: String = "$" + name
 

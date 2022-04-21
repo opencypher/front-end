@@ -17,8 +17,10 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
 
-case class ExistsSubClause(pattern: Pattern, optionalWhereExpression: Option[Expression])
-                          (val position: InputPosition, override val outerScope: Set[LogicalVariable]) extends ScopeExpression with BooleanExpression with ExpressionWithOuterScope {
+case class ExistsSubClause(pattern: Pattern, optionalWhereExpression: Option[Expression])(
+  val position: InputPosition,
+  override val outerScope: Set[LogicalVariable]
+) extends ScopeExpression with BooleanExpression with ExpressionWithOuterScope {
 
   self =>
 
@@ -26,12 +28,14 @@ case class ExistsSubClause(pattern: Pattern, optionalWhereExpression: Option[Exp
 
   override def withOuterScope(outerScope: Set[LogicalVariable]): ExistsSubClause = copy()(position, outerScope)
 
-  override val introducedVariables: Set[LogicalVariable] = patternElements.collect { case e => e.allVariables }.flatten.toSet -- outerScope
+  override val introducedVariables: Set[LogicalVariable] = patternElements.collect { case e =>
+    e.allVariables
+  }.flatten.toSet -- outerScope
 
   override def dup(children: Seq[AnyRef]): this.type = {
     ExistsSubClause(
       children(0).asInstanceOf[Pattern],
-      children(1).asInstanceOf[Option[Expression]],
+      children(1).asInstanceOf[Option[Expression]]
     )(position, outerScope).asInstanceOf[this.type]
   }
 }

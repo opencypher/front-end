@@ -36,8 +36,6 @@ import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols
 import org.opencypher.v9_0.util.symbols.CypherType
 
-
-
 /**
  * Adds an exists() around any pattern expression that is expected to produce a boolean e.g.
  *
@@ -73,6 +71,7 @@ case class normalizeExistsPatternExpressions(semanticState: SemanticState) exten
 }
 
 object normalizeExistsPatternExpressions extends StepSequencer.Step with ASTRewriterFactory {
+
   override def preConditions: Set[Condition] = Set(
     PatternExpressionsHaveSemanticInfo // Looks up type of pattern expressions
   )
@@ -84,8 +83,10 @@ object normalizeExistsPatternExpressions extends StepSequencer.Step with ASTRewr
     ProjectionClausesHaveSemanticInfo // It can invalidate this condition by rewriting things inside WITH/RETURN.
   )
 
-  override def getRewriter(semanticState: SemanticState,
-                           parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory,
-                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = normalizeExistsPatternExpressions(semanticState)
+  override def getRewriter(
+    semanticState: SemanticState,
+    parameterTypeMapping: Map[String, CypherType],
+    cypherExceptionFactory: CypherExceptionFactory,
+    anonymousVariableNameGenerator: AnonymousVariableNameGenerator
+  ): Rewriter = normalizeExistsPatternExpressions(semanticState)
 }

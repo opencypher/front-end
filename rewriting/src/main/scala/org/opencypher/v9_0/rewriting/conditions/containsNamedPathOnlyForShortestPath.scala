@@ -20,8 +20,9 @@ import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.rewriting.ValidatingCondition
 
 case object containsNamedPathOnlyForShortestPath extends ValidatingCondition {
+
   private val matcher = containsNoMatchingNodes({
-    case namedPart@NamedPatternPart(_, part) if !part.isInstanceOf[ShortestPaths] =>
+    case namedPart @ NamedPatternPart(_, part) if !part.isInstanceOf[ShortestPaths] =>
       namedPart.toString
   })
 

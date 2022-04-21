@@ -30,7 +30,8 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 /**
  * Label expression in Node patterns
  */
-class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAstTestBase[NodePattern] with AstConstructionTestSupport {
+class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAstTestBase[NodePattern]
+    with AstConstructionTestSupport {
 
   implicit val parser: JavaccRule[NodePattern] = JavaccRule.NodePattern
 
@@ -39,7 +40,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
       nodePat(
         name = Some("n"),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -50,7 +51,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
         name = Some("n"),
         labelExpression = Some(labelAtom("A", (1, 4, 3))),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -64,7 +65,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
         labelExpression = Some(labelAtom("A", (1, 4, 3))),
         properties = Some(parameter("param", CTAny, (1, 6, 5))),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -80,7 +81,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -96,10 +97,10 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
               labelAtom("B")
             ),
             labelAtom("C")
-          ),
+          )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -113,12 +114,12 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
             labelAtom("A", (1, 4, 3)),
             labelConjunction(
               labelAtom("B"),
-              labelAtom("C"),
-            ),
-          ),
+              labelAtom("C")
+            )
+          )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -129,11 +130,11 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
         name = Some("n"),
         labelExpression = Some(
           labelNegation(
-            labelAtom("A"),
-          ),
+            labelAtom("A")
+          )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -147,7 +148,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
             labelAtom("B", (1, 5, 4))
           )
         ),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -163,7 +164,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -179,7 +180,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
             )
           ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -196,11 +197,11 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
               (1, 5, 4)
             ),
             labelAtom("C", (1, 8, 7)),
-            (1, 7, 6),
+            (1, 7, 6)
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -212,11 +213,11 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
         labelExpression = Some(
           labelConjunction(
             labelNegation(labelAtom("A")),
-            labelAtom("B"),
+            labelAtom("B")
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -239,7 +240,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -252,12 +253,12 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
           labelNegation(
             labelConjunction(
               labelAtom("A"),
-              labelAtom("B"),
+              labelAtom("B")
             )
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -272,13 +273,13 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
           labelDisjunction(
             labelConjunction(
               labelAtom("A", (1, 5, 4)),
-              labelAtom("B"),
+              labelAtom("B")
             ),
             labelAtom("C")
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -291,7 +292,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
         name = Some("n"),
         labelExpression = Some(labelWildcard(1, 4, 3)),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -310,7 +311,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
           )
         ),
         namePos = (1, 2, 1),
-        position = (1, 1, 0),
+        position = (1, 1, 0)
       )
     }
   }
@@ -319,22 +320,23 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
   //              123456789012345678901234567890123456789
   test("(n WHERE n:A&B)") {
     givesIncludingPositions {
-        nodePat(
-          name = Some("n"),
-          labelExpression = None,
-          predicates = Some(labelExpressionPredicate(
-            "n",
-            labelConjunction(
-              labelAtom("A", (1, 12, 11)),
-              labelAtom("B", (1, 14, 13))
-            )
-          ))
+      nodePat(
+        name = Some("n"),
+        labelExpression = None,
+        predicates = Some(labelExpressionPredicate(
+          "n",
+          labelConjunction(
+            labelAtom("A", (1, 12, 11)),
+            labelAtom("B", (1, 14, 13))
+          )
+        ))
       )
     }
   }
 }
 
-class MatchNodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAstTestBase[ast.Clause] with AstConstructionTestSupport {
+class MatchNodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAstTestBase[ast.Clause]
+    with AstConstructionTestSupport {
 
   implicit val parser: JavaccRule[ast.Clause] = JavaccRule.Clause
 
@@ -367,10 +369,10 @@ class MatchNodeLabelExpressionsParserTest extends CypherFunSuite with JavaccPars
           labelExpression = Some(
             labelDisjunction(
               labelAtom("A", (1, 10, 9)),
-              labelAtom("B", (1, 12, 11)),
+              labelAtom("B", (1, 12, 11))
             )
           ),
-          namePos = (1, 8, 7),
+          namePos = (1, 8, 7)
         ),
         Some(where(
           labelExpressionPredicate(
@@ -379,7 +381,7 @@ class MatchNodeLabelExpressionsParserTest extends CypherFunSuite with JavaccPars
               labelAtom("A", (1, 23, 22)),
               labelAtom("C", (1, 25, 24)),
               (1, 24, 23)
-            ),
+            )
           )
         ))
       )
@@ -401,7 +403,8 @@ class MatchNodeLabelExpressionsParserTest extends CypherFunSuite with JavaccPars
 
 }
 
-class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAstTestBase[Expression] with AstConstructionTestSupport {
+class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAstTestBase[Expression]
+    with AstConstructionTestSupport {
   implicit val parser: JavaccRule[Expression] = JavaccRule.Expression
 
   //              000000000111111111122222222223333333333
@@ -413,30 +416,31 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
         pattern = RelationshipsPattern(
           RelationshipChain(
             nodePat(Some("a")),
-            RelationshipPattern(None,List(),None,None,None,OUTGOING)(1, 5, 4),
+            RelationshipPattern(None, List(), None, None, None, OUTGOING)(1, 5, 4),
             nodePat(
               Some("b"),
               Some(labelDisjunction(
                 labelAtom("A", (1, 11, 10)),
                 labelAtom("B", (1, 13, 12)),
-                (1, 12, 11),
+                (1, 12, 11)
               ))
             )
           )(1, 2, 1)
         )(1, 2, 1),
         predicate = None,
-        projection = prop("b", "prop"),
+        projection = prop("b", "prop")
       )((1, 1, 0), Set.empty, "  UNNAMED0", "  UNNAMED1")
     }
   }
 
   test("[x IN [1,2,3] WHERE n:A | x]") {
     givesIncludingPositions {
-        listComprehension(
-          varFor("x"),
-          listOfInt(1, 2, 3),
-          Some(labelExpressionPredicate(varFor("n", position = (1, 21, 20)), labelAtom("A", (1, 23, 22)))),
-          Some(varFor("x")))
+      listComprehension(
+        varFor("x"),
+        listOfInt(1, 2, 3),
+        Some(labelExpressionPredicate(varFor("n", position = (1, 21, 20)), labelAtom("A", (1, 23, 22)))),
+        Some(varFor("x"))
+      )
     }
   }
 
@@ -446,47 +450,57 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
         varFor("x"),
         listOfInt(1, 2, 3),
         Some(
-          labelExpressionPredicate(varFor("n", position = (1, 21, 20)),
+          labelExpressionPredicate(
+            varFor("n", position = (1, 21, 20)),
             labelDisjunction(
               labelAtom("A", (1, 24, 23)),
               labelAtom("x", (1, 28, 27)),
               (1, 26, 25)
-            ))),
-        None)
+            )
+          )
+        ),
+        None
+      )
     }
   }
 
   test("[x IN [1,2,3] WHERE n:A&x]") {
     givesIncludingPositions {
-        listComprehension(
-          varFor("x"),
-          listOfInt(1, 2, 3),
-          Some(
-            labelExpressionPredicate(varFor("n", position = (1, 21, 20)),
-              labelConjunction(
-                labelAtom("A", (1, 23, 22)),
-                labelAtom("x", (1, 25, 24))))
-          ),
-          None)
+      listComprehension(
+        varFor("x"),
+        listOfInt(1, 2, 3),
+        Some(
+          labelExpressionPredicate(
+            varFor("n", position = (1, 21, 20)),
+            labelConjunction(
+              labelAtom("A", (1, 23, 22)),
+              labelAtom("x", (1, 25, 24))
+            )
+          )
+        ),
+        None
+      )
     }
   }
 
   test("[x IN [1,2,3] WHERE n:A & (b | x)]") {
-    givesIncludingPositions {listComprehension(varFor("x"),
-      listOfInt(1, 2, 3),
-      Some(labelExpressionPredicate(
-        varFor("n", position = (1, 21, 20)),
-        labelConjunction(
-          labelAtom("A", (1, 23, 22)),
-          labelDisjunction(
-            labelAtom("b", (1, 28, 27)),
-            labelAtom("x", (1, 32, 31)),
-            (1, 30, 29)
+    givesIncludingPositions {
+      listComprehension(
+        varFor("x"),
+        listOfInt(1, 2, 3),
+        Some(labelExpressionPredicate(
+          varFor("n", position = (1, 21, 20)),
+          labelConjunction(
+            labelAtom("A", (1, 23, 22)),
+            labelDisjunction(
+              labelAtom("b", (1, 28, 27)),
+              labelAtom("x", (1, 32, 31)),
+              (1, 30, 29)
+            )
           )
-        )
-      )),
-      None
-    )
+        )),
+        None
+      )
     }
   }
 
@@ -496,34 +510,39 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
 
   test("[x IN [1,2,3] WHERE n:(A | x) | x]") {
     givesIncludingPositions {
-        listComprehension(
-          varFor("x"),
-          listOfInt(1, 2, 3),
-          Some(
-            labelExpressionPredicate(varFor("n", position = (1, 21, 20)),
-              labelDisjunction(
-                labelAtom("A", (1, 24, 23)),
-                labelAtom("x", (1, 28, 27)),
-                (1, 26, 25)
-              ))
-          ),
-          Some(varFor("x")))
+      listComprehension(
+        varFor("x"),
+        listOfInt(1, 2, 3),
+        Some(
+          labelExpressionPredicate(
+            varFor("n", position = (1, 21, 20)),
+            labelDisjunction(
+              labelAtom("A", (1, 24, 23)),
+              labelAtom("x", (1, 28, 27)),
+              (1, 26, 25)
+            )
+          )
+        ),
+        Some(varFor("x"))
+      )
     }
   }
 
   test("[x IN [1,2,3] WHERE n:A | x | x]") {
     givesIncludingPositions {
-        listComprehension(
-          varFor("x"),
-          listOfInt(1, 2, 3),
-          Some(labelExpressionPredicate(varFor("n", position = (1, 21, 20)),
-            labelDisjunction(
-              labelAtom("A", (1, 23, 22)),
-              labelAtom("x", (1, 27, 26)),
-              (1, 25, 24)
-            ),
-          )),
-          Some(varFor("x")))
+      listComprehension(
+        varFor("x"),
+        listOfInt(1, 2, 3),
+        Some(labelExpressionPredicate(
+          varFor("n", position = (1, 21, 20)),
+          labelDisjunction(
+            labelAtom("A", (1, 23, 22)),
+            labelAtom("x", (1, 27, 26)),
+            (1, 25, 24)
+          )
+        )),
+        Some(varFor("x"))
+      )
     }
   }
 }

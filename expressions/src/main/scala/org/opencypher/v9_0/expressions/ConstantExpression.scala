@@ -16,10 +16,11 @@
 package org.opencypher.v9_0.expressions
 
 object ConstantExpression {
+
   def unapply(v: AnyRef): Option[Expression] = v match {
-    case expr: Literal => Some(expr)
-    case expr: Parameter => Some(expr)
-    case expr@ListLiteral(expressions) if expressions.forall(unapply(_).nonEmpty) => Some(expr)
-    case _ => None
+    case expr: Literal                                                              => Some(expr)
+    case expr: Parameter                                                            => Some(expr)
+    case expr @ ListLiteral(expressions) if expressions.forall(unapply(_).nonEmpty) => Some(expr)
+    case _                                                                          => None
   }
 }

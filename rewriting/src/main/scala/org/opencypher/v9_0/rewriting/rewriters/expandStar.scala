@@ -42,16 +42,20 @@ case class expandStar(state: SemanticState) extends Rewriter {
   override def apply(that: AnyRef): AnyRef = instance(that)
 
   private val rewriter = Rewriter.lift {
-    case clause@With(_, values, _, _, _, _) if values.includeExisting =>
-      val newReturnItems = if (values.includeExisting) returnItems(clause, values.items, values.defaultOrderOnColumns) else values
+    case clause @ With(_, values, _, _, _, _) if values.includeExisting =>
+      val newReturnItems =
+        if (values.includeExisting) returnItems(clause, values.items, values.defaultOrderOnColumns) else values
       clause.copy(returnItems = newReturnItems)(clause.position)
 
-    case clause@Return(_, values, _, _, _, excludedNames) if values.includeExisting =>
-      val newReturnItems = if (values.includeExisting) returnItems(clause, values.items, values.defaultOrderOnColumns, excludedNames) else values
+    case clause @ Return(_, values, _, _, _, excludedNames) if values.includeExisting =>
+      val newReturnItems =
+        if (values.includeExisting) returnItems(clause, values.items, values.defaultOrderOnColumns, excludedNames)
+        else values
       clause.copy(returnItems = newReturnItems, excludedNames = Set.empty)(clause.position)
 
-    case clause@Yield(values, _, _, _, _) if values.includeExisting =>
-      val newReturnItems = if (values.includeExisting) returnItems(clause, values.items, values.defaultOrderOnColumns) else values
+    case clause @ Yield(values, _, _, _, _) if values.includeExisting =>
+      val newReturnItems =
+        if (values.includeExisting) returnItems(clause, values.items, values.defaultOrderOnColumns) else values
       clause.copy(returnItems = newReturnItems)(clause.position)
 
     case expandedAstNode =>
@@ -60,7 +64,12 @@ case class expandStar(state: SemanticState) extends Rewriter {
 
   private val instance = bottomUp(rewriter, _.isInstanceOf[Expression])
 
-  private def returnItems(clause: Clause, listedItems: Seq[ReturnItem], defaultOrderOnColumns: Option[List[String]], excludedNames: Set[String] = Set.empty): ReturnItems = {
+  private def returnItems(
+    clause: Clause,
+    listedItems: Seq[ReturnItem],
+    defaultOrderOnColumns: Option[List[String]],
+    excludedNames: Set[String] = Set.empty
+  ): ReturnItems = {
     val scope = state.scope(clause).getOrElse {
       throw new IllegalStateException(s"${clause.name} should note its Scope in the SemanticState")
     }
@@ -86,6 +95,7 @@ case class expandStar(state: SemanticState) extends Rewriter {
 }
 
 object expandStar extends StepSequencer.Step with ASTRewriterFactory {
+
   override def preConditions: Set[StepSequencer.Condition] = Set(
     ProjectionClausesHaveSemanticInfo // Looks up recorded scopes of projection clauses.
   )
@@ -94,8 +104,10 @@ object expandStar extends StepSequencer.Step with ASTRewriterFactory {
 
   override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
-  override def getRewriter(semanticState: SemanticState,
-                           parameterTypeMapping: Map[String, CypherType],
-                           cypherExceptionFactory: CypherExceptionFactory,
-                           anonymousVariableNameGenerator: AnonymousVariableNameGenerator): Rewriter = expandStar(semanticState)
+  override def getRewriter(
+    semanticState: SemanticState,
+    parameterTypeMapping: Map[String, CypherType],
+    cypherExceptionFactory: CypherExceptionFactory,
+    anonymousVariableNameGenerator: AnonymousVariableNameGenerator
+  ): Rewriter = expandStar(semanticState)
 }

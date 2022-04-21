@@ -15,8 +15,7 @@
  */
 package org.opencypher.v9_0.ast.factory;
 
-public enum HintIndexType
-{
+public enum HintIndexType {
     ANY,
     BTREE,
     TEXT,

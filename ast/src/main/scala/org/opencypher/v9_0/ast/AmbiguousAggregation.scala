@@ -29,6 +29,7 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
 object AmbiguousAggregation {
+
   /**
    * ReturnItem will be unaliased if:
    * - it is auto-aliased and the expression is a variable (only variables can be unaliased in a `WITH`-clause)
@@ -43,14 +44,20 @@ object AmbiguousAggregation {
     var i = -1
     def newGroupingAlias(returnItem: ReturnItem): ReturnItem = {
       i += 1
-      AliasedReturnItem(returnItem.expression, Variable(s"grpExpr$i")(InputPosition.NONE))(InputPosition.NONE, isAutoAliased = true)
+      AliasedReturnItem(returnItem.expression, Variable(s"grpExpr$i")(InputPosition.NONE))(
+        InputPosition.NONE,
+        isAutoAliased = true
+      )
     }
 
     returnItems.map {
-      case aliasedReturnItem@AliasedReturnItem(expr, _) if aliasedReturnItem.isAutoAliased && (expr.containsAggregate || expr.isInstanceOf[LogicalVariable]) =>
+      case aliasedReturnItem @ AliasedReturnItem(expr, _)
+        if aliasedReturnItem.isAutoAliased && (expr.containsAggregate || expr.isInstanceOf[LogicalVariable]) =>
         UnaliasedReturnItem(aliasedReturnItem.expression, "")(InputPosition.NONE)
-      case aliasedReturnItem: AliasedReturnItem if aliasedReturnItem.isAutoAliased => newGroupingAlias(aliasedReturnItem)
-      case returnItem: UnaliasedReturnItem if !returnItem.expression.isInstanceOf[LogicalVariable] => newGroupingAlias(returnItem)
+      case aliasedReturnItem: AliasedReturnItem if aliasedReturnItem.isAutoAliased =>
+        newGroupingAlias(aliasedReturnItem)
+      case returnItem: UnaliasedReturnItem if !returnItem.expression.isInstanceOf[LogicalVariable] =>
+        newGroupingAlias(returnItem)
       case returnItem => returnItem
     }
   }
@@ -88,9 +95,11 @@ object AmbiguousAggregation {
    * @param nonNestedPropertiesUsedForGrouping all non-nested property grouping items
    * @return true if the given aggregation expression does not follow the rules above
    */
-  def isDeprecatedExpression(sortOrAggregationExpr: Expression,
-                             variablesUsedForGrouping: Seq[LogicalVariable],
-                             nonNestedPropertiesUsedForGrouping: Seq[LogicalProperty]): Boolean =
+  def isDeprecatedExpression(
+    sortOrAggregationExpr: Expression,
+    variablesUsedForGrouping: Seq[LogicalVariable],
+    nonNestedPropertiesUsedForGrouping: Seq[LogicalProperty]
+  ): Boolean =
     sortOrAggregationExpr.folder.treeFold(Expression.TreeAcc[Boolean](false)) {
       case scope: ScopeExpression =>
         acc =>
@@ -120,8 +129,10 @@ object AmbiguousAggregation {
    * @param groupingItems all grouping items
    * @return the deprecated grouping keys used in the expressions
    */
-  def deprecatedGroupingKeysUsedInAggrExpr(expression: Seq[Expression],
-                                           groupingItems: Seq[ReturnItem]): Seq[ReturnItem] = {
+  def deprecatedGroupingKeysUsedInAggrExpr(
+    expression: Seq[Expression],
+    groupingItems: Seq[ReturnItem]
+  ): Seq[ReturnItem] = {
     expression.folder.treeFold(Seq.empty[ReturnItem]) {
       case IsAggregate(_) | _: LogicalVariable | LogicalProperty(LogicalVariable(_), _) =>
         acc => SkipChildren(acc)
@@ -141,9 +152,10 @@ object AmbiguousAggregation {
     val aliasedWithItems = withItems.collect { case item: AliasedReturnItem => item }
     val returnItems = newReturnItems.map {
       // Update aggregation expression to use variables projected in preceding with-clause
-      case returnItem if returnItem.expression.containsAggregate => AmbiguousAggregation.replaceExpressionWithAlias(returnItem, aliasedWithItems)
+      case returnItem if returnItem.expression.containsAggregate =>
+        AmbiguousAggregation.replaceExpressionWithAlias(returnItem, aliasedWithItems)
       // AliasedReturnItem has been projected in preceding `WITH`-clause.
-      case returnItem: AliasedReturnItem => UnaliasedReturnItem(returnItem.variable, "")(InputPosition.NONE)
+      case returnItem: AliasedReturnItem   => UnaliasedReturnItem(returnItem.variable, "")(InputPosition.NONE)
       case returnItem: UnaliasedReturnItem => returnItem
     }
 
@@ -159,8 +171,10 @@ object AmbiguousAggregation {
   def containsDeprecatedAggrExpr(expressionsToCheck: Seq[Expression], returnItems: Seq[ReturnItem]): Boolean = {
     val expressions = returnItems.map(_.expression)
     val newGroupingVariables = expressions.collect { case expr: LogicalVariable => expr }
-    val newPropertiesUsedForGrouping = expressions.collect { case v@LogicalProperty(LogicalVariable(_), _) => v }
+    val newPropertiesUsedForGrouping = expressions.collect { case v @ LogicalProperty(LogicalVariable(_), _) => v }
 
-    expressionsToCheck.exists(aggrExpr => AmbiguousAggregation.isDeprecatedExpression(aggrExpr, newGroupingVariables, newPropertiesUsedForGrouping))
+    expressionsToCheck.exists(aggrExpr =>
+      AmbiguousAggregation.isDeprecatedExpression(aggrExpr, newGroupingVariables, newPropertiesUsedForGrouping)
+    )
   }
 }

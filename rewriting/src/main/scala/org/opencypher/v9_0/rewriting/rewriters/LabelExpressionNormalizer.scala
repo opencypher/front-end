@@ -38,37 +38,41 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
 
 case class LabelExpressionNormalizer(entityExpression: Expression, entityType: Option[EntityType]) extends Rewriter {
+
   val instance: Rewriter = Rewriter.lift {
     case c: LabelExpression.Conjunction => And(
-      c.lhs,
-      c.rhs
-    )(c.position)
+        c.lhs,
+        c.rhs
+      )(c.position)
     case c: LabelExpression.ColonConjunction => And(
-      c.lhs,
-      c.rhs
-    )(c.position)
+        c.lhs,
+        c.rhs
+      )(c.position)
 
     case d: LabelExpression.Disjunction => Or(
-      d.lhs,
-      d.rhs
-    )(d.position)
+        d.lhs,
+        d.rhs
+      )(d.position)
 
     case n: LabelExpression.Negation => Not(
-      n.e
-    )(n.position)
+        n.e
+      )(n.position)
 
     case n: LabelExpression.Wildcard =>
       val size: Expression => FunctionInvocation = FunctionInvocation(FunctionName("size")(n.position), _)(n.position)
-      val labels: Expression => FunctionInvocation = FunctionInvocation(FunctionName("labels")(n.position), _)(n.position)
+      val labels: Expression => FunctionInvocation =
+        FunctionInvocation(FunctionName("labels")(n.position), _)(n.position)
       val zero = SignedDecimalIntegerLiteral("0")(n.position)
 
       GreaterThan(size(labels(copy(entityExpression))), zero)(n.position)
 
     case n: LabelExpression.Label =>
       entityType match {
-        case Some(NODE_TYPE)         => HasLabels(copy(entityExpression), Seq(LabelName(n.label.name)(n.position)))(n.position)
-        case Some(RELATIONSHIP_TYPE) => HasTypes(copy(entityExpression), Seq(RelTypeName(n.label.name)(n.position)))(n.position)
-        case None                    => HasLabelsOrTypes(copy(entityExpression), Seq(LabelOrRelTypeName(n.label.name)(n.position)))(n.position)
+        case Some(NODE_TYPE) => HasLabels(copy(entityExpression), Seq(LabelName(n.label.name)(n.position)))(n.position)
+        case Some(RELATIONSHIP_TYPE) =>
+          HasTypes(copy(entityExpression), Seq(RelTypeName(n.label.name)(n.position)))(n.position)
+        case None =>
+          HasLabelsOrTypes(copy(entityExpression), Seq(LabelOrRelTypeName(n.label.name)(n.position)))(n.position)
       }
   }
 
@@ -77,7 +81,7 @@ case class LabelExpressionNormalizer(entityExpression: Expression, entityType: O
    */
   def copy(expr: Expression): Expression = expr match {
     case variable: LogicalVariable => variable.copyId
-    case _ => expr
+    case _                         => expr
   }
 
   override def apply(v1: AnyRef): AnyRef = topDown(instance)(v1)

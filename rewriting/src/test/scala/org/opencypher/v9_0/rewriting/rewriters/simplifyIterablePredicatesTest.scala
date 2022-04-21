@@ -22,7 +22,8 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.scalatest.Matchers
 
-class simplifyIterablePredicatesTest extends CypherFunSuite with Matchers with RewriteTest with AstRewritingTestSupport {
+class simplifyIterablePredicatesTest extends CypherFunSuite with Matchers with RewriteTest
+    with AstRewritingTestSupport {
 
   test("should rewrite simple any with literal") {
     assertRewrite(

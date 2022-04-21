@@ -19,13 +19,15 @@ package object helpers {
 
   def closing[Resource <: AutoCloseable, Result](resource: Resource)(block: => Result)(
     implicit onSuccess: Resource => Unit = (r: Resource) => {},
-             onError: (Resource, Throwable) => Unit = (r: Resource, t: Throwable) => {}): Result = {
-    using(resource){ _ => block }
+    onError: (Resource, Throwable) => Unit = (r: Resource, t: Throwable) => {}
+  ): Result = {
+    using(resource) { _ => block }
   }
 
   def using[Resource <: AutoCloseable, Result](resource: Resource)(block: Resource => Result)(
     implicit onSuccess: Resource => Unit = (r: Resource) => {},
-             onError: (Resource, Throwable) => Unit = (r: Resource, t: Throwable) => {}): Result = {
+    onError: (Resource, Throwable) => Unit = (r: Resource, t: Throwable) => {}
+  ): Result = {
     var failure = false
     try {
       block(resource)
@@ -44,7 +46,7 @@ package object helpers {
         }
         throw f
     } finally {
-      if(!failure) {
+      if (!failure) {
         try {
           onSuccess(resource)
         } finally {

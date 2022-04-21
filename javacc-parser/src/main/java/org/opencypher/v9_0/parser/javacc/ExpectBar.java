@@ -15,8 +15,7 @@
  */
 package org.opencypher.v9_0.parser.javacc;
 
-public enum ExpectBar
-{
+public enum ExpectBar {
     /**
      * Expect a bar to follow the label expression
      */

@@ -18,6 +18,7 @@ package org.opencypher.v9_0.ast.semantics
 import org.opencypher.v9_0.ast.Statement
 
 object SemanticChecker {
+
   def check(statement: Statement, state: SemanticState = SemanticState.clean): SemanticCheckResult = {
     val result = statement.semanticCheck(state)
     val scopeTreeIssues = ScopeTreeVerifier.verify(result.state.scopeTree)

@@ -19,9 +19,11 @@ import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class FunctionNameTest extends CypherFunSuite {
+
   test("equality should ignore case") {
     FunctionName("foo")(null) should equal(FunctionName("FOO")(null))
   }
+
   test("equality should respect the name") {
     FunctionName("foo")(null) should not equal FunctionName("FOOB")(null)
   }

@@ -17,17 +17,18 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.util.InputPosition
 
-case class PatternExpression(pattern: RelationshipsPattern)
-                            (override val outerScope: Set[LogicalVariable],
-                             override val variableToCollectName: String,
-                             override val collectionName: String)
-extends ScopeExpression with ExpressionWithOuterScope with RollupApplySolvable {
+case class PatternExpression(pattern: RelationshipsPattern)(
+  override val outerScope: Set[LogicalVariable],
+  override val variableToCollectName: String,
+  override val collectionName: String
+) extends ScopeExpression with ExpressionWithOuterScope with RollupApplySolvable {
 
   override def position: InputPosition = pattern.position
 
   override def introducedVariables: Set[LogicalVariable] = pattern.element.allVariables -- outerScope
 
-  override def withOuterScope(outerScope: Set[LogicalVariable]): PatternExpression = copy()(outerScope, variableToCollectName, collectionName)
+  override def withOuterScope(outerScope: Set[LogicalVariable]): PatternExpression =
+    copy()(outerScope, variableToCollectName, collectionName)
 
   override def dup(children: Seq[AnyRef]): this.type = {
     PatternExpression(

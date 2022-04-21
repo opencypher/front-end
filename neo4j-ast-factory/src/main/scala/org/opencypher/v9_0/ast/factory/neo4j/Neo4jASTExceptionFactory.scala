@@ -15,22 +15,24 @@
  */
 package org.opencypher.v9_0.ast.factory.neo4j
 
-import java.util
-
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
+
+import java.util
 
 import scala.collection.convert.AsScalaConverters
 
 class Neo4jASTExceptionFactory(inner: CypherExceptionFactory) extends ASTExceptionFactory with AsScalaConverters {
 
-  override def syntaxException(got: String,
-                               expected: util.List[String],
-                               source: Exception,
-                               offset: Int,
-                               line: Int,
-                               column: Int): Exception = {
+  override def syntaxException(
+    got: String,
+    expected: util.List[String],
+    source: Exception,
+    offset: Int,
+    line: Int,
+    column: Int
+  ): Exception = {
     val exp: Seq[String] = asScala(expected).toSeq
 
     val message =

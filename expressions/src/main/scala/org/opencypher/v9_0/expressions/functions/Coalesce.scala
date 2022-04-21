@@ -20,8 +20,14 @@ import org.opencypher.v9_0.util.symbols.CTAny
 
 case object Coalesce extends Function {
   def name = "coalesce"
+
   override val signatures = Vector(
-    TypeSignature(this, CTAny, outputType = CTAny,
-      description = "Returns the first non-null value in a list of expressions.", category = Category.SCALAR)
+    TypeSignature(
+      this,
+      CTAny,
+      outputType = CTAny,
+      description = "Returns the first non-null value in a list of expressions.",
+      category = Category.SCALAR
+    )
   )
 }

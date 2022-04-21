@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.util.symbols
 
 object StringType {
+
   val instance = new StringType() {
     val parentType = CTAny
     override val toString = "String"

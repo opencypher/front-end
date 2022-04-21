@@ -20,17 +20,21 @@ package org.opencypher.v9_0.util
  */
 trait InternalNotification
 
-case class CartesianProductNotification(position: InputPosition, isolatedVariables: Set[String]) extends InternalNotification
+case class CartesianProductNotification(position: InputPosition, isolatedVariables: Set[String])
+    extends InternalNotification
 
 case class UnboundedShortestPathNotification(position: InputPosition) extends InternalNotification
 
-case class DeprecatedFunctionNotification(position: InputPosition, oldName: String, newName: String) extends InternalNotification
+case class DeprecatedFunctionNotification(position: InputPosition, oldName: String, newName: String)
+    extends InternalNotification
 
-case class DeprecatedVarLengthBindingNotification(position: InputPosition, variable: String) extends InternalNotification
+case class DeprecatedVarLengthBindingNotification(position: InputPosition, variable: String)
+    extends InternalNotification
 
 case class DeprecatedBtreeIndexSyntax(position: InputPosition) extends InternalNotification
 
-case class DeprecatedRepeatedRelVarInPatternExpression(position: InputPosition, relName: String) extends InternalNotification
+case class DeprecatedRepeatedRelVarInPatternExpression(position: InputPosition, relName: String)
+    extends InternalNotification
 
 case class DeprecatedOctalLiteralSyntax(position: InputPosition) extends InternalNotification
 
@@ -42,4 +46,5 @@ case class DeprecatedSelfReferenceToVariableInCreatePattern(position: InputPosit
 
 case class SubqueryVariableShadowing(position: InputPosition, varName: String) extends InternalNotification
 
-case class DeprecatedAmbiguousGroupingNotification(pos: InputPosition, hint: Option[String]) extends InternalNotification
+case class DeprecatedAmbiguousGroupingNotification(pos: InputPosition, hint: Option[String])
+    extends InternalNotification

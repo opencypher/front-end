@@ -26,7 +26,8 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsLabelOrRelTypePredicate with label in where clause") {
     // MATCH (n) WHERE n:N
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(nodePat(Some("n")))))(pos),
       hints = Seq.empty,
       Some(Where(
@@ -41,7 +42,8 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsLabelOrRelTypePredicate with inlined label") {
     // MATCH (n) WHERE n:N
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(nodePat(Some("n"), Some(labelAtom("N"))))))(pos),
       hints = Seq.empty,
       where = None
@@ -54,14 +56,15 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsLabelOrRelTypePredicate with label in where clause nested in AND") {
     // MATCH (n) WHERE n:N AND n.prop = 1
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(nodePat(Some("n")))))(pos),
       hints = Seq.empty,
       Some(Where(
-      and(
-        hasLabels("n", "N"),
-        propEquality("n", "prop", 1)
-      )
+        and(
+          hasLabels("n", "N"),
+          propEquality("n", "prop", 1)
+        )
       )(pos))
     )(pos)
     `match`.containsLabelOrRelTypePredicate("n", "N") should be(true)
@@ -72,7 +75,8 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsLabelOrRelTypePredicate with label in where clause nested in ORs") {
     // MATCH (n) WHERE n:N OR n.prop = 1
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(nodePat(Some("n")))))(pos),
       hints = Seq.empty,
       Some(Where(
@@ -90,11 +94,14 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsLabelOrRelTypePredicate with rel type in where clause") {
     // MATCH ()-[r]-() WHERE r:R
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(
-        RelationshipChain(nodePat(),
-        RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, None, SemanticDirection.BOTH)(pos),
-        nodePat())(pos)
+        RelationshipChain(
+          nodePat(),
+          RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, None, SemanticDirection.BOTH)(pos),
+          nodePat()
+        )(pos)
       )))(pos),
       hints = Seq.empty,
       Some(Where(
@@ -111,11 +118,14 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsLabelOrRelTypePredicate with rel type in where clause checked by labelExpressionPredicate") {
     // MATCH ()-[r]-() WHERE r:R
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(
-        RelationshipChain(nodePat(),
+        RelationshipChain(
+          nodePat(),
           RelationshipPattern(Some(varFor("r")), Seq.empty, None, None, None, SemanticDirection.BOTH)(pos),
-          nodePat())(pos)
+          nodePat()
+        )(pos)
       )))(pos),
       hints = Seq.empty,
       Some(Where(
@@ -132,11 +142,14 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsLabelOrRelTypePredicate with inlined rel type") {
     // MATCH ()-[r:R]-()
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(
-        RelationshipChain(nodePat(),
+        RelationshipChain(
+          nodePat(),
           RelationshipPattern(Some(varFor("r")), Seq(relTypeName("R")), None, None, None, SemanticDirection.BOTH)(pos),
-          nodePat())(pos)
+          nodePat()
+        )(pos)
       )))(pos),
       hints = Seq.empty,
       None
@@ -151,11 +164,21 @@ class ClauseTest extends CypherFunSuite with AstConstructionTestSupport {
 
   test("containsPropertyPredicates with inlined rel property predicate") {
     // MATCH ()-[r:R {prop: 42}]-()
-    val `match` = Match(optional = false,
+    val `match` = Match(
+      optional = false,
       Pattern(Seq(EveryPath(
-        RelationshipChain(nodePat(),
-          RelationshipPattern(Some(varFor("r")), Seq(relTypeName("R")), None, Some(mapOfInt("prop" -> 42)), None, SemanticDirection.BOTH)(pos),
-          nodePat())(pos)
+        RelationshipChain(
+          nodePat(),
+          RelationshipPattern(
+            Some(varFor("r")),
+            Seq(relTypeName("R")),
+            None,
+            Some(mapOfInt("prop" -> 42)),
+            None,
+            SemanticDirection.BOTH
+          )(pos),
+          nodePat()
+        )(pos)
       )))(pos),
       hints = Seq.empty,
       None

@@ -48,7 +48,10 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
         return_(varFor("b").as("b"), literal(1).as("c"))
       ),
       return_(
-        varFor("a").as("a"), varFor("b").as("b"), varFor("c").as("c"))
+        varFor("a").as("a"),
+        varFor("b").as("b"),
+        varFor("c").as("c")
+      )
     )
       .semanticCheck(clean)
       .errors.size.shouldEqual(0)
@@ -86,11 +89,16 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
         with_(literal(1).as("b")),
         return_(
           orderBy(varFor("b").asc, varFor("c").asc),
-          varFor("b").as("b"), literal(1).as("c"))
+          varFor("b").as("b"),
+          literal(1).as("c")
+        )
       ),
       return_(
         orderBy(varFor("a").asc, varFor("b").asc, varFor("c").asc),
-        varFor("a").as("a"), varFor("b").as("b"), varFor("b").as("c"))
+        varFor("a").as("a"),
+        varFor("b").as("b"),
+        varFor("b").as("c")
+      )
     )
       .semanticCheck(clean)
       .errors.size.shouldEqual(0)
@@ -155,10 +163,12 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
       subqueryCall(union(
         singleQuery(
           with_(literal(2).as("x")),
-          Return(ReturnItems(includeExisting = true, Seq())(itemsPos1))(pos)),
+          Return(ReturnItems(includeExisting = true, Seq())(itemsPos1))(pos)
+        ),
         singleQuery(
           with_(literal(3).as("x")),
-          Return(ReturnItems(includeExisting = true, Seq())(itemsPos2))(pos)),
+          Return(ReturnItems(includeExisting = true, Seq())(itemsPos2))(pos)
+        )
       )),
       return_(literal(1).as("y"))
     )
@@ -166,7 +176,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
       .tap(_.errors.size.shouldEqual(2))
       .tap(_.errors.map(e => e.msg -> e.position).toSet.shouldEqual(Set(
         "Variable `x` already declared in outer scope" -> itemsPos1,
-        "Variable `x` already declared in outer scope" -> itemsPos2,
+        "Variable `x` already declared in outer scope" -> itemsPos2
       )))
   }
 
@@ -177,7 +187,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     // RETURN a
     singleQuery(
       subqueryCall(
-        create(NodePattern(Some(varFor("a")), None, None, None)(pos)),
+        create(NodePattern(Some(varFor("a")), None, None, None)(pos))
       ),
       return_(varFor("a").as("a"))
     )
@@ -311,7 +321,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
       with_(literalInt(1).as("x")),
       subqueryCall(
         singleQuery(merge(nodePat(Some("a"))))
-      ),
+      )
     )
       .semanticCheck(clean)
       .tap(_.errors.size.shouldEqual(0))
@@ -330,7 +340,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
         singleQuery(subqueryCall(
           singleQuery(merge(nodePat(Some("a"))))
         ))
-      ),
+      )
     )
       .semanticCheck(clean)
       .tap(_.errors.size.shouldEqual(0))
@@ -351,9 +361,10 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
         singleQuery(subqueryCall(
           union(
             singleQuery(merge(nodePat(Some("a")))),
-            singleQuery(merge(nodePat(Some("a")))))
+            singleQuery(merge(nodePat(Some("a"))))
+          )
         ))
-      ),
+      )
     )
       .semanticCheck(clean)
       .tap(_.errors.size.shouldEqual(0))
@@ -371,9 +382,11 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
       subqueryCall(
         singleQuery(
           merge(
-            nodePat(Some("a"))),
-            with_(varFor("a").aliased),
-            unwind(listOfInt(1), varFor("x")).copy()(unwindPos))
+            nodePat(Some("a"))
+          ),
+          with_(varFor("a").aliased),
+          unwind(listOfInt(1), varFor("x")).copy()(unwindPos)
+        )
       ),
       return_(countStar().as("count"))
     )
@@ -610,7 +623,9 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
     )
       .semanticCheck(clean)
       .tap(_.errors.size.shouldEqual(2))
-      .tap(_.errors(0).msg.should(include("Importing WITH should consist only of simple references to outside variables. Aliasing or expressions are not supported.")))
+      .tap(_.errors(0).msg.should(include(
+        "Importing WITH should consist only of simple references to outside variables. Aliasing or expressions are not supported."
+      )))
       .tap(_.errors(1).msg.should(include("Variable `x` not defined")))
   }
 
@@ -877,6 +892,7 @@ class SubqueryCallTest extends CypherFunSuite with AstConstructionTestSupport {
 
   /** https://github.com/scala/scala/blob/v2.13.0/src/library/scala/util/ChainingOps.scala#L37 */
   implicit class AnyOps[A](a: A) {
+
     def tap[X](e: A => X): A = {
       e(a)
       a

@@ -28,7 +28,9 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 
-case class PropertyPredicateNormalizer(anonymousVariableNameGenerator: AnonymousVariableNameGenerator) extends MatchPredicateNormalizer {
+case class PropertyPredicateNormalizer(anonymousVariableNameGenerator: AnonymousVariableNameGenerator)
+    extends MatchPredicateNormalizer {
+
   override val extract: PartialFunction[AnyRef, IndexedSeq[Expression]] = {
     case NodePattern(Some(id), _, Some(props), _) if !isParameter(props) =>
       propertyPredicates(id, props)
@@ -41,8 +43,9 @@ case class PropertyPredicateNormalizer(anonymousVariableNameGenerator: Anonymous
   }
 
   override val replace: PartialFunction[AnyRef, AnyRef] = {
-    case p@NodePattern(Some(_), _, Some(props), _) if !isParameter(props)                  => p.copy(properties = None)(p.position)
-    case p@RelationshipPattern(Some(_), _, _, Some(props), _, _, _) if !isParameter(props) => p.copy(properties = None)(p.position)
+    case p @ NodePattern(Some(_), _, Some(props), _) if !isParameter(props) => p.copy(properties = None)(p.position)
+    case p @ RelationshipPattern(Some(_), _, _, Some(props), _, _, _) if !isParameter(props) =>
+      p.copy(properties = None)(p.position)
   }
 
   private def isParameter(expr: Expression) = expr match {
@@ -54,7 +57,8 @@ case class PropertyPredicateNormalizer(anonymousVariableNameGenerator: Anonymous
     case mapProps: MapExpression =>
       mapProps.items.map {
         // MATCH (a {a: 1, b: 2}) => MATCH (a) WHERE a.a = 1 AND a.b = 2
-        case (propId, expression) => Equals(Property(id.copyId, propId)(mapProps.position), expression)(mapProps.position)
+        case (propId, expression) =>
+          Equals(Property(id.copyId, propId)(mapProps.position), expression)(mapProps.position)
       }.toIndexedSeq
     case expr: Expression =>
       Vector(Equals(id.copyId, expr)(expr.position))
@@ -71,8 +75,8 @@ case class PropertyPredicateNormalizer(anonymousVariableNameGenerator: Anonymous
   }
 
   private def conjunct(exprs: List[Expression]): Expression = exprs match {
-    case Nil           => throw new IllegalArgumentException("There should be at least one predicate to be rewritten")
-    case expr :: Nil   => expr
-    case expr :: tail  => And(expr, conjunct(tail))(expr.position)
+    case Nil          => throw new IllegalArgumentException("There should be at least one predicate to be rewritten")
+    case expr :: Nil  => expr
+    case expr :: tail => And(expr, conjunct(tail))(expr.position)
   }
 }

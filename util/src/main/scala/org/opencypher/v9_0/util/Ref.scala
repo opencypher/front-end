@@ -20,6 +20,7 @@ object Ref {
 }
 
 final class Ref[+T <: AnyRef](val value: T) {
+
   if (value == null)
     throw new IllegalArgumentException("Attempt to instantiate Ref(null)")
 
@@ -36,6 +37,6 @@ final class Ref[+T <: AnyRef](val value: T) {
 
   override def equals(that: Any): Boolean = that match {
     case other: Ref[_] => value eq other.value
-    case _ => false
+    case _             => false
   }
 }

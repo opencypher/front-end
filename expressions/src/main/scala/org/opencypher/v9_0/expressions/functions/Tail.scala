@@ -21,8 +21,14 @@ import org.opencypher.v9_0.util.symbols.CTList
 
 case object Tail extends Function {
   def name = "tail"
+
   override val signatures = Vector(
-    TypeSignature(this, CTList(CTAny),  CTList(CTAny),
-      description =  "Returns all but the first element in a list.", category = Category.LIST)
+    TypeSignature(
+      this,
+      CTList(CTAny),
+      CTList(CTAny),
+      description = "Returns all but the first element in a list.",
+      category = Category.LIST
+    )
   )
 }

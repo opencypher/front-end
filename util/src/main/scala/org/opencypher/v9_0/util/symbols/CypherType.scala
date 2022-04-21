@@ -22,6 +22,7 @@ abstract class CypherType {
   def coercibleTo: Set[CypherType] = Set.empty
 
   def parents: Seq[CypherType] = parents(Vector.empty)
+
   private def parents(accumulator: Seq[CypherType]): Seq[CypherType] =
     if (this.parentType == this)
       accumulator

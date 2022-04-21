@@ -19,6 +19,7 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class VariableTest extends CypherFunSuite {
+
   test("variable names are handled by the trait") {
     val _name = "testVariable"
     val variable = new LogicalVariable {

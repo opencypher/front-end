@@ -23,7 +23,7 @@ import org.opencypher.v9_0.util.symbols.CTPoint
 import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.CTString
 
-class PointTest extends FunctionTestBase("point")  {
+class PointTest extends FunctionTestBase("point") {
 
   test("should accept map") {
     testValidTypes(CTMap)(CTPoint)

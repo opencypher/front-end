@@ -36,11 +36,15 @@ final case class LabelQualifier(label: String)(val position: InputPosition) exte
 final case class RelationshipQualifier(reltype: String)(val position: InputPosition) extends GraphPrivilegeQualifier
 
 final case class ElementQualifier(value: String)(val position: InputPosition) extends GraphPrivilegeQualifier {
-  override def simplify: Seq[GraphPrivilegeQualifier] = Seq(LabelQualifier(value)(position), RelationshipQualifier(value)(position))
+
+  override def simplify: Seq[GraphPrivilegeQualifier] =
+    Seq(LabelQualifier(value)(position), RelationshipQualifier(value)(position))
 }
 
 final case class ElementsAllQualifier()(val position: InputPosition) extends GraphPrivilegeQualifier {
-  override def simplify: Seq[PrivilegeQualifier] = Seq(LabelAllQualifier()(position), RelationshipAllQualifier()(position))
+
+  override def simplify: Seq[PrivilegeQualifier] =
+    Seq(LabelAllQualifier()(position), RelationshipAllQualifier()(position))
 }
 
 final case class AllQualifier()(val position: InputPosition) extends GraphPrivilegeQualifier
@@ -59,7 +63,9 @@ final case class AllDatabasesQualifier()(val position: InputPosition) extends Da
 
 final case class UserAllQualifier()(val position: InputPosition) extends DatabasePrivilegeQualifier
 
-final case class UserQualifier(username: Either[String, Parameter])(val position: InputPosition) extends DatabasePrivilegeQualifier {
+final case class UserQualifier(username: Either[String, Parameter])(val position: InputPosition)
+    extends DatabasePrivilegeQualifier {
+
   override def dup(children: Seq[AnyRef]): UserQualifier.this.type =
     this.copy(children.head.asInstanceOf[Either[String, Parameter]])(position).asInstanceOf[this.type]
 }
@@ -73,9 +79,10 @@ sealed trait ProcedurePrivilegeQualifier extends ExecutePrivilegeQualifier {
 }
 
 final case class ProcedureQualifier(glob: String)(val position: InputPosition) extends ProcedurePrivilegeQualifier {
+
   override def simplify: Seq[ProcedurePrivilegeQualifier] = glob match {
     case "*" => Seq(ProcedureAllQualifier()(position))
-    case _ => Seq(this)
+    case _   => Seq(this)
   }
 }
 
@@ -86,9 +93,10 @@ sealed trait FunctionPrivilegeQualifier extends ExecutePrivilegeQualifier {
 }
 
 final case class FunctionQualifier(glob: String)(val position: InputPosition) extends FunctionPrivilegeQualifier {
+
   override def simplify: Seq[FunctionPrivilegeQualifier] = glob match {
     case "*" => Seq(FunctionAllQualifier()(position))
-    case _ => Seq(this)
+    case _   => Seq(this)
   }
 }
 

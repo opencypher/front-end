@@ -15,10 +15,10 @@
  */
 package org.opencypher.v9_0.ast.semantics
 
+import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
-import org.opencypher.v9_0.expressions.Variable
 
 class SemanticCheckableTest extends CypherFunSuite with SemanticAnalysisTooling {
 
@@ -191,7 +191,7 @@ class SemanticCheckableTest extends CypherFunSuite with SemanticAnalysisTooling 
 
   test("shouldScopeState") {
     val func1 =
-      (s:SemanticState) => {
+      (s: SemanticState) => {
         val variable = Variable("name")(DummyPosition(0))
         s.declareVariable(variable, CTNode)
       }

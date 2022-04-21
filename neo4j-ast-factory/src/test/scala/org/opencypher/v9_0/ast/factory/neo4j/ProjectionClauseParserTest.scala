@@ -26,11 +26,17 @@ class ProjectionClauseParserTest extends JavaccParserAstTestBase[ast.Clause] {
   }
 
   test("WITH 1 AS a") {
-    yields(ast.With(ast.ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
+    yields(ast.With(ast.ReturnItems(
+      includeExisting = false,
+      Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false))
+    )(pos)))
   }
 
   test("WITH *, 1 AS a") {
-    yields(ast.With(ast.ReturnItems(includeExisting = true, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
+    yields(ast.With(ast.ReturnItems(
+      includeExisting = true,
+      Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false))
+    )(pos)))
   }
 
   test("WITH ") {
@@ -42,11 +48,17 @@ class ProjectionClauseParserTest extends JavaccParserAstTestBase[ast.Clause] {
   }
 
   test("RETURN 1 AS a") {
-    yields(ast.Return(ast.ReturnItems(includeExisting = false, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
+    yields(ast.Return(ast.ReturnItems(
+      includeExisting = false,
+      Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false))
+    )(pos)))
   }
 
   test("RETURN *, 1 AS a") {
-    yields(ast.Return(ast.ReturnItems(includeExisting = true, Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false)))(pos)))
+    yields(ast.Return(ast.ReturnItems(
+      includeExisting = true,
+      Seq(ast.AliasedReturnItem(literalInt(1), varFor("a"))(pos, isAutoAliased = false))
+    )(pos)))
   }
 
   test("RETURN ") {

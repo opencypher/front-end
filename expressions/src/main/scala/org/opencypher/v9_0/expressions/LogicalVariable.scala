@@ -32,4 +32,3 @@ abstract class LogicalVariable extends Expression {
 object LogicalVariable {
   def unapply(arg: Variable): Option[String] = Some(arg.name)
 }
-
