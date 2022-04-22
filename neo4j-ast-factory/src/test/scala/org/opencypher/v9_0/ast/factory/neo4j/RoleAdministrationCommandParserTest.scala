@@ -16,11 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.AscSortItem
-import org.opencypher.v9_0.ast.OrderBy
-import org.opencypher.v9_0.ast.Skip
-import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 
 class RoleAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {

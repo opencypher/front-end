@@ -17,8 +17,6 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
 
-import scala.IterableOnce
-
 object SemanticCheckResult {
   val success: SemanticCheck = SemanticCheckResult(_, Vector())
 

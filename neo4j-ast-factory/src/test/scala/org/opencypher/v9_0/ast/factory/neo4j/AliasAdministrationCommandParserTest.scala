@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast.AlterDatabaseAlias
-import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.IfExistsDoNothing
@@ -25,8 +24,6 @@ import org.opencypher.v9_0.ast.IfExistsReplace
 import org.opencypher.v9_0.ast.IfExistsThrowError
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.util.symbols.CTString
-import org.opencypher.v9_0.util.test_helpers.TestName
-import org.scalatest.FunSuiteLike
 
 class AliasAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 

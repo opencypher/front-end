@@ -17,7 +17,6 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.util.symbols.TypeSpec
 
-import scala.IterableOnce
 import scala.language.implicitConversions
 
 package object semantics {

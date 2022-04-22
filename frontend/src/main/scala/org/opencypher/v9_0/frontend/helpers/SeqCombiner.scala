@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.frontend.helpers
 
-import scala.Iterable
 import scala.reflect.ClassTag
 
 object SeqCombiner {

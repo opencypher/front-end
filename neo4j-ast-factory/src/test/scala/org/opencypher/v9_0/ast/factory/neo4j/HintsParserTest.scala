@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
 import org.opencypher.v9_0.ast.UsingAnyIndexType
-import org.opencypher.v9_0.ast.UsingBtreeIndexType
 import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingPointIndexType
 import org.opencypher.v9_0.ast.UsingRangeIndexType
