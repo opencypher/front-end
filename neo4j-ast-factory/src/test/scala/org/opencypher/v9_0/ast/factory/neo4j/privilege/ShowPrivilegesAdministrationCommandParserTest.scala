@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.ShowPrivilegeScope
 import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 
 class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
@@ -235,7 +234,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
         "PRIVILEGE",
         "PRIVILEGES"
       ).foreach { privilegeOrPrivileges =>
-        test(s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev WHERE access = 'GRANTED'") {
+        test(s"SHOW $privType $privilegeOrPrivileges$optionalAsRev WHERE access = 'GRANTED'") {
           if (optionalAsRev.isEmpty) {
             yields(ast.ShowPrivileges(privilege, Some(Right(where(equals(accessVar, grantedString))))))
           } else {
@@ -243,7 +242,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
           }
         }
 
-        test(s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev WHERE access = 'GRANTED' AND action = 'match'") {
+        test(s"SHOW $privType $privilegeOrPrivileges$optionalAsRev WHERE access = 'GRANTED' AND action = 'match'") {
           val accessPredicate = equals(accessVar, grantedString)
           val matchPredicate = equals(varFor(actionString), literalString("match"))
           if (optionalAsRev.isEmpty) {
@@ -257,7 +256,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
           }
         }
 
-        test(s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD access ORDER BY access") {
+        test(s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD access ORDER BY access") {
           val orderByClause = orderBy(sortItem(accessVar))
           val columns = yieldClause(returnItems(variableReturnItem(accessString)), Some(orderByClause))
           if (optionalAsRev.isEmpty) {
@@ -268,7 +267,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
         }
 
         test(
-          s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD access ORDER BY access WHERE access ='none'"
+          s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD access ORDER BY access WHERE access ='none'"
         ) {
           val orderByClause = orderBy(sortItem(accessVar))
           val whereClause = where(equals(accessVar, noneString))
@@ -282,7 +281,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
         }
 
         test(
-          s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD access ORDER BY access SKIP 1 LIMIT 10 WHERE access ='none'"
+          s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD access ORDER BY access SKIP 1 LIMIT 10 WHERE access ='none'"
         ) {
           val orderByClause = orderBy(sortItem(accessVar))
           val whereClause = where(equals(accessVar, noneString))
@@ -300,7 +299,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
           }
         }
 
-        test(s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD access SKIP -1") {
+        test(s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD access SKIP -1") {
           val columns = yieldClause(returnItems(variableReturnItem(accessString)), skip = Some(skip(-1)))
           if (optionalAsRev.isEmpty) {
             yields(ast.ShowPrivileges(privilege, Some(Left((columns, None)))))
@@ -310,7 +309,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
         }
 
         test(
-          s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD access, action RETURN access, count(action) ORDER BY access"
+          s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD access, action RETURN access, count(action) ORDER BY access"
         ) {
           val orderByClause = orderBy(sortItem(accessVar))
           val accessColumn = variableReturnItem(accessString)
@@ -326,7 +325,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
         }
 
         test(
-          s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD access, action SKIP 1 RETURN access, action"
+          s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD access, action SKIP 1 RETURN access, action"
         ) {
           val returnItemsPart = returnItems(variableReturnItem(accessString), variableReturnItem(actionString))
           if (optionalAsRev.isEmpty) {
@@ -344,7 +343,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
         }
 
         test(
-          s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD access, action WHERE access = 'none' RETURN action"
+          s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD access, action WHERE access = 'none' RETURN action"
         ) {
           val accessColumn = variableReturnItem(accessString)
           val actionColumn = variableReturnItem(actionString)
@@ -369,7 +368,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
           }
         }
 
-        test(s"SHOW ${privType} $privilegeOrPrivileges$optionalAsRev YIELD * RETURN *") {
+        test(s"SHOW $privType $privilegeOrPrivileges$optionalAsRev YIELD * RETURN *") {
           if (optionalAsRev.isEmpty) {
             yields(ast.ShowPrivileges(
               privilege,
@@ -388,14 +387,14 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
 
     // yield and where edge cases
 
-    type privilegeFunc = List[String] => ShowPrivilegeScope
+    type privilegeFunc = List[String] => ast.ShowPrivilegeScope
 
-    def userPrivilegeFunc(users: List[String]): ShowPrivilegeScope = {
+    def userPrivilegeFunc(users: List[String]): ast.ShowPrivilegeScope = {
       val literalUsers = users.map(u => literal(u))
       ast.ShowUsersPrivileges(literalUsers)(pos)
     }
 
-    def rolePrivilegeFunc(roles: List[String]): ShowPrivilegeScope = {
+    def rolePrivilegeFunc(roles: List[String]): ast.ShowPrivilegeScope = {
       val literalRoles = roles.map(r => literal(r))
       ast.ShowRolesPrivileges(literalRoles)(pos)
     }

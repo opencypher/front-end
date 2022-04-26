@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.AllGraphAction
 import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 
 class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
@@ -33,7 +32,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL ON GRAPH foo $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(graphScopeFoo))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(graphScopeFoo))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -41,7 +40,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL PRIVILEGES ON GRAPH foo $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(graphScopeFoo))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(graphScopeFoo))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -49,7 +48,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON GRAPH foo $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(graphScopeFoo))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(graphScopeFoo))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -59,7 +58,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL ON HOME GRAPH $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(ast.HomeGraphScope()(_)))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(ast.HomeGraphScope()(_)))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -67,7 +66,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL PRIVILEGES ON HOME GRAPH $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(ast.HomeGraphScope()(_)))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(ast.HomeGraphScope()(_)))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -75,7 +74,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON HOME GRAPH $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(ast.HomeGraphScope()(_)))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(ast.HomeGraphScope()(_)))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -85,7 +84,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL ON DEFAULT GRAPH $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(ast.DefaultGraphScope()(_)))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(ast.DefaultGraphScope()(_)))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -93,7 +92,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL PRIVILEGES ON DEFAULT GRAPH $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(ast.DefaultGraphScope()(_)))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(ast.DefaultGraphScope()(_)))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -101,7 +100,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON DEFAULT GRAPH $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(ast.DefaultGraphScope()(_)))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(ast.DefaultGraphScope()(_)))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -111,7 +110,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON GRAPHS * $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(ast.AllGraphsScope()(_)))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(ast.AllGraphsScope()(_)))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -119,7 +118,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON GRAPHS foo,baz $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(graphScopeFoo, graphScopeBaz))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(graphScopeFoo, graphScopeBaz))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -129,7 +128,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON GRAPHS foo $preposition role1, role2") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(graphScopeFoo))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(graphScopeFoo))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole1, literalRole2)
         ))
@@ -139,7 +138,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON GRAPH $$foo $preposition role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(graphScopeParamFoo))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(graphScopeParamFoo))(_),
           List(ast.AllQualifier()(_)),
           Seq(literalRole)
         ))
@@ -147,7 +146,7 @@ class AllGraphPrivilegeAdministrationCommandParserTest extends AdministrationAnd
 
       test(s"$verb ALL GRAPH PRIVILEGES ON GRAPH foo $preposition $$role") {
         yields(func(
-          ast.GraphPrivilege(AllGraphAction, List(graphScopeFoo))(_),
+          ast.GraphPrivilege(ast.AllGraphAction, List(graphScopeFoo))(_),
           List(ast.AllQualifier()(_)),
           Seq(paramRole)
         ))

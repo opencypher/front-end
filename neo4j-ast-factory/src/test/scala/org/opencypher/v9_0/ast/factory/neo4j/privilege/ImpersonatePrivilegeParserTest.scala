@@ -16,10 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.PrivilegeQualifier
-import org.opencypher.v9_0.ast.RevokeBothType
-import org.opencypher.v9_0.ast.RevokeDenyType
-import org.opencypher.v9_0.ast.RevokeGrantType
 import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Parameter
@@ -29,37 +25,37 @@ import org.opencypher.v9_0.util.symbols.CTString
 class ImpersonatePrivilegeParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
   type impersonatePrivilegeFunc =
-    (List[PrivilegeQualifier], Seq[Either[String, Parameter]]) => InputPosition => ast.Statement
+    (List[ast.PrivilegeQualifier], Seq[Either[String, Parameter]]) => InputPosition => ast.Statement
 
   def grantImpersonatePrivilege(
-    q: List[PrivilegeQualifier],
+    q: List[ast.PrivilegeQualifier],
     r: Seq[Either[String, Parameter]]
   ): InputPosition => ast.Statement =
     ast.GrantPrivilege.dbmsAction(ast.ImpersonateUserAction, r, q)
 
   def denyImpersonatePrivilege(
-    q: List[PrivilegeQualifier],
+    q: List[ast.PrivilegeQualifier],
     r: Seq[Either[String, Parameter]]
   ): InputPosition => ast.Statement =
     ast.DenyPrivilege.dbmsAction(ast.ImpersonateUserAction, r, q)
 
   def revokeGrantImpersonatePrivilege(
-    q: List[PrivilegeQualifier],
+    q: List[ast.PrivilegeQualifier],
     r: Seq[Either[String, Parameter]]
   ): InputPosition => ast.Statement =
-    ast.RevokePrivilege.dbmsAction(ast.ImpersonateUserAction, r, RevokeGrantType()(pos), q)
+    ast.RevokePrivilege.dbmsAction(ast.ImpersonateUserAction, r, ast.RevokeGrantType()(pos), q)
 
   def revokeDenyImpersonatePrivilege(
-    q: List[PrivilegeQualifier],
+    q: List[ast.PrivilegeQualifier],
     r: Seq[Either[String, Parameter]]
   ): InputPosition => ast.Statement =
-    ast.RevokePrivilege.dbmsAction(ast.ImpersonateUserAction, r, RevokeDenyType()(pos), q)
+    ast.RevokePrivilege.dbmsAction(ast.ImpersonateUserAction, r, ast.RevokeDenyType()(pos), q)
 
   def revokeImpersonatePrivilege(
-    q: List[PrivilegeQualifier],
+    q: List[ast.PrivilegeQualifier],
     r: Seq[Either[String, Parameter]]
   ): InputPosition => ast.Statement =
-    ast.RevokePrivilege.dbmsAction(ast.ImpersonateUserAction, r, RevokeBothType()(pos), q)
+    ast.RevokePrivilege.dbmsAction(ast.ImpersonateUserAction, r, ast.RevokeBothType()(pos), q)
 
   Seq(
     ("GRANT", "TO", grantImpersonatePrivilege: impersonatePrivilegeFunc),

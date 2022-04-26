@@ -16,20 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.ConstraintVersion0
-import org.opencypher.v9_0.ast.ConstraintVersion1
-import org.opencypher.v9_0.ast.ConstraintVersion2
-import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
-import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
-import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
-import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
-import org.opencypher.v9_0.ast.DropNodeKeyConstraint
-import org.opencypher.v9_0.ast.DropNodePropertyExistenceConstraint
-import org.opencypher.v9_0.ast.DropRelationshipPropertyExistenceConstraint
-import org.opencypher.v9_0.ast.IfExistsThrowError
-import org.opencypher.v9_0.ast.NoOptions
-import org.opencypher.v9_0.ast.OptionsMap
-import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.ast.factory.ConstraintType
 import org.opencypher.v9_0.expressions.LabelName
@@ -47,9 +33,10 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       Seq("ASSERT", "REQUIRE")
         .foreach { requireOrAssertString =>
           val containsOn = forOrOnString == "ON"
-          val constraintVersion = if (requireOrAssertString == "REQUIRE") ConstraintVersion2 else ConstraintVersion0
+          val constraintVersion =
+            if (requireOrAssertString == "REQUIRE") ast.ConstraintVersion2 else ast.ConstraintVersion0
           val constraintVersionOneOrTwo =
-            if (requireOrAssertString == "REQUIRE") ConstraintVersion2 else ConstraintVersion1
+            if (requireOrAssertString == "REQUIRE") ast.ConstraintVersion2 else ast.ConstraintVersion1
 
           // Create constraint: Without name
 
@@ -60,7 +47,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -73,7 +60,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -88,7 +75,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -103,7 +90,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -118,7 +105,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -133,7 +120,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               None,
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -148,7 +135,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsMap(Map("indexProvider" -> literalString("range-1.0"))),
+              ast.OptionsMap(Map("indexProvider" -> literalString("range-1.0"))),
               containsOn,
               constraintVersion
             ))
@@ -164,7 +151,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsMap(Map(
+              ast.OptionsMap(Map(
                 "indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
                   "spatial.cartesian.max" -> listOf(literalFloat(100.0), literalFloat(100.0)),
@@ -185,7 +172,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsMap(Map("indexConfig" -> mapOf("someConfig" -> literalString("toShowItCanBeParsed")))),
+              ast.OptionsMap(Map("indexConfig" -> mapOf("someConfig" -> literalString("toShowItCanBeParsed")))),
               containsOn,
               constraintVersion
             ))
@@ -200,7 +187,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsMap(Map("nonValidOption" -> literalInt(42))),
+              ast.OptionsMap(Map("nonValidOption" -> literalInt(42))),
               containsOn,
               constraintVersion
             ))
@@ -215,7 +202,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsMap(Map.empty),
+              ast.OptionsMap(Map.empty),
               containsOn,
               constraintVersion
             ))
@@ -230,7 +217,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsParam(parameter("param", CTMap)),
+              ast.OptionsParam(parameter("param", CTMap)),
               containsOn,
               constraintVersion
             ))
@@ -250,7 +237,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -263,7 +250,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -278,7 +265,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -291,7 +278,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -306,7 +293,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -321,7 +308,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               None,
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -337,7 +324,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsMap(Map(
+              ast.OptionsMap(Map(
                 "indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
                   "spatial.wgs-84.max" -> listOf(literalFloat(60.0), literalFloat(60.0)),
@@ -358,7 +345,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               None,
               ast.IfExistsThrowError,
-              OptionsParam(parameter("options", CTMap)),
+              ast.OptionsParam(parameter("options", CTMap)),
               containsOn,
               constraintVersion
             ))
@@ -378,7 +365,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -391,7 +378,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -406,7 +393,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               None,
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -421,7 +408,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               None,
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -436,7 +423,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               None,
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -449,7 +436,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -462,7 +449,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -475,7 +462,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               None,
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -488,7 +475,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               None,
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -503,7 +490,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               None,
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -518,7 +505,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               None,
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -531,7 +518,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               None,
               ast.IfExistsThrowError,
-              OptionsMap(Map.empty),
+              ast.OptionsMap(Map.empty),
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -548,7 +535,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion,
               Some(use(varFor("neo4j")))
@@ -564,7 +551,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion,
               Some(use(varFor("neo4j")))
@@ -580,7 +567,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -595,7 +582,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               Some("my_constraint"),
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -610,7 +597,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               Some("my_constraint"),
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -626,7 +613,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              OptionsMap(Map(
+              ast.OptionsMap(Map(
                 "indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
                   "spatial.wgs-84.max" -> listOf(literalFloat(60.0), literalFloat(60.0)),
@@ -647,7 +634,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -662,7 +649,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -677,7 +664,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -692,7 +679,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -707,7 +694,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               Some("my_constraint"),
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -722,7 +709,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               Some("my_constraint"),
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersion
             ))
@@ -737,7 +724,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              OptionsMap(Map("indexProvider" -> literalString("range-1.0"))),
+              ast.OptionsMap(Map("indexProvider" -> literalString("range-1.0"))),
               containsOn,
               constraintVersion
             ))
@@ -753,7 +740,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              OptionsMap(Map(
+              ast.OptionsMap(Map(
                 "indexProvider" -> literalString("native-btree-1.0"),
                 "indexConfig" -> mapOf(
                   "spatial.cartesian.max" -> listOf(literalFloat(100.0), literalFloat(100.0)),
@@ -774,7 +761,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              OptionsMap(Map("indexConfig" -> mapOf("someConfig" -> literalString("toShowItCanBeParsed")))),
+              ast.OptionsMap(Map("indexConfig" -> mapOf("someConfig" -> literalString("toShowItCanBeParsed")))),
               containsOn,
               constraintVersion
             ))
@@ -789,7 +776,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              OptionsMap(Map("nonValidOption" -> literalInt(42))),
+              ast.OptionsMap(Map("nonValidOption" -> literalInt(42))),
               containsOn,
               constraintVersion
             ))
@@ -804,7 +791,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               Seq(prop("node", "prop1"), prop("node", "prop2")),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              OptionsMap(Map.empty),
+              ast.OptionsMap(Map.empty),
               containsOn,
               constraintVersion
             ))
@@ -819,7 +806,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -834,7 +821,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               Some("my_constraint"),
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -849,7 +836,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               Some("my_constraint"),
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -864,7 +851,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               Some("my_constraint"),
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -879,7 +866,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("node", "prop"),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              OptionsMap(Map.empty),
+              ast.OptionsMap(Map.empty),
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -905,7 +892,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               Some("$my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -920,7 +907,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               Some("my_constraint"),
               ast.IfExistsThrowError,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -935,7 +922,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               Some("$my_constraint"),
               ast.IfExistsReplace,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -950,7 +937,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               Some("$my_constraint"),
               ast.IfExistsInvalidSyntax,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -965,7 +952,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
               prop("r", "prop"),
               Some("$my_constraint"),
               ast.IfExistsDoNothing,
-              NoOptions,
+              ast.NoOptions,
               containsOn,
               constraintVersionOneOrTwo
             ))
@@ -1027,22 +1014,22 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       None,
       ast.IfExistsThrowError,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
   test("CREATE CONSTRAINT ON (node1:Label) ASSERT EXISTS node2.prop") {
-    assertAst(CreateNodePropertyExistenceConstraint(
+    assertAst(ast.CreateNodePropertyExistenceConstraint(
       Variable("node1")(1, 23, 22),
       LabelName("Label")(1, 29, 28),
       Property(Variable("node2")(1, 50, 49), PropertyKeyName("prop")(1, 56, 55))(1, 50, 49),
       None,
-      IfExistsThrowError,
-      NoOptions,
+      ast.IfExistsThrowError,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0,
+      ast.ConstraintVersion0,
       None
     )(defaultPos))
   }
@@ -1054,9 +1041,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       None,
       ast.IfExistsReplace,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1067,9 +1054,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       None,
       ast.IfExistsInvalidSyntax,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1080,9 +1067,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       None,
       ast.IfExistsDoNothing,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1093,9 +1080,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       None,
       ast.IfExistsThrowError,
-      OptionsMap(Map.empty),
+      ast.OptionsMap(Map.empty),
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1113,9 +1100,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       None,
       ast.IfExistsThrowError,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1126,9 +1113,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       None,
       ast.IfExistsThrowError,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1139,22 +1126,22 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       None,
       ast.IfExistsThrowError,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
   test("CREATE CONSTRAINT ON ()-[r1:R]-() ASSERT EXISTS r2.prop") {
-    assertAst(CreateRelationshipPropertyExistenceConstraint(
+    assertAst(ast.CreateRelationshipPropertyExistenceConstraint(
       Variable("r1")(1, 26, 25),
       RelTypeName("R")(1, 29, 28),
       Property(Variable("r2")(1, 49, 48), PropertyKeyName("prop")(1, 52, 51))(1, 49, 48),
       None,
-      IfExistsThrowError,
-      NoOptions,
+      ast.IfExistsThrowError,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0,
+      ast.ConstraintVersion0,
       None
     )(defaultPos))
   }
@@ -1166,9 +1153,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       None,
       ast.IfExistsReplace,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1179,9 +1166,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       None,
       ast.IfExistsInvalidSyntax,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1192,9 +1179,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       None,
       ast.IfExistsDoNothing,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1212,9 +1199,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       Some("my_constraint"),
       ast.IfExistsThrowError,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1225,9 +1212,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       Some("my_constraint"),
       ast.IfExistsReplace,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1238,9 +1225,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       Some("my_constraint"),
       ast.IfExistsInvalidSyntax,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1251,9 +1238,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("node", "prop"),
       Some("my_constraint"),
       ast.IfExistsDoNothing,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1264,9 +1251,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       Some("$my_constraint"),
       ast.IfExistsThrowError,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1277,9 +1264,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       Some("my_constraint"),
       ast.IfExistsThrowError,
-      OptionsMap(Map.empty),
+      ast.OptionsMap(Map.empty),
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1290,9 +1277,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       Some("$my_constraint"),
       ast.IfExistsReplace,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1303,9 +1290,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       Some("$my_constraint"),
       ast.IfExistsInvalidSyntax,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1316,9 +1303,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("r", "prop"),
       Some("$my_constraint"),
       ast.IfExistsDoNothing,
-      NoOptions,
+      ast.NoOptions,
       containsOn = true,
-      ConstraintVersion0
+      ast.ConstraintVersion0
     ))
   }
 
@@ -1333,9 +1320,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("n", "prop"),
       Some("my_constraint"),
       ast.IfExistsThrowError,
-      OptionsMap(Map("indexProvider" -> literalString("range-1.0"))),
+      ast.OptionsMap(Map("indexProvider" -> literalString("range-1.0"))),
       containsOn = false,
-      constraintVersion = ConstraintVersion2
+      constraintVersion = ast.ConstraintVersion2
     ))
   }
 
@@ -1351,61 +1338,61 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
       prop("n", "prop"),
       None,
       ast.IfExistsThrowError,
-      NoOptions,
+      ast.NoOptions,
       containsOn = false,
-      constraintVersion = ConstraintVersion2
+      constraintVersion = ast.ConstraintVersion2
     ))
   }
 
   test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE (node.prop) IS NODE KEY") {
-    assertAst(CreateNodeKeyConstraint(
+    assertAst(ast.CreateNodeKeyConstraint(
       varFor("node", (1, 28, 27)),
       LabelName("Label")(1, 33, 32),
       Seq(prop("node", "prop", (1, 49, 48))),
       Some("FOR"),
-      IfExistsThrowError,
-      NoOptions,
+      ast.IfExistsThrowError,
+      ast.NoOptions,
       containsOn = false,
-      ConstraintVersion2
+      ast.ConstraintVersion2
     )(defaultPos))
   }
 
   test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE (node.prop) IS UNIQUE") {
-    assertAst(CreateUniquePropertyConstraint(
+    assertAst(ast.CreateUniquePropertyConstraint(
       varFor("node", (1, 28, 27)),
       LabelName("Label")(1, 33, 32),
       Seq(prop("node", "prop", (1, 49, 48))),
       Some("FOR"),
-      IfExistsThrowError,
-      NoOptions,
+      ast.IfExistsThrowError,
+      ast.NoOptions,
       containsOn = false,
-      ConstraintVersion2
+      ast.ConstraintVersion2
     )(defaultPos))
   }
 
   test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE node.prop IS NOT NULL") {
-    assertAst(CreateNodePropertyExistenceConstraint(
+    assertAst(ast.CreateNodePropertyExistenceConstraint(
       varFor("node", (1, 28, 27)),
       labelName("Label", (1, 33, 32)),
       prop("node", "prop", (1, 48, 47)),
       Some("FOR"),
-      IfExistsThrowError,
-      NoOptions,
+      ast.IfExistsThrowError,
+      ast.NoOptions,
       containsOn = false,
-      ConstraintVersion2
+      ast.ConstraintVersion2
     )(defaultPos))
   }
 
   test("CREATE CONSTRAINT FOR FOR ()-[r:R]-() REQUIRE (r.prop) IS NOT NULL") {
-    assertAst(CreateRelationshipPropertyExistenceConstraint(
+    assertAst(ast.CreateRelationshipPropertyExistenceConstraint(
       varFor("r", (1, 31, 30)),
       relTypeName("R", (1, 33, 32)),
       prop("r", "prop", (1, 48, 47)),
       Some("FOR"),
-      IfExistsThrowError,
-      NoOptions,
+      ast.IfExistsThrowError,
+      ast.NoOptions,
       containsOn = false,
-      ConstraintVersion2
+      ast.ConstraintVersion2
     )(defaultPos))
   }
 
@@ -1477,7 +1464,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
 
   test("DROP CONSTRAINT ON (node1:Label) ASSERT node2.prop IS NODE KEY") {
     assertAst(
-      DropNodeKeyConstraint(
+      ast.DropNodeKeyConstraint(
         Variable("node1")(1, 21, 20),
         LabelName("Label")(1, 27, 26),
         Seq(Property(Variable("node2")(1, 41, 40), PropertyKeyName("prop")(1, 47, 46))(1, 42, 40)),
@@ -1524,7 +1511,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
 
   test("DROP CONSTRAINT ON (node1:Label) ASSERT EXISTS node2.prop") {
     assertAst(
-      DropNodePropertyExistenceConstraint(
+      ast.DropNodePropertyExistenceConstraint(
         Variable("node1")(1, 21, 20),
         LabelName("Label")(1, 27, 26),
         Property(Variable("node2")(1, 48, 47), PropertyKeyName("prop")(1, 54, 53))(1, 48, 47),
@@ -1547,7 +1534,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
 
   test("DROP CONSTRAINT ON ()-[r1:R]-() ASSERT EXISTS r2.prop") {
     assertAst(
-      DropRelationshipPropertyExistenceConstraint(
+      ast.DropRelationshipPropertyExistenceConstraint(
         Variable("r1")(1, 24, 23),
         RelTypeName("R")(1, 27, 26),
         Property(Variable("r2")(1, 47, 46), PropertyKeyName("prop")(1, 50, 49))(1, 47, 46),

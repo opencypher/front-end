@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.StringLiteral
@@ -92,7 +91,7 @@ class ShowTransactionsCommandParserTest extends AdministrationAndSchemaCommandPa
     assertAst(query(
       ast.ShowTransactionsClause(
         Left(List.empty),
-        Some(Where(
+        Some(ast.Where(
           Equals(Variable("transactionId")(1, 24, 23), StringLiteral("db1-transaction-123")(1, 40, 39))(1, 38, 37)
         )(1, 18, 17)),
         hasYield = false
