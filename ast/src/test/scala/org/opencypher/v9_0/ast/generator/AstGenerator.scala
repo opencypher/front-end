@@ -20,7 +20,6 @@ import org.opencypher.v9_0.ast.AccessDatabaseAction
 import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
-import org.opencypher.v9_0.ast.AllAliasManagementActions
 import org.opencypher.v9_0.ast.AllConstraintActions
 import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AllDatabaseAction
@@ -41,11 +40,9 @@ import org.opencypher.v9_0.ast.AllRoleActions
 import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
-import org.opencypher.v9_0.ast.AlterAliasAction
 import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterDatabaseAction
-import org.opencypher.v9_0.ast.AlterLocalDatabaseAlias
-import org.opencypher.v9_0.ast.AlterRemoteDatabaseAlias
+import org.opencypher.v9_0.ast.AlterDatabaseAlias
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -55,16 +52,15 @@ import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
-import org.opencypher.v9_0.ast.CreateAliasAction
 import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAction
+import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
-import org.opencypher.v9_0.ast.CreateLocalDatabaseAlias
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
@@ -76,7 +72,6 @@ import org.opencypher.v9_0.ast.CreateRangeNodeIndex
 import org.opencypher.v9_0.ast.CreateRangeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
-import org.opencypher.v9_0.ast.CreateRemoteDatabaseAlias
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateRoleAction
 import org.opencypher.v9_0.ast.CreateTextNodeIndex
@@ -95,7 +90,6 @@ import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
-import org.opencypher.v9_0.ast.DropAliasAction
 import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
@@ -209,8 +203,6 @@ import org.opencypher.v9_0.ast.SetPropertyAction
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetUserStatusAction
-import org.opencypher.v9_0.ast.ShowAliasAction
-import org.opencypher.v9_0.ast.ShowAliases
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintAction
 import org.opencypher.v9_0.ast.ShowConstraintType
@@ -1496,12 +1488,6 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     finalMap <- oneOf(OptionsMap(map), OptionsParam(param), NoOptions)
   } yield finalMap
 
-  def _optionalMapAsEither: Gen[Either[Map[String, Expression], Parameter]] = for {
-    map <- oneOrMore(tuple(_identifier, _expression)).map(_.toMap)
-    param <- _mapParameter
-    finalMap <- oneOf(Left(map), Right(param))
-  } yield finalMap
-
   def _listOfNameOfEither: Gen[List[Either[String, Parameter]]] = for {
     names <- oneOrMore(_nameAsEither)
   } yield names
@@ -1662,11 +1648,6 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     DropDatabaseAction,
     AlterDatabaseAction,
     SetDatabaseAccessAction,
-    AllAliasManagementActions,
-    CreateAliasAction,
-    DropAliasAction,
-    AlterAliasAction,
-    ShowAliasAction,
     AllPrivilegeActions,
     ShowPrivilegeAction,
     AssignPrivilegeAction,
@@ -1922,54 +1903,27 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     wait <- oneOf(NoWait, IndefiniteWait, TimeoutAfter(timeout))
   } yield wait
 
-  def _createLocalDatabaseAlias: Gen[CreateLocalDatabaseAlias] = for {
+  def _createAlias: Gen[CreateDatabaseAlias] = for {
     aliasName <- _nameAsEither
     targetName <- _nameAsEither
     ifExistsDo <- _ifExistsDo
-  } yield CreateLocalDatabaseAlias(aliasName, targetName, ifExistsDo)(pos)
-
-  def _createRemoteDatabaseAlias: Gen[CreateRemoteDatabaseAlias] = for {
-    aliasName <- _nameAsEither
-    targetName <- _nameAsEither
-    ifExistsDo <- _ifExistsDo
-    url <- _nameAsEither
-    username <- _nameAsEither
-    password <- _password
-    driverSettings <- option(_optionalMapAsEither)
-  } yield CreateRemoteDatabaseAlias(aliasName, targetName, ifExistsDo, url, username, password, driverSettings)(pos)
+  } yield CreateDatabaseAlias(aliasName, targetName, ifExistsDo)(pos)
 
   def _dropAlias: Gen[DropDatabaseAlias] = for {
     aliasName <- _nameAsEither
     ifExists <- boolean
   } yield DropDatabaseAlias(aliasName, ifExists)(pos)
 
-  def _alterLocalAlias: Gen[AlterLocalDatabaseAlias] = for {
+  def _alterAlias: Gen[AlterDatabaseAlias] = for {
     aliasName <- _nameAsEither
     targetName <- _nameAsEither
     ifExists <- boolean
-  } yield AlterLocalDatabaseAlias(aliasName, targetName, ifExists)(pos)
-
-  def _alterRemoteAlias: Gen[AlterRemoteDatabaseAlias] = for {
-    aliasName <- _nameAsEither
-    targetName <- option(_nameAsEither)
-    ifExists <- boolean
-    url <- if (targetName.nonEmpty) some(_nameAsEither) else const(None)
-    username <- option(_nameAsEither)
-    password <- option(_password)
-    driverSettings <- option(_optionalMapAsEither)
-  } yield AlterRemoteDatabaseAlias(aliasName, targetName, ifExists, url, username, password, driverSettings)(pos)
-
-  def _showAliases: Gen[ShowAliases] = for {
-    yields <- _eitherYieldOrWhere
-  } yield ShowAliases(yields)(pos)
+  } yield AlterDatabaseAlias(aliasName, targetName, ifExists)(pos)
 
   def _aliasCommands: Gen[AdministrationCommand] = oneOf(
-    _createLocalDatabaseAlias,
-    _createRemoteDatabaseAlias,
+    _createAlias,
     _dropAlias,
-    _alterLocalAlias,
-    _alterRemoteAlias,
-    _showAliases
+    _alterAlias
   )
 
   // Top level administration command

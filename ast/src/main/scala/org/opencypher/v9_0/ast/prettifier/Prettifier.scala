@@ -26,8 +26,7 @@ import org.opencypher.v9_0.ast.AllLabelResource
 import org.opencypher.v9_0.ast.AllPropertyResource
 import org.opencypher.v9_0.ast.AllQualifier
 import org.opencypher.v9_0.ast.AlterDatabase
-import org.opencypher.v9_0.ast.AlterLocalDatabaseAlias
-import org.opencypher.v9_0.ast.AlterRemoteDatabaseAlias
+import org.opencypher.v9_0.ast.AlterDatabaseAlias
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AscSortItem
 import org.opencypher.v9_0.ast.Clause
@@ -36,9 +35,9 @@ import org.opencypher.v9_0.ast.ConstraintVersion0
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateDatabase
+import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
-import org.opencypher.v9_0.ast.CreateLocalDatabaseAlias
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -47,7 +46,6 @@ import org.opencypher.v9_0.ast.CreatePointRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRangeNodeIndex
 import org.opencypher.v9_0.ast.CreateRangeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
-import org.opencypher.v9_0.ast.CreateRemoteDatabaseAlias
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateTextNodeIndex
 import org.opencypher.v9_0.ast.CreateTextRelationshipIndex
@@ -143,7 +141,6 @@ import org.opencypher.v9_0.ast.SetLabelItem
 import org.opencypher.v9_0.ast.SetOwnPassword
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.SetPropertyItems
-import org.opencypher.v9_0.ast.ShowAliases
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowCurrentUser
@@ -229,11 +226,6 @@ case class Prettifier(
     if (options.nonEmpty)
       s" OPTIONS ${options.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}"
     else " OPTIONS {}"
-
-  def driverSettingsToString(settings: Map[String, Expression]): String =
-    if (settings.nonEmpty)
-      s" DRIVER ${settings.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}"
-    else " DRIVER {}"
 
   def asString(command: SchemaCommand): String = {
     def propertiesToString(properties: Seq[Property]): String =
@@ -626,84 +618,21 @@ case class Prettifier(
       case x @ StopDatabase(dbName, waitUntilComplete) =>
         s"${x.name} ${Prettifier.escapeName(dbName)}${waitUntilComplete.name}"
 
-      case x @ CreateLocalDatabaseAlias(aliasName, targetName, ifExistsDo) =>
+      case x @ CreateDatabaseAlias(aliasName, targetName, ifExistsDo) =>
         ifExistsDo match {
           case IfExistsDoNothing | IfExistsInvalidSyntax =>
             s"${x.name} ${Prettifier.escapeName(aliasName)} IF NOT EXISTS FOR DATABASE ${Prettifier.escapeName(targetName)}"
-          case _ =>
-            s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE ${Prettifier.escapeName(targetName)}"
-        }
-
-      case x @ CreateRemoteDatabaseAlias(aliasName, targetName, ifExistsDo, url, username, password, driverSettings) =>
-        val urlString = url match {
-          case Left(s)          => expr.quote(s)
-          case Right(parameter) => expr(parameter)
-        }
-
-        val driverSettingsString = driverSettings match {
-          case Some(Left(settings))   => driverSettingsToString(settings)
-          case Some(Right(parameter)) => s" DRIVER ${expr(parameter)}"
-          case None                   => ""
-        }
-
-        ifExistsDo match {
-          case IfExistsDoNothing | IfExistsInvalidSyntax =>
-            s"${x.name} ${Prettifier.escapeName(aliasName)} IF NOT EXISTS FOR DATABASE ${Prettifier.escapeName(targetName)} AT $urlString " +
-              s"USER ${Prettifier.escapeName(username)} PASSWORD ${expr.escapePassword(password)}" +
-              driverSettingsString
-          case _ =>
-            s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE ${Prettifier.escapeName(targetName)} AT $urlString " +
-              s"USER ${Prettifier.escapeName(username)} PASSWORD ${expr.escapePassword(password)}" +
-              driverSettingsString
+          case _ => s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE ${Prettifier.escapeName(targetName)}"
         }
 
       case x @ DropDatabaseAlias(aliasName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS FOR DATABASE"
         else s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE"
 
-      case x @ AlterLocalDatabaseAlias(aliasName, targetName, ifExists) =>
+      case x @ AlterDatabaseAlias(aliasName, targetName, ifExists) =>
         if (ifExists)
           s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS SET DATABASE TARGET ${Prettifier.escapeName(targetName)}"
         else s"${x.name} ${Prettifier.escapeName(aliasName)} SET DATABASE TARGET ${Prettifier.escapeName(targetName)}"
-
-      case x @ AlterRemoteDatabaseAlias(aliasName, targetName, ifExists, url, username, password, driverSettings) =>
-        val targetString = targetName match {
-          case Some(targetName) =>
-            val urlString = url match {
-              case Some(Left(s))          => s" AT ${expr.quote(s)}"
-              case Some(Right(parameter)) => s" AT ${expr(parameter)}"
-              case _                      => ""
-            }
-            s" TARGET ${Prettifier.escapeName(targetName)}$urlString"
-          case None => ""
-        }
-
-        val userString = username match {
-          case Some(username) =>
-            s" USER ${Prettifier.escapeName(username)}"
-          case None => ""
-        }
-
-        val passwordString = password match {
-          case Some(password) =>
-            s" PASSWORD ${expr.escapePassword(password)}"
-          case None => ""
-        }
-
-        val driverSettingsString = driverSettings match {
-          case Some(Left(settings))   => driverSettingsToString(settings)
-          case Some(Right(parameter)) => s" DRIVER ${expr(parameter)}"
-          case None                   => ""
-        }
-
-        if (ifExists)
-          s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS SET DATABASE$targetString$userString$passwordString$driverSettingsString"
-        else
-          s"${x.name} ${Prettifier.escapeName(aliasName)} SET DATABASE$targetString$userString$passwordString$driverSettingsString"
-
-      case x @ ShowAliases(yields, _) =>
-        val (y: String, r: String) = showClausesAsString(yields)
-        s"${x.name}$y$r"
     }
     useString + commandString
   }

@@ -17,7 +17,6 @@ package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast.ReadAdministrationCommand
 import org.opencypher.v9_0.ast.ReturnItems
-import org.opencypher.v9_0.ast.ShowAliases
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.Where
@@ -68,32 +67,6 @@ class ExpandShowWhereTest extends CypherFunSuite with RewriteTest {
         )
       case _ => fail(
           s"\n$originalQuery\nshould be rewritten to:\nSHOW DATABASES YIELD * WHERE name STARTS WITH 's'\nbut was rewritten to:\n${prettifier.asString(result.asInstanceOf[Statement])}"
-        )
-    }
-  }
-
-  test("SHOW ALIASES FOR DATABASE") {
-    val originalQuery = "SHOW ALIASES FOR DATABASE YIELD * WHERE name STARTS WITH 's'"
-    val original = parseForRewriting(originalQuery)
-    val result = rewrite(original)
-
-    result match {
-      case ShowAliases(
-          Some(Left((
-            Yield(
-              ReturnItems(returnStar, _, Some(columns)),
-              None,
-              None,
-              None,
-              Some(Where(StartsWith(Variable("name"), StringLiteral("s"))))
-            ),
-            None
-          ))),
-          _
-        ) if returnStar =>
-        columns shouldBe List("name", "database", "location", "url", "user", "driver")
-      case _ => fail(
-          s"\n$originalQuery\nshould be rewritten to:\nSHOW ALIASES FOR DATABASE YIELD * WHERE name STARTS WITH 's'\nbut was rewritten to:\n${prettifier.asString(result.asInstanceOf[Statement])}"
         )
     }
   }

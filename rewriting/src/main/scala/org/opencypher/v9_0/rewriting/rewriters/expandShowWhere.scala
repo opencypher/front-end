@@ -17,7 +17,6 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItems
-import org.opencypher.v9_0.ast.ShowAliases
 import org.opencypher.v9_0.ast.ShowCurrentUser
 import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
@@ -64,8 +63,6 @@ case object expandShowWhere extends Rewriter with Step with PreparatoryRewriting
       s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
     case s @ ShowCurrentUser(Some(Right(where)), _) =>
       s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
-    case s @ ShowAliases(Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
 
     // add default columns to explicit YIELD/RETURN * as well
     case s @ ShowDatabase(_, Some(Left((yieldClause, returnClause))), _)
@@ -84,9 +81,6 @@ case object expandShowWhere extends Rewriter with Step with PreparatoryRewriting
       if yieldClause.returnItems.includeExisting || returnClause.exists(_.returnItems.includeExisting) =>
       s.copy(yieldOrWhere = addDefaultColumns(yieldClause, returnClause, s.defaultColumnNames))(s.position)
     case s @ ShowCurrentUser(Some(Left((yieldClause, returnClause))), _)
-      if yieldClause.returnItems.includeExisting || returnClause.exists(_.returnItems.includeExisting) =>
-      s.copy(yieldOrWhere = addDefaultColumns(yieldClause, returnClause, s.defaultColumnNames))(s.position)
-    case s @ ShowAliases(Some(Left((yieldClause, returnClause))), _)
       if yieldClause.returnItems.includeExisting || returnClause.exists(_.returnItems.includeExisting) =>
       s.copy(yieldOrWhere = addDefaultColumns(yieldClause, returnClause, s.defaultColumnNames))(s.position)
   })

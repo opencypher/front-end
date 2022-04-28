@@ -16,11 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 import org.opencypher.v9_0.ast
-import org.opencypher.v9_0.ast.AllAliasManagementActions
-import org.opencypher.v9_0.ast.AlterAliasAction
-import org.opencypher.v9_0.ast.CreateAliasAction
-import org.opencypher.v9_0.ast.DropAliasAction
-import org.opencypher.v9_0.ast.ShowAliasAction
 import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
 
 class DbmsPrivilegeAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
@@ -219,71 +214,6 @@ class DbmsPrivilegeAdministrationCommandParserTest extends AdministrationAndSche
       assertFailsWithMessage(
         testName,
         s"""Invalid input '': expected "$preposition" (line 1, column ${offset + 28} (offset: ${offset + 27}))"""
-      )
-    }
-
-    test(s"$command ALIAS MANAGEMENT ON DBMS $preposition role") {
-      yields(privilegeFunc(AllAliasManagementActions, Seq(Left("role"))))
-    }
-
-    test(s"$command DATABASE ALIAS MANAGEMENT ON DBMS $preposition role") {
-      assertFailsWithMessage(
-        testName,
-        s"""Invalid input 'ALIAS': expected "MANAGEMENT" (line 1, column ${offset + 10} (offset: ${offset + 9}))"""
-      )
-    }
-
-    test(s"$command CREATE ALIAS ON DBMS $preposition role") {
-      yields(privilegeFunc(CreateAliasAction, Seq(Left("role"))))
-    }
-
-    test(s"$command CREATE DATABASE ALIAS ON DBMS $preposition role") {
-      assertFailsWithMessage(
-        testName,
-        s"""Invalid input 'ALIAS': expected "ON" (line 1, column ${offset + 17} (offset: ${offset + 16}))"""
-      )
-    }
-
-    test(s"$command DROP ALIAS ON DBMS $preposition role") {
-      yields(privilegeFunc(DropAliasAction, Seq(Left("role"))))
-    }
-
-    test(s"$command DROP DATABASE ALIAS ON DBMS $preposition role") {
-      assertFailsWithMessage(
-        testName,
-        s"""Invalid input 'ALIAS': expected "ON" (line 1, column ${offset + 15} (offset: ${offset + 14}))"""
-      )
-    }
-
-    test(s"$command ALTER ALIAS ON DBMS $preposition role") {
-      yields(privilegeFunc(AlterAliasAction, Seq(Left("role"))))
-    }
-
-    test(s"$command ALTER DATABASE ALIAS ON DBMS $preposition role") {
-      assertFailsWithMessage(
-        testName,
-        s"""Invalid input 'ALIAS': expected "ON" (line 1, column ${offset + 16} (offset: ${offset + 15}))"""
-      )
-    }
-
-    test(s"$command SHOW ALIAS ON DBMS $preposition role") {
-      yields(privilegeFunc(ShowAliasAction, Seq(Left("role"))))
-    }
-
-    test(s"$command SHOW DATABASE ALIAS ON DBMS $preposition role") {
-      assertFailsWithMessage(
-        testName,
-        s"""Invalid input 'DATABASE': expected
-           |  "ALIAS"
-           |  "CONSTRAINT"
-           |  "CONSTRAINTS"
-           |  "INDEX"
-           |  "INDEXES"
-           |  "PRIVILEGE"
-           |  "ROLE"
-           |  "TRANSACTION"
-           |  "TRANSACTIONS"
-           |  "USER" (line 1, column ${offset + 6} (offset: ${offset + 5}))""".stripMargin
       )
     }
   }
