@@ -15,14 +15,18 @@
  */
 package org.opencypher.v9_0.rewriting
 
+import org.opencypher.v9_0.ast.AllAliasManagementActions
+import org.opencypher.v9_0.ast.AlterAliasAction
 import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterDatabaseAction
-import org.opencypher.v9_0.ast.AlterDatabaseAlias
+import org.opencypher.v9_0.ast.AlterLocalDatabaseAlias
+import org.opencypher.v9_0.ast.AlterRemoteDatabaseAlias
 import org.opencypher.v9_0.ast.ConstraintVersion1
 import org.opencypher.v9_0.ast.ConstraintVersion2
-import org.opencypher.v9_0.ast.CreateDatabaseAlias
+import org.opencypher.v9_0.ast.CreateAliasAction
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
+import org.opencypher.v9_0.ast.CreateLocalDatabaseAlias
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeKeyConstraint
 import org.opencypher.v9_0.ast.CreateNodePropertyExistenceConstraint
@@ -31,11 +35,13 @@ import org.opencypher.v9_0.ast.CreatePointRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRangeNodeIndex
 import org.opencypher.v9_0.ast.CreateRangeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipPropertyExistenceConstraint
+import org.opencypher.v9_0.ast.CreateRemoteDatabaseAlias
 import org.opencypher.v9_0.ast.CreateTextNodeIndex
 import org.opencypher.v9_0.ast.CreateTextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DbmsPrivilege
 import org.opencypher.v9_0.ast.DenyPrivilege
+import org.opencypher.v9_0.ast.DropAliasAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.DropIndexOnName
@@ -49,6 +55,8 @@ import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.RangeIndexes
 import org.opencypher.v9_0.ast.RevokePrivilege
 import org.opencypher.v9_0.ast.SetDatabaseAccessAction
+import org.opencypher.v9_0.ast.ShowAliasAction
+import org.opencypher.v9_0.ast.ShowAliases
 import org.opencypher.v9_0.ast.ShowConstraintsClause
 import org.opencypher.v9_0.ast.ShowFunctionsClause
 import org.opencypher.v9_0.ast.ShowIndexesClause
@@ -455,21 +463,124 @@ object Additions {
           )
 
         // CREATE ALIAS [name] FOR DATABASE [name]
-        case c @ CreateDatabaseAlias(_, _, _) => throw cypherExceptionFactory.syntaxException(
-            "Create alias is not supported in this Cypher version.",
+        case c: CreateLocalDatabaseAlias => throw cypherExceptionFactory.syntaxException(
+            "Create local alias is not supported in this Cypher version.",
+            c.position
+          )
+
+        // CREATE ALIAS [name] FOR DATABASE [name] AT [url] USER [name] PASSWORD [password]
+        case c: CreateRemoteDatabaseAlias => throw cypherExceptionFactory.syntaxException(
+            "Create remote alias is not supported in this Cypher version.",
             c.position
           )
 
         // ALTER ALIAS [name] FOR SET DATABASE TARGET [name]
-        case c @ AlterDatabaseAlias(_, _, _) => throw cypherExceptionFactory.syntaxException(
+        case c: AlterLocalDatabaseAlias => throw cypherExceptionFactory.syntaxException(
+            "Alter alias is not supported in this Cypher version.",
+            c.position
+          )
+
+        // ALTER ALIAS [name] FOR SET DATABASE ...
+        case c: AlterRemoteDatabaseAlias => throw cypherExceptionFactory.syntaxException(
             "Alter alias is not supported in this Cypher version.",
             c.position
           )
 
         // DROP ALIAS [name] FOR DATABASE
-        case c @ DropDatabaseAlias(_, _) => throw cypherExceptionFactory.syntaxException(
+        case c: DropDatabaseAlias => throw cypherExceptionFactory.syntaxException(
             "Drop alias is not supported in this Cypher version.",
             c.position
+          )
+
+        // SHOW ALIAS[ES] FOR DATABASE
+        case c: ShowAliases => throw cypherExceptionFactory.syntaxException(
+            "Show aliases is not supported in this Cypher version.",
+            c.position
+          )
+
+        // GRANT/DENY/REVOKE ALIAS MANAGEMENT ...
+        case p @ GrantPrivilege(DbmsPrivilege(AllAliasManagementActions), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "ALIAS MANAGEMENT privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ DenyPrivilege(DbmsPrivilege(AllAliasManagementActions), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "ALIAS MANAGEMENT privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ RevokePrivilege(DbmsPrivilege(AllAliasManagementActions), _, _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "ALIAS MANAGEMENT privilege is not supported in this Cypher version.",
+            p.position
+          )
+
+        // GRANT/DENY/REVOKE CREATE ALIAS ...
+        case p @ GrantPrivilege(DbmsPrivilege(CreateAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "CREATE ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ DenyPrivilege(DbmsPrivilege(CreateAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "CREATE ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ RevokePrivilege(DbmsPrivilege(CreateAliasAction), _, _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "CREATE ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+
+        // GRANT/DENY/REVOKE DROP ALIAS ...
+        case p @ GrantPrivilege(DbmsPrivilege(DropAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "DROP ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ DenyPrivilege(DbmsPrivilege(DropAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "DROP ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ RevokePrivilege(DbmsPrivilege(DropAliasAction), _, _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "DROP ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+
+        // GRANT/DENY/REVOKE ALTER ALIAS ...
+        case p @ GrantPrivilege(DbmsPrivilege(AlterAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "ALTER ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ DenyPrivilege(DbmsPrivilege(AlterAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "ALTER ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ RevokePrivilege(DbmsPrivilege(AlterAliasAction), _, _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "ALTER ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+
+        // GRANT/DENY/REVOKE SHOW ALIAS ...
+        case p @ GrantPrivilege(DbmsPrivilege(ShowAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "SHOW ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ DenyPrivilege(DbmsPrivilege(ShowAliasAction), _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "SHOW ALIAS privilege is not supported in this Cypher version.",
+            p.position
+          )
+        case p @ RevokePrivilege(DbmsPrivilege(ShowAliasAction), _, _, _, _) =>
+          throw cypherExceptionFactory.syntaxException(
+            "SHOW ALIAS privilege is not supported in this Cypher version.",
+            p.position
           )
       }
 

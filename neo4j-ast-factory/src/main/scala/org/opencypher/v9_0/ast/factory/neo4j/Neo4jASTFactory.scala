@@ -21,6 +21,7 @@ import org.opencypher.v9_0.ast.ActionResource
 import org.opencypher.v9_0.ast.AdministrationAction
 import org.opencypher.v9_0.ast.AdministrationCommand
 import org.opencypher.v9_0.ast.AliasedReturnItem
+import org.opencypher.v9_0.ast.AllAliasManagementActions
 import org.opencypher.v9_0.ast.AllConstraintActions
 import org.opencypher.v9_0.ast.AllConstraints
 import org.opencypher.v9_0.ast.AllDatabaseAction
@@ -41,9 +42,11 @@ import org.opencypher.v9_0.ast.AllRoleActions
 import org.opencypher.v9_0.ast.AllTokenActions
 import org.opencypher.v9_0.ast.AllTransactionActions
 import org.opencypher.v9_0.ast.AllUserActions
+import org.opencypher.v9_0.ast.AlterAliasAction
 import org.opencypher.v9_0.ast.AlterDatabase
 import org.opencypher.v9_0.ast.AlterDatabaseAction
-import org.opencypher.v9_0.ast.AlterDatabaseAlias
+import org.opencypher.v9_0.ast.AlterLocalDatabaseAlias
+import org.opencypher.v9_0.ast.AlterRemoteDatabaseAlias
 import org.opencypher.v9_0.ast.AlterUser
 import org.opencypher.v9_0.ast.AlterUserAction
 import org.opencypher.v9_0.ast.AscSortItem
@@ -56,18 +59,19 @@ import org.opencypher.v9_0.ast.ConstraintVersion0
 import org.opencypher.v9_0.ast.ConstraintVersion1
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
+import org.opencypher.v9_0.ast.CreateAliasAction
 import org.opencypher.v9_0.ast.CreateBtreeNodeIndex
 import org.opencypher.v9_0.ast.CreateBtreeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAction
-import org.opencypher.v9_0.ast.CreateDatabaseAlias
 import org.opencypher.v9_0.ast.CreateElementAction
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateIndex
 import org.opencypher.v9_0.ast.CreateIndexAction
 import org.opencypher.v9_0.ast.CreateIndexOldSyntax
+import org.opencypher.v9_0.ast.CreateLocalDatabaseAlias
 import org.opencypher.v9_0.ast.CreateLookupIndex
 import org.opencypher.v9_0.ast.CreateNodeLabelAction
 import org.opencypher.v9_0.ast.CreatePointNodeIndex
@@ -76,6 +80,7 @@ import org.opencypher.v9_0.ast.CreatePropertyKeyAction
 import org.opencypher.v9_0.ast.CreateRangeNodeIndex
 import org.opencypher.v9_0.ast.CreateRangeRelationshipIndex
 import org.opencypher.v9_0.ast.CreateRelationshipTypeAction
+import org.opencypher.v9_0.ast.CreateRemoteDatabaseAlias
 import org.opencypher.v9_0.ast.CreateRole
 import org.opencypher.v9_0.ast.CreateRoleAction
 import org.opencypher.v9_0.ast.CreateTextNodeIndex
@@ -96,6 +101,7 @@ import org.opencypher.v9_0.ast.DeleteElementAction
 import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
+import org.opencypher.v9_0.ast.DropAliasAction
 import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
@@ -215,6 +221,8 @@ import org.opencypher.v9_0.ast.SetPropertyAction
 import org.opencypher.v9_0.ast.SetPropertyItem
 import org.opencypher.v9_0.ast.SetUserHomeDatabaseAction
 import org.opencypher.v9_0.ast.SetUserStatusAction
+import org.opencypher.v9_0.ast.ShowAliasAction
+import org.opencypher.v9_0.ast.ShowAliases
 import org.opencypher.v9_0.ast.ShowAllPrivileges
 import org.opencypher.v9_0.ast.ShowConstraintAction
 import org.opencypher.v9_0.ast.ShowConstraintType
@@ -1803,6 +1811,11 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     case ActionType.DATABASE_DROP             => DropDatabaseAction
     case ActionType.DATABASE_ALTER            => AlterDatabaseAction
     case ActionType.SET_DATABASE_ACCESS       => SetDatabaseAccessAction
+    case ActionType.ALIAS_MANAGEMENT          => AllAliasManagementActions
+    case ActionType.ALIAS_CREATE              => CreateAliasAction
+    case ActionType.ALIAS_DROP                => DropAliasAction
+    case ActionType.ALIAS_ALTER               => AlterAliasAction
+    case ActionType.ALIAS_SHOW                => ShowAliasAction
     case ActionType.PRIVILEGE_ALL             => AllPrivilegeActions
     case ActionType.PRIVILEGE_ASSIGN          => AssignPrivilegeAction
     case ActionType.PRIVILEGE_REMOVE          => RemovePrivilegeAction
@@ -2023,23 +2036,74 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
   // Database commands
 
-  override def createDatabaseAlias(
+  override def createLocalDatabaseAlias(
     p: InputPosition,
     replace: Boolean,
     aliasName: SimpleEither[String, Parameter],
     targetName: SimpleEither[String, Parameter],
     ifNotExists: Boolean
-  ): CreateDatabaseAlias = {
-    CreateDatabaseAlias(aliasName.asScala, targetName.asScala, ifExistsDo(replace, ifNotExists))(p)
+  ): CreateLocalDatabaseAlias = {
+    CreateLocalDatabaseAlias(
+      aliasName.asScala,
+      targetName.asScala,
+      ifExistsDo(replace, ifNotExists)
+    )(p)
   }
 
-  override def alterDatabaseAlias(
+  override def createRemoteDatabaseAlias(
+    p: InputPosition,
+    replace: Boolean,
+    aliasName: SimpleEither[String, Parameter],
+    targetName: SimpleEither[String, Parameter],
+    ifNotExists: Boolean,
+    url: SimpleEither[String, Parameter],
+    username: SimpleEither[String, Parameter],
+    password: Expression,
+    driverSettings: SimpleEither[util.Map[String, Expression], Parameter]
+  ): CreateRemoteDatabaseAlias = {
+    CreateRemoteDatabaseAlias(
+      aliasName.asScala,
+      targetName.asScala,
+      ifExistsDo(replace, ifNotExists),
+      url.asScala,
+      username.asScala,
+      password,
+      Option(driverSettings).map(asDriverSettingsAst)
+    )(p)
+  }
+
+  override def alterLocalDatabaseAlias(
     p: InputPosition,
     aliasName: SimpleEither[String, Parameter],
     targetName: SimpleEither[String, Parameter],
     ifExists: Boolean
-  ): AlterDatabaseAlias = {
-    AlterDatabaseAlias(aliasName.asScala, targetName.asScala, ifExists)(p)
+  ): AlterLocalDatabaseAlias = {
+    AlterLocalDatabaseAlias(
+      aliasName.asScala,
+      targetName.asScala,
+      ifExists
+    )(p)
+  }
+
+  override def alterRemoteDatabaseAlias(
+    p: InputPosition,
+    aliasName: SimpleEither[String, Parameter],
+    targetName: SimpleEither[String, Parameter],
+    ifExists: Boolean,
+    url: SimpleEither[String, Parameter],
+    username: SimpleEither[String, Parameter],
+    password: Expression,
+    driverSettings: SimpleEither[util.Map[String, Expression], Parameter]
+  ): AlterRemoteDatabaseAlias = {
+    AlterRemoteDatabaseAlias(
+      aliasName.asScala,
+      Option(targetName).map(_.asScala),
+      ifExists,
+      Option(url).map(_.asScala),
+      Option(username).map(_.asScala),
+      Option(password),
+      Option(driverSettings).map(asDriverSettingsAst)
+    )(p)
   }
 
   override def dropAlias(
@@ -2049,6 +2113,9 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
   ): DropDatabaseAlias = {
     DropDatabaseAlias(aliasName.asScala, ifExists)(p)
   }
+
+  override def showAliases(p: InputPosition, yieldExpr: Yield, returnWithoutGraph: Return, where: Where): ShowAliases =
+    ShowAliases(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
 
   private def ifExistsDo(replace: Boolean, ifNotExists: Boolean): IfExistsDo = {
     (replace, ifNotExists) match {
@@ -2081,6 +2148,13 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       case Some(Left(map))    => OptionsMap(map.asScala.toMap)
       case Some(Right(param)) => OptionsParam(param)
       case None               => NoOptions
+    }
+
+  private def asDriverSettingsAst(driverSettings: SimpleEither[util.Map[String, Expression], Parameter])
+    : Either[Map[String, Expression], Parameter] =
+    driverSettings.asScala match {
+      case Left(map)    => Left(map.asScala.toMap)
+      case Right(param) => Right(param)
     }
 
   private def pretty[T <: AnyRef](ts: util.List[T]): String = {

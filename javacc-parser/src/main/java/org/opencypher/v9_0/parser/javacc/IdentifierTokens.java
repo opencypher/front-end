@@ -20,6 +20,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.ACTIVE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ADMIN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ADMINISTRATOR;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALIAS;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALIASES;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALL;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALL_SHORTEST_PATH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ALTER;
@@ -29,6 +30,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.AS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ASC;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ASSERT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ASSIGN;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.AT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.BOOSTED;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.BRIEF;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.BTREE;
@@ -60,6 +62,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.DESC;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DESTROY;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DETACH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DISTINCT;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.DRIVER;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DROP;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DUMP;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.EACH;
@@ -205,6 +208,7 @@ public class IdentifierTokens {
             ADMIN,
             ADMINISTRATOR,
             ALIAS,
+            ALIASES,
             ALL_SHORTEST_PATH,
             ALL,
             ALTER,
@@ -214,6 +218,7 @@ public class IdentifierTokens {
             ASC,
             ASSERT,
             ASSIGN,
+            AT,
             BOOSTED,
             BRIEF,
             BTREE,
@@ -245,6 +250,7 @@ public class IdentifierTokens {
             DESTROY,
             DETACH,
             DISTINCT,
+            DRIVER,
             DROP,
             DUMP,
             EACH,
