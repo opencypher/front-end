@@ -90,6 +90,7 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.SemanticDirection.BOTH
+import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.SingleIterablePredicate
 import org.opencypher.v9_0.expressions.StartsWith
@@ -115,6 +116,8 @@ import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.NonEmptyList
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
+
+import java.nio.charset.StandardCharsets
 
 import scala.language.implicitConversions
 
@@ -221,6 +224,9 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def literalFloat(floatValue: Double): DecimalDoubleLiteral =
     DecimalDoubleLiteral(floatValue.toString)(pos)
+
+  def sensitiveLiteral(stringVal: String): SensitiveStringLiteral =
+    SensitiveStringLiteral(stringVal.getBytes(StandardCharsets.UTF_8))(pos)
 
   def listOf(expressions: Expression*): ListLiteral =
     ListLiteral(expressions)(pos)

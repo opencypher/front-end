@@ -627,6 +627,8 @@ class ShowSchemaCommandParserTest extends AdministrationAndSchemaCommandParserTe
     assertFailsWithMessage(
       testName,
       """Invalid input 'UNIQUENESS': expected
+        |  "ALIAS"
+        |  "ALIASES"
         |  "ALL"
         |  "BTREE"
         |  "BUILT"
@@ -680,6 +682,8 @@ class ShowSchemaCommandParserTest extends AdministrationAndSchemaCommandParserTe
     assertFailsWithMessage(
       testName,
       """Invalid input 'NODES': expected
+        |  "ALIAS"
+        |  "ALIASES"
         |  "ALL"
         |  "BTREE"
         |  "BUILT"
@@ -733,6 +737,8 @@ class ShowSchemaCommandParserTest extends AdministrationAndSchemaCommandParserTe
     assertFailsWithMessage(
       testName,
       """Invalid input 'RELATIONSHIPS': expected
+        |  "ALIAS"
+        |  "ALIASES"
         |  "ALL"
         |  "BTREE"
         |  "BUILT"
