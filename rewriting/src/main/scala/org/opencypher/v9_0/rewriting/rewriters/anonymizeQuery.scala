@@ -15,6 +15,10 @@
  */
 package org.opencypher.v9_0.rewriting.rewriters
 
+import org.opencypher.v9_0.ast.CreateConstraint
+import org.opencypher.v9_0.ast.CreateIndex
+import org.opencypher.v9_0.ast.DropConstraintOnName
+import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LabelName
@@ -45,6 +49,8 @@ trait Anonymizer {
   def propertyKey(name: String): String
   def parameter(name: String): String
   def literal(value: String): String
+  def indexName(name: String): String
+  def constraintName(name: String): String
 }
 
 case class anonymizeQuery(anonymizer: Anonymizer) extends Rewriter {
@@ -52,14 +58,18 @@ case class anonymizeQuery(anonymizer: Anonymizer) extends Rewriter {
   def apply(that: AnyRef): AnyRef = instance.apply(that)
 
   private val instance: Rewriter = bottomUp(Rewriter.lift {
-    case v: Variable => Variable(anonymizer.variable(v.name))(v.position)
     case x: UnaliasedReturnItem =>
       UnaliasedReturnItem(x.expression, anonymizer.unaliasedReturnItemName(x.expression, x.inputText))(x.position)
-    case x: LabelName          => LabelName(anonymizer.label(x.name))(x.position)
-    case x: RelTypeName        => RelTypeName(anonymizer.relationshipType(x.name))(x.position)
-    case x: LabelOrRelTypeName => LabelOrRelTypeName(anonymizer.labelOrRelationshipType(x.name))(x.position)
-    case x: PropertyKeyName    => PropertyKeyName(anonymizer.propertyKey(x.name))(x.position)
-    case x: Parameter          => Parameter(anonymizer.parameter(x.name), x.parameterType)(x.position)
-    case x: StringLiteral      => StringLiteral(anonymizer.literal(x.value))(x.position)
+    case v: Variable             => Variable(anonymizer.variable(v.name))(v.position)
+    case x: LabelName            => LabelName(anonymizer.label(x.name))(x.position)
+    case x: RelTypeName          => RelTypeName(anonymizer.relationshipType(x.name))(x.position)
+    case x: LabelOrRelTypeName   => LabelOrRelTypeName(anonymizer.labelOrRelationshipType(x.name))(x.position)
+    case x: PropertyKeyName      => PropertyKeyName(anonymizer.propertyKey(x.name))(x.position)
+    case x: Parameter            => Parameter(anonymizer.parameter(x.name), x.parameterType)(x.position)
+    case x: StringLiteral        => StringLiteral(anonymizer.literal(x.value))(x.position)
+    case x: CreateIndex          => x.withName(x.name.map(anonymizer.indexName))
+    case x: DropIndexOnName      => x.copy(name = anonymizer.indexName(x.name))(x.position)
+    case x: CreateConstraint     => x.withName(x.name.map(anonymizer.constraintName))
+    case x: DropConstraintOnName => x.copy(name = anonymizer.constraintName(x.name))(x.position)
   })
 }
