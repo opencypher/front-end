@@ -25,12 +25,8 @@ import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelationshipPattern
-import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
-import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
-import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
-import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
 import org.opencypher.v9_0.util.DeprecatedVarLengthBindingNotification
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
@@ -52,21 +48,6 @@ object Deprecations {
   case object syntacticallyDeprecatedFeaturesIn4_X extends SyntacticDeprecations {
 
     override val find: PartialFunction[Any, Deprecation] = {
-
-      // old octal literal syntax, don't support underscores
-      case p @ SignedOctalIntegerLiteral(stringVal)
-        if stringVal.charAt(stringVal.indexOf('0') + 1) != 'o' && stringVal.charAt(stringVal.indexOf('0') + 1) != '_' =>
-        Deprecation(
-          Some(Ref(p) -> SignedOctalIntegerLiteral(stringVal.patch(stringVal.indexOf('0') + 1, "o", 0))(p.position)),
-          Some(DeprecatedOctalLiteralSyntax(p.position))
-        )
-
-      // old hex literal syntax
-      case p @ SignedHexIntegerLiteral(stringVal) if stringVal.charAt(stringVal.indexOf('0') + 1) == 'X' =>
-        Deprecation(
-          Some(Ref(p) -> SignedHexIntegerLiteral(stringVal.toLowerCase)(p.position)),
-          Some(DeprecatedHexLiteralSyntax(p.position))
-        )
 
       // timestamp
       case f @ FunctionInvocation(namespace, FunctionName(name), _, _)

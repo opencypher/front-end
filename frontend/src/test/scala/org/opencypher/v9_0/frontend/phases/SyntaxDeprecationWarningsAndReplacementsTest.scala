@@ -23,54 +23,11 @@ import org.opencypher.v9_0.rewriting.Deprecations.semanticallyDeprecatedFeatures
 import org.opencypher.v9_0.rewriting.Deprecations.syntacticallyDeprecatedFeaturesIn4_X
 import org.opencypher.v9_0.rewriting.conditions.noReferenceEqualityAmongVariables
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
-import org.opencypher.v9_0.util.DeprecatedHexLiteralSyntax
-import org.opencypher.v9_0.util.DeprecatedOctalLiteralSyntax
-import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.RecordingNotificationLogger
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class SyntaxDeprecationWarningsAndReplacementsTest extends CypherFunSuite {
-
-  test("should warn about deprecated octal syntax") {
-    check("RETURN 01277") should equal(Set(
-      DeprecatedOctalLiteralSyntax(InputPosition(7, 1, 8))
-    ))
-  }
-
-  test("should warn about deprecated octal syntax (negative literal)") {
-    check("RETURN -01277") should equal(Set(
-      DeprecatedOctalLiteralSyntax(InputPosition(7, 1, 8))
-    ))
-  }
-
-  test("should not warn about correct octal syntax") {
-    check("RETURN 0o1277") should equal(Set.empty)
-  }
-
-  test("should not warn about correct octal syntax  (negative literal)") {
-    check("RETURN -0o1277") should equal(Set.empty)
-  }
-
-  test("should warn about deprecated hexadecimal syntax") {
-    check("RETURN 0X1277") should equal(Set(
-      DeprecatedHexLiteralSyntax(InputPosition(7, 1, 8))
-    ))
-  }
-
-  test("should warn about deprecated hexadecimal syntax (negative literal)") {
-    check("RETURN -0X1277") should equal(Set(
-      DeprecatedHexLiteralSyntax(InputPosition(7, 1, 8))
-    ))
-  }
-
-  test("should not warn about correct hexadecimal syntax") {
-    check("RETURN 0x1277") should equal(Set.empty)
-  }
-
-  test("should not warn about correct hexadecimal syntax  (negative literal)") {
-    check("RETURN -0x1277") should equal(Set.empty)
-  }
 
   test("should not warn about coercion with a pattern expression in WHERE clause") {
     check("WITH 1 AS foo WHERE ()--() RETURN *") should equal(Set.empty)
