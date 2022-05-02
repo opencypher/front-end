@@ -18,11 +18,8 @@ package org.opencypher.v9_0.ast.factory.neo4j
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory
 import org.opencypher.v9_0.ast.factory.ConstraintType
-import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
-import org.opencypher.v9_0.expressions.RelTypeName
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.symbols.CTMap
 
 /* Tests for creating and dropping constraints */
@@ -1022,9 +1019,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
 
   test("CREATE CONSTRAINT ON (node1:Label) ASSERT EXISTS node2.prop") {
     assertAst(ast.CreateNodePropertyExistenceConstraint(
-      Variable("node1")(1, 23, 22),
-      LabelName("Label")(1, 29, 28),
-      Property(Variable("node2")(1, 50, 49), PropertyKeyName("prop")(1, 56, 55))(1, 50, 49),
+      varFor("node1", (1, 23, 22)),
+      labelName("Label", (1, 29, 28)),
+      Property(varFor("node2", (1, 50, 49)), PropertyKeyName("prop")((1, 56, 55)))((1, 50, 49)),
       None,
       ast.IfExistsThrowError,
       ast.NoOptions,
@@ -1134,9 +1131,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
 
   test("CREATE CONSTRAINT ON ()-[r1:R]-() ASSERT EXISTS r2.prop") {
     assertAst(ast.CreateRelationshipPropertyExistenceConstraint(
-      Variable("r1")(1, 26, 25),
-      RelTypeName("R")(1, 29, 28),
-      Property(Variable("r2")(1, 49, 48), PropertyKeyName("prop")(1, 52, 51))(1, 49, 48),
+      varFor("r1", (1, 26, 25)),
+      relTypeName("R", (1, 29, 28)),
+      Property(varFor("r2", (1, 49, 48)), PropertyKeyName("prop")((1, 52, 51)))((1, 49, 48)),
       None,
       ast.IfExistsThrowError,
       ast.NoOptions,
@@ -1347,7 +1344,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
   test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE (node.prop) IS NODE KEY") {
     assertAst(ast.CreateNodeKeyConstraint(
       varFor("node", (1, 28, 27)),
-      LabelName("Label")(1, 33, 32),
+      labelName("Label", (1, 33, 32)),
       Seq(prop("node", "prop", (1, 49, 48))),
       Some("FOR"),
       ast.IfExistsThrowError,
@@ -1360,7 +1357,7 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
   test("CREATE CONSTRAINT FOR FOR (node:Label) REQUIRE (node.prop) IS UNIQUE") {
     assertAst(ast.CreateUniquePropertyConstraint(
       varFor("node", (1, 28, 27)),
-      LabelName("Label")(1, 33, 32),
+      labelName("Label", (1, 33, 32)),
       Seq(prop("node", "prop", (1, 49, 48))),
       Some("FOR"),
       ast.IfExistsThrowError,
@@ -1465,9 +1462,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
   test("DROP CONSTRAINT ON (node1:Label) ASSERT node2.prop IS NODE KEY") {
     assertAst(
       ast.DropNodeKeyConstraint(
-        Variable("node1")(1, 21, 20),
-        LabelName("Label")(1, 27, 26),
-        Seq(Property(Variable("node2")(1, 41, 40), PropertyKeyName("prop")(1, 47, 46))(1, 42, 40)),
+        varFor("node1", (1, 21, 20)),
+        labelName("Label", (1, 27, 26)),
+        Seq(Property(varFor("node2", (1, 41, 40)), PropertyKeyName("prop")((1, 47, 46)))((1, 42, 40))),
         None
       )(defaultPos)
     )
@@ -1512,9 +1509,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
   test("DROP CONSTRAINT ON (node1:Label) ASSERT EXISTS node2.prop") {
     assertAst(
       ast.DropNodePropertyExistenceConstraint(
-        Variable("node1")(1, 21, 20),
-        LabelName("Label")(1, 27, 26),
-        Property(Variable("node2")(1, 48, 47), PropertyKeyName("prop")(1, 54, 53))(1, 48, 47),
+        varFor("node1", (1, 21, 20)),
+        labelName("Label", (1, 27, 26)),
+        Property(varFor("node2", (1, 48, 47)), PropertyKeyName("prop")((1, 54, 53)))((1, 48, 47)),
         None
       )(defaultPos)
     )
@@ -1535,9 +1532,9 @@ class ConstraintCommandsParserTest extends AdministrationAndSchemaCommandParserT
   test("DROP CONSTRAINT ON ()-[r1:R]-() ASSERT EXISTS r2.prop") {
     assertAst(
       ast.DropRelationshipPropertyExistenceConstraint(
-        Variable("r1")(1, 24, 23),
-        RelTypeName("R")(1, 27, 26),
-        Property(Variable("r2")(1, 47, 46), PropertyKeyName("prop")(1, 50, 49))(1, 47, 46),
+        varFor("r1", (1, 24, 23)),
+        relTypeName("R", (1, 27, 26)),
+        Property(varFor("r2", (1, 47, 46)), PropertyKeyName("prop")((1, 50, 49)))((1, 47, 46)),
         None
       )(defaultPos)
     )

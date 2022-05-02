@@ -39,6 +39,8 @@ import org.opencypher.v9_0.util.InputPosition
 import org.scalatest.Assertions
 import org.scalatest.Matchers
 
+import scala.language.implicitConversions
+
 trait VerifyAstPositionTestSupport extends Assertions with Matchers {
 
   def verifyPositions(javaCCAstNode: ASTNode, expectedAstNode: ASTNode): Unit = {

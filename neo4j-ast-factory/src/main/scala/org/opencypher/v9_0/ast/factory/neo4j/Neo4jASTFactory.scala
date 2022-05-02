@@ -406,6 +406,7 @@ import java.util.stream.Collectors
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.jdk.CollectionConverters.MapHasAsScala
+import scala.language.implicitConversions
 import scala.util.Either
 
 final case class Privilege(
@@ -857,7 +858,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       i += 1
     }
 
-    MapExpression(pairs)(p)
+    MapExpression(pairs.toIndexedSeq)(p)
   }
 
   override def hasLabelsOrTypes(subject: Expression, labels: util.List[StringPos[InputPosition]]): Expression =
@@ -1045,7 +1046,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       alternatives(i) = whens.get(i) -> thens.get(i)
       i += 1
     }
-    CaseExpression(Option(e), alternatives, Option(elze))(p)
+    CaseExpression(Option(e), alternatives.toIndexedSeq, Option(elze))(p)
   }
 
   override def inputPosition(offset: Int, line: Int, column: Int): InputPosition = InputPosition(offset, line, column)

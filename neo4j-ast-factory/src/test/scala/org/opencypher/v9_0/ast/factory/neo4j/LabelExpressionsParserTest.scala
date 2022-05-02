@@ -290,7 +290,7 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
     givesIncludingPositions {
       nodePat(
         name = Some("n"),
-        labelExpression = Some(labelWildcard(1, 4, 3)),
+        labelExpression = Some(labelWildcard((1, 4, 3))),
         namePos = (1, 2, 1),
         position = (1, 1, 0)
       )
@@ -305,8 +305,8 @@ class NodeLabelExpressionsParserTest extends CypherFunSuite with JavaccParserAst
         name = Some("n"),
         labelExpression = Some(
           labelConjunction(
-            labelNegation(labelWildcard(1, 5, 4), (1, 4, 3)),
-            labelWildcard(1, 7, 6),
+            labelNegation(labelWildcard((1, 5, 4)), (1, 4, 3)),
+            labelWildcard((1, 7, 6)),
             (1, 6, 5)
           )
         ),
@@ -416,7 +416,7 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
         pattern = RelationshipsPattern(
           RelationshipChain(
             nodePat(Some("a")),
-            RelationshipPattern(None, List(), None, None, None, OUTGOING)(1, 5, 4),
+            RelationshipPattern(None, List(), None, None, None, OUTGOING)((1, 5, 4)),
             nodePat(
               Some("b"),
               Some(labelDisjunction(
@@ -425,8 +425,8 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
                 (1, 12, 11)
               ))
             )
-          )(1, 2, 1)
-        )(1, 2, 1),
+          )((1, 2, 1))
+        )((1, 2, 1)),
         predicate = None,
         projection = prop("b", "prop")
       )((1, 1, 0), Set.empty, "  UNNAMED0", "  UNNAMED1")

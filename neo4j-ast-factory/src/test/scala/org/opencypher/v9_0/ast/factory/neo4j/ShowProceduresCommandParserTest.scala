@@ -26,7 +26,6 @@ import org.opencypher.v9_0.ast.User
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.StringLiteral
-import org.opencypher.v9_0.expressions.Variable
 
 /* Tests for listing procedures */
 class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
@@ -54,8 +53,8 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
 
     test(s"USE db SHOW $procKeyword") {
       assertAst(Query(SingleQuery(
-        List(use(Variable("db")(1, 5, 4)), ShowProceduresClause(None, None, hasYield = false)(1, 8, 7))
-      )(1, 8, 7))(1, 8, 7))
+        List(use(varFor("db", (1, 5, 4))), ShowProceduresClause(None, None, hasYield = false)((1, 8, 7)))
+      )((1, 8, 7)))((1, 8, 7)))
     }
 
   }
@@ -67,10 +66,10 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
       None,
       Some(Where(
         Equals(
-          Variable("name")(1, 22, 21),
-          StringLiteral("my.proc")(1, 29, 28)
-        )(1, 27, 26)
-      )(1, 16, 15)),
+          varFor("name", (1, 22, 21)),
+          StringLiteral("my.proc")((1, 29, 28))
+        )((1, 27, 26))
+      )((1, 16, 15))),
       hasYield = false
     )(defaultPos)))
   }
@@ -79,7 +78,7 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
     assertAst(query(
       ShowProceduresClause(None, None, hasYield = true)(defaultPos),
       yieldClause(
-        ReturnItems(includeExisting = false, Seq(variableReturnItem("description", (1, 23, 22))))(1, 23, 22)
+        ReturnItems(includeExisting = false, Seq(variableReturnItem("description", (1, 23, 22))))((1, 23, 22))
       )
     ))
   }
@@ -97,8 +96,8 @@ class ShowProceduresCommandParserTest extends AdministrationAndSchemaCommandPars
       yieldClause(
         returnAllItems((1, 25, 24)),
         Some(OrderBy(Seq(
-          AscSortItem(Variable("name")(1, 34, 33))((1, 34, 33))
-        ))(1, 25, 24)),
+          AscSortItem(varFor("name", (1, 34, 33)))((1, 34, 33))
+        ))((1, 25, 24))),
         Some(skip(2, (1, 39, 38))),
         Some(limit(5, (1, 46, 45)))
       )

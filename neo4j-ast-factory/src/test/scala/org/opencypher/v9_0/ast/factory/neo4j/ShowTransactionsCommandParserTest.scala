@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.StringLiteral
-import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.symbols.CTAny
 
 /* Tests for listing transactions */
@@ -50,7 +49,7 @@ class ShowTransactionsCommandParserTest extends AdministrationAndSchemaCommandPa
 
     test(s"SHOW $transactionKeyword $$param") {
       assertAst(query(ast.ShowTransactionsClause(
-        Right(Parameter("param", CTAny)(1, 7 + transactionKeyword.length, 6 + transactionKeyword.length)),
+        Right(Parameter("param", CTAny)((1, 7 + transactionKeyword.length, 6 + transactionKeyword.length))),
         None,
         hasYield = false
       )(defaultPos)))
@@ -92,8 +91,8 @@ class ShowTransactionsCommandParserTest extends AdministrationAndSchemaCommandPa
       ast.ShowTransactionsClause(
         Left(List.empty),
         Some(ast.Where(
-          Equals(Variable("transactionId")(1, 24, 23), StringLiteral("db1-transaction-123")(1, 40, 39))(1, 38, 37)
-        )(1, 18, 17)),
+          Equals(varFor("transactionId", (1, 24, 23)), StringLiteral("db1-transaction-123")((1, 40, 39)))((1, 38, 37))
+        )((1, 18, 17))),
         hasYield = false
       )(defaultPos)
     ))
