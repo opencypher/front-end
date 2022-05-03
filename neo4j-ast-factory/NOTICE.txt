@@ -23,8 +23,6 @@ Apache Software License, Version 2.0
   openCypher AST for the Cypher Query Language
   openCypher Expressions
   openCypher Utils
-  org.apiguardian:apiguardian-api
-  org.opentest4j:opentest4j
   Scala Compiler
   scala-xml
   scalactic
@@ -36,12 +34,4 @@ BSD - Scala License
 BSD License
   scalacheck
   test-interface
-
-Eclipse Public License - v 1.0
-  JUnit
-
-Eclipse Public License v2.0
-  JUnit Platform Commons
-  JUnit Platform Engine API
-  JUnit Vintage Engine
 
