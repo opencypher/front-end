@@ -35,8 +35,8 @@ import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticPatternCheck
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.ast.semantics.TypeGenerator
+import org.opencypher.v9_0.ast.semantics.iterableOnceSemanticChecking
 import org.opencypher.v9_0.ast.semantics.optionSemanticChecking
-import org.opencypher.v9_0.ast.semantics.traversableOnceSemanticChecking
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.Contains
