@@ -18,9 +18,11 @@ package org.opencypher.v9_0.frontend.phases.rewriting.cnf
 import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.ExplicitParameter
+import org.opencypher.v9_0.expressions.False
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Null
@@ -36,6 +38,7 @@ import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
+import org.opencypher.v9_0.util.test_helpers.Extractors.SetExtractor
 
 class SimplifyPredicatesTest extends CypherFunSuite {
 
@@ -71,7 +74,7 @@ class SimplifyPredicatesTest extends CypherFunSuite {
     // or(not(not(P)), not(not(Q))) <=> or(P, Q)
     assertRewrittenMatches(
       "NOT NOT 'P' OR NOT NOT 'Q'",
-      { case Ors(List(StringLiteral("P"), StringLiteral("Q"))) => () }
+      { case Ors(SetExtractor(StringLiteral("P"), StringLiteral("Q"))) => () }
     )
   }
 
@@ -82,7 +85,15 @@ class SimplifyPredicatesTest extends CypherFunSuite {
 
   test("Simplify OR of identical expressions with interspersed condition") {
     // We should be able to remove one of those redundant $n = 2.
-    assertRewrittenMatches("$n = 2 OR $n = 1 OR $n = 2", { case Ors(Seq(Equals(_, _), Equals(_, _))) => () })
+    assertRewrittenMatches("$n = 2 OR $n = 1 OR $n = 2", { case Ors(SetExtractor(Equals(_, _), Equals(_, _))) => () })
+  }
+
+  test("Simplify negated false") {
+    assertRewrittenMatches("$n.a OR NOT false", { case True() => () })
+  }
+
+  test("Simplify negated true") {
+    assertRewrittenMatches("$n.a AND NOT true", { case False() => () })
   }
 
   test("Do not simplify expressions with different auto extracted parameters") {
@@ -101,6 +112,11 @@ class SimplifyPredicatesTest extends CypherFunSuite {
     val rewriter = flattenBooleanOperators andThen simplifyPredicates(SemanticState.clean)
     val result = ast.rewrite(rewriter)
     ast should equal(result)
+  }
+
+  test("should not simplify self-negation") {
+    // because in ternary logic NULL AND not NULL = NULL, we cannot simplify this to false, as one might be tempted to do
+    assertRewrittenMatches("$n.a AND NOT $n.a", { case Ands(_) => () })
   }
 
   private val exceptionFactory = new OpenCypherExceptionFactory(None)

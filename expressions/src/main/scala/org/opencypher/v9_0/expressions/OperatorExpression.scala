@@ -15,6 +15,8 @@
  */
 package org.opencypher.v9_0.expressions
 
+import scala.collection.immutable.ListSet
+
 trait OperatorExpression {
   self: Expression =>
 
@@ -59,7 +61,7 @@ trait ChainableBinaryOperatorExpression extends BinaryOperatorExpression {
 trait MultiOperatorExpression extends OperatorExpression {
   self: Expression =>
 
-  def exprs: collection.Seq[Expression]
+  def exprs: ListSet[Expression]
 
   override def asCanonicalStringVal: String =
     s"$canonicalOperatorSymbol( ${exprs.map(_.asCanonicalStringVal).mkString(", ")}"

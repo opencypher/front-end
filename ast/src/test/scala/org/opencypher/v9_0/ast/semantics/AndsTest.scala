@@ -17,8 +17,11 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions.Ands
 import org.opencypher.v9_0.expressions.DummyExpression
+import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.symbols.CTBoolean
+
+import scala.collection.immutable.ListSet
 
 class AndsTest extends SemanticFunSuite {
 
@@ -26,7 +29,7 @@ class AndsTest extends SemanticFunSuite {
     val dummyExpr1 = DummyExpression(CTBoolean, DummyPosition(1))
     val dummyExpr2 = DummyExpression(CTBoolean, DummyPosition(2))
     val dummyExpr3 = DummyExpression(CTBoolean, DummyPosition(3))
-    val ands = Ands(Seq(dummyExpr1, dummyExpr2, dummyExpr3))(pos)
+    val ands = Ands(ListSet[Expression](dummyExpr1, dummyExpr2, dummyExpr3))(pos)
     val result = SemanticExpressionCheck.simple(ands)(SemanticState.clean)
 
     result.errors shouldBe empty
