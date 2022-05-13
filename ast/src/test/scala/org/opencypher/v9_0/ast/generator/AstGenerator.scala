@@ -195,6 +195,7 @@ import org.opencypher.v9_0.ast.RevokeType
 import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
+import org.opencypher.v9_0.ast.ServerManagementAction
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.SetDatabaseAccessAction
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
@@ -228,6 +229,7 @@ import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
+import org.opencypher.v9_0.ast.ShowServerAction
 import org.opencypher.v9_0.ast.ShowTransactionAction
 import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserAction
@@ -1678,7 +1680,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     AllPrivilegeActions,
     ShowPrivilegeAction,
     AssignPrivilegeAction,
-    RemovePrivilegeAction
+    RemovePrivilegeAction,
+    ServerManagementAction,
+    ShowServerAction
   )
 
   def _databaseAction: Gen[DatabaseAction] = oneOf(

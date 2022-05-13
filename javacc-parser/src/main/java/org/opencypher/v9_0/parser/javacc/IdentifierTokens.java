@@ -158,6 +158,8 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.SEC;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SECOND;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SECONDS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SEEK;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.SERVER;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.SERVERS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SET;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SHORTEST_PATH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.SHOW;
@@ -345,6 +347,8 @@ public class IdentifierTokens {
             SECOND,
             SECONDS,
             SEEK,
+            SERVER,
+            SERVERS,
             SET,
             SHORTEST_PATH,
             SHOW,

@@ -207,6 +207,7 @@ import org.opencypher.v9_0.ast.RevokeRolesFromUsers
 import org.opencypher.v9_0.ast.SchemaCommand
 import org.opencypher.v9_0.ast.SeekOnly
 import org.opencypher.v9_0.ast.SeekOrScan
+import org.opencypher.v9_0.ast.ServerManagementAction
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.SetDatabaseAccessAction
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
@@ -240,6 +241,7 @@ import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
+import org.opencypher.v9_0.ast.ShowServerAction
 import org.opencypher.v9_0.ast.ShowTransactionAction
 import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserAction
@@ -1827,6 +1829,8 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     case ActionType.EXECUTE_PROCEDURE         => ExecuteProcedureAction
     case ActionType.EXECUTE_BOOSTED_PROCEDURE => ExecuteBoostedProcedureAction
     case ActionType.EXECUTE_ADMIN_PROCEDURE   => ExecuteAdminProcedureAction
+    case ActionType.SERVER_SHOW               => ShowServerAction
+    case ActionType.SERVER_MANAGEMENT         => ServerManagementAction
 
     case ActionType.GRAPH_ALL          => AllGraphAction
     case ActionType.GRAPH_WRITE        => WriteAction
