@@ -313,11 +313,14 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractScope
 import org.opencypher.v9_0.expressions.False
 import org.opencypher.v9_0.expressions.FilterScope
+import org.opencypher.v9_0.expressions.FixedQuantifier
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.GraphPatternQuantifier
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.IntervalQuantifier
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
@@ -347,17 +350,21 @@ import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.expressions.Null
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.PathConcatenation
+import org.opencypher.v9_0.expressions.PathFactor
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.PatternPart
+import org.opencypher.v9_0.expressions.PlusQuantifier
 import org.opencypher.v9_0.expressions.Pow
 import org.opencypher.v9_0.expressions.ProcedureName
 import org.opencypher.v9_0.expressions.ProcedureOutput
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.PropertySelector
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
 import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.ReduceExpression
@@ -377,7 +384,9 @@ import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
+import org.opencypher.v9_0.expressions.SimplePattern
 import org.opencypher.v9_0.expressions.SingleIterablePredicate
+import org.opencypher.v9_0.expressions.StarQuantifier
 import org.opencypher.v9_0.expressions.StartsWith
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Subtract
@@ -930,14 +939,49 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield RelationshipPattern(variable, labelExpression, length, properties, predicate, direction)(pos)
 
   def _relationshipChain: Gen[RelationshipChain] = for {
-    element <- _patternElement
+    element <- _pathPrimary
     relationship <- _relationshipPattern
     rightNode <- _nodePattern
   } yield RelationshipChain(element, relationship, rightNode)(pos)
 
-  def _patternElement: Gen[PatternElement] = oneOf(
+  def _pathPrimary: Gen[SimplePattern] = oneOf(
     _nodePattern,
     lzy(_relationshipChain)
+  )
+
+  def _generalQuantifier: Gen[IntervalQuantifier] = for {
+    lower <- option(_unsignedDecIntLit)
+    upper <- option(_unsignedDecIntLit)
+  } yield IntervalQuantifier(lower, upper)(pos)
+
+  def _fixedQuantifier: Gen[FixedQuantifier] = for {
+    value <- _unsignedDecIntLit
+  } yield FixedQuantifier(value)(pos)
+
+  def _quantifier: Gen[GraphPatternQuantifier] = oneOf(
+    const(StarQuantifier()(pos)),
+    const(PlusQuantifier()(pos)),
+    _generalQuantifier,
+    _fixedQuantifier
+  )
+
+  def _quantifiedPath: Gen[QuantifiedPath] = for {
+    primary <- _pathFactor
+    quantifier <- _quantifier
+  } yield QuantifiedPath(EveryPath(primary), quantifier)(pos)
+
+  def _pathFactor: Gen[PathFactor] = oneOf(
+    lzy(_quantifiedPath),
+    lzy(_pathPrimary)
+  )
+
+  def _pathConcatenation: Gen[PathConcatenation] = for {
+    elements <- twoOrMore(_pathFactor)
+  } yield PathConcatenation(elements)(pos)
+
+  def _patternElement: Gen[PatternElement] = oneOf(
+    lzy(_pathFactor),
+    lzy(_pathConcatenation)
   )
 
   def _anonPatternPart: Gen[AnonymousPatternPart] = for {

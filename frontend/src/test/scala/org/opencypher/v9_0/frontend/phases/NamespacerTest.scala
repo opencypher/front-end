@@ -21,6 +21,7 @@ import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.Union.UnionMapping
 import org.opencypher.v9_0.ast.Where
+import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.HasLabels
@@ -43,6 +44,11 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
     TestCase(
       "MATCH (n), (x) WITH n AS n MATCH (x) RETURN n AS n, x AS x",
       "MATCH (n), (`  x@0`) WITH n AS n MATCH (`  x@1`) RETURN n AS n, `  x@1` AS `  x@1`",
+      List(varFor("  x@0"), varFor("  x@1"))
+    ),
+    TestCase(
+      "MATCH (a) ((x)-->(y))+ WHERE x = 0 WITH '1' as x WHERE y IS NOT NULL RETURN x",
+      "MATCH (a) ((`  x@0`)-->(y))+ WHERE `  x@0` = 0 WITH '1' as `  x@1` WHERE y IS NOT NULL RETURN `  x@1`",
       List(varFor("  x@0"), varFor("  x@1"))
     ),
     TestCase(
@@ -230,7 +236,12 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
   tests.foreach {
     case TestCase(q, rewritten, semanticTableExpressions) =>
       test(q) {
-        assertRewritten(q.replace("\r\n", "\n"), rewritten, semanticTableExpressions)
+        assertRewritten(
+          q.replace("\r\n", "\n"),
+          rewritten,
+          semanticTableExpressions,
+          SemanticFeature.QuantifiedPathPatterns
+        )
       }
     case TestCaseWithStatement(q, rewritten, semanticTableExpressions) =>
       test(q) {

@@ -21,6 +21,9 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FixedQuantifier
+import org.opencypher.v9_0.expressions.GraphPatternQuantifier
+import org.opencypher.v9_0.expressions.IntervalQuantifier
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
 import org.opencypher.v9_0.expressions.LabelName
@@ -31,6 +34,9 @@ import org.opencypher.v9_0.expressions.NODE_TYPE
 import org.opencypher.v9_0.expressions.NamedPatternPart
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.ParenthesizedPath
+import org.opencypher.v9_0.expressions.PathConcatenation
+import org.opencypher.v9_0.expressions.PathFactor
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.Pattern.SemanticContext
 import org.opencypher.v9_0.expressions.Pattern.SemanticContext.Match
@@ -40,6 +46,7 @@ import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternPart
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
 import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.RelTypeName
@@ -49,15 +56,19 @@ import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.SymbolicName
+import org.opencypher.v9_0.expressions.UnsignedDecimalIntegerLiteral
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.UnboundedShortestPathNotification
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTPath
 import org.opencypher.v9_0.util.symbols.CTRelationship
+import org.opencypher.v9_0.util.topDown
 
 object SemanticPatternCheck extends SemanticAnalysisTooling {
 
@@ -65,6 +76,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
     semanticCheckFold(pattern.patternParts)(declareVariables(ctx)) chain
       semanticCheckFold(pattern.patternParts)(checkElementPredicates(ctx)) chain
       semanticCheckFold(pattern.patternParts)(check(ctx)) chain
+      ensureNoReferencesOutFromQuantifiedPath(pattern) chain
       ensureNoDuplicateRelationships(pattern)
 
   def check(ctx: SemanticContext, pattern: RelationshipsPattern): SemanticCheck =
@@ -99,6 +111,14 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
             Where.checkExpression(predicate)
           }
         }
+      case PathConcatenation(factors) =>
+        factors.map(checkElementPredicates(ctx, _)).reduce(_ chain _)
+
+      case QuantifiedPath(pattern, _) =>
+        checkElementPredicates(ctx, pattern.element)
+
+      case ParenthesizedPath(pattern) =>
+        checkElementPredicates(ctx, pattern.element)
     }
 
   private def checkRelationshipPatternPredicates(ctx: SemanticContext, pattern: RelationshipPattern): SemanticCheck =
@@ -136,14 +156,15 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         declareVariables(ctx, x.element)
     }
 
-  @scala.annotation.tailrec
   def check(ctx: SemanticContext)(part: PatternPart): SemanticCheck =
     part match {
       case x: NamedPatternPart =>
-        check(ctx)(x.patternPart)
+        check(ctx)(x.patternPart) chain
+          checkNoQuantifiedPathPatterns(x.patternPart)
 
       case x: EveryPath =>
-        check(ctx, x.element)
+        check(ctx, x.element) chain
+          checkMinimumNodeCount(x)
 
       case x: ShortestPaths =>
         def checkContext: SemanticCheck =
@@ -195,7 +216,7 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
                       Seq(SemanticError(
                         s"${x.name}(...) does not support a minimal length different " +
                           s"from 0 or 1",
-                        x.position
+                        min.position
                       ))
                     )
 
@@ -230,8 +251,40 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
           checkKnownEnds chain
           checkLength chain
           checkRelVariablesUnknown chain
-          check(ctx, x.element)
+          check(ctx, x.element) chain
+          checkMinimumNodeCount(x)
     }
+
+  private def checkNoQuantifiedPathPatterns(x: PatternPart) = {
+    x.folder.treeFindByClass[QuantifiedPath].foldSemanticCheck(qpp =>
+      error("Assigning a path with a quantified path patterns is not yet supported.", qpp.position)
+    )
+  }
+
+  private val stringifier = ExpressionStringifier()
+
+  private def checkMinimumNodeCount(x: PatternPart) = {
+    when(x.element.folder.treeFold(true) {
+      case QuantifiedPath(_, quantifier) if quantifier.canBeEmpty =>
+        acc => SkipChildren(acc)
+      case _: PathFactor =>
+        _ => SkipChildren(false)
+    }) {
+      val fixedZeroQuantifier =
+        FixedQuantifier(UnsignedDecimalIntegerLiteral("0")(InputPosition.NONE))(InputPosition.NONE)
+      val minimalPatternPart = x.element.endoRewrite {
+        topDown(Rewriter.lift {
+          case q: QuantifiedPath => q.copy(quantifier = fixedZeroQuantifier)(InputPosition.NONE)
+        })
+      }
+      val stringifiedMinimalPatternPart = stringifier.patterns(minimalPatternPart)
+      error(
+        s"""A top-level path pattern in a `MATCH` clause must be written such that it always evaluates to at least one node pattern.
+           |In this case, `$stringifiedMinimalPatternPart` would result in an empty pattern.""".stripMargin,
+        x.position
+      )
+    }
+  }
 
   private def check(ctx: SemanticContext, element: PatternElement): SemanticCheck =
     element match {
@@ -243,6 +296,99 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
       case x: NodePattern =>
         checkNodeProperties(ctx, x.properties) chain
           checkLabelExpressions(ctx, x.labelExpression)
+
+      case PathConcatenation(factors) =>
+        factors.map(check(ctx, _)).reduce(_ chain _) chain
+          checkValidConcatenation(factors)
+
+      case q @ QuantifiedPath(pattern, quantifier) =>
+        whenState(!_.features.contains(SemanticFeature.QuantifiedPathPatterns)) {
+          error("Quantified path patterns are not yet supported.", q.position)
+        } chain
+          when(ctx != SemanticContext.Match) {
+            error(
+              s"Quantified path patterns are not allowed in ${ctx.name}, but only in MATCH clause.",
+              q.position
+            )
+          } chain
+          pattern.folder.treeFold(SemanticCheck.success) {
+            case quant: QuantifiedPath => acc =>
+                SkipChildren(acc chain SemanticError(
+                  "Quantified path patterns are not allowed to be nested.",
+                  quant.position
+                ))
+            case rel @ RelationshipPattern(_, _, Some(_), _, _, _) => acc =>
+                SkipChildren(acc chain SemanticError(
+                  "Variable length relationships cannot be part of a quantified path pattern.",
+                  rel.position
+                ))
+          } chain
+          when(pattern.folder.treeFindByClass[RelationshipPattern].isEmpty) {
+            val patternStringified = stringifier.patterns(q)
+            val nodeCount = pattern.folder.findAllByClass[NodePattern].size
+            val nodeCountDescription = nodeCount match {
+              case 1 => "one node"
+              case _ => s"nodes"
+            }
+            error(
+              s"""A quantified path pattern needs to have at least one relationship.
+                 |In this case, the quantified path pattern $patternStringified consists of only $nodeCountDescription.""".stripMargin,
+              q.position
+            )
+          } chain
+          checkQuantifier(quantifier) chain
+          check(ctx, pattern.element)
+
+      case ParenthesizedPath(NamedPatternPart(variable, _)) =>
+        error("Sub-path assignment is currently not supported outside quantified path patterns.", variable.position)
+      case ParenthesizedPath(pattern) =>
+        check(ctx, pattern.element)
+    }
+
+  private def getTypeString(factor: PathFactor) = factor match {
+    case _: ParenthesizedPath => "(non-quantified) parenthesized path pattern"
+    case _: QuantifiedPath    => "quantified path pattern"
+    case _: RelationshipChain => "simple path pattern"
+    case _: NodePattern       => "single node"
+  }
+
+  private def checkValidConcatenation(factors: Seq[PathFactor]) = {
+    factors.sliding(2).map {
+      case Seq(_, _: QuantifiedPath) => SemanticCheck.success
+      case Seq(_: QuantifiedPath, _) => SemanticCheck.success
+      case Seq(a, b) =>
+        val aString = stringifier.patterns(a)
+        val aTypeString = getTypeString(a)
+        val bString = stringifier.patterns(b)
+        val bTypeString = getTypeString(b)
+        val inThisCase =
+          if (aTypeString == bTypeString) {
+            s"In this case, both $aString and $bString are ${aTypeString}s."
+          } else {
+            s"In this case, $aString is a $aTypeString and $bString is a $bTypeString."
+          }
+        error(
+          s"""Concatenation is currently only supported for quantified path patterns.
+             |$inThisCase
+             |That is, neither of these is a quantified path pattern.""".stripMargin,
+          b.position
+        )
+    }.reduce(_ chain _)
+  }
+
+  private def checkQuantifier(quantifier: GraphPatternQuantifier): SemanticCheck =
+    quantifier match {
+      case FixedQuantifier(UnsignedDecimalIntegerLiteral("0")) =>
+        error("A quantifier for a path pattern must not be limited by 0.", quantifier.position)
+      case IntervalQuantifier(Some(lower), Some(upper)) if upper.value < lower.value =>
+        error(
+          s"""A quantifier for a path pattern must not have a lower bound which exceeds its upper bound.
+             |In this case, the lower bound ${lower.value} is greater than the upper bound ${upper.value}.""".stripMargin,
+          quantifier.position
+        )
+      case IntervalQuantifier(_, Some(UnsignedDecimalIntegerLiteral("0"))) =>
+        error("A quantifier for a path pattern must not be limited by 0.", quantifier.position)
+      case _ => SemanticCheck.success
     }
 
   def legacyRelationshipDisjunctionError(sanitizedLabelExpression: String, isNode: Boolean = false): String = {
@@ -337,12 +483,16 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
 
   def variableIsGenerated(variable: LogicalVariable): Boolean = !AnonymousVariableNameGenerator.isNamed(variable.name)
 
-  private def declareVariables(ctx: SemanticContext, element: PatternElement): SemanticCheck =
+  private def declareVariables(
+    ctx: SemanticContext,
+    element: PatternElement,
+    quantified: Option[QuantifiedPath] = None
+  ): SemanticCheck =
     element match {
       case x: RelationshipChain =>
-        declareVariables(ctx, x.element) chain
-          declareVariables(ctx, x.relationship) chain
-          declareVariables(ctx, x.rightNode)
+        declareVariables(ctx, x.element, quantified) chain
+          declareVariables(ctx, x.relationship, quantified) chain
+          declareVariables(ctx, x.rightNode, quantified)
 
       case x: NodePattern =>
         x.variable.foldSemanticCheck {
@@ -352,19 +502,63 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
                 ensureDefined(variable) chain
                   expectType(CTNode.covariant, variable)
               case _ =>
-                implicitVariable(variable, CTNode)
+                implicitVariable(variable, CTNode, quantified)
             }
         }
+      case PathConcatenation(factors) =>
+        factors.map(declareVariables(ctx, _, quantified)).reduce(_ chain _)
+
+      case q @ QuantifiedPath(pattern, _) =>
+        withScopedState {
+          declareVariables(ctx, pattern.element, Some(q)) chain
+            declarePathVariable(pattern, Some(q))
+        } chain copyNewVariables(q)
+
+      case ParenthesizedPath(pattern) =>
+        declareVariables(ctx, pattern.element, quantified) chain
+          declarePathVariable(pattern, quantified)
     }
 
-  private def declareVariables(ctx: SemanticContext, x: RelationshipPattern): SemanticCheck =
+  private def declarePathVariable(pattern: PatternPart, quantified: Option[QuantifiedPath]): SemanticCheck =
+    pattern match {
+      case n: NamedPatternPart => implicitVariable(n.variable, CTPath, quantified)
+      case _                   => SemanticCheck.success
+    }
+
+  private def copyNewVariables(q: QuantifiedPath) = {
+    q.allVariables.foldSemanticCheck(variable => {
+      state: SemanticState =>
+        state.typeTable.get(variable).map {
+          typeInfo =>
+            // If we were to call `state.updateVariable()` we would either need to create a new "virtual" variable that do not have any representation in the query
+            // or override the previously recorded type for the existing variable. The virtual variables would cause unnecessary namespacing and lead to invalid
+            // queries when stringified.
+            // As we still want to see the variable with a different type on this scope, we therefore only copy the variables with a different type.
+            // This means that the Namespacer will not attempt to separate instances of variables inside and outside of QPPs, which we may want to revisit later on.
+            Right(state.copy(
+              currentScope = state.currentScope.updateVariable(
+                variable = variable.name,
+                types = typeInfo.specified.wrapInList,
+                definition = SymbolUse(variable),
+                uses = Set.empty
+              )
+            ))
+        }.getOrElse(Right(state))
+    })
+  }
+
+  private def declareVariables(
+    ctx: SemanticContext,
+    x: RelationshipPattern,
+    quantified: Option[QuantifiedPath]
+  ): SemanticCheck =
     x.variable.foldSemanticCheck {
       variable =>
         val possibleType = if (x.length.isEmpty) CTRelationship else CTList(CTRelationship)
 
         ctx match {
           case SemanticContext.Match =>
-            implicitVariable(variable, possibleType)
+            implicitVariable(variable, possibleType, quantified)
           case SemanticContext.Expression =>
             ensureDefined(variable) chain
               expectType(possibleType.covariant, variable)
@@ -372,6 +566,28 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
             declareVariable(variable, possibleType)
         }
     }
+
+  private def ensureNoReferencesOutFromQuantifiedPath(pattern: Pattern): SemanticCheck = {
+    val quantifiedPathPatterns = pattern.patternParts.flatMap(_.element.folder.findAllByClass[QuantifiedPath])
+    quantifiedPathPatterns.foldSemanticCheck { qpp =>
+      val definitionsInQpp = qpp.allVariables
+
+      val definitionsInPattern = pattern.patternParts.flatMap(_.element.allVariables).toSet
+
+      val definitionsOutsideQpp = definitionsInPattern.diff(definitionsInQpp)
+
+      val referencesInQpp = qpp.folder.findAllByClass[LogicalVariable]
+      val crossReferences = referencesInQpp.filter(definitionsOutsideQpp.contains)
+      crossReferences.foldSemanticCheck { variable =>
+        val stringifiedQpp = stringifier.patterns(qpp)
+        error(
+          s"""From within a quantified path pattern, one may only reference variables, that are already bound in a previous `MATCH` clause.
+             |In this case, ${variable.name} is defined in the same `MATCH` clause as $stringifiedQpp.""".stripMargin,
+          variable.position
+        )
+      }
+    }
+  }
 
   /**
    * Traverse the sub-tree at astNode. Warn or fail if any duplicate relationships are found at that sub-tree.

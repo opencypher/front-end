@@ -19,10 +19,10 @@ import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Pattern
-import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.SimplePattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -70,7 +70,7 @@ class FindDuplicateRelationshipsTest extends CypherFunSuite {
   }
 
   private def relChain(ids: Variable*) =
-    ids.foldLeft(node.asInstanceOf[PatternElement]) {
+    ids.foldLeft(node.asInstanceOf[SimplePattern]) {
       (n, id) => expressions.RelationshipChain(n, relPattern(id), node)(pos)
     }
 

@@ -22,6 +22,7 @@ import org.opencypher.v9_0.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.expressions.IntegerLiteral
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.TypeSignature
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
@@ -139,10 +140,16 @@ trait SemanticAnalysisTooling {
               )
             )
           case _ =>
+            val errorHint = expression match {
+              case variable: LogicalVariable if ss.variablesInQpp.contains(variable) =>
+                "\nA group variable cannot be used in a non-aggregating operation."
+              case _ =>
+                ""
+            }
             SemanticCheckResult.error(
               ss,
               SemanticError(
-                "Type mismatch: " + messageGen(expectedTypesString, existingTypesString),
+                "Type mismatch: " + messageGen(expectedTypesString, existingTypesString) + errorHint,
                 expression.position
               )
             )
@@ -256,9 +263,10 @@ trait SemanticAnalysisTooling {
 
   def implicitVariable(
     v: LogicalVariable,
-    possibleType: CypherType
+    possibleType: CypherType,
+    quantification: Option[QuantifiedPath]
   ): SemanticState => Either[SemanticError, SemanticState] =
-    (_: SemanticState).implicitVariable(v, possibleType)
+    (_: SemanticState).implicitVariable(v, possibleType, quantification)
 
   def declareVariables(symbols: Iterable[Symbol]): SemanticCheck =
     symbols.foldSemanticCheck(symbol => declareVariable(symbol.definition.asVariable, symbol.types))

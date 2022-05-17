@@ -328,11 +328,14 @@ import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.False
+import org.opencypher.v9_0.expressions.FixedQuantifier
 import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
+import org.opencypher.v9_0.expressions.GraphPatternQuantifier
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.IntervalQuantifier
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
@@ -362,17 +365,23 @@ import org.opencypher.v9_0.expressions.NotEquals
 import org.opencypher.v9_0.expressions.Null
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.ParenthesizedPath
+import org.opencypher.v9_0.expressions.PathConcatenation
+import org.opencypher.v9_0.expressions.PathFactor
 import org.opencypher.v9_0.expressions.Pattern
+import org.opencypher.v9_0.expressions.PatternAtom
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.PatternPart
+import org.opencypher.v9_0.expressions.PlusQuantifier
 import org.opencypher.v9_0.expressions.Pow
 import org.opencypher.v9_0.expressions.ProcedureName
 import org.opencypher.v9_0.expressions.ProcedureOutput
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.PropertySelector
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.ReduceExpression
 import org.opencypher.v9_0.expressions.RegexMatch
@@ -388,7 +397,9 @@ import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedHexIntegerLiteral
 import org.opencypher.v9_0.expressions.SignedOctalIntegerLiteral
+import org.opencypher.v9_0.expressions.SimplePattern
 import org.opencypher.v9_0.expressions.SingleIterablePredicate
+import org.opencypher.v9_0.expressions.StarQuantifier
 import org.opencypher.v9_0.expressions.StartsWith
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Subtract
@@ -411,6 +422,7 @@ import java.nio.charset.StandardCharsets
 import java.util
 import java.util.stream.Collectors
 
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.language.implicitConversions
@@ -476,7 +488,9 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       PrivilegeQualifier,
       SubqueryCall.InTransactionsParameters,
       InputPosition,
-      EntityType
+      EntityType,
+      GraphPatternQuantifier,
+      PatternAtom
     ] {
 
   override def newSingleQuery(p: InputPosition, clauses: util.List[Clause]): Query = {
@@ -716,20 +730,40 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     ShortestPaths(pattern.element, single = false)(p)
 
   override def everyPathPattern(
-    nodes: util.List[NodePattern],
-    relationships: util.List[RelationshipPattern]
+    atoms: util.List[PatternAtom]
   ): PatternPart = {
 
-    val nodeIter = nodes.iterator()
-    val relIter = relationships.iterator()
+    val iterator = atoms.iterator().asScala.buffered
 
-    var patternElement: PatternElement = nodeIter.next()
-    while (relIter.hasNext) {
-      val relPattern = relIter.next()
-      val rightNodePattern = nodeIter.next()
-      patternElement = RelationshipChain(patternElement, relPattern, rightNodePattern)(patternElement.position)
+    var factors = Seq.empty[PathFactor]
+    while (iterator.hasNext) {
+      iterator.next() match {
+        case n: NodePattern =>
+          var patternElement: SimplePattern = n
+          while (iterator.hasNext && iterator.head.isInstanceOf[RelationshipPattern]) {
+            val relPattern = iterator.next()
+            // we trust in the parser to alternate nodes and relationships
+            val rightNodePattern = iterator.next()
+            patternElement = RelationshipChain(
+              patternElement,
+              relPattern.asInstanceOf[RelationshipPattern],
+              rightNodePattern.asInstanceOf[NodePattern]
+            )(patternElement.position)
+          }
+          factors = factors :+ patternElement
+        case element: QuantifiedPath    => factors = factors :+ element
+        case element: ParenthesizedPath => factors = factors :+ element
+        case _: RelationshipPattern     => throw new IllegalStateException("Abbreviated patterns are not supported yet")
+      }
     }
-    EveryPath(patternElement)
+
+    val pathElement: PatternElement = factors match {
+      case Seq(element) => element
+      case factors =>
+        val position = factors.head.position
+        PathConcatenation(factors)(position)
+    }
+    EveryPath(pathElement)
   }
 
   override def nodePattern(
@@ -788,6 +822,51 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       val max = if (maxLength == "") None else Some(UnsignedDecimalIntegerLiteral(maxLength)(pMax))
       Some(Range(min, max)(if (pMin != null) pMin else p))
     }
+  }
+
+  override def intervalPathQuantifier(
+    position: InputPosition,
+    positionLowerBound: InputPosition,
+    positionUpperBound: InputPosition,
+    lowerBoundText: String,
+    upperBoundText: String
+  ): GraphPatternQuantifier = {
+    val lowerBound =
+      if (lowerBoundText == null) None else Some(UnsignedDecimalIntegerLiteral(lowerBoundText)(positionLowerBound))
+    val upperBound =
+      if (upperBoundText == null) None else Some(UnsignedDecimalIntegerLiteral(upperBoundText)(positionUpperBound))
+    IntervalQuantifier(lowerBound, upperBound)(position)
+  }
+
+  override def fixedPathQuantifier(
+    p: InputPosition,
+    valuePos: InputPosition,
+    value: String
+  ): GraphPatternQuantifier = {
+    FixedQuantifier(UnsignedDecimalIntegerLiteral(value)(valuePos))(p)
+  }
+
+  override def plusPathQuantifier(
+    p: InputPosition
+  ): GraphPatternQuantifier = {
+    PlusQuantifier()(p)
+  }
+
+  override def starPathQuantifier(
+    p: InputPosition
+  ): GraphPatternQuantifier = {
+    StarQuantifier()(p)
+  }
+
+  override def parenthesizedPathPattern(
+    p: InputPosition,
+    internalPattern: PatternPart,
+    length: GraphPatternQuantifier
+  ): PatternAtom = {
+    if (length != null)
+      QuantifiedPath(internalPattern, length)(p)
+    else
+      ParenthesizedPath(internalPattern)(p)
   }
 
   // EXPRESSIONS

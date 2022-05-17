@@ -45,6 +45,7 @@ import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLook
 import org.opencypher.v9_0.rewriting.rewriters.rewriteCountExpression
 import org.opencypher.v9_0.rewriting.rewriters.rewriteOrderById
 import org.opencypher.v9_0.rewriting.rewriters.simplifyIterablePredicates
+import org.opencypher.v9_0.rewriting.rewriters.unwrapParenthesizedPath
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.StepSequencer
@@ -79,7 +80,8 @@ object ASTRewriter {
         parameterValueTypeReplacement,
         rewriteOrderById,
         LabelExpressionPredicateNormalizer,
-        rewriteCountExpression
+        rewriteCountExpression,
+        unwrapParenthesizedPath
       ),
       initialConditions = Set(ProjectionClausesHaveSemanticInfo, PatternExpressionsHaveSemanticInfo)
     )

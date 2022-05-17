@@ -17,16 +17,23 @@ package org.opencypher.v9_0.ast.prettifier
 
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.FixedQuantifier
+import org.opencypher.v9_0.expressions.IntervalQuantifier
 import org.opencypher.v9_0.expressions.NamedPatternPart
 import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.ParenthesizedPath
+import org.opencypher.v9_0.expressions.PathConcatenation
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternPart
+import org.opencypher.v9_0.expressions.PlusQuantifier
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.Range
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.ShortestPaths
+import org.opencypher.v9_0.expressions.StarQuantifier
 
 trait PatternStringifier {
   def apply(p: Pattern): String
@@ -35,6 +42,9 @@ trait PatternStringifier {
   def apply(nodePattern: NodePattern): String
   def apply(relationshipChain: RelationshipChain): String
   def apply(relationship: RelationshipPattern): String
+  def apply(concatenation: PathConcatenation): String
+  def apply(quantified: QuantifiedPath): String
+  def apply(path: ParenthesizedPath): String
 }
 
 object PatternStringifier {
@@ -55,6 +65,9 @@ private class DefaultPatternStringifier(expr: ExpressionStringifier) extends Pat
   override def apply(element: PatternElement): String = element match {
     case r: RelationshipChain => apply(r)
     case n: NodePattern       => apply(n)
+    case c: PathConcatenation => apply(c)
+    case q: QuantifiedPath    => apply(q)
+    case p: ParenthesizedPath => apply(p)
   }
 
   override def apply(nodePattern: NodePattern): String = {
@@ -112,6 +125,26 @@ private class DefaultPatternStringifier(expr: ExpressionStringifier) extends Pat
       case SemanticDirection.INCOMING => s"<-$body-"
       case SemanticDirection.BOTH     => s"-$body-"
     }
+  }
+
+  override def apply(concatenation: PathConcatenation): String =
+    concatenation.factors.map(apply).mkString(" ")
+
+  override def apply(quantified: QuantifiedPath): String = {
+    val inner = apply(quantified.part)
+    val quantifier = quantified.quantifier match {
+      case StarQuantifier() => "*"
+      case PlusQuantifier() => "+"
+      case IntervalQuantifier(lower, upper) =>
+        s"{${lower.map(_.stringVal).getOrElse("")}, ${upper.map(_.stringVal).getOrElse("")}}"
+      case FixedQuantifier(value) => s"{${value.stringVal}}"
+    }
+    s"($inner)$quantifier"
+  }
+
+  override def apply(path: ParenthesizedPath): String = {
+    val inner = apply(path.part)
+    s"($inner)"
   }
 
   private def concatenate(separator: String, fragments: Seq[Option[String]]): Option[String] =

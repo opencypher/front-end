@@ -20,8 +20,10 @@ import org.opencypher.v9_0.ast.ASTAnnotationMap.ASTAnnotationMap
 import org.opencypher.v9_0.ast.semantics.SemanticState.ScopeLocation
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
+import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.helpers.TreeElem
@@ -261,7 +263,9 @@ case class SemanticState(
   recordedScopes: ASTAnnotationMap[ASTNode, ScopeLocation],
   notifications: Set[InternalNotification] = Set.empty,
   features: Set[SemanticFeature] = Set.empty,
-  declareVariablesToSuppressDuplicateErrors: Boolean = true
+  declareVariablesToSuppressDuplicateErrors: Boolean = true,
+  // we only store the input position of a qpp to decrease the size allocated for the map
+  variablesInQpp: Map[LogicalVariable, InputPosition] = Map.empty
 ) {
 
   def scopeTree: Scope = currentScope.rootScope
@@ -296,7 +300,7 @@ case class SemanticState(
     overriding: Boolean = false
   ): Either[SemanticError, SemanticState] =
     currentScope.localSymbol(variable.name) match {
-      case Some(symbol) if !overriding =>
+      case Some(_) if !overriding =>
         Left(SemanticError(s"Variable `${variable.name}` already declared", variable.position))
       case _ =>
         val (definition, uses) = maybePreviousDeclaration match {
@@ -310,10 +314,35 @@ case class SemanticState(
   def addNotification(notification: InternalNotification): SemanticState =
     copy(notifications = notifications + notification)
 
-  def implicitVariable(variable: LogicalVariable, possibleTypes: TypeSpec): Either[SemanticError, SemanticState] =
+  def implicitVariable(
+    variable: LogicalVariable,
+    possibleTypes: TypeSpec,
+    quantification: Option[QuantifiedPath] = None
+  ): Either[SemanticError, SemanticState] =
     this.symbol(variable.name) match {
       case None =>
-        Right(updateVariable(variable, possibleTypes, SymbolUse(variable), Set.empty))
+        Right(updateVariable(variable, possibleTypes, SymbolUse(variable), Set.empty, quantification))
+      case Some(_)
+        // `variable` is quantified and the previous instance was used in a different QPP.
+        if quantification.exists(qpp => variablesInQpp.get(variable).exists(_ != qpp.position)) =>
+        Left(SemanticError(
+          s"The variable `${variable.name}` occurs in multiple quantified path patterns and needs to be renamed.",
+          variable.position
+        ))
+      case Some(_)
+        // `variable` is quantified and the previous instance was used outside a QPP.
+        if quantification.isDefined && !variablesInQpp.contains(variable) =>
+        Left(SemanticError(
+          s"The variable `${variable.name}` occurs both inside and outside a quantified path pattern and needs to be renamed.",
+          variable.position
+        ))
+      case Some(_)
+        // `variable` is not quantified and the previous instance was used inside a QPP.
+        if quantification.isEmpty && variablesInQpp.contains(variable) =>
+        Left(SemanticError(
+          s"The variable `${variable.name}` occurs both inside and outside a quantified path pattern and needs to be renamed.",
+          variable.position
+        ))
       case Some(symbol) =>
         val inferredTypes = symbol.types intersect possibleTypes
         if (inferredTypes.nonEmpty) {
@@ -356,10 +385,17 @@ case class SemanticState(
   def expressionType(expression: Expression): ExpressionTypeInfo =
     typeTable.getOrElse(expression, ExpressionTypeInfo(TypeSpec.all))
 
-  private def updateVariable(variable: LogicalVariable, types: TypeSpec, definition: SymbolUse, uses: Set[SymbolUse]) =
+  private def updateVariable(
+    variable: LogicalVariable,
+    types: TypeSpec,
+    definition: SymbolUse,
+    uses: Set[SymbolUse],
+    quantified: Option[QuantifiedPath] = None
+  ) =
     copy(
       currentScope = currentScope.updateVariable(variable.name, types, definition, uses),
-      typeTable = typeTable.updated(variable, ExpressionTypeInfo(types))
+      typeTable = typeTable.updated(variable, ExpressionTypeInfo(types)),
+      variablesInQpp = quantified.map(qpp => variablesInQpp.updated(variable, qpp.position)).getOrElse(variablesInQpp)
     )
 
   def recordCurrentScope(astNode: ASTNode): SemanticState =

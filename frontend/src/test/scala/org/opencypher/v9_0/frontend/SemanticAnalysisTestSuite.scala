@@ -17,6 +17,7 @@ package org.opencypher.v9_0.frontend
 
 import org.opencypher.v9_0.ast.semantics.SemanticErrorDef
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
+import org.opencypher.v9_0.ast.semantics.SemanticTable
 import org.opencypher.v9_0.frontend.helpers.ErrorCollectingContext
 import org.opencypher.v9_0.frontend.helpers.NoPlannerName
 import org.opencypher.v9_0.frontend.phases.BaseContext
@@ -33,6 +34,8 @@ case class SemanticAnalysisResult(context: ErrorCollectingContext, state: BaseSt
   def errors: Seq[SemanticErrorDef] = context.errors
 
   def errorMessages: Seq[String] = errors.map(_.msg)
+
+  def semanticTable: SemanticTable = state.semanticTable()
 }
 
 trait SemanticAnalysisTestSuite {
@@ -75,6 +78,8 @@ trait SemanticAnalysisTestSuiteWithDefaultQuery extends SemanticAnalysisTestSuit
 
   def runSemanticAnalysis(): SemanticAnalysisResult = runSemanticAnalysis(defaultQuery)
 
+  def runSemanticAnalysisWithSemanticFeatures(semanticFeatures: SemanticFeature*): SemanticAnalysisResult =
+    runSemanticAnalysisWithSemanticFeatures(semanticFeatures, defaultQuery)
 }
 
 trait NameBasedSemanticAnalysisTestSuite extends SemanticAnalysisTestSuiteWithDefaultQuery with TestName {

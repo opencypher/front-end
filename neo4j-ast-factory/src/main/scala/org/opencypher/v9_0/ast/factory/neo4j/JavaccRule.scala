@@ -20,8 +20,11 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.factory.ParameterType
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.GraphPatternQuantifier
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.PatternAtom
+import org.opencypher.v9_0.expressions.PatternPart
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.parser.javacc.Cypher
@@ -58,8 +61,11 @@ object JavaccRule {
   def NodePattern: JavaccRule[NodePattern] = fromParser(_.NodePattern())
   def NumberLiteral: JavaccRule[Expression] = fromParser(_.NumberLiteral())
   def Parameter: JavaccRule[Parameter] = fromParser(_.Parameter(ParameterType.ANY))
+  def ParenthesizedPath: JavaccRule[PatternAtom] = fromParser(_.ParenthesizedPath())
   def PatternComprehension: JavaccRule[Expression] = fromParser(_.PatternComprehension())
+  def Quantifier: JavaccRule[GraphPatternQuantifier] = fromParser(_.Quantifier())
   def RelationshipPattern: JavaccRule[RelationshipPattern] = fromParser(_.RelationshipPattern())
+  def PatternPart: JavaccRule[PatternPart] = fromParser(_.Pattern())
   def Statement: JavaccRule[Statement] = fromParser(_.Statement())
   def UseClause: JavaccRule[UseGraph] = fromParser(_.UseClause())
 

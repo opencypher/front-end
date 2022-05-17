@@ -17,12 +17,12 @@ package org.opencypher.v9_0.ast.semantics
 
 import org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.expressions.NodePattern
-import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.ShortestPathExpression
 import org.opencypher.v9_0.expressions.ShortestPaths
+import org.opencypher.v9_0.expressions.SimplePattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTNode
@@ -63,7 +63,7 @@ class ShortestPathExpressionTest extends SemanticFunSuite {
     (ShortestPathExpression(ShortestPaths(pattern, single)(pos)), state)
   }
 
-  private def chain(left: PatternElement, rel: RelationshipPattern, right: NodePattern): RelationshipChain = {
+  private def chain(left: SimplePattern, rel: RelationshipPattern, right: NodePattern): RelationshipChain = {
     expressions.RelationshipChain(left, rel, right)(pos)
   }
 

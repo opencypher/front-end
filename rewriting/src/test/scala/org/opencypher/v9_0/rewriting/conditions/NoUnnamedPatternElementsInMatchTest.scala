@@ -25,12 +25,12 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.Pattern
-import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
+import org.opencypher.v9_0.expressions.SimplePattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -187,7 +187,7 @@ class NoUnnamedPatternElementsInMatchTest extends CypherFunSuite with AstConstru
     condition(ast) shouldBe empty
   }
 
-  private def chain(left: PatternElement, rel: RelationshipPattern, right: NodePattern): RelationshipChain = {
+  private def chain(left: SimplePattern, rel: RelationshipPattern, right: NodePattern): RelationshipChain = {
     RelationshipChain(left, rel, right) _
   }
 

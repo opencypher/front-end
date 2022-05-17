@@ -19,11 +19,14 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.ParenthesizedPath
+import org.opencypher.v9_0.expressions.PathConcatenation
 import org.opencypher.v9_0.expressions.PathStep
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.PatternPart
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.SymbolicName
@@ -75,6 +78,15 @@ private class PrettyExpressionStringifier(inner: ExpressionStringifier) extends 
 
     override def apply(relationship: RelationshipPattern): String =
       innerPatterns.apply(relationship.endoRewrite(simplifyPattern))
+
+    override def apply(concatenation: PathConcatenation): String =
+      innerPatterns.apply(concatenation.endoRewrite(simplifyPattern))
+
+    override def apply(quantified: QuantifiedPath): String =
+      innerPatterns.apply(quantified.endoRewrite(simplifyPattern))
+
+    override def apply(path: ParenthesizedPath): String =
+      innerPatterns.apply(path.endoRewrite(simplifyPattern))
   }
 
   override def pathSteps: PathStepStringifier = new PathStepStringifier {
