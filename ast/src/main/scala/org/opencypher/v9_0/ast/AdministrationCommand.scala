@@ -31,6 +31,7 @@ import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTDateTime
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTMap
@@ -684,6 +685,9 @@ object ShowDatabase {
       case _ =>
         List((ShowColumn("default", CTBoolean)(position), true), (ShowColumn("home", CTBoolean)(position), true))
     }) ++ List(
+      (ShowColumn("creationTime", CTDateTime)(position), false),
+      (ShowColumn("lastStartTime", CTDateTime)(position), false),
+      (ShowColumn("lastStopTime", CTDateTime)(position), false),
       (ShowColumn("lastCommittedTxn", CTInteger)(position), false),
       (ShowColumn("replicationLag", CTInteger)(position), false)
     )
