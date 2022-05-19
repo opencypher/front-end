@@ -16,7 +16,9 @@
 package org.opencypher.v9_0.frontend.phases
 
 import org.opencypher.v9_0.ast.AstConstructionTestSupport
-import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizerTest
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizer
+import org.opencypher.v9_0.frontend.phases.rewriting.cnf.CNFNormalizerTest.SemanticWrapper
+import org.opencypher.v9_0.rewriting.ListStepAccumulator
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.helpers.NameDeduplicator.removeGeneratedNamesAndParamsOnTree
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
@@ -31,11 +33,20 @@ class TransitiveClosureTest extends CypherFunSuite with AstConstructionTestSuppo
     override def postConditions: Set[StepSequencer.Condition] = Set.empty
   }
 
+  val cnfNormalizer: Transformer[BaseContext, BaseState, BaseState] =
+    StepSequencer(ListStepAccumulator[Transformer[BaseContext, BaseState, BaseState] with StepSequencer.Step]())
+      .orderSteps(
+        CNFNormalizer.steps ++ Set(SemanticWrapper),
+        Set.empty
+      )
+      .steps
+      .reduceLeft[Transformer[BaseContext, BaseState, BaseState]]((t1, t2) => t1 andThen t2)
+
   override def rewriterPhaseUnderTest: Transformer[BaseContext, BaseState, BaseState] =
-    transitiveClosure andThen CNFNormalizerTest.getTransformer andThen removeGeneratedNames
+    transitiveClosure andThen cnfNormalizer andThen removeGeneratedNames
 
   override def rewriterPhaseForExpected: Transformer[BaseContext, BaseState, BaseState] =
-    CNFNormalizerTest.getTransformer andThen removeGeneratedNames
+    cnfNormalizer andThen removeGeneratedNames
 
   test("MATCH (a)-->(b) WHERE a.prop = b.prop AND b.prop = 42") {
     assertRewritten(
@@ -144,21 +155,21 @@ class TransitiveClosureTest extends CypherFunSuite with AstConstructionTestSuppo
     assertNotRewritten("MATCH (a)-->(b) WHERE a.prop = b.prop AND EXISTS {MATCH (a) WHERE a.prop = 42} RETURN a")
   }
 
-  //Test for circular rewrites
+  // Test for circular rewrites
   test("MATCH (n) WHERE (n:L) AND n.p = (n.p = $x) RETURN n") {
     assertNotRewritten(
       "MATCH (n) WHERE (n:L) AND n.p = (n.p = $x) RETURN n"
     )
   }
 
-  //Test for circular rewrites
+  // Test for circular rewrites
   test("MATCH (n) WHERE (n:L) AND n.p = (n.p = n.p) RETURN n") {
     assertNotRewritten(
       "MATCH (n) WHERE (n:L) AND n.p = (n.p = n.p) RETURN n"
     )
   }
 
-  //Test for circular rewrites
+  // Test for circular rewrites
   test("MATCH (n) WHERE (n:L) AND n.p = (n.p = (n.p = $x)) RETURN n") {
     assertNotRewritten(
       "MATCH (n)-->(a) WHERE (n:L) AND n.p = (n.p = (a.p = n.p)) RETURN n"
