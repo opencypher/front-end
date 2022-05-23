@@ -18,9 +18,8 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.EntityType
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.FunctionInvocation
-import org.opencypher.v9_0.expressions.FunctionName
-import org.opencypher.v9_0.expressions.GreaterThan
+import org.opencypher.v9_0.expressions.HasALabel
+import org.opencypher.v9_0.expressions.HasALabelOrType
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
@@ -34,7 +33,6 @@ import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.RELATIONSHIP_TYPE
 import org.opencypher.v9_0.expressions.RelTypeName
-import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.topDown
@@ -89,15 +87,10 @@ case class LabelExpressionNormalizer(entityExpression: Expression, entityType: O
 
     case wildcard: LabelExpression.Wildcard =>
       entityType match {
-        case None => throw new IllegalArgumentException("Unexpected label wildcard inside a predicate")
+        case None =>
+          HasALabelOrType(copy(entityExpression))(wildcard.position)
         case Some(NODE_TYPE) =>
-          val entityWithNewVariables = copy(entityExpression)
-          val entityLabels: FunctionInvocation =
-            FunctionInvocation(FunctionName("labels")(wildcard.position), entityWithNewVariables)(wildcard.position)
-          val numberOfEntityLabels: FunctionInvocation =
-            FunctionInvocation(FunctionName("size")(wildcard.position), entityLabels)(wildcard.position)
-          val zero = SignedDecimalIntegerLiteral("0")(wildcard.position)
-          GreaterThan(numberOfEntityLabels, zero)(wildcard.position)
+          HasALabel(copy(entityExpression))(wildcard.position)
         case Some(RELATIONSHIP_TYPE) =>
           // all relationships have a type
           True()(wildcard.position)

@@ -17,11 +17,14 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.expressions.HasALabel
+import org.opencypher.v9_0.expressions.HasALabelOrType
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.RelTypeName
+import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticInfo
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -44,6 +47,10 @@ trait HasLabelsAndHasTypeNormalizer extends Rewriter {
       HasLabels(e, labels.map(l => LabelName(l.name)(l.position)))(p.position)
     case p @ HasLabelsOrTypes(e, labels) if isRelationship(e) =>
       HasTypes(e, labels.map(l => RelTypeName(l.name)(l.position)))(p.position)
+    case p @ HasALabelOrType(e) if isNode(e) =>
+      HasALabel(e)(p.position)
+    case p @ HasALabelOrType(e) if isRelationship(e) =>
+      True()(p.position)
     case e =>
       e
   }

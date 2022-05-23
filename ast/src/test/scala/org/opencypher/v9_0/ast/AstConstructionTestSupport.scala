@@ -40,6 +40,8 @@ import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.GetDegree
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
+import org.opencypher.v9_0.expressions.HasALabel
+import org.opencypher.v9_0.expressions.HasALabelOrType
 import org.opencypher.v9_0.expressions.HasAnyLabel
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.HasLabelsOrTypes
@@ -157,6 +159,12 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def hasLabelsOrTypes(v: String, labelsOrTypes: String*): HasLabelsOrTypes =
     HasLabelsOrTypes(varFor(v), labelsOrTypes.map(n => LabelOrRelTypeName(n)(pos)))(pos)
+
+  def hasALabelOrType(v: String): HasALabelOrType =
+    HasALabelOrType(varFor(v))(pos)
+
+  def hasALabel(v: String): HasALabel =
+    HasALabel(varFor(v))(pos)
 
   def exists(e: Expression): FunctionInvocation =
     FunctionInvocation(FunctionName(Exists.name)(e.position), e)(e.position)

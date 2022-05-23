@@ -49,8 +49,6 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.GetDegree
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
-import org.opencypher.v9_0.expressions.HasLabels
-import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.HexIntegerLiteral
 import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
@@ -60,10 +58,11 @@ import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.IterablePredicateExpression
+import org.opencypher.v9_0.expressions.LabelCheckExpression
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
-import org.opencypher.v9_0.expressions.LabelExpression.Wildcard
 import org.opencypher.v9_0.expressions.LabelExpressionPredicate
+import org.opencypher.v9_0.expressions.LabelOrTypeCheckExpression
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.LessThanOrEqual
 import org.opencypher.v9_0.expressions.ListComprehension
@@ -351,20 +350,19 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
       case x: ImplicitProcedureArgument =>
         specifyType(x.parameterType.covariant, x)
 
-      case x: HasLabelsOrTypes =>
-        check(ctx, x.expression, x +: parents) chain
-          expectType(CTNode.covariant | CTRelationship.covariant, x.expression) chain
-          specifyType(CTBoolean, x)
-
       case x: LabelExpressionPredicate =>
         check(ctx, x.entity, x +: parents) chain
           expectType(CTNode.covariant | CTRelationship.covariant, x.entity) chain
           checkLabelExpressionForLegacyRelationshipTypeDisjunction(x.entity, x.labelExpression) ifOkChain
-          checkLabelExpressionForWildcard(x.labelExpression) chain
           checkLabelExpression(None, x.labelExpression) chain
           specifyType(CTBoolean, x)
 
-      case x: HasLabels =>
+      case x: LabelOrTypeCheckExpression =>
+        check(ctx, x.entityExpression, x +: parents) chain
+          expectType(CTNode.covariant | CTRelationship.covariant, x.entityExpression) chain
+          specifyType(CTBoolean, x)
+
+      case x: LabelCheckExpression =>
         check(ctx, x.expression, x +: parents) chain
           expectType(CTNode.covariant, x.expression) chain
           specifyType(CTBoolean, x)
@@ -706,15 +704,6 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         val errorMessage = SemanticPatternCheck.legacyRelationshipDisjunctionError(sanitizedLabelExpression, isNode)
         SemanticCheckResult.error(state, SemanticError(errorMessage, disjunction.position))
       })
-
-  def checkLabelExpressionForWildcard(labelExpression: LabelExpression): SemanticCheck =
-    labelExpression.folder.treeFindByClass[Wildcard]
-      .foldSemanticCheck(wildcard =>
-        error(
-          "Wildcards ('%') in label/relationship type expression predicates are not supported yet",
-          wildcard.position
-        )
-      )
 
   def checkLabelExpression(entityType: Option[EntityType], labelExpression: LabelExpression): SemanticCheck = {
     lazy val colonConjunctions = labelExpression.folder.findAllByClass[LabelExpression.ColonConjunction]

@@ -224,15 +224,11 @@ class OtherLabelExpressionSemanticAnalysisTest
   }
 
   test("MATCH (n) WHERE n:% RETURN n") {
-    runSemanticAnalysis().errorMessages shouldEqual Seq(
-      "Wildcards ('%') in label/relationship type expression predicates are not supported yet"
-    )
+    runSemanticAnalysis().errorMessages shouldBe empty
   }
 
   test("MATCH (n) WHERE n:!A&% RETURN n") {
-    runSemanticAnalysis().errorMessages shouldEqual Seq(
-      "Wildcards ('%') in label/relationship type expression predicates are not supported yet"
-    )
+    runSemanticAnalysis().errorMessages shouldBe empty
   }
 
   // Relationship
@@ -267,15 +263,11 @@ class OtherLabelExpressionSemanticAnalysisTest
   }
 
   test("MATCH ()-[r]->() WHERE r:% RETURN r") {
-    runSemanticAnalysis().errorMessages shouldEqual Seq(
-      "Wildcards ('%') in label/relationship type expression predicates are not supported yet"
-    )
+    runSemanticAnalysis().errorMessages shouldBe empty
   }
 
   test("MATCH ()-[r]->() WHERE r:!A&% RETURN r") {
-    runSemanticAnalysis().errorMessages shouldEqual Seq(
-      "Wildcards ('%') in label/relationship type expression predicates are not supported yet"
-    )
+    runSemanticAnalysis().errorMessages shouldBe empty
   }
 
   // Unknown
