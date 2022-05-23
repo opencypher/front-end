@@ -27,6 +27,7 @@ import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.frontend.phases.CompilationPhaseTracer.CompilationPhase.SEMANTIC_TYPE_CHECK
+import org.opencypher.v9_0.frontend.phases.ListCoercedToBooleanCheck.listCoercedToBooleanCheck
 import org.opencypher.v9_0.frontend.phases.PatternExpressionInNonExistenceCheck.patternExpressionInNonExistenceCheck
 import org.opencypher.v9_0.frontend.phases.SemanticTypeCheck.SemanticErrorCheck
 import org.opencypher.v9_0.util.ErrorMessageProvider
@@ -35,7 +36,9 @@ import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.StepSequencer
+import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTBoolean
+import org.opencypher.v9_0.util.symbols.CTList
 
 /**
  * Checks for semantic errors when semantic table has been initialized.
@@ -48,7 +51,8 @@ case object SemanticTypeCheck extends Phase[BaseContext, BaseState, BaseState] {
 
   val checks: Seq[SemanticErrorCheck] = Seq(
     patternExpressionInNonExistenceCheck,
-    CreatePatternSelfReferenceCheck.check
+    CreatePatternSelfReferenceCheck.check,
+    listCoercedToBooleanCheck
   )
 
   override def process(from: BaseState, context: BaseContext): BaseState = {
@@ -63,12 +67,15 @@ case object SemanticTypeCheck extends Phase[BaseContext, BaseState, BaseState] {
 
 }
 
-object PatternExpressionInNonExistenceCheck {
+trait ExpectedBooleanTypeCheck {
 
-  private def isExpectedTypeBoolean(semanticTable: SemanticTable, e: Expression) =
+  def isExpectedTypeBoolean(semanticTable: SemanticTable, e: Expression): Boolean =
     semanticTable.types.get(e)
       .flatMap(_.expected)
       .exists(CTBoolean.covariant.containsAll)
+}
+
+object PatternExpressionInNonExistenceCheck extends ExpectedBooleanTypeCheck {
 
   def patternExpressionInNonExistenceCheck: SemanticErrorCheck = (baseState, _) => {
 
@@ -135,4 +142,24 @@ object CreatePatternSelfReferenceCheck {
     )
     SemanticError(msg, variable.position)
   }
+}
+
+object ListCoercedToBooleanCheck extends ExpectedBooleanTypeCheck {
+
+  private def isListCoercedToBoolean(semanticTable: SemanticTable, e: Expression): Boolean = {
+    semanticTable.types.get(e).exists(typeInfo =>
+      CTList(CTAny).covariant.containsAll(typeInfo.specified) && isExpectedTypeBoolean(semanticTable, e)
+    )
+  }
+
+  def listCoercedToBooleanCheck: SemanticErrorCheck = (baseState, _) => {
+
+    baseState.statement().folder.treeFold(Seq.empty[SemanticError]) {
+      case p: Expression
+        if isListCoercedToBoolean(baseState.semanticTable(), p) && !p.isInstanceOf[PatternExpression] =>
+        errors => SkipChildren(errors :+ SemanticError(errorMessage, p.position))
+    }
+  }
+
+  val errorMessage: String = "Coercion of list to boolean is not allowed. Please use `NOT isEmpty(...)` instead."
 }

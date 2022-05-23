@@ -22,19 +22,14 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
 import org.opencypher.v9_0.expressions.Namespace
-import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.Property
 import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
-import org.opencypher.v9_0.util.DeprecatedCoercionOfListToBoolean
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
-import org.opencypher.v9_0.util.symbols.CTAny
-import org.opencypher.v9_0.util.symbols.CTBoolean
-import org.opencypher.v9_0.util.symbols.CTList
 
 object Deprecations {
 
@@ -75,23 +70,10 @@ object Deprecations {
 
   }
 
+  // add new semantically deprecated features here
   case object semanticallyDeprecatedFeaturesIn4_X extends SemanticDeprecations {
 
-    private def isExpectedTypeBoolean(semanticTable: SemanticTable, e: Expression) =
-      semanticTable.types.get(e).exists(typeInfo => typeInfo.expected.fold(false)(CTBoolean.covariant.containsAll))
-
-    private def isListCoercedToBoolean(semanticTable: SemanticTable, e: Expression): Boolean =
-      semanticTable.types.get(e).exists(typeInfo =>
-        CTList(CTAny).covariant.containsAll(typeInfo.specified) && isExpectedTypeBoolean(semanticTable, e)
-      )
-
-    override def find(semanticTable: SemanticTable): PartialFunction[Any, Deprecation] = {
-      case e: Expression if isListCoercedToBoolean(semanticTable, e) && !e.isInstanceOf[PatternExpression] =>
-        Deprecation(
-          None,
-          Some(DeprecatedCoercionOfListToBoolean(e.position))
-        )
-    }
+    override def find(semanticTable: SemanticTable): PartialFunction[Any, Deprecation] = Map.empty
   }
 }
 
