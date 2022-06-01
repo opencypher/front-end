@@ -329,7 +329,6 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
-import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
@@ -863,9 +862,6 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
 
     MapExpression(pairs.toIndexedSeq)(p)
   }
-
-  override def hasLabelsOrTypes(subject: Expression, labels: util.List[StringPos[InputPosition]]): Expression =
-    HasLabelsOrTypes(subject, labels.asScala.toList.map(sp => LabelOrRelTypeName(sp.string)(sp.pos)))(subject.position)
 
   override def property(subject: Expression, propertyKeyName: StringPos[InputPosition]): Property =
     Property(subject, PropertyKeyName(propertyKeyName.string)(propertyKeyName.pos))(subject.position)
