@@ -21,7 +21,6 @@ import org.opencypher.v9_0.ast.prettifier.ExpressionStringifier
 import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.InvalidNodePattern
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
 import org.opencypher.v9_0.expressions.LabelName
@@ -240,10 +239,6 @@ object SemanticPatternCheck extends SemanticAnalysisTooling {
         check(ctx, x.element) chain
           check(ctx, x.relationship) chain
           check(ctx, x.rightNode)
-
-      case x: InvalidNodePattern =>
-        checkNodeProperties(ctx, x.properties) chain
-          error(s"Parentheses are required to identify nodes in patterns, i.e. (${x.id.name})", x.position)
 
       case x: NodePattern =>
         checkNodeProperties(ctx, x.properties) chain
