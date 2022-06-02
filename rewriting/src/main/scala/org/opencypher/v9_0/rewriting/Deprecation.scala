@@ -17,13 +17,7 @@ package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.semantics.SemanticTable
-import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.FunctionInvocation
-import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
-import org.opencypher.v9_0.expressions.Namespace
-import org.opencypher.v9_0.expressions.Property
-import org.opencypher.v9_0.expressions.PropertyKeyName
 import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -33,26 +27,9 @@ import org.opencypher.v9_0.util.Ref
 
 object Deprecations {
 
-  def propertyOf(propertyKey: String): Expression => Expression =
-    e => Property(e, PropertyKeyName(propertyKey)(e.position))(e.position)
-
-  def renameFunctionTo(newName: String): FunctionInvocation => FunctionInvocation =
-    f => f.copy(functionName = FunctionName(newName)(f.functionName.position))(f.position)
-
-  def renameFunctionTo(newNamespace: Namespace, newName: String): FunctionInvocation => FunctionInvocation =
-    f => f.copy(namespace = newNamespace, functionName = FunctionName(newName)(f.functionName.position))(f.position)
-
   case object syntacticallyDeprecatedFeaturesIn4_X extends SyntacticDeprecations {
 
     override val find: PartialFunction[Any, Deprecation] = {
-
-      // timestamp
-      case f @ FunctionInvocation(namespace, FunctionName(name), _, _)
-        if namespace.parts.isEmpty && name.equalsIgnoreCase("timestamp") =>
-        Deprecation(
-          Some(Ref(f) -> renameFunctionTo("datetime").andThen(propertyOf("epochMillis"))(f)),
-          None
-        )
 
       // legacy type separator -[:A|:B]->
       case rel @ RelationshipPattern(variable, Some(labelExpression), None, None, None, _)

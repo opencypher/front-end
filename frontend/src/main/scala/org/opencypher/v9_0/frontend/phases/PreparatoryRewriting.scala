@@ -26,6 +26,7 @@ import org.opencypher.v9_0.rewriting.rewriters.insertWithBetweenOptionalMatchAnd
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.rewriteShowQuery
+import org.opencypher.v9_0.rewriting.rewriters.timestampRewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.StepSequencer.AccumulatedSteps
 import org.opencypher.v9_0.util.inSequence
@@ -43,7 +44,8 @@ case object PreparatoryRewriting extends Phase[BaseContext, BaseState, BaseState
         expandCallWhere,
         expandShowWhere,
         rewriteShowQuery,
-        mergeInPredicates
+        mergeInPredicates,
+        timestampRewriter
       ),
       initialConditions = Set(LiteralsAreAvailable)
     )
