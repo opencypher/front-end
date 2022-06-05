@@ -296,6 +296,7 @@ import org.opencypher.v9_0.expressions.BooleanLiteral
 import org.opencypher.v9_0.expressions.CaseExpression
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Contains
+import org.opencypher.v9_0.expressions.CountExpression
 import org.opencypher.v9_0.expressions.CountStar
 import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
 import org.opencypher.v9_0.expressions.Divide
@@ -793,6 +794,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     outerScope <- zeroOrMore(_variable)
   } yield ExistsSubClause(pattern, where)(pos, outerScope.toSet)
 
+  def _countSubClause: Gen[CountExpression] = for {
+    element <- _patternElement
+    where <- option(_expression)
+    outerScope <- zeroOrMore(_variable)
+  } yield CountExpression(element, where)(pos, outerScope.toSet)
+
   def _patternComprehension: Gen[PatternComprehension] = for {
     namedPath <- option(_variable)
     pattern <- _relationshipsPattern
@@ -840,6 +847,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
         lzy(_listComprehension),
         lzy(_containerIndex),
         lzy(_existsSubClause),
+        lzy(_countSubClause),
         lzy(_patternComprehension)
       )
     )

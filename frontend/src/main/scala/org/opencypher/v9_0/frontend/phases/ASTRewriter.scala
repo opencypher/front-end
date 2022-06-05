@@ -42,6 +42,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.normalizePatternComprehensionPredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
+import org.opencypher.v9_0.rewriting.rewriters.rewriteCountExpression
 import org.opencypher.v9_0.rewriting.rewriters.rewriteOrderById
 import org.opencypher.v9_0.rewriting.rewriters.simplifyIterablePredicates
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -77,7 +78,8 @@ object ASTRewriter {
         inlineNamedPathsInPatternComprehensions,
         parameterValueTypeReplacement,
         rewriteOrderById,
-        LabelExpressionPredicateNormalizer
+        LabelExpressionPredicateNormalizer,
+        rewriteCountExpression
       ),
       initialConditions = Set(ProjectionClausesHaveSemanticInfo, PatternExpressionsHaveSemanticInfo)
     )
@@ -95,7 +97,7 @@ object ASTRewriter {
       RewriterStep.validatingRewriter(rewriter, step)
     }
 
-    val combined = inSequence(rewriters.toSeq: _*)
+    val combined = inSequence(rewriters: _*)
 
     statement.endoRewrite(combined)
   }

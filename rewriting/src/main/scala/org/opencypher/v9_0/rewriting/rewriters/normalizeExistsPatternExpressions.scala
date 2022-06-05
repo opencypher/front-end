@@ -20,6 +20,7 @@ import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
@@ -65,6 +66,23 @@ case class normalizeExistsPatternExpressions(semanticState: SemanticState) exten
       Not(Exists(p)(p.position))(p.position)
     case Equals(SignedDecimalIntegerLiteral("0"), Size(p: PatternExpression)) =>
       Not(Exists(p)(p.position))(p.position)
+    // MATCH (n) WHERE size([pt = (n)-[:MaybeLabel]->(m) | pt]) (>|=) 0 is rewritten to EXISTS/NOT EXISTS
+    case GreaterThan(Size(p @ PatternComprehension(maybePt, pattern, None, _)), SignedDecimalIntegerLiteral("0"))
+      if p.introducedVariables == maybePt.toSet =>
+      Exists(PatternExpression(pattern)(p.outerScope, p.variableToCollectName, p.collectionName))(p.position)
+    case LessThan(SignedDecimalIntegerLiteral("0"), Size(p @ PatternComprehension(maybePt, pattern, None, _)))
+      if p.introducedVariables == maybePt.toSet =>
+      Exists(PatternExpression(pattern)(p.outerScope, p.variableToCollectName, p.collectionName))(p.position)
+    case Equals(Size(p @ PatternComprehension(maybePt, pattern, None, _)), SignedDecimalIntegerLiteral("0"))
+      if p.introducedVariables == maybePt.toSet =>
+      Not(Exists(PatternExpression(pattern)(p.outerScope, p.variableToCollectName, p.collectionName))(p.position))(
+        p.position
+      )
+    case Equals(SignedDecimalIntegerLiteral("0"), Size(p @ PatternComprehension(maybePt, pattern, None, _)))
+      if p.introducedVariables == maybePt.toSet =>
+      Not(Exists(PatternExpression(pattern)(p.outerScope, p.variableToCollectName, p.collectionName))(p.position))(
+        p.position
+      )
   })
 
   override def apply(v: AnyRef): AnyRef = instance(v)
@@ -73,6 +91,7 @@ case class normalizeExistsPatternExpressions(semanticState: SemanticState) exten
 object normalizeExistsPatternExpressions extends StepSequencer.Step with ASTRewriterFactory {
 
   override def preConditions: Set[Condition] = Set(
+    NoCountExpression,
     PatternExpressionsHaveSemanticInfo // Looks up type of pattern expressions
   )
 

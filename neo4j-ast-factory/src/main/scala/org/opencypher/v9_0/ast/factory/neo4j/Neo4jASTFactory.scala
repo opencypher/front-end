@@ -315,6 +315,7 @@ import org.opencypher.v9_0.expressions.AnyIterablePredicate
 import org.opencypher.v9_0.expressions.CaseExpression
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Contains
+import org.opencypher.v9_0.expressions.CountExpression
 import org.opencypher.v9_0.expressions.CountStar
 import org.opencypher.v9_0.expressions.DecimalDoubleLiteral
 import org.opencypher.v9_0.expressions.Divide
@@ -1008,6 +1009,14 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
     val patternParts = patterns.asScala.toList
     val patternPos = patternParts.head.position
     ExistsSubClause(Pattern(patternParts)(patternPos), Option(where))(p, Set.empty)
+  }
+
+  override def countSubQuery(
+    p: InputPosition,
+    pattern: PatternPart,
+    where: Expression
+  ): Expression = {
+    CountExpression(pattern.element, Option(where))(p, Set.empty)
   }
 
   override def mapProjection(p: InputPosition, v: Variable, items: util.List[MapProjectionElement]): Expression =

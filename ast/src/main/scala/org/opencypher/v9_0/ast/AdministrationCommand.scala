@@ -22,6 +22,7 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.ast.semantics.SemanticState
+import org.opencypher.v9_0.expressions.CountExpression
 import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
@@ -85,12 +86,19 @@ sealed trait ReadAdministrationCommand extends AdministrationCommand {
 
   override def semanticCheck: SemanticCheck = SemanticCheck.nestedCheck {
 
-    def checkForExistsSubquery(where: Where): SemanticCheck = (state: SemanticState) => {
-      val invalid: Option[Expression] = where.expression.folder.treeFind[Expression] { case _: ExistsSubClause => true }
-      invalid.map(exp =>
-        SemanticCheckResult.error(state, "The EXISTS clause is not valid on SHOW commands.", exp.position)
-      )
-        .getOrElse(SemanticCheckResult.success(state))
+    def checkForExistsOrCountSubquery(where: Where): SemanticCheck = (state: SemanticState) => {
+      val invalid: Option[Expression] = where.expression.folder.treeFind[Expression] {
+        case _: ExistsSubClause => true
+        case _: CountExpression => true
+      }
+      invalid.map { exp =>
+        exp match {
+          case _: ExistsSubClause =>
+            SemanticCheckResult.error(state, "The EXISTS clause is not valid on SHOW commands.", exp.position)
+          case _: CountExpression =>
+            SemanticCheckResult.error(state, "The COUNT clause is not valid on SHOW commands.", exp.position)
+        }
+      }.getOrElse(SemanticCheckResult.success(state))
     }
 
     def checkForReturnPattern: SemanticCheck = (state: SemanticState) => {
@@ -119,9 +127,27 @@ sealed trait ReadAdministrationCommand extends AdministrationCommand {
       }
     }
 
+    def checkForReturnCount: SemanticCheck = (state: SemanticState) => {
+      val maybeCountExpression = state.typeTable.collectFirst {
+        case (expression, _) if expression.node.isInstanceOf[CountExpression] => expression
+      }
+
+      maybeCountExpression match {
+        case Some(countExpression) =>
+          error(
+            "You cannot include a COUNT in the RETURN of administration SHOW commands",
+            countExpression.node.position
+          )(state)
+        case _ =>
+          SemanticCheckResult.success(state)
+      }
+    }
+
     def checkProjection(r: ProjectionClause): SemanticCheck = {
       val check =
-        r.semanticCheck chain r.where.foldSemanticCheck(checkForExistsSubquery) chain checkForReturnPattern
+        r.semanticCheck chain r.where.foldSemanticCheck(
+          checkForExistsOrCountSubquery
+        ) chain checkForReturnPattern chain checkForReturnCount
       for {
         closingResult <- check
         continuationResult <- r.semanticCheckContinuation(closingResult.state.currentScope.scope)
@@ -851,13 +877,19 @@ object ShowAliases {
 }
 
 object AliasDriverSettingsCheck {
-  val errorMessage = "The EXISTS clause is not valid in driver settings."
+  val existsErrorMessage = "The EXISTS clause is not valid in driver settings."
+  val countErrorMessage = "The COUNT clause is not valid in driver settings."
 
   def findInvalidDriverSettings(driverSettings: Option[Either[Map[String, Expression], Parameter]])
     : Option[Expression] = {
     driverSettings match {
       case Some(Left(settings)) =>
-        settings.values.flatMap(s => s.folder.treeFind[Expression] { case _: ExistsSubClause => true }).headOption
+        settings.values.flatMap(s =>
+          s.folder.treeFind[Expression] {
+            case _: ExistsSubClause => true
+            case _: CountExpression => true
+          }
+        ).headOption
       case _ => None
     }
   }
@@ -904,8 +936,11 @@ final case class CreateRemoteDatabaseAlias(
         position
       )
     case _ => AliasDriverSettingsCheck.findInvalidDriverSettings(driverSettings) match {
-        case Some(expr) => error(AliasDriverSettingsCheck.errorMessage, expr.position)
-        case _          => super.semanticCheck chain SemanticState.recordCurrentScope(this)
+        case Some(expr: ExistsSubClause) =>
+          error(AliasDriverSettingsCheck.existsErrorMessage, expr.position)
+        case Some(expr) =>
+          error(AliasDriverSettingsCheck.countErrorMessage, expr.position)
+        case _ => super.semanticCheck chain SemanticState.recordCurrentScope(this)
       }
   }
 }
@@ -935,7 +970,13 @@ final case class AlterRemoteDatabaseAlias(
 
   override def semanticCheck: SemanticCheck =
     AliasDriverSettingsCheck.findInvalidDriverSettings(driverSettings) match {
-      case Some(expr) => error(AliasDriverSettingsCheck.errorMessage, expr.position)
+      case Some(expr) =>
+        expr match {
+          case _: ExistsSubClause =>
+            error(AliasDriverSettingsCheck.existsErrorMessage, expr.position)
+          case _ =>
+            error(AliasDriverSettingsCheck.countErrorMessage, expr.position)
+        }
       case _ =>
         val isLocalAlias = targetName.isDefined && url.isEmpty
         val isRemoteAlias = url.isDefined || username.isDefined || password.isDefined || driverSettings.isDefined

@@ -29,6 +29,7 @@ import org.opencypher.v9_0.expressions.ChainableBinaryOperatorExpression
 import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Contains
+import org.opencypher.v9_0.expressions.CountExpression
 import org.opencypher.v9_0.expressions.CountStar
 import org.opencypher.v9_0.expressions.DesugaredMapProjection
 import org.opencypher.v9_0.expressions.Divide
@@ -329,6 +330,11 @@ private class DefaultExpressionStringifier(
         val p = patterns.apply(pat)
         val w = where.map(wh => s" WHERE ${inner(ast)(wh)}").getOrElse("")
         s"EXISTS { MATCH $p$w }"
+
+      case CountExpression(relChain, where) =>
+        val p = patterns.apply(relChain)
+        val w = where.map(wh => s" WHERE ${inner(ast)(wh)}").getOrElse("")
+        s"COUNT { $p$w }"
 
       case UnaryAdd(r) =>
         val i = inner(ast)(r)
