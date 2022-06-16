@@ -26,7 +26,6 @@ import org.opencypher.v9_0.frontend.phases.Phase
 import org.opencypher.v9_0.frontend.phases.SemanticAnalysis
 import org.opencypher.v9_0.frontend.phases.Transformer
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
-import org.opencypher.v9_0.util.DeprecatedRepeatedRelVarInPatternExpression
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.StepSequencer
@@ -1526,6 +1525,19 @@ class SemanticAnalysisTest extends CypherFunSuite with SemanticAnalysisTestSuite
         "Relationship pattern predicates are not allowed when a path length is specified"
       )
     )
+  }
+
+  test("subquery without RETURN should not declare variables from YIELD in the outer scope") {
+    val query =
+      """CALL {
+        |  CALL dbms.procedures() YIELD name
+        |}
+        |RETURN name
+        |""".stripMargin
+
+    expectErrorMessagesFrom(
+      query,
+      Set("Variable `name` not defined"))
   }
 
   // ------- Helpers ------------------------------
