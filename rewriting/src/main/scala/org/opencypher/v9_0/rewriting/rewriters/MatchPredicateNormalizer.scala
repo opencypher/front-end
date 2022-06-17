@@ -16,6 +16,7 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.expressions.Expression
+import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.Foldable.FoldableAny
 
 /**
@@ -41,4 +42,15 @@ trait MatchPredicateNormalizer {
       case patternElement: AnyRef if extract.isDefinedAt(patternElement) => acc => acc ++ extract(patternElement)
       case _                                                             => identity
     }
+}
+
+object MatchPredicateNormalizer {
+
+  def defaultNormalizer(anonymousVariableNameGenerator: AnonymousVariableNameGenerator): MatchPredicateNormalizer =
+    MatchPredicateNormalizerChain(
+      PropertyPredicateNormalizer(anonymousVariableNameGenerator),
+      LabelExpressionsInPatternsNormalizer,
+      NodePatternPredicateNormalizer,
+      RelationshipPatternPredicateNormalizer
+    )
 }
