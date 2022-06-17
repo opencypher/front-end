@@ -63,9 +63,12 @@ import org.opencypher.v9_0.expressions.ListSlice
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.Modulo
+import org.opencypher.v9_0.expressions.MultiRelationshipPathStep
 import org.opencypher.v9_0.expressions.Multiply
 import org.opencypher.v9_0.expressions.NODE_TYPE
 import org.opencypher.v9_0.expressions.Namespace
+import org.opencypher.v9_0.expressions.NilPathStep
+import org.opencypher.v9_0.expressions.NodePathStep
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.NoneIterablePredicate
 import org.opencypher.v9_0.expressions.Not
@@ -75,6 +78,8 @@ import org.opencypher.v9_0.expressions.NumberLiteral
 import org.opencypher.v9_0.expressions.Or
 import org.opencypher.v9_0.expressions.Ors
 import org.opencypher.v9_0.expressions.Parameter
+import org.opencypher.v9_0.expressions.PathExpression
+import org.opencypher.v9_0.expressions.PathStep
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternElement
 import org.opencypher.v9_0.expressions.PatternExpression
@@ -93,10 +98,12 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SemanticDirection
 import org.opencypher.v9_0.expressions.SemanticDirection.BOTH
+import org.opencypher.v9_0.expressions.SemanticDirection.INCOMING
 import org.opencypher.v9_0.expressions.SemanticDirection.OUTGOING
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.SingleIterablePredicate
+import org.opencypher.v9_0.expressions.SingleRelationshipPathStep
 import org.opencypher.v9_0.expressions.StartsWith
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.Subtract
@@ -123,6 +130,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 
 import java.nio.charset.StandardCharsets
 
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 trait AstConstructionTestSupport extends CypherTestSupport {
@@ -677,5 +685,68 @@ trait AstConstructionTestSupport extends CypherTestSupport {
 
   def increasePos(position: InputPosition, inc: Int): InputPosition = {
     InputPosition(position.offset + inc, position.line, position.column + inc)
+  }
+
+  /**
+   * Small utility to build PathExpressions.
+   */
+  object PathExpressionBuilder {
+    def node(name: String): PathExpressionBuilder = PathExpressionBuilder(Seq(name))
+  }
+
+  /**
+   * @param nodes the nodes
+   * @param rels tuples for each relationship with (name, direction, isVarLength)
+   */
+  case class PathExpressionBuilder private (
+    nodes: Seq[String] = Seq.empty,
+    rels: Seq[(String, SemanticDirection, Boolean)] = Seq.empty
+  ) {
+
+    def outTo(relName: String, nodeName: String): PathExpressionBuilder =
+      copy(nodes = nodes :+ nodeName, rels = rels :+ (relName, OUTGOING, false))
+
+    def bothTo(relName: String, nodeName: String): PathExpressionBuilder =
+      copy(nodes = nodes :+ nodeName, rels = rels :+ (relName, BOTH, false))
+
+    def inTo(relName: String, nodeName: String): PathExpressionBuilder =
+      copy(nodes = nodes :+ nodeName, rels = rels :+ (relName, INCOMING, false))
+
+    def outToVarLength(relName: String, nodeName: String): PathExpressionBuilder =
+      copy(nodes = nodes :+ nodeName, rels = rels :+ (relName, OUTGOING, true))
+
+    def bothToVarLength(relName: String, nodeName: String): PathExpressionBuilder =
+      copy(nodes = nodes :+ nodeName, rels = rels :+ (relName, BOTH, true))
+
+    def inToVarLength(relName: String, nodeName: String): PathExpressionBuilder =
+      copy(nodes = nodes :+ nodeName, rels = rels :+ (relName, INCOMING, true))
+
+    def build(): PathExpression = {
+      @tailrec
+      def nextStep(
+        reversedNodes: List[String],
+        reversedRels: List[(String, SemanticDirection, Boolean)],
+        currentPathStep: PathStep
+      ): PathStep = {
+        (reversedNodes, reversedRels) match {
+          case (Nil, Nil) =>
+            currentPathStep
+          case (node :: nodeTail, Nil) =>
+            val step = NodePathStep(varFor(node), currentPathStep)(pos)
+            nextStep(nodeTail, Nil, step)
+          case (node :: nodeTail, rel :: relTail) =>
+            val step = rel match {
+              case (relName, direction, false) =>
+                SingleRelationshipPathStep(varFor(relName), direction, Some(varFor(node)), currentPathStep)(pos)
+              case (relName, direction, true) =>
+                MultiRelationshipPathStep(varFor(relName), direction, Some(varFor(node)), currentPathStep)(pos)
+            }
+            nextStep(nodeTail, relTail, step)
+        }
+      }
+
+      val pathStep = nextStep(nodes.reverse.toList, rels.reverse.toList, NilPathStep()(pos))
+      PathExpression(pathStep)(pos)
+    }
   }
 }
