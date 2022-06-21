@@ -29,7 +29,7 @@ import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
-case object normalizeNotEquals extends Rewriter with StepSequencer.Step with ASTRewriterFactory {
+case object normalizeNotEquals extends StepSequencer.Step with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
@@ -40,9 +40,7 @@ case object normalizeNotEquals extends Rewriter with StepSequencer.Step with AST
     PatternExpressionsHaveSemanticInfo // It can invalidate this condition by rewriting things inside PatternExpressions.
   )
 
-  override def apply(that: AnyRef): AnyRef = instance(that)
-
-  private val instance: Rewriter = topDown(Rewriter.lift {
+  val instance: Rewriter = topDown(Rewriter.lift {
     case p @ NotEquals(lhs, rhs) =>
       Not(Equals(lhs, rhs)(p.position))(p.position) // not(1 = 2)  <!===!>     1 != 2
   })

@@ -30,7 +30,7 @@ import org.opencypher.v9_0.util.topDown
 
 case object TimestampRewritten extends Condition
 
-case object timestampRewriter extends Rewriter with Step with PreparatoryRewritingRewriterFactory {
+case object timestampRewriter extends Step with PreparatoryRewritingRewriterFactory {
 
   override def getRewriter(
     cypherExceptionFactory: CypherExceptionFactory,
@@ -43,8 +43,6 @@ case object timestampRewriter extends Rewriter with Step with PreparatoryRewriti
 
   override def invalidatedConditions: Set[StepSequencer.Condition] = Set.empty
 
-  def apply(that: AnyRef): AnyRef = instance(that)
-
   private val rewriter = Rewriter.lift {
 
     case f @ FunctionInvocation(namespace, FunctionName(name), _, _)
@@ -53,5 +51,5 @@ case object timestampRewriter extends Rewriter with Step with PreparatoryRewriti
       Property(datetimeFunction, PropertyKeyName("epochMillis")(datetimeFunction.position))(datetimeFunction.position)
   }
 
-  private val instance = topDown(rewriter)
+  val instance: Rewriter = topDown(rewriter)
 }

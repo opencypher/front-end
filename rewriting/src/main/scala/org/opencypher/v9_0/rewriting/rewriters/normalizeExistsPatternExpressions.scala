@@ -88,7 +88,7 @@ case class normalizeExistsPatternExpressions(semanticState: SemanticState) exten
   override def apply(v: AnyRef): AnyRef = instance(v)
 }
 
-object normalizeExistsPatternExpressions extends StepSequencer.Step with ASTRewriterFactory {
+case object normalizeExistsPatternExpressions extends StepSequencer.Step with ASTRewriterFactory {
 
   override def preConditions: Set[Condition] = Set(
     NoCountExpression,

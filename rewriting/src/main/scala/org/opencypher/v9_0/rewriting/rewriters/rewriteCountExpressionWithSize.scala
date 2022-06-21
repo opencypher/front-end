@@ -65,7 +65,7 @@ case class rewriteCountExpression(anonymousVariableNameGenerator: AnonymousVaria
 
 }
 
-object rewriteCountExpression extends Step with ASTRewriterFactory {
+case object rewriteCountExpression extends Step with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set()
 

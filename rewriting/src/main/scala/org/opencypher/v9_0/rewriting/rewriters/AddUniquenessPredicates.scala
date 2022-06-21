@@ -170,7 +170,7 @@ case class AddUniquenessPredicates(anonymousVariableNameGenerator: AnonymousVari
   }
 }
 
-object AddUniquenessPredicates extends Step with ASTRewriterFactory {
+case object AddUniquenessPredicates extends Step with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set(
     noUnnamedPatternElementsInMatch,

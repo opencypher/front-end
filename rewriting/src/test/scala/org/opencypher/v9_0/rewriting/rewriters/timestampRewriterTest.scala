@@ -21,7 +21,7 @@ import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class timestampRewriterTest extends CypherFunSuite with RewriteTest {
 
-  override val rewriterUnderTest: Rewriter = timestampRewriter
+  override val rewriterUnderTest: Rewriter = timestampRewriter.instance
 
   test("Rewrites timestamp to datetime.epochMillis") {
     assertRewrite("RETURN timestamp() as t", "RETURN datetime().epochMillis as t")

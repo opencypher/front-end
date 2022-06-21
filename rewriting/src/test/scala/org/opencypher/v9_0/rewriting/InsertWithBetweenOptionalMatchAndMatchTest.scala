@@ -20,7 +20,7 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
 class InsertWithBetweenOptionalMatchAndMatchTest extends CypherFunSuite with RewriteTest {
-  val rewriterUnderTest: Rewriter = insertWithBetweenOptionalMatchAndMatch
+  val rewriterUnderTest: Rewriter = insertWithBetweenOptionalMatchAndMatch.instance
 
   test("OPTIONAL MATCH followed by MATCH") {
     assertRewrite(

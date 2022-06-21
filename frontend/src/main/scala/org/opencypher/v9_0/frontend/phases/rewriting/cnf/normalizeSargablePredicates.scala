@@ -30,7 +30,7 @@ import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.topDown
 
-case object normalizeSargablePredicates extends Rewriter with CnfPhase with ASTRewriterFactory {
+case object normalizeSargablePredicates extends CnfPhase with ASTRewriterFactory {
 
   override def preConditions: Set[StepSequencer.Condition] = Set.empty
 
@@ -41,9 +41,7 @@ case object normalizeSargablePredicates extends Rewriter with CnfPhase with ASTR
     PatternExpressionsHaveSemanticInfo // It can invalidate this condition by rewriting things inside PatternExpressions.
   )
 
-  override def apply(that: AnyRef): AnyRef = instance(that)
-
-  private val instance: Rewriter = topDown(Rewriter.lift {
+  val instance: Rewriter = topDown(Rewriter.lift {
 
     // remove not from inequality expressions by negating them
     case Not(inequality: InequalityExpression) =>
@@ -57,7 +55,5 @@ case object normalizeSargablePredicates extends Rewriter with CnfPhase with ASTR
     anonymousVariableNameGenerator: AnonymousVariableNameGenerator
   ): Rewriter = instance
 
-  override def getRewriter(from: BaseState, context: BaseContext): Rewriter = this
-
-  override def toString = "normalizeSargablePredicates"
+  override def getRewriter(from: BaseState, context: BaseContext): Rewriter = instance
 }

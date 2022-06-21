@@ -52,7 +52,7 @@ case class nameAllPatternElements(anonymousVariableNameGenerator: AnonymousVaria
   )
 }
 
-object nameAllPatternElements extends StepSequencer.Step with ASTRewriterFactory {
+case object nameAllPatternElements extends StepSequencer.Step with ASTRewriterFactory {
 
   override def getRewriter(
     semanticState: SemanticState,

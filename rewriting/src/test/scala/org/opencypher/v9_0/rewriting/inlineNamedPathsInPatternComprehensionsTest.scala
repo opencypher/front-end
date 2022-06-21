@@ -43,7 +43,7 @@ class inlineNamedPathsInPatternComprehensionsTest extends CypherFunSuite with As
       literalString("foo")
     )(pos, Set.empty, "", "")
 
-    inlineNamedPathsInPatternComprehensions(input) should equal(input)
+    inlineNamedPathsInPatternComprehensions.instance(input) should equal(input)
   }
 
   // [ p = (a)-[r]->(b) | 'foo' ]
@@ -59,7 +59,7 @@ class inlineNamedPathsInPatternComprehensionsTest extends CypherFunSuite with As
       literalString("foo")
     )(pos, Set.empty, "", "")
 
-    inlineNamedPathsInPatternComprehensions(input) should equal(input.copy(namedPath = None)(
+    inlineNamedPathsInPatternComprehensions.instance(input) should equal(input.copy(namedPath = None)(
       pos,
       input.outerScope,
       "",
@@ -85,7 +85,7 @@ class inlineNamedPathsInPatternComprehensionsTest extends CypherFunSuite with As
       projection = PathExpression(projectNamedPaths.patternPartPathExpression(element))(pos)
     )(pos, input.outerScope, "", "")
 
-    inlineNamedPathsInPatternComprehensions(input) should equal(output)
+    inlineNamedPathsInPatternComprehensions.instance(input) should equal(output)
   }
 
   // [ p = (a)-[r]->(b) WHERE p | 'foo' ]
@@ -106,7 +106,7 @@ class inlineNamedPathsInPatternComprehensionsTest extends CypherFunSuite with As
       predicate = Some(PathExpression(projectNamedPaths.patternPartPathExpression(element)) _)
     )(pos, input.outerScope, "", "")
 
-    inlineNamedPathsInPatternComprehensions(input) should equal(output)
+    inlineNamedPathsInPatternComprehensions.instance(input) should equal(output)
   }
 
   // [ p = (a)-[r]->(b) WHERE p | p ]
@@ -128,6 +128,6 @@ class inlineNamedPathsInPatternComprehensionsTest extends CypherFunSuite with As
       projection = PathExpression(projectNamedPaths.patternPartPathExpression(element))(pos)
     )(pos, input.outerScope, "", "")
 
-    inlineNamedPathsInPatternComprehensions(input) should equal(output)
+    inlineNamedPathsInPatternComprehensions.instance(input) should equal(output)
   }
 }
