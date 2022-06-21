@@ -20,7 +20,7 @@ import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
 import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
-import org.opencypher.v9_0.expressions.LabelExpression.Disjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelExpression.Negation
 import org.opencypher.v9_0.expressions.LabelExpression.Wildcard
@@ -264,7 +264,7 @@ trait RelationshipTypeExpressionGenerators {
       RelationshipTypeExpression(Conjunction(value, other.value)(position))
 
     def or(other: RelationshipTypeExpression): RelationshipTypeExpression =
-      RelationshipTypeExpression(Disjunction(value, other.value)(position))
+      RelationshipTypeExpression(Disjunctions(Seq(value, other.value))(position))
   }
 
   val wildcard: RelationshipTypeExpression = RelationshipTypeExpression(Wildcard()(position))
@@ -288,8 +288,8 @@ trait RelationshipTypeExpressionGenerators {
   val genColonConjunction: Gen[ColonConjunction] =
     genBinary((lhs, rhs) => ColonConjunction(lhs, rhs)(position))
 
-  val genDisjunction: Gen[Disjunction] =
-    genBinary((lhs, rhs) => Disjunction(lhs, rhs)(position))
+  val genDisjunction: Gen[Disjunctions] =
+    genBinary((lhs, rhs) => Disjunctions(Seq(lhs, rhs))(position))
 
   val genColonDisjunction: Gen[ColonDisjunction] =
     genBinary((lhs, rhs) => ColonDisjunction(lhs, rhs)(position))

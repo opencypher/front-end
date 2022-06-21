@@ -53,7 +53,7 @@ import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
 import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
-import org.opencypher.v9_0.expressions.LabelExpression.Disjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelExpression.Negation
 import org.opencypher.v9_0.expressions.LabelExpression.Wildcard
@@ -453,8 +453,8 @@ private class DefaultExpressionStringifier(
   }
 
   override def stringifyLabelExpression(labelExpression: LabelExpression): String = labelExpression match {
-    case le: Disjunction =>
-      s"${stringifyLabelExpressionInDisjunction(le.lhs)}|${stringifyLabelExpressionHalfAtom(le.rhs)}"
+    case le: Disjunctions =>
+      le.children.map(stringifyLabelExpressionInDisjunction).mkString("|")
     case le: ColonDisjunction =>
       s"${stringifyLabelExpressionInColonDisjunction(le.lhs)}|:${stringifyLabelExpressionHalfAtom(le.rhs)}"
     case le: Conjunction =>
@@ -465,8 +465,8 @@ private class DefaultExpressionStringifier(
   }
 
   private def stringifyLabelExpressionInDisjunction(labelExpression: LabelExpression): String = labelExpression match {
-    case le: Disjunction =>
-      s"${stringifyLabelExpressionInDisjunction(le.lhs)}|${stringifyLabelExpressionHalfAtom(le.rhs)}"
+    case le: Disjunctions =>
+      le.children.map(stringifyLabelExpressionInDisjunction).mkString("|")
     case le => s"${stringifyLabelExpressionHalfAtom(le)}"
   }
 
