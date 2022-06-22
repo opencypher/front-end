@@ -23,6 +23,7 @@ import org.opencypher.v9_0.rewriting.conditions.noDuplicatesInReturnItems
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInMatch
 import org.opencypher.v9_0.rewriting.conditions.noUnnamedPatternElementsInPatternComprehension
 import org.opencypher.v9_0.rewriting.conditions.normalizedEqualsArguments
+import org.opencypher.v9_0.rewriting.rewriters.NoNamedPathsInPatternComprehensions
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.symbols.CypherType
 
@@ -46,15 +47,19 @@ case class AstRewriting(parameterTypeMapping: Map[String, CypherType] = Map.empt
   override def phase = AST_REWRITE
 
   override def postConditions: Set[StepSequencer.Condition] = {
-    val rewriterConditions = Set(
+    val validatingRewriterConditions = Set(
       noDuplicatesInReturnItems,
       containsNoReturnAll,
       noUnnamedPatternElementsInMatch,
       containsNoNodesOfType[NotEquals],
       normalizedEqualsArguments,
       noUnnamedPatternElementsInPatternComprehension
+    ).map(StatementCondition.apply)
+
+    val nonValidatingRewriterConditions: Set[StepSequencer.Condition] = Set(
+      NoNamedPathsInPatternComprehensions
     )
 
-    rewriterConditions.map(StatementCondition.apply)
+    validatingRewriterConditions ++ nonValidatingRewriterConditions
   }
 }
