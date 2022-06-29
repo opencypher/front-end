@@ -517,7 +517,7 @@ class SemanticAnalysisTest extends CypherFunSuite with SemanticAnalysisTestSuite
       query,
       Set(
         SemanticError(
-          "Relationship pattern predicates are not allowed when a path length is specified",
+          "Relationship pattern predicates are not supported for variable-length relationships.",
           InputPosition(81, 1, 82)
         )
       )
@@ -1961,7 +1961,7 @@ class SemanticAnalysisTest extends CypherFunSuite with SemanticAnalysisTestSuite
       query,
       Set(
         SemanticError(
-          "Relationship pattern predicates are not allowed when a path length is specified",
+          "Relationship pattern predicates are not supported for variable-length relationships.",
           InputPosition(30, 1, 31)
         )
       )
