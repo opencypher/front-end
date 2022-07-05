@@ -25,6 +25,7 @@ import org.opencypher.v9_0.rewriting.conditions.PatternExpressionsHaveSemanticIn
 import org.opencypher.v9_0.rewriting.rewriters.AddUniquenessPredicates
 import org.opencypher.v9_0.rewriting.rewriters.LabelExpressionPredicateNormalizer
 import org.opencypher.v9_0.rewriting.rewriters.ProjectionClausesHaveSemanticInfo
+import org.opencypher.v9_0.rewriting.rewriters.QuantifiedPathPatternNodeInsertRewriter
 import org.opencypher.v9_0.rewriting.rewriters.desugarMapProjection
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
@@ -81,7 +82,8 @@ object ASTRewriter {
         rewriteOrderById,
         LabelExpressionPredicateNormalizer,
         rewriteCountExpression,
-        unwrapParenthesizedPath
+        unwrapParenthesizedPath,
+        QuantifiedPathPatternNodeInsertRewriter
       ),
       initialConditions = Set(ProjectionClausesHaveSemanticInfo, PatternExpressionsHaveSemanticInfo)
     )
