@@ -28,7 +28,7 @@ import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
-import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelExpression.Negation
@@ -193,8 +193,8 @@ case object AddUniquenessPredicates extends Step with ASTRewriterFactory {
 
   def evaluate(expression: LabelExpression, relType: SymbolicName): TailRec[Boolean] =
     expression match {
-      case Conjunction(lhs, rhs)                => and(lhs, rhs, relType)
-      case ColonConjunction(lhs, rhs)           => and(lhs, rhs, relType)
+      case Conjunctions(children)               => ands(children, relType)
+      case ColonConjunction(lhs, rhs)           => ands(Seq(lhs, rhs), relType)
       case Disjunctions(children)               => ors(children, relType)
       case ColonDisjunction(lhs, rhs)           => ors(Seq(lhs, rhs), relType)
       case Negation(e)                          => TailCalls.tailcall(evaluate(e, relType)).map(value => !value)
@@ -214,10 +214,13 @@ case object AddUniquenessPredicates extends Step with ASTRewriterFactory {
     }
   }
 
-  private def and(lhs: LabelExpression, rhs: LabelExpression, relType: SymbolicName): TailRec[Boolean] = {
-    TailCalls.tailcall(evaluate(lhs, relType)).flatMap {
-      case true  => TailCalls.tailcall(evaluate(rhs, relType))
-      case false => TailCalls.done(false)
+  private def ands(exprs: Seq[LabelExpression], relType: SymbolicName): TailRec[Boolean] = {
+    if (exprs.isEmpty) TailCalls.done(true)
+    else {
+      for {
+        head <- TailCalls.tailcall(evaluate(exprs.head, relType))
+        tail <- if (!head) TailCalls.done(false) else ands(exprs.tail, relType)
+      } yield head && tail
     }
   }
 

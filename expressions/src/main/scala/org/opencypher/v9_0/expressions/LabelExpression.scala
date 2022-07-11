@@ -17,7 +17,7 @@ package org.opencypher.v9_0.expressions
 
 import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
-import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.util.ASTNode
@@ -53,7 +53,7 @@ sealed trait LabelExpression extends ASTNode {
 
   def replaceColonSyntax: LabelExpression = this.endoRewrite(bottomUp({
     case disj @ ColonDisjunction(lhs, rhs) => Disjunctions.flat(lhs, rhs, disj.position)
-    case conj @ ColonConjunction(lhs, rhs) => Conjunction(lhs, rhs)(conj.position)
+    case conj @ ColonConjunction(lhs, rhs) => Conjunctions.flat(lhs, rhs, conj.position)
     case expr                              => expr
   }))
 
@@ -91,8 +91,19 @@ object LabelExpression {
     }
   }
 
-  case class Conjunction(lhs: LabelExpression, rhs: LabelExpression)(val position: InputPosition)
-      extends BinaryLabelExpression
+  case class Conjunctions(children: Seq[LabelExpression])(val position: InputPosition)
+      extends MultiOperatorLabelExpression
+
+  object Conjunctions {
+
+    def flat(lhs: LabelExpression, rhs: LabelExpression, position: InputPosition): Conjunctions = {
+      val children = Vector(lhs, rhs).flatMap {
+        case Conjunctions(children) => children
+        case x                      => Vector(x)
+      }
+      Conjunctions(children)(position)
+    }
+  }
 
   /**
    * This represents a conjunction that does not use the ampersand '&' as specified by GPM but rather the colon ':'

@@ -340,7 +340,6 @@ import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.LabelExpression
-import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.LabelName
@@ -2285,10 +2284,10 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
   }
 
   override def labelConjunction(p: InputPosition, lhs: LabelExpression, rhs: LabelExpression): LabelExpression =
-    LabelExpression.Conjunction(lhs, rhs)(p)
+    LabelExpression.Conjunctions.flat(lhs, rhs, p)
 
   override def labelDisjunction(p: InputPosition, lhs: LabelExpression, rhs: LabelExpression): LabelExpression = {
-    Disjunctions.flat(lhs, rhs, p)
+    LabelExpression.Disjunctions.flat(lhs, rhs, p)
   }
 
   override def labelNegation(p: InputPosition, e: LabelExpression): LabelExpression = LabelExpression.Negation(e)(p)

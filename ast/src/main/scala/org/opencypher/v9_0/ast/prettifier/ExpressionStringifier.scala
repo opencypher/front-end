@@ -52,7 +52,7 @@ import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
-import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelExpression.Negation
@@ -457,8 +457,8 @@ private class DefaultExpressionStringifier(
       le.children.map(stringifyLabelExpressionHalfAtom).mkString("|")
     case le: ColonDisjunction =>
       s"${stringifyLabelExpressionInColonDisjunction(le.lhs)}|:${stringifyLabelExpressionHalfAtom(le.rhs)}"
-    case le: Conjunction =>
-      s"${stringifyLabelExpressionInConjunction(le.lhs)}&${stringifyLabelExpressionHalfAtom(le.rhs)}"
+    case le: Conjunctions =>
+      le.children.map(stringifyLabelExpressionHalfAtom).mkString("&")
     case le: ColonConjunction =>
       s"${stringifyLabelExpressionInColonConjunction(le.lhs)}:${stringifyLabelExpressionHalfAtom(le.rhs)}"
     case le => s"${stringifyLabelExpressionHalfAtom(le)}"
@@ -470,12 +470,6 @@ private class DefaultExpressionStringifier(
         s"${stringifyLabelExpressionInColonDisjunction(le.lhs)}|:${stringifyLabelExpressionHalfAtom(le.rhs)}"
       case le => s"${stringifyLabelExpressionHalfAtom(le)}"
     }
-
-  private def stringifyLabelExpressionInConjunction(labelExpression: LabelExpression): String = labelExpression match {
-    case le: Conjunction =>
-      s"${stringifyLabelExpressionInConjunction(le.lhs)}&${stringifyLabelExpressionHalfAtom(le.rhs)}"
-    case le => s"${stringifyLabelExpressionHalfAtom(le)}"
-  }
 
   private def stringifyLabelExpressionInColonConjunction(labelExpression: LabelExpression): String =
     labelExpression match {

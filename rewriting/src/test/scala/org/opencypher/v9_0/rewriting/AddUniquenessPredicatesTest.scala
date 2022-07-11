@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.AstConstructionTestSupport
 import org.opencypher.v9_0.expressions.LabelExpression
 import org.opencypher.v9_0.expressions.LabelExpression.ColonConjunction
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
-import org.opencypher.v9_0.expressions.LabelExpression.Conjunction
+import org.opencypher.v9_0.expressions.LabelExpression.Conjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelExpression.Negation
@@ -261,7 +261,7 @@ trait RelationshipTypeExpressionGenerators {
       RelationshipTypeExpression(Negation(value)(position))
 
     def and(other: RelationshipTypeExpression): RelationshipTypeExpression =
-      RelationshipTypeExpression(Conjunction(value, other.value)(position))
+      RelationshipTypeExpression(Conjunctions(Seq(value, other.value))(position))
 
     def or(other: RelationshipTypeExpression): RelationshipTypeExpression =
       RelationshipTypeExpression(Disjunctions(Seq(value, other.value))(position))
@@ -282,8 +282,8 @@ trait RelationshipTypeExpressionGenerators {
       } yield f(lhs, rhs)
     )
 
-  val genConjunction: Gen[Conjunction] =
-    genBinary((lhs, rhs) => Conjunction(lhs, rhs)(position))
+  val genConjunction: Gen[Conjunctions] =
+    genBinary((lhs, rhs) => Conjunctions(Seq(lhs, rhs))(position))
 
   val genColonConjunction: Gen[ColonConjunction] =
     genBinary((lhs, rhs) => ColonConjunction(lhs, rhs)(position))

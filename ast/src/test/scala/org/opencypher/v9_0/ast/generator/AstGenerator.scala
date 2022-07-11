@@ -326,7 +326,6 @@ import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.IterablePredicateExpression
 import org.opencypher.v9_0.expressions.LabelExpression
-import org.opencypher.v9_0.expressions.LabelExpression.Disjunctions
 import org.opencypher.v9_0.expressions.LabelExpression.Leaf
 import org.opencypher.v9_0.expressions.LabelName
 import org.opencypher.v9_0.expressions.LabelOrRelTypeName
@@ -875,15 +874,15 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _labelExpression(entityType: Option[EntityType]): Gen[LabelExpression] = {
 
-    def _labelExpressionConjunction: Gen[LabelExpression.Conjunction] = for {
+    def _labelExpressionConjunction: Gen[LabelExpression.Conjunctions] = for {
       lhs <- _labelExpression(entityType)
       rhs <- _labelExpression(entityType)
-    } yield LabelExpression.Conjunction(lhs, rhs)(pos)
+    } yield LabelExpression.Conjunctions.flat(lhs, rhs, pos)
 
     def _labelExpressionDisjunction: Gen[LabelExpression.Disjunctions] = for {
       lhs <- _labelExpression(entityType)
       rhs <- _labelExpression(entityType)
-    } yield Disjunctions.flat(lhs, rhs, pos)
+    } yield LabelExpression.Disjunctions.flat(lhs, rhs, pos)
 
     frequency(
       5 -> oneOf[LabelExpression](
