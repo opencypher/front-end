@@ -43,7 +43,6 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizeNotEquals
 import org.opencypher.v9_0.rewriting.rewriters.normalizePatternComprehensionPredicates
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
-import org.opencypher.v9_0.rewriting.rewriters.rewriteCountExpression
 import org.opencypher.v9_0.rewriting.rewriters.rewriteOrderById
 import org.opencypher.v9_0.rewriting.rewriters.simplifyIterablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.unwrapParenthesizedPath
@@ -81,7 +80,6 @@ object ASTRewriter {
         parameterValueTypeReplacement,
         rewriteOrderById,
         LabelExpressionPredicateNormalizer,
-        rewriteCountExpression,
         unwrapParenthesizedPath,
         QuantifiedPathPatternNodeInsertRewriter
       ),
