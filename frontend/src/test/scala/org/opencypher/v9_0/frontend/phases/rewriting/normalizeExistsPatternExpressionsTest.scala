@@ -20,6 +20,7 @@ import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.simplifyPredicates
 import org.opencypher.v9_0.rewriting.rewriters.normalizeExistsPatternExpressions
+import org.opencypher.v9_0.rewriting.rewriters.recordScopes
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.inSequence
@@ -142,6 +143,26 @@ class normalizeExistsPatternExpressionsTest extends CypherFunSuite with AstConst
     "MATCH (n) WHERE ALL (n in[1, 2, 3] WHERE NOT exists(()<-[]-())) RETURN *"
   )
 
+  testRewrite(
+    "MATCH (n) WHERE COUNT { (n)-->() } > 0 RETURN *",
+    "MATCH (n) WHERE exists((n)-->()) RETURN *"
+  )
+
+  testRewrite(
+    "MATCH (n) WHERE 0 < COUNT { (n)-->() } RETURN *",
+    "MATCH (n) WHERE exists((n)-->()) RETURN *"
+  )
+
+  testRewrite(
+    "MATCH (n) WHERE COUNT { (n)-->() } = 0 RETURN *",
+    "MATCH (n) WHERE NOT exists((n)-->()) RETURN *"
+  )
+
+  testRewrite(
+    "MATCH (n) WHERE 0 = COUNT { (n)-->() } RETURN *",
+    "MATCH (n) WHERE NOT exists((n)-->()) RETURN *"
+  )
+
   testNoRewrite("RETURN (n)--(m)")
 
   testNoRewrite("RETURN [(n)--(m) | n.prop]")
@@ -151,6 +172,12 @@ class normalizeExistsPatternExpressionsTest extends CypherFunSuite with AstConst
   testNoRewrite("MATCH (n) WHERE size((n)--(m))>1 RETURN n")
 
   testNoRewrite("MATCH (n) WHERE NOT size((n)--(m))>1 RETURN n")
+
+  testNoRewrite("MATCH (n) WHERE COUNT { (n) } > 0")
+
+  testNoRewrite("MATCH (n) WHERE COUNT { (n)-->() WHERE n.prop > 123 } > 0")
+
+  testNoRewrite("MATCH (n) WHERE COUNT { (n)-->(m) } > 0")
 
   private def testNoRewrite(query: String): Unit = {
     test(query + " is not rewritten") {
@@ -172,7 +199,11 @@ class normalizeExistsPatternExpressionsTest extends CypherFunSuite with AstConst
 
     val checkResult = original.semanticCheck(SemanticState.clean)
     val rewriter =
-      inSequence(normalizeExistsPatternExpressions(checkResult.state), simplifyPredicates(checkResult.state))
+      inSequence(
+        recordScopes(checkResult.state),
+        normalizeExistsPatternExpressions(checkResult.state, new AnonymousVariableNameGenerator),
+        simplifyPredicates(checkResult.state)
+      )
 
     val result = original.rewrite(rewriter)
     assert(result === expected)
