@@ -43,6 +43,7 @@ import org.opencypher.v9_0.rewriting.rewriters.normalizePatternComprehensionPred
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
 import org.opencypher.v9_0.rewriting.rewriters.replaceLiteralDynamicPropertyLookups
 import org.opencypher.v9_0.rewriting.rewriters.rewriteOrderById
+import org.opencypher.v9_0.rewriting.rewriters.rewriteShortestPathWithFixedLengthRelationship
 import org.opencypher.v9_0.rewriting.rewriters.simplifyIterablePredicates
 import org.opencypher.v9_0.rewriting.rewriters.unwrapParenthesizedPath
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
