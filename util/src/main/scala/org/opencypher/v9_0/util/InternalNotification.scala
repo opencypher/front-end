@@ -41,7 +41,4 @@ case class DeprecatedSelfReferenceToVariableInCreatePattern(position: InputPosit
 
 case class SubqueryVariableShadowing(position: InputPosition, varName: String) extends InternalNotification
 
-case class DeprecatedAmbiguousGroupingNotification(pos: InputPosition, hint: Option[String])
-    extends InternalNotification
-
 case class HomeDatabaseNotPresent(databaseName: String) extends InternalNotification
