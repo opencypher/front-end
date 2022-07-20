@@ -18,6 +18,8 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.InputPosition
 
+import scala.annotation.tailrec
+
 object Pattern {
 
   sealed trait SemanticContext {
@@ -153,6 +155,11 @@ case class RelationshipChain(
 
   override def allVariables: Set[LogicalVariable] = element.allVariables ++ relationship.variable ++ rightNode.variable
 
+  @tailrec
+  final def leftNode: NodePattern = element match {
+    case node: NodePattern      => node
+    case rel: RelationshipChain => rel.leftNode
+  }
 }
 
 object RelationshipChain {
