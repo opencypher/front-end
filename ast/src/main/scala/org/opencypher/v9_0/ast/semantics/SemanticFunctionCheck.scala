@@ -60,8 +60,7 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
 
   def check(
     ctx: Expression.SemanticContext,
-    invocation: FunctionInvocation,
-    parents: Seq[Expression] = Seq()
+    invocation: FunctionInvocation
   ): SemanticCheck =
     invocation.function match {
       case f: AggregatingFunction =>
@@ -69,7 +68,7 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
           error(s"Invalid use of aggregating function ${f.name}(...) in this context", invocation.position)
         } chain {
           checkNoNestedAggregateFunctions(invocation) chain
-            SemanticExpressionCheck.check(ctx, invocation.arguments, invocation +: parents) chain
+            SemanticExpressionCheck.check(ctx, invocation.arguments) chain
             semanticCheck(ctx, invocation)
         }
 
@@ -79,7 +78,7 @@ object SemanticFunctionCheck extends SemanticAnalysisTooling {
       case f: Function =>
         when(invocation.distinct) {
           error(s"Invalid use of DISTINCT with function '${f.name}'", invocation.position)
-        } chain SemanticExpressionCheck.check(ctx, invocation.arguments, invocation +: parents) chain semanticCheck(
+        } chain SemanticExpressionCheck.check(ctx, invocation.arguments) chain semanticCheck(
           ctx,
           invocation
         )

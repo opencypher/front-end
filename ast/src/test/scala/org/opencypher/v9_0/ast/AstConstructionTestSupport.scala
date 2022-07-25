@@ -24,6 +24,7 @@ import org.opencypher.v9_0.expressions.AnyIterablePredicate
 import org.opencypher.v9_0.expressions.AssertIsNode
 import org.opencypher.v9_0.expressions.CachedHasProperty
 import org.opencypher.v9_0.expressions.CachedProperty
+import org.opencypher.v9_0.expressions.CaseExpression
 import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Contains
@@ -687,6 +688,12 @@ trait AstConstructionTestSupport extends CypherTestSupport {
     function(Seq("point"), "distance", fromPoint, toPoint)
 
   def assertIsNode(v: String): AssertIsNode = AssertIsNode(varFor(v))(pos)
+
+  def caseExpression(
+    expression: Option[Expression],
+    default: Option[Expression],
+    alternatives: (Expression, Expression)*
+  ): CaseExpression = CaseExpression(expression, alternatives.toIndexedSeq, default)(pos)
 
   implicit class ExpressionOps(expr: Expression) {
     def as(name: String): ReturnItem = AliasedReturnItem(expr, varFor(name))(pos, isAutoAliased = false)

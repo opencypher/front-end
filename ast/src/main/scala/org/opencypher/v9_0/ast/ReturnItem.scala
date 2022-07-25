@@ -26,7 +26,6 @@ import org.opencypher.v9_0.ast.semantics.SemanticCheckable
 import org.opencypher.v9_0.ast.semantics.SemanticError
 import org.opencypher.v9_0.ast.semantics.SemanticExpressionCheck
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalProperty
 import org.opencypher.v9_0.expressions.LogicalVariable
@@ -101,12 +100,7 @@ sealed trait ReturnItem extends ASTNode with SemanticCheckable {
   def isPassThrough: Boolean = alias.contains(expression)
 
   def semanticCheck: SemanticCheck =
-    SemanticExpressionCheck.check(Expression.SemanticContext.Results, expression) chain checkForExists
-
-  private def checkForExists: SemanticCheck = {
-    val invalid: Option[Expression] = expression.folder.treeFind[Expression] { case _: ExistsSubClause => true }
-    invalid.map(exp => SemanticError("The EXISTS subclause is not valid inside a WITH or RETURN clause.", exp.position))
-  }
+    SemanticExpressionCheck.check(Expression.SemanticContext.Results, expression)
 
   def stringify(expressionStringifier: ExpressionStringifier): String
 }
