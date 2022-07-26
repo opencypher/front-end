@@ -18,15 +18,15 @@ package org.opencypher.v9_0.rewriting.rewriters
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.CountExpression
 import org.opencypher.v9_0.expressions.Equals
+import org.opencypher.v9_0.expressions.EveryPath
+import org.opencypher.v9_0.expressions.ExistsSubClause
 import org.opencypher.v9_0.expressions.Expression
-import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.LessThan
 import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternComprehension
 import org.opencypher.v9_0.expressions.PatternExpression
-import org.opencypher.v9_0.expressions.RelationshipChain
-import org.opencypher.v9_0.expressions.RelationshipsPattern
 import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Size
@@ -49,7 +49,9 @@ import org.opencypher.v9_0.util.symbols.CypherType
  *
  * is rewritten to
  *
- * MATCH (n) WHERE EXISTS((n)-->(m)) RETURN n
+ * MATCH (n) WHERE EXISTS { (n)-->(m) } RETURN n
+ *
+ * Any Exists FunctionInvocation is also rewritten to ExistsSubclause.
  *
  * Rewrite equivalent expressions with `size` or `length` to `exists`.
  * This rewrite normalizes this cases and make it easier to plan correctly.
@@ -59,20 +61,19 @@ import org.opencypher.v9_0.util.symbols.CypherType
  * This rewriter needs to run before [[namePatternElements]], which rewrites pattern expressions. Otherwise we don't find them in the semantic table.
  */
 case class normalizeExistsPatternExpressions(
-  semanticState: SemanticState,
-  anonymousVariableNameGenerator: AnonymousVariableNameGenerator
+  semanticState: SemanticState
 ) extends Rewriter {
-
-  private val CountConverter = CountLikeToExistsConverter(anonymousVariableNameGenerator)
 
   private val instance = bottomUp(Rewriter.lift {
     case p: PatternExpression if semanticState.expressionType(p).expected.contains(symbols.CTBoolean.invariant) =>
-      Exists(p)(p.position)
+      ExistsSubClause(Pattern(Seq(EveryPath(p.pattern.element)))(p.position), None)(p.position, p.outerScope)
+    case Exists(p: PatternExpression) =>
+      ExistsSubClause(Pattern(Seq(EveryPath(p.pattern.element)))(p.position), None)(p.position, p.outerScope)
 
-    case GreaterThan(CountConverter(exists), SignedDecimalIntegerLiteral("0")) => exists
-    case LessThan(SignedDecimalIntegerLiteral("0"), CountConverter(exists))    => exists
-    case Equals(CountConverter(exists), SignedDecimalIntegerLiteral("0"))      => Not(exists)(exists.position)
-    case Equals(SignedDecimalIntegerLiteral("0"), CountConverter(exists))      => Not(exists)(exists.position)
+    case GreaterThan(CountLikeToExistsConverter(exists), SignedDecimalIntegerLiteral("0")) => exists
+    case LessThan(SignedDecimalIntegerLiteral("0"), CountLikeToExistsConverter(exists))    => exists
+    case Equals(CountLikeToExistsConverter(exists), SignedDecimalIntegerLiteral("0")) => Not(exists)(exists.position)
+    case Equals(SignedDecimalIntegerLiteral("0"), CountLikeToExistsConverter(exists)) => Not(exists)(exists.position)
   })
 
   override def apply(v: AnyRef): AnyRef = instance(v)
@@ -96,28 +97,20 @@ case object normalizeExistsPatternExpressions extends StepSequencer.Step with AS
     parameterTypeMapping: Map[String, CypherType],
     cypherExceptionFactory: CypherExceptionFactory,
     anonymousVariableNameGenerator: AnonymousVariableNameGenerator
-  ): Rewriter = normalizeExistsPatternExpressions(semanticState, anonymousVariableNameGenerator)
+  ): Rewriter = normalizeExistsPatternExpressions(semanticState)
 }
 
-final case class CountLikeToExistsConverter(anonymousVariableNameGenerator: AnonymousVariableNameGenerator) {
+case object CountLikeToExistsConverter {
 
-  def unapply(expression: Expression): Option[FunctionInvocation] = expression match {
-
-    // size((n)--(m))
-    case Size(p: PatternExpression) =>
-      Some(Exists(p)(p.position))
+  def unapply(expression: Expression): Option[ExistsSubClause] = expression match {
 
     // size([pt = (n)--(m) | pt])
-    case Size(p @ PatternComprehension(maybePt, pattern, None, _)) if p.introducedVariables == maybePt.toSet =>
-      val exists =
-        Exists(PatternExpression(pattern)(p.outerScope))(p.position)
-      Some(exists)
+    case Size(p @ PatternComprehension(_, pattern, predicate, _)) =>
+      Some(ExistsSubClause(Pattern(Seq(EveryPath(pattern.element)))(p.position), predicate)(p.position, p.outerScope))
 
     // COUNT { (n)--(m) }
-    case ce @ CountExpression(pattern: RelationshipChain, None) if ce.introducedVariables.isEmpty =>
-      val relPattern = RelationshipsPattern(pattern)(pattern.position)
-      val exists = Exists(PatternExpression(relPattern)(ce.outerScope))(ce.position)
-      Some(exists)
+    case ce @ CountExpression(pattern, predicate) =>
+      Some(ExistsSubClause(Pattern(Seq(EveryPath(pattern)))(ce.position), predicate)(ce.position, ce.outerScope))
 
     case _ =>
       None
