@@ -26,7 +26,7 @@ import org.opencypher.v9_0.ast.UseGraph
 import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.EveryPath
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.LabelExpressionPredicate
 import org.opencypher.v9_0.expressions.ListSlice
 import org.opencypher.v9_0.expressions.Pattern
@@ -88,26 +88,26 @@ class ParserPositionTest extends CypherFunSuite with TestName {
   }
 
   test("MATCH (n) WHERE exists { (n) --> () }") {
-    val exists = javaCcAST(testName).folder.treeFindByClass[ExistsSubClause].get
+    val exists = javaCcAST(testName).folder.treeFindByClass[ExistsExpression].get
     exists.position shouldBe InputPosition(16, 1, 17)
     exists.folder.treeFindByClass[Pattern].get.position shouldBe InputPosition(25, 1, 26)
   }
 
   test("MATCH (n) WHERE exists { MATCH (n)-[r]->(m) }") {
-    val exists = javaCcAST(testName).folder.treeFindByClass[ExistsSubClause].get
+    val exists = javaCcAST(testName).folder.treeFindByClass[ExistsExpression].get
     exists.position shouldBe InputPosition(16, 1, 17)
     exists.folder.treeFindByClass[Pattern].get.position shouldBe InputPosition(31, 1, 32)
   }
 
   test("MATCH (n) WHERE exists { MATCH (m) WHERE exists { (n)-[]->(m) } }") {
-    val existClause = javaCcAST(testName).folder.findAllByClass[ExistsSubClause]
-    existClause match {
+    val existsExpressions = javaCcAST(testName).folder.findAllByClass[ExistsExpression]
+    existsExpressions match {
       case exists :: existsNested :: Nil =>
         exists.position shouldBe InputPosition(16, 1, 17)
         exists.folder.treeFindByClass[Pattern].get.position shouldBe InputPosition(31, 1, 32)
         existsNested.position shouldBe InputPosition(41, 1, 42)
         existsNested.folder.treeFindByClass[Pattern].get.position shouldBe InputPosition(50, 1, 51)
-      case _ => fail("Expected exists subclause to be a Seq of length 2")
+      case _ => fail("Expected existsExpressions to be a Seq of length 2")
     }
   }
 

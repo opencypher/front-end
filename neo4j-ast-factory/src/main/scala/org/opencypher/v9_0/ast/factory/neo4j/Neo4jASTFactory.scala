@@ -324,7 +324,7 @@ import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.EveryPath
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.False
@@ -1086,7 +1086,7 @@ class Neo4jASTFactory(query: String)
   override def existsSubQuery(p: InputPosition, patterns: util.List[PatternPart], where: Expression): Expression = {
     val patternParts = patterns.asScala.toList
     val patternPos = patternParts.head.position
-    ExistsSubClause(Pattern(patternParts)(patternPos), Option(where))(p, Set.empty)
+    ExistsExpression(Pattern(patternParts)(patternPos), Option(where))(p, Set.empty)
   }
 
   override def countSubQuery(

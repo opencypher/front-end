@@ -307,7 +307,7 @@ import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.EntityType
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.EveryPath
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractScope
@@ -808,13 +808,13 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     pattern <- _shortestPaths
   } yield ShortestPathExpression(pattern)
 
-  def _existsSubClause: Gen[ExistsSubClause] = for {
+  def _existsExpression: Gen[ExistsExpression] = for {
     pattern <- _pattern
     where <- option(_expression)
     outerScope <- zeroOrMore(_variable)
-  } yield ExistsSubClause(pattern, where)(pos, outerScope.toSet)
+  } yield ExistsExpression(pattern, where)(pos, outerScope.toSet)
 
-  def _countSubClause: Gen[CountExpression] = for {
+  def _countExpression: Gen[CountExpression] = for {
     element <- _patternElement
     where <- option(_expression)
     outerScope <- zeroOrMore(_variable)
@@ -866,8 +866,8 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
         lzy(_listSlice),
         lzy(_listComprehension),
         lzy(_containerIndex),
-        lzy(_existsSubClause),
-        lzy(_countSubClause),
+        lzy(_existsExpression),
+        lzy(_countExpression),
         lzy(_patternComprehension)
       )
     )

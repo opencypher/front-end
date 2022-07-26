@@ -19,7 +19,7 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
 import org.opencypher.v9_0.expressions.And
 import org.opencypher.v9_0.expressions.Equals
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Or
@@ -72,7 +72,7 @@ case object transitiveClosure extends StatementRewriter with StepSequencer.Step 
     // NOTE that this might introduce duplicate predicates, however at a later rewrite
     // when AND is turned into ANDS we remove all duplicates
     private val whereRewriter: Rewriter = bottomUp(Rewriter.lift {
-      case and @ (And(_, _: ExistsSubClause) | And(_: ExistsSubClause, _)) =>
+      case and @ (And(_, _: ExistsExpression) | And(_: ExistsExpression, _)) =>
         and
       case and @ And(lhs, rhs) =>
         val closures = collect(lhs) ++ collect(rhs)

@@ -40,7 +40,7 @@ import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.EntityType
 import org.opencypher.v9_0.expressions.Equals
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.Expression.SemanticContext
 import org.opencypher.v9_0.expressions.ExtractScope
@@ -659,7 +659,7 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
         x.semanticCheck(ctx)
 
       // EXISTS
-      case x: ExistsSubClause =>
+      case x: ExistsExpression =>
         SemanticState.recordCurrentScope(x) chain
           withScopedState { // saves us from leaking to the outside
             SemanticPatternCheck.check(Pattern.SemanticContext.Match, x.pattern) chain

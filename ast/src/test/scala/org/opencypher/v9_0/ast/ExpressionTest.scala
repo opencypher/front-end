@@ -17,7 +17,7 @@ package org.opencypher.v9_0.ast
 
 import org.opencypher.v9_0.expressions.CountExpression
 import org.opencypher.v9_0.expressions.EveryPath
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.LogicalVariable
 import org.opencypher.v9_0.expressions.NodePattern
@@ -152,7 +152,7 @@ class ExpressionTest extends CypherFunSuite with AstConstructionTestSupport {
     ))
   }
 
-  test("should compute dependencies for exists subclause with node predicate") {
+  test("should compute dependencies for exists expression with node predicate") {
     // MATCH (n) WHERE EXISTS { (n)-[r]->(p) WHERE n.prop = p.prop }
     val relChain = RelationshipChain(
       NodePattern(Some(varFor("n")), None, None, None) _,
@@ -164,12 +164,12 @@ class ExpressionTest extends CypherFunSuite with AstConstructionTestSupport {
 
     val where = equals(prop(varFor("n"), "prop"), prop(varFor("p"), "prop"))
 
-    val expr = ExistsSubClause(pattern, Some(where))(pos, Set.empty)
+    val expr = ExistsExpression(pattern, Some(where))(pos, Set.empty)
 
     expr.withOuterScope(Set(varFor("n"))).dependencies should equal(Set(varFor("n")))
   }
 
-  test("should compute dependencies for exists subclause with relationship predicate") {
+  test("should compute dependencies for exists expression with relationship predicate") {
     // MATCH (n)-[r1]->(p1) WHERE EXISTS { (n)-[r2]->(p2) WHERE r1.prop = r2.prop }
     val relChain = RelationshipChain(
       NodePattern(Some(varFor("n")), None, None, None) _,
@@ -181,13 +181,13 @@ class ExpressionTest extends CypherFunSuite with AstConstructionTestSupport {
 
     val where = equals(prop(varFor("r1"), "prop"), prop(varFor("r2"), "prop"))
 
-    val expr = ExistsSubClause(pattern, Some(where))(pos, Set.empty)
+    val expr = ExistsExpression(pattern, Some(where))(pos, Set.empty)
 
     val outerVariables: Set[LogicalVariable] = Set(varFor("n"), varFor("r1"), varFor("p1"))
     expr.withOuterScope(outerVariables).dependencies should equal(Set(varFor("n"), varFor("r1")))
   }
 
-  test("should compute dependencies for count subclause with node predicate") {
+  test("should compute dependencies for count expression with node predicate") {
     // COUNT { (n)-[r]->(p) WHERE n.prop = p.prop }
     val pattern = RelationshipChain(
       NodePattern(Some(varFor("n")), None, None, None) _,
@@ -202,7 +202,7 @@ class ExpressionTest extends CypherFunSuite with AstConstructionTestSupport {
     expr.withOuterScope(Set(varFor("n"))).dependencies should equal(Set(varFor("n")))
   }
 
-  test("should compute dependencies for count subclause with relationship predicate") {
+  test("should compute dependencies for count expression with relationship predicate") {
     // WHERE COUNT { (n)-[r2]->(p2) WHERE r1.prop = r2.prop }
     val pattern = RelationshipChain(
       NodePattern(Some(varFor("n")), None, None, None) _,

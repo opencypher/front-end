@@ -35,7 +35,7 @@ import org.opencypher.v9_0.expressions.DesugaredMapProjection
 import org.opencypher.v9_0.expressions.Divide
 import org.opencypher.v9_0.expressions.EndsWith
 import org.opencypher.v9_0.expressions.Equals
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ExtractScope
 import org.opencypher.v9_0.expressions.FilterScope
@@ -326,7 +326,7 @@ private class DefaultExpressionStringifier(
         // These are not really expressions, they are part of expressions
         ""
 
-      case ExistsSubClause(pat, where) =>
+      case ExistsExpression(pat, where) =>
         val p = patterns.apply(pat)
         val w = where.map(wh => s" WHERE ${inner(ast)(wh)}").getOrElse("")
         s"EXISTS { MATCH $p$w }"

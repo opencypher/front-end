@@ -22,7 +22,7 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.Union.UnionMapping
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
-import org.opencypher.v9_0.expressions.ExistsSubClause
+import org.opencypher.v9_0.expressions.ExistsExpression
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.HasLabels
 import org.opencypher.v9_0.expressions.LabelName
@@ -195,13 +195,13 @@ class NamespacerTest extends CypherFunSuite with AstConstructionTestSupport with
     )
   )
 
-  test("should rewrite outer scope variables of exists subclause even if not used in subclause") {
+  test("should rewrite outer scope variables of EXISTS even if not used in expression") {
     val query = "MATCH (n) WHERE EXISTS { MATCH (p:Label) } WITH n as m, 1 as n RETURN m, n"
 
     val statement = prepareFrom(query, rewriterPhaseUnderTest).statement()
 
     val outerScope = statement.folder.treeFold(Set.empty[LogicalVariable]) {
-      case expr: ExistsSubClause =>
+      case expr: ExistsExpression =>
         acc => TraverseChildren(acc ++ expr.outerScope)
     }
 
