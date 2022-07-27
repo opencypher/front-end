@@ -20,7 +20,7 @@ import org.opencypher.v9_0.util.InputPosition
 case class CountExpression(pattern: PatternElement, optionalWhereExpression: Option[Expression])(
   val position: InputPosition,
   override val outerScope: Set[LogicalVariable]
-) extends ScopeExpression with ExpressionWithOuterScope {
+) extends ScopeExpression with ExpressionWithOuterScope with SubqueryExpression {
 
   self =>
 
