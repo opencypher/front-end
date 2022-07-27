@@ -24,12 +24,16 @@ import org.opencypher.v9_0.expressions.FunctionInvocation
 import org.opencypher.v9_0.expressions.FunctionName
 import org.opencypher.v9_0.expressions.LabelExpression.ColonDisjunction
 import org.opencypher.v9_0.expressions.Namespace
+import org.opencypher.v9_0.expressions.NodePattern
+import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
+import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.DeprecatedNodesOrRelationshipsInSetClauseNotification
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
+import org.opencypher.v9_0.util.FixedLengthRelationshipInShortestPath
 import org.opencypher.v9_0.util.InternalNotification
 import org.opencypher.v9_0.util.Ref
 
@@ -62,6 +66,12 @@ object Deprecations {
           Some(Ref(s) -> s.copy(expression =
             functionInvocationForSetProperties(s, e))(s.position)),
           Some(DeprecatedNodesOrRelationshipsInSetClauseNotification(e.position))
+        )
+
+      case ShortestPaths(RelationshipChain(_: NodePattern, relPat @ RelationshipPattern(_, _, None, _, _, _), _), _) =>
+        Deprecation(
+          None,
+          Some(FixedLengthRelationshipInShortestPath(relPat.position))
         )
     }
   }
