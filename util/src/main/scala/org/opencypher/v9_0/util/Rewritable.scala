@@ -15,7 +15,6 @@
  */
 package org.opencypher.v9_0.util
 
-import jdk.jshell.spi.ExecutionControl.InternalException
 import org.opencypher.v9_0.util.Foldable.TreeAny
 import org.opencypher.v9_0.util.Rewritable.RewritableAny
 
@@ -208,7 +207,7 @@ object topDown {
               val doneJob = Rewritable.dupAny(job, newChildren.toSeq)
               stack.push((jobs, doneJobs += doneJob))
               rec(stack)
-            case _ => throw new InternalException("Empty job")
+            case _ => throw new IllegalStateException("Empty job")
           }
         }
       } else {
@@ -222,7 +221,7 @@ object topDown {
               stack.push((rewrittenJob.treeChildren.toList, new mutable.ListBuffer()))
             }
             rec(stack)
-          case _ => throw new InternalException("Empty job")
+          case _ => throw new IllegalStateException("Empty job")
         }
       }
     }
@@ -268,7 +267,7 @@ object topDownWithParent {
               val doneJob = Rewritable.dupAny(job, newChildren.toSeq)
               stack.push((jobs, doneJobs += doneJob))
               rec(stack)
-            case _ => throw new InternalException(s"Empty job")
+            case _ => throw new IllegalStateException(s"Empty job")
           }
         }
       } else {
@@ -290,7 +289,7 @@ object topDownWithParent {
               stack.push((rewrittenJob.treeChildren.toList, new ListBuffer()))
             }
             rec(stack)
-          case _ => throw new InternalException("Empty jobs")
+          case _ => throw new IllegalStateException("Empty jobs")
         }
       }
     }
@@ -331,7 +330,7 @@ object bottomUp {
               val rewrittenDoneJob = doneJob.rewrite(rewriter)
               stack.push((jobs, doneJobs += rewrittenDoneJob))
               rec(stack)
-            case _ => throw new InternalException("No jobs")
+            case _ => throw new IllegalStateException("No jobs")
           }
         }
       } else {
@@ -339,7 +338,7 @@ object bottomUp {
         if (stopper(next)) {
           stack.pop() match {
             case (job :: jobs, doneJobs) => stack.push((jobs, doneJobs += job))
-            case _                       => throw new InternalException("No jobs")
+            case _                       => throw new IllegalStateException("No jobs")
           }
         } else {
           stack.push((next.treeChildren.toList, new ListBuffer()))
@@ -390,7 +389,7 @@ object bottomUpWithRecorder {
                 recorder(doneJob, rewrittenDoneJob)
               stack.push((jobs, doneJobs += rewrittenDoneJob))
               rec(stack)
-            case _ => throw new InternalException("Empty jobs")
+            case _ => throw new IllegalStateException("Empty jobs")
           }
         }
       } else {
@@ -398,7 +397,7 @@ object bottomUpWithRecorder {
         if (stopper(next)) {
           stack.pop() match {
             case (job :: jobs, doneJobs) => stack.push((jobs, doneJobs += job))
-            case _                       => throw new InternalException("Empty jobs")
+            case _                       => throw new IllegalStateException("Empty jobs")
           }
         } else {
           stack.push((next.treeChildren.toList, new ListBuffer()))

@@ -15,8 +15,6 @@
  */
 package org.opencypher.v9_0.util.helpers
 
-import jdk.jshell.spi.ExecutionControl.InternalException
-
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
@@ -130,7 +128,7 @@ abstract class TreeZipper[E <: TreeElem[E] : ClassTag] {
       case Location(Children(Seq(head, tail @ _*)), _) =>
         Some(Location(head, TreeContext(Nil, self, tail.toList)))
 
-      case other => throw new InternalException(s"Unexpected type $other")
+      case other => throw new IllegalStateException(s"Unexpected type $other")
     }
 
     def up: Option[Location] = self match {
