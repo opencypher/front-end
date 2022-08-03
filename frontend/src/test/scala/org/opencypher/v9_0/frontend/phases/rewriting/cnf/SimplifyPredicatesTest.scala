@@ -24,6 +24,7 @@ import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.False
 import org.opencypher.v9_0.expressions.IsNotNull
+import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Null
 import org.opencypher.v9_0.expressions.Ors
@@ -81,6 +82,11 @@ class SimplifyPredicatesTest extends CypherFunSuite {
   test("NOT IS NULL is rewritten") {
     // not(isNull(P)) <=> isNotNull(P)
     assertRewrittenMatches("NOT( 'P' IS NULL )", { case IsNotNull(StringLiteral("P")) => () })
+  }
+
+  test("NOT IS NOT NULL is rewritten") {
+    // not(isNotNull(P)) <=> isNull(P)
+    assertRewrittenMatches("NOT( 'P' IS NOT NULL )", { case IsNull(StringLiteral("P")) => () })
   }
 
   test("Simplify OR of identical expressions with interspersed condition") {
