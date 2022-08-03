@@ -675,6 +675,7 @@ object ShowDatabase {
       (ShowColumn("creationTime", CTDateTime)(position), false),
       (ShowColumn("lastStartTime", CTDateTime)(position), false),
       (ShowColumn("lastStopTime", CTDateTime)(position), false),
+      (ShowColumn("store")(position), false),
       (ShowColumn("lastCommittedTxn", CTInteger)(position), false),
       (ShowColumn("replicationLag", CTInteger)(position), false)
     )
