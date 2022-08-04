@@ -3001,7 +3001,7 @@ EXPRESSION CountSubQuery() :
     EXPRESSION where = null;
 }
 {
-    t=<COUNT> <LCURLY> pattern=EveryPathPattern()( <WHERE> where=Expression() )? <RCURLY>
+    t=<COUNT> <LCURLY> ( LOOKAHEAD( 2 ) <MATCH> )? pattern=EveryPathPattern()( <WHERE> where=Expression() )? <RCURLY>
     {
         return astFactory.countSubQuery( pos( t ), pattern, where );
     }
