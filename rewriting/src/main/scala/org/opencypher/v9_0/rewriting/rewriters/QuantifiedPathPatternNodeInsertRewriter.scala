@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
-import org.opencypher.v9_0.expressions.CountExpression
 import org.opencypher.v9_0.expressions.EveryPath
 import org.opencypher.v9_0.expressions.NodePattern
 import org.opencypher.v9_0.expressions.PathConcatenation
@@ -64,16 +63,8 @@ case object QuantifiedPathPatternNodeInsertRewriter extends StepSequencer.Step w
     )
 
   val instance: Rewriter = topDown(Rewriter.lift {
-    // A `PatternElement` occurs only in `ShortestPaths`, `EveryPath` and `CountExpressions`
-    // However, `ShortestPaths` may only contain `RelationshipChain`s. That's why we
-    // only need to check the other 2.
-    case ce @ CountExpression(p @ PathConcatenation(factors), _) =>
-      val newFactors = padQuantifiedPathPatterns(factors)
-      ce.copy(PathConcatenation(newFactors)(p.position))(ce.position, ce.outerScope)
-
-    case ce @ CountExpression(q: QuantifiedPath, _) =>
-      ce.copy(PathConcatenation(Seq(filler, q, filler))(q.position))(ce.position, ce.outerScope)
-
+    // A `PatternElement` occurs only in `ShortestPaths` and `EveryPath`
+    // However, `ShortestPaths` may only contain `RelationshipChain`s.
     case EveryPath(p @ PathConcatenation(factors)) =>
       val newFactors = padQuantifiedPathPatterns(factors)
       EveryPath(PathConcatenation(newFactors)(p.position))
