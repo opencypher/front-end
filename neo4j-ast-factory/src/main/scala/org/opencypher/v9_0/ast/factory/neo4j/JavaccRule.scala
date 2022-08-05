@@ -29,7 +29,6 @@ import org.opencypher.v9_0.expressions.RelationshipPattern
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.parser.javacc.Cypher
 import org.opencypher.v9_0.parser.javacc.CypherCharStream
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 
 trait JavaccRule[+T] {
@@ -92,7 +91,7 @@ object JavaccRule {
   // noinspection TypeAnnotation
   val cypherJavaccParserFactory = ParserFactory { queryText: String =>
     val charStream = new CypherCharStream(queryText)
-    val astFactory = new Neo4jASTFactory(queryText, new AnonymousVariableNameGenerator())
+    val astFactory = new Neo4jASTFactory(queryText)
     val astExceptionFactory = new Neo4jASTExceptionFactory(exceptionFactory)
     new Cypher(astFactory, astExceptionFactory, charStream)
   }

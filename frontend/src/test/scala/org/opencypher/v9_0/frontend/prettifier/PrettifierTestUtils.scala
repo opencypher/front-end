@@ -92,6 +92,6 @@ trait PrettifierTestUtils extends Matchers {
   }
 
   private def parse(original: String): Statement =
-    JavaCCParser.parse(original, OpenCypherExceptionFactory(None), new AnonymousVariableNameGenerator)
+    JavaCCParser.parse(original, OpenCypherExceptionFactory(None))
 
 }
