@@ -1051,7 +1051,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
       RelationshipsPattern(pattern.element.asInstanceOf[RelationshipChain])(relationshipPatternPosition),
       Option(where),
       projection
-    )(p, Set.empty, anonymousVariableNameGenerator.nextName, anonymousVariableNameGenerator.nextName)
+    )(p, Set.empty)
 
   override def reduceExpression(
     p: InputPosition,
@@ -1081,9 +1081,7 @@ class Neo4jASTFactory(query: String, anonymousVariableNameGenerator: AnonymousVa
         ShortestPathExpression(paths)
       case _ =>
         PatternExpression(RelationshipsPattern(pattern.element.asInstanceOf[RelationshipChain])(p))(
-          Set.empty,
-          anonymousVariableNameGenerator.nextName,
-          anonymousVariableNameGenerator.nextName
+          Set.empty
         )
     }
 

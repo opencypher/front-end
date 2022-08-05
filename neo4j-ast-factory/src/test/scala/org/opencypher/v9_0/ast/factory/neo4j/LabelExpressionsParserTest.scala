@@ -572,9 +572,9 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
               nodePat(Some("n"))
             )(pos)
           )(pos)
-        )(Set.empty, "", "")),
+        )(Set.empty)),
         varFor("p")
-      )(pos, Set.empty, "", "")
+      )(pos, Set.empty)
     }
   }
 
@@ -600,7 +600,7 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
         )((1, 2, 1)),
         predicate = None,
         projection = prop("b", "prop")
-      )((1, 1, 0), Set.empty, "  UNNAMED0", "  UNNAMED1")
+      )((1, 1, 0), Set.empty)
     }
   }
 
@@ -635,7 +635,7 @@ class ExpressionLabelExpressionsParserTest extends CypherFunSuite with JavaccPar
           )(pos),
           RelationshipPattern(None, None, None, None, None, BOTH)(pos),
           NodePattern(None, None, None, None)(pos)
-        )(pos))(pos))(Set.empty, "", "")),
+        )(pos))(pos))(Set.empty)),
         Some(varFor("x"))
       )
     }

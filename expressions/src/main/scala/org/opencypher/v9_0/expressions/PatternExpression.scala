@@ -18,10 +18,8 @@ package org.opencypher.v9_0.expressions
 import org.opencypher.v9_0.util.InputPosition
 
 case class PatternExpression(pattern: RelationshipsPattern)(
-  override val outerScope: Set[LogicalVariable],
-  override val variableToCollectName: String,
-  override val collectionName: String
-) extends ScopeExpression with ExpressionWithOuterScope with RollupApplySolvable with SubqueryExpression {
+  override val outerScope: Set[LogicalVariable]
+) extends ScopeExpression with ExpressionWithOuterScope with SubqueryExpression {
 
   override def position: InputPosition = pattern.position
 
@@ -32,11 +30,11 @@ case class PatternExpression(pattern: RelationshipsPattern)(
   override def scopeDependencies: Set[LogicalVariable] = patternVariables intersect outerScope
 
   override def withOuterScope(outerScope: Set[LogicalVariable]): PatternExpression =
-    copy()(outerScope, variableToCollectName, collectionName)
+    copy()(outerScope)
 
   override def dup(children: Seq[AnyRef]): this.type = {
     PatternExpression(
       children.head.asInstanceOf[RelationshipsPattern]
-    )(outerScope, variableToCollectName, collectionName).asInstanceOf[this.type]
+    )(outerScope).asInstanceOf[this.type]
   }
 }

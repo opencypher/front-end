@@ -41,7 +41,7 @@ class noUnnamedPatternElementsInPatternComprehensionTest extends CypherFunSuite 
       ) _,
       None,
       literalString("foo")
-    )(pos, Set.empty, "", "")
+    )(pos, Set.empty)
 
     condition(input) should equal(Seq(s"Expression $input contains pattern elements which are not named"))
   }
@@ -58,7 +58,7 @@ class noUnnamedPatternElementsInPatternComprehensionTest extends CypherFunSuite 
       ) _,
       None,
       literalString("foo")
-    )(pos, Set.empty, "", "")
+    )(pos, Set.empty)
 
     condition(input) shouldBe empty
   }
