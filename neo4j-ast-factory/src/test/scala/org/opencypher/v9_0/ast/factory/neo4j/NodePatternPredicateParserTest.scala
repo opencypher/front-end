@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.expressions.NodePattern
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.TestName

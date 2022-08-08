@@ -20,7 +20,6 @@ import org.opencypher.v9_0.ast.UnaliasedReturnItem
 import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.util.ASTNode
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp

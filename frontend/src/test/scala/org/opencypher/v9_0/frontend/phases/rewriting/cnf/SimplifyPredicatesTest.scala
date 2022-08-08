@@ -33,7 +33,6 @@ import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.expressions.True
 import org.opencypher.v9_0.logical.plans.CoerceToPredicate
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.symbols.CTAny

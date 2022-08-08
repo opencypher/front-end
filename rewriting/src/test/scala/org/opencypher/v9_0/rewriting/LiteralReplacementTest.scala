@@ -22,7 +22,6 @@ import org.opencypher.v9_0.rewriting.rewriters.Forced
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.bottomUp

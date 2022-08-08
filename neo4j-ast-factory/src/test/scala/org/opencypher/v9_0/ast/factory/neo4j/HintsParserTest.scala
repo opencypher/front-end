@@ -23,7 +23,6 @@ import org.opencypher.v9_0.ast.UsingIndexHint
 import org.opencypher.v9_0.ast.UsingPointIndexType
 import org.opencypher.v9_0.ast.UsingRangeIndexType
 import org.opencypher.v9_0.ast.UsingTextIndexType
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.opencypher.v9_0.util.test_helpers.TestName

@@ -44,7 +44,6 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.rewriting.rewriters.expandStar
 import org.opencypher.v9_0.rewriting.rewriters.normalizeWithAndReturnClauses
 import org.opencypher.v9_0.rewriting.rewriters.projectNamedPaths
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.devNullLogger
 import org.opencypher.v9_0.util.inSequence

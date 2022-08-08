@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.Query
 import org.opencypher.v9_0.frontend.phases.rewriting.cnf.flattenBooleanOperators
 import org.opencypher.v9_0.rewriting.AstRewritingTestSupport
 import org.opencypher.v9_0.rewriting.rewriters.mergeInPredicates
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite

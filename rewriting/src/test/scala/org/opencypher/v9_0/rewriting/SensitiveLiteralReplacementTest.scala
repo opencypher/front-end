@@ -22,7 +22,6 @@ import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.expressions.SensitiveStringLiteral
 import org.opencypher.v9_0.rewriting.rewriters.sensitiveLiteralReplacement
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 import org.scalatest.matchers.Matcher

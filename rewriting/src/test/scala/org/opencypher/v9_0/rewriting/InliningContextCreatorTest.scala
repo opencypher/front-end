@@ -16,7 +16,6 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.rewriting.rewriters.inliningContextCreator
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 

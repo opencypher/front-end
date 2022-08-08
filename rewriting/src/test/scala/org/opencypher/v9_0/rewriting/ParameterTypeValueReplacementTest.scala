@@ -19,7 +19,6 @@ import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.ast.factory.neo4j.JavaCCParser
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.rewriting.rewriters.parameterValueTypeReplacement
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.symbols.CTBoolean
 import org.opencypher.v9_0.util.symbols.CTInteger

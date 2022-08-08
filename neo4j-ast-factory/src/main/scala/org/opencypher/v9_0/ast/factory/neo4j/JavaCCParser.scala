@@ -18,7 +18,6 @@ package org.opencypher.v9_0.ast.factory.neo4j
 import org.opencypher.v9_0.ast.Statement
 import org.opencypher.v9_0.parser.javacc.Cypher
 import org.opencypher.v9_0.parser.javacc.CypherCharStream
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
 import org.opencypher.v9_0.util.InputPosition
 

@@ -26,7 +26,6 @@ import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.pathCollectionSymbol
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.scope
 import org.opencypher.v9_0.ast.semantics.ScopeTestHelper.typedSymbol
 import org.opencypher.v9_0.frontend.phases.Namespacer
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Ref
 import org.opencypher.v9_0.util.symbols.StorableType

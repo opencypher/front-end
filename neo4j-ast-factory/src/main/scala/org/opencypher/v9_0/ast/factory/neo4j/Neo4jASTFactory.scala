@@ -411,7 +411,6 @@ import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.expressions.VariableSelector
 import org.opencypher.v9_0.expressions.Xor
 import org.opencypher.v9_0.parser.javacc.EntityType
-import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTMap
