@@ -21,6 +21,7 @@ import org.opencypher.v9_0.expressions.ExplicitParameter
 import org.opencypher.v9_0.rewriting.rewriters.Forced
 import org.opencypher.v9_0.rewriting.rewriters.IfNoParameter
 import org.opencypher.v9_0.rewriting.rewriters.LiteralExtractionStrategy
+import org.opencypher.v9_0.rewriting.rewriters.Never
 import org.opencypher.v9_0.rewriting.rewriters.literalReplacement
 import org.opencypher.v9_0.util.OpenCypherExceptionFactory
 import org.opencypher.v9_0.util.Rewriter
@@ -48,6 +49,10 @@ class LiteralReplacementTest extends CypherFunSuite {
     assertRewrite("RETURN 'apa' as result", "RETURN $`  AUTOSTRING0` as result", Map("  AUTOSTRING0" -> "apa"))
     assertRewrite("RETURN \"apa\" as result", "RETURN $`  AUTOSTRING0` as result", Map("  AUTOSTRING0" -> "apa"))
     assertRewrite("RETURN [1, 2, 3] as result", "RETURN $`  AUTOLIST0` as result", Map("  AUTOLIST0" -> Seq(1, 2, 3)))
+  }
+
+  test("should not extract literals if configured to never extract") {
+    assertRewrite("RETURN 1 as result", "RETURN 1 as result", Map.empty, extractLiterals = Never)
   }
 
   test("should not extract boolean literals in return clause") {
@@ -119,11 +124,21 @@ class LiteralReplacementTest extends CypherFunSuite {
     )
   }
 
-  test("should not rewrite queries that already have params in them") {
+  test("should rewrite queries that already have params in them if so configured") {
+    assertRewrite(
+      "CREATE (a:Person {name:'Jakub', age:$age })",
+      "CREATE (a:Person {name: $`  AUTOSTRING0`, age:$age })",
+      Map("  AUTOSTRING0" -> "Jakub"),
+      extractLiterals = Forced
+    )
+  }
+
+  test("should not rewrite queries that already have params in them if so configured") {
     assertRewrite(
       "CREATE (a:Person {name:'Jakub', age:$age })",
       "CREATE (a:Person {name:'Jakub', age:$age })",
-      Map.empty
+      Map.empty,
+      extractLiterals = IfNoParameter
     )
   }
 
@@ -167,7 +182,7 @@ class LiteralReplacementTest extends CypherFunSuite {
     originalQuery: String,
     expectedQuery: String,
     replacements: Map[String, Any],
-    extractLiterals: LiteralExtractionStrategy = IfNoParameter
+    extractLiterals: LiteralExtractionStrategy = Forced
   ): Unit = {
     val exceptionFactory = OpenCypherExceptionFactory(None)
     val original = JavaCCParser.parse(originalQuery, exceptionFactory)
