@@ -60,9 +60,10 @@ class ExpandShowWhereTest extends CypherFunSuite with RewriteTest {
           "access",
           "address",
           "role",
+          "writer",
           "requestedStatus",
           "currentStatus",
-          "error",
+          "statusMessage",
           "default",
           "home"
         )
