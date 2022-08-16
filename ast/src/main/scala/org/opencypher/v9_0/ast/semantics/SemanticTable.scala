@@ -29,6 +29,7 @@ import org.opencypher.v9_0.util.PropertyKeyId
 import org.opencypher.v9_0.util.RelTypeId
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.symbols.CTAny
+import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
@@ -127,6 +128,8 @@ class SemanticTable(
   def isNodeCollection(expr: String): Boolean = getTypeFor(expr) == CTList(CTNode).invariant
 
   def isNode(expr: Expression): Boolean = types(expr).specified == CTNode.invariant
+
+  def isInteger(expression: Expression): Boolean = (types(expression).specified & CTInteger.covariant).nonEmpty
 
   /**
    * Same as isNode, but will simply return false if no semantic information is available instead of failing.
