@@ -42,8 +42,8 @@ import org.opencypher.v9_0.util.Foldable
 import org.opencypher.v9_0.util.Foldable.SkipChildren
 import org.opencypher.v9_0.util.Foldable.TraverseChildren
 import org.opencypher.v9_0.util.IdentityMap
-import org.opencypher.v9_0.util.ListSizeBucket
 import org.opencypher.v9_0.util.Rewriter
+import org.opencypher.v9_0.util.SizeBucket
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTFloat
@@ -88,7 +88,8 @@ object literalReplacement {
       acc =>
         if (acc.contains(l)) SkipChildren(acc)
         else {
-          val parameter = AutoExtractedParameter(s"  AUTOSTRING${acc.size}", CTString, l)(l.position)
+          val bucket = SizeBucket.computeBucket(l.value.length)
+          val parameter = AutoExtractedParameter(s"  AUTOSTRING${acc.size}", CTString, l, Some(bucket))(l.position)
           SkipChildren(acc + (l -> LiteralReplacement(parameter, l.value)))
         }
     case l: IntegerLiteral =>
@@ -111,7 +112,7 @@ object literalReplacement {
         else {
           val literals = l.expressions.map(_.asInstanceOf[Literal])
           val innerType = if (literals.nonEmpty && literals.forall(_.isInstanceOf[StringLiteral])) CTString else CTAny
-          val bucket = ListSizeBucket.computeBucket(l.expressions.size)
+          val bucket = SizeBucket.computeBucket(l.expressions.size)
           val parameter = AutoExtractedParameter(
             s"  AUTOLIST${acc.size}",
             CTList(innerType),

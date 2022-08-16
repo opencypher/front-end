@@ -17,14 +17,15 @@ package org.opencypher.v9_0.util
 
 import org.opencypher.v9_0.util.test_helpers.CypherFunSuite
 
-class ListSizeBucketTest extends CypherFunSuite {
+class SizeBucketTest extends CypherFunSuite {
 
   test("test computeBucket") {
-    ListSizeBucket.computeBucket(1) shouldEqual 1
-    ListSizeBucket.computeBucket(7) shouldEqual 10
-    ListSizeBucket.computeBucket(10) shouldEqual 10
-    ListSizeBucket.computeBucket(17) shouldEqual 100
-    ListSizeBucket.computeBucket(42) shouldEqual 100
-    ListSizeBucket.computeBucket(1001) shouldEqual 10000
+    SizeBucket.computeBucket(0) shouldEqual 0
+    SizeBucket.computeBucket(1) shouldEqual 1
+    SizeBucket.computeBucket(7) shouldEqual 10
+    SizeBucket.computeBucket(10) shouldEqual 10
+    SizeBucket.computeBucket(17) shouldEqual 100
+    SizeBucket.computeBucket(42) shouldEqual 100
+    SizeBucket.computeBucket(1001) shouldEqual 10000
   }
 }
