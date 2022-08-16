@@ -38,6 +38,7 @@ import org.opencypher.v9_0.expressions.NoneIterablePredicate
 import org.opencypher.v9_0.expressions.Not
 import org.opencypher.v9_0.expressions.Pattern
 import org.opencypher.v9_0.expressions.PatternPart
+import org.opencypher.v9_0.expressions.QuantifiedPath
 import org.opencypher.v9_0.expressions.RelTypeName
 import org.opencypher.v9_0.expressions.RelationshipChain
 import org.opencypher.v9_0.expressions.RelationshipPattern
@@ -110,6 +111,9 @@ case class AddUniquenessPredicates(anonymousVariableNameGenerator: AnonymousVari
   def collectUniqueRels(pattern: ASTNode): Seq[UniqueRel] =
     pattern.folder.treeFold(Seq.empty[UniqueRel]) {
       case _: ScopeExpression =>
+        acc => SkipChildren(acc)
+
+      case _: QuantifiedPath =>
         acc => SkipChildren(acc)
 
       case _: ShortestPaths =>
