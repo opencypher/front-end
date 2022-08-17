@@ -25,6 +25,7 @@ import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.SetClause
 import org.opencypher.v9_0.ast.Unwind
 import org.opencypher.v9_0.ast.With
+import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.AutoExtractedParameter
 import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.DoubleLiteral
@@ -45,11 +46,10 @@ import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.SizeBucket
 import org.opencypher.v9_0.util.bottomUp
-import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
-import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTString
+import org.opencypher.v9_0.util.symbols.TypeSpec
 
 object literalReplacement {
 
@@ -64,7 +64,7 @@ object literalReplacement {
     })
   }
 
-  private val literalMatcher
+  private def literalMatcher(state: SemanticState)
     : PartialFunction[Any, LiteralReplacements => Foldable.FoldingBehavior[LiteralReplacements]] = {
     case _: Match |
       _: Create |
@@ -79,9 +79,9 @@ object literalReplacement {
       _: Limit =>
       acc => SkipChildren(acc)
     case n: NodePattern =>
-      acc => SkipChildren(n.properties.folder.treeFold(acc)(literalMatcher))
+      acc => SkipChildren(n.properties.folder.treeFold(acc)(literalMatcher(state)))
     case r: RelationshipPattern =>
-      acc => SkipChildren(r.properties.folder.treeFold(acc)(literalMatcher))
+      acc => SkipChildren(r.properties.folder.treeFold(acc)(literalMatcher(state)))
     case ContainerIndex(_, _: StringLiteral) =>
       acc => SkipChildren(acc)
     case l: StringLiteral =>
@@ -111,11 +111,10 @@ object literalReplacement {
         if (acc.contains(l)) SkipChildren(acc)
         else {
           val literals = l.expressions.map(_.asInstanceOf[Literal])
-          val innerType = if (literals.nonEmpty && literals.forall(_.isInstanceOf[StringLiteral])) CTString else CTAny
           val bucket = SizeBucket.computeBucket(l.expressions.size)
           val parameter = AutoExtractedParameter(
             s"  AUTOLIST${acc.size}",
-            CTList(innerType),
+            TypeSpec.cypherTypeForTypeSpec(state.expressionType(l).actual),
             ListOfLiteralWriter(literals),
             Some(bucket)
           )(l.position)
@@ -123,8 +122,8 @@ object literalReplacement {
         }
   }
 
-  private def doIt(term: ASTNode) = {
-    val replaceableLiterals = term.folder.treeFold(IdentityMap.empty: LiteralReplacements)(literalMatcher)
+  private def doIt(term: ASTNode, state: SemanticState) = {
+    val replaceableLiterals = term.folder.treeFold(IdentityMap.empty: LiteralReplacements)(literalMatcher(state))
 
     val extractedParams: Map[String, AnyRef] = replaceableLiterals.map {
       case (_, LiteralReplacement(parameter, value)) => (parameter.name, value)
@@ -133,19 +132,23 @@ object literalReplacement {
     (ExtractParameterRewriter(replaceableLiterals), extractedParams)
   }
 
-  def apply(term: ASTNode, paramExtraction: LiteralExtractionStrategy): (Rewriter, Map[String, Any]) =
+  def apply(
+    term: ASTNode,
+    paramExtraction: LiteralExtractionStrategy,
+    state: SemanticState
+  ): (Rewriter, Map[String, Any]) =
     paramExtraction match {
       case Never =>
         Rewriter.noop -> Map.empty
       case Forced =>
-        doIt(term)
+        doIt(term, state)
       case IfNoParameter =>
         val containsParameter: Boolean = term.folder.treeExists {
           case _: Parameter => true
         }
 
         if (containsParameter) Rewriter.noop -> Map.empty
-        else doIt(term)
+        else doIt(term, state)
     }
 }
 
