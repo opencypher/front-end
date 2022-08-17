@@ -17,6 +17,8 @@ package org.opencypher.v9_0.rewriting.rewriters
 
 import org.opencypher.v9_0.ast.semantics.SemanticState
 import org.opencypher.v9_0.expressions.AnyIterablePredicate
+import org.opencypher.v9_0.expressions.AutoExtractedParameter
+import org.opencypher.v9_0.expressions.ContainerIndex
 import org.opencypher.v9_0.expressions.Equals
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.FilterScope
@@ -24,6 +26,7 @@ import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.NoneIterablePredicate
 import org.opencypher.v9_0.expressions.Not
+import org.opencypher.v9_0.expressions.SignedDecimalIntegerLiteral
 import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
@@ -32,6 +35,7 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
 import org.opencypher.v9_0.util.symbols.CypherType
+import org.opencypher.v9_0.util.symbols.ListType
 
 case object IterablePredicatesRewrittenToIn extends StepSequencer.Condition
 
@@ -82,6 +86,9 @@ object EqualEquivalent {
   def unapply(expression: Expression): Option[(Expression, Expression)] = expression match {
     case Equals(lhs, rhs)                      => Some((lhs, rhs))
     case In(lhs, ListLiteral(Seq(singleItem))) => Some((lhs, singleItem))
-    case _                                     => None
+    // NOTE: we know that for sizeHint=1 the estimation is exact
+    case In(lhs, p @ AutoExtractedParameter(_, _: ListType, _, Some(1))) =>
+      Some((lhs, ContainerIndex(p, SignedDecimalIntegerLiteral("0")(p.position))(p.position)))
+    case _ => None
   }
 }
