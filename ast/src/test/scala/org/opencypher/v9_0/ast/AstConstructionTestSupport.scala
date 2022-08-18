@@ -129,6 +129,8 @@ import org.opencypher.v9_0.expressions.functions.Sum
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.InputPosition
 import org.opencypher.v9_0.util.NonEmptyList
+import org.opencypher.v9_0.util.SizeBucket
+import org.opencypher.v9_0.util.UnknownSize
 import org.opencypher.v9_0.util.symbols.CypherType
 import org.opencypher.v9_0.util.test_helpers.CypherTestSupport
 
@@ -445,7 +447,12 @@ trait AstConstructionTestSupport extends CypherTestSupport {
     sizeHint: Option[Int] = None,
     position: InputPosition = pos
   ): Parameter =
-    AutoExtractedParameter(key, typ, emptyWriter, sizeHint)(position)
+    AutoExtractedParameter(
+      key,
+      typ,
+      emptyWriter,
+      sizeHint.map(i => SizeBucket.computeBucket(i)).getOrElse(UnknownSize)
+    )(position)
 
   def or(lhs: Expression, rhs: Expression): Or = Or(lhs, rhs)(pos)
 

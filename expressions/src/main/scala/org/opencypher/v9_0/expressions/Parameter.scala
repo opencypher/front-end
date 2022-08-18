@@ -15,7 +15,9 @@
  */
 package org.opencypher.v9_0.expressions
 
+import org.opencypher.v9_0.util.BucketSize
 import org.opencypher.v9_0.util.InputPosition
+import org.opencypher.v9_0.util.UnknownSize
 import org.opencypher.v9_0.util.symbols.CypherType
 
 import scala.util.hashing.MurmurHash3
@@ -61,7 +63,7 @@ case class AutoExtractedParameter(
   name: String,
   parameterType: CypherType,
   writer: LiteralWriter,
-  sizeHint: Option[Int] = None
+  sizeHint: BucketSize = UnknownSize
 )(val position: InputPosition) extends Parameter {
   override def hashCode(): Int = MurmurHash3.arrayHash(Array(name, parameterType, sizeHint))
   override def canEqual(that: Any): Boolean = that.isInstanceOf[AutoExtractedParameter]

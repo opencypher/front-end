@@ -31,6 +31,7 @@ import org.opencypher.v9_0.rewriting.conditions.SemanticInfoAvailable
 import org.opencypher.v9_0.rewriting.rewriters.factories.ASTRewriterFactory
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
 import org.opencypher.v9_0.util.CypherExceptionFactory
+import org.opencypher.v9_0.util.ExactSize
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.StepSequencer
 import org.opencypher.v9_0.util.bottomUp
@@ -86,8 +87,7 @@ object EqualEquivalent {
   def unapply(expression: Expression): Option[(Expression, Expression)] = expression match {
     case Equals(lhs, rhs)                      => Some((lhs, rhs))
     case In(lhs, ListLiteral(Seq(singleItem))) => Some((lhs, singleItem))
-    // NOTE: we know that for sizeHint=1 the estimation is exact
-    case In(lhs, p @ AutoExtractedParameter(_, _: ListType, _, Some(1))) =>
+    case In(lhs, p @ AutoExtractedParameter(_, _: ListType, _, ExactSize(1))) =>
       Some((lhs, ContainerIndex(p, SignedDecimalIntegerLiteral("0")(p.position))(p.position)))
     case _ => None
   }
