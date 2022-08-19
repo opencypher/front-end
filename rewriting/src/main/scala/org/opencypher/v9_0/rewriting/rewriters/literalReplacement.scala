@@ -46,10 +46,12 @@ import org.opencypher.v9_0.util.IdentityMap
 import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.SizeBucket
 import org.opencypher.v9_0.util.bottomUp
+import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTFloat
 import org.opencypher.v9_0.util.symbols.CTInteger
+import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTString
-import org.opencypher.v9_0.util.symbols.TypeSpec
+import org.opencypher.v9_0.util.symbols.TypeSpec.cypherTypeForTypeSpec
 
 object literalReplacement {
 
@@ -112,9 +114,15 @@ object literalReplacement {
         else {
           val literals = l.expressions.map(_.asInstanceOf[Literal])
           val bucket = SizeBucket.computeBucket(l.expressions.size)
+          // NOTE: we need to preserve inner type for Strings since that allows us to use the text index, for other types
+          //       we would end up with the same plan anyway so there is no need to keep the inner type.
+          val cypherType =
+            if (cypherTypeForTypeSpec(state.expressionType(l).actual).invariant == CTList(CTString).invariant)
+              CTList(CTString)
+            else CTList(CTAny)
           val parameter = AutoExtractedParameter(
             s"  AUTOLIST${acc.size}",
-            TypeSpec.cypherTypeForTypeSpec(state.expressionType(l).actual),
+            cypherType,
             ListOfLiteralWriter(literals),
             bucket
           )(l.position)
