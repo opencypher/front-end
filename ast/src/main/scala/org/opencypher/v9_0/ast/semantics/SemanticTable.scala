@@ -31,6 +31,7 @@ import org.opencypher.v9_0.util.Rewriter
 import org.opencypher.v9_0.util.symbols.CTAny
 import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
+import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTNode
 import org.opencypher.v9_0.util.symbols.CTRelationship
 import org.opencypher.v9_0.util.symbols.TypeSpec
@@ -143,6 +144,9 @@ class SemanticTable(
    */
   def isRelationshipNoFail(expr: Expression): Boolean =
     types.get(expr).map(_.specified).contains(CTRelationship.invariant)
+
+  def isMapNoFail(expr: Expression): Boolean =
+    types.get(expr).map(_.specified).contains(CTMap.invariant)
 
   def addNode(expr: Variable): SemanticTable =
     addTypeInfo(expr, CTNode.invariant)
