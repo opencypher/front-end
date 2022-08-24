@@ -31,6 +31,7 @@ import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowServers
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.SingleQuery
 import org.opencypher.v9_0.ast.SortItem
@@ -107,6 +108,10 @@ case class normalizeWithAndReturnClauses(
         .withGraph(s.useGraph)
 
     case s @ ShowRoles(_, _, Some(Left((yields, returns))), _) =>
+      s.copy(yieldOrWhere = Some(Left((addAliasesToYield(yields), returns.map(addAliasesToReturn)))))(s.position)
+        .withGraph(s.useGraph)
+
+    case s @ ShowServers(Some(Left((yields, returns))), _) =>
       s.copy(yieldOrWhere = Some(Left((addAliasesToYield(yields), returns.map(addAliasesToReturn)))))(s.position)
         .withGraph(s.useGraph)
 

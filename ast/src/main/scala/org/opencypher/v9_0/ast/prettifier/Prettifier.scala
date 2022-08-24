@@ -59,6 +59,7 @@ import org.opencypher.v9_0.ast.CurrentUser
 import org.opencypher.v9_0.ast.DatabasePrivilege
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DbmsPrivilege
+import org.opencypher.v9_0.ast.DeallocateServers
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
@@ -70,6 +71,7 @@ import org.opencypher.v9_0.ast.DropDatabase
 import org.opencypher.v9_0.ast.DropDatabaseAlias
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.DropRole
+import org.opencypher.v9_0.ast.DropServer
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
@@ -159,6 +161,7 @@ import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowProceduresClause
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
+import org.opencypher.v9_0.ast.ShowServers
 import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserPrivileges
 import org.opencypher.v9_0.ast.ShowUsers
@@ -707,6 +710,25 @@ case class Prettifier(
       case x @ ShowAliases(yields, _) =>
         val (y: String, r: String) = showClausesAsString(yields)
         s"${x.name}$y$r"
+
+      case x @ DropServer(serverName) =>
+        val name = serverName match {
+          case Left(s)          => expr.quote(s)
+          case Right(parameter) => expr(parameter)
+        }
+        s"${x.name} $name"
+
+      case x @ ShowServers(yields, _) =>
+        val (y: String, r: String) = showClausesAsString(yields)
+        s"${x.name}$y$r"
+
+      case x @ DeallocateServers(serverNames) =>
+        val commandString = if (serverNames.length > 1) s"${x.name}S" else x.name
+        val names = serverNames.map {
+          case Left(s)          => expr.quote(s)
+          case Right(parameter) => expr(parameter)
+        }
+        s"$commandString ${names.mkString(", ")}"
     }
     useString + commandString
   }

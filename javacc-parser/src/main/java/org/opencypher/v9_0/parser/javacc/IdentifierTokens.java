@@ -54,6 +54,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.DATA;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DATABASE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DATABASES;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DBMS;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.DEALLOCATE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DEFAULT_TOKEN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DEFINED;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.DELETE;
@@ -244,6 +245,7 @@ public class IdentifierTokens {
             DATABASE,
             DATABASES,
             DBMS,
+            DEALLOCATE,
             DEFAULT_TOKEN,
             DEFINED,
             DELETE,

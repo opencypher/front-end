@@ -225,6 +225,7 @@ class ShowFunctionsCommandParserTest extends AdministrationAndSchemaCommandParse
         |  "RELATIONSHIP"
         |  "ROLE"
         |  "ROLES"
+        |  "SERVERS"
         |  "TEXT"
         |  "TRANSACTION"
         |  "TRANSACTIONS"

@@ -89,6 +89,7 @@ import org.opencypher.v9_0.ast.CurrentUser
 import org.opencypher.v9_0.ast.DatabaseAction
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DbmsAction
+import org.opencypher.v9_0.ast.DeallocateServers
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
@@ -106,6 +107,7 @@ import org.opencypher.v9_0.ast.DropIndexAction
 import org.opencypher.v9_0.ast.DropIndexOnName
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropRoleAction
+import org.opencypher.v9_0.ast.DropServer
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
@@ -232,6 +234,7 @@ import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowServerAction
+import org.opencypher.v9_0.ast.ShowServers
 import org.opencypher.v9_0.ast.ShowTransactionAction
 import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserAction
@@ -2171,10 +2174,31 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     _showAliases
   )
 
+  // Server commands
+
+  def _serverCommand: Gen[AdministrationCommand] = oneOf(
+    _dropServer,
+    _deallocateServer,
+    _showServers
+  )
+
+  def _showServers: Gen[ShowServers] = for {
+    yields <- _eitherYieldOrWhere
+  } yield ShowServers(yields)(pos)
+
+  def _dropServer: Gen[DropServer] = for {
+    serverName <- _nameAsEither
+  } yield DropServer(serverName)(pos)
+
+  def _deallocateServer: Gen[DeallocateServers] = for {
+    servers <- _listOfNameOfEither
+  } yield DeallocateServers(servers)(pos)
+
   // Top level administration command
 
   def _adminCommand: Gen[AdministrationCommand] = for {
-    command <- oneOf(_userCommand, _roleCommand, _privilegeCommand, _multiDatabaseCommand, _aliasCommands)
+    command <-
+      oneOf(_userCommand, _roleCommand, _privilegeCommand, _multiDatabaseCommand, _aliasCommands, _serverCommand)
     use <- frequency(1 -> some(_use), 9 -> const(None))
   } yield command.withGraph(use)
 

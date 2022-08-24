@@ -23,6 +23,7 @@ import org.opencypher.v9_0.ast.ShowDatabase
 import org.opencypher.v9_0.ast.ShowPrivilegeCommands
 import org.opencypher.v9_0.ast.ShowPrivileges
 import org.opencypher.v9_0.ast.ShowRoles
+import org.opencypher.v9_0.ast.ShowServers
 import org.opencypher.v9_0.ast.ShowUsers
 import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.Yield
@@ -50,19 +51,21 @@ case object expandShowWhere extends Step with PreparatoryRewritingRewriterFactor
   val instance: Rewriter = bottomUp(Rewriter.lift {
     // move freestanding WHERE to YIELD * WHERE and add default columns to the YIELD
     case s @ ShowDatabase(_, Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
     case s @ ShowRoles(_, _, Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
     case s @ ShowPrivileges(_, Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
     case s @ ShowPrivilegeCommands(_, _, Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
     case s @ ShowUsers(Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
     case s @ ShowCurrentUser(Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
     case s @ ShowAliases(Some(Right(where)), _) =>
-      s.copy(yieldOrWhere = Some(Left((whereToYield(where, s.defaultColumnNames), None))))(s.position)
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
+    case s @ ShowServers(Some(Right(where)), _) =>
+      s.copy(yieldOrWhere = whereToYield(where, s.defaultColumnNames))(s.position)
 
     // add default columns to explicit YIELD/RETURN * as well
     case s @ ShowDatabase(_, Some(Left((yieldClause, returnClause))), _)
@@ -86,16 +89,22 @@ case object expandShowWhere extends Step with PreparatoryRewritingRewriterFactor
     case s @ ShowAliases(Some(Left((yieldClause, returnClause))), _)
       if yieldClause.returnItems.includeExisting || returnClause.exists(_.returnItems.includeExisting) =>
       s.copy(yieldOrWhere = addDefaultColumns(yieldClause, returnClause, s.defaultColumnNames))(s.position)
+    case s @ ShowServers(Some(Left((yieldClause, returnClause))), _)
+      if yieldClause.returnItems.includeExisting || returnClause.exists(_.returnItems.includeExisting) =>
+      s.copy(yieldOrWhere = addDefaultColumns(yieldClause, returnClause, s.defaultColumnNames))(s.position)
   })
 
-  private def whereToYield(where: Where, defaultColumns: List[String]): Yield =
-    Yield(
-      ReturnItems(includeExisting = true, Seq.empty, Some(defaultColumns))(where.position),
-      None,
-      None,
-      None,
-      Some(where)
-    )(where.position)
+  private def whereToYield(where: Where, defaultColumns: List[String]): Some[Left[(Yield, None.type), Nothing]] =
+    Some(Left((
+      Yield(
+        ReturnItems(includeExisting = true, Seq.empty, Some(defaultColumns))(where.position),
+        None,
+        None,
+        None,
+        Some(where)
+      )(where.position),
+      None
+    )))
 
   private def addDefaultColumns(
     yieldClause: Yield,

@@ -539,6 +539,7 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
          |  "RELATIONSHIP"
          |  "ROLE"
          |  "ROLES"
+         |  "SERVERS"
          |  "TEXT"
          |  "TRANSACTION"
          |  "TRANSACTIONS"

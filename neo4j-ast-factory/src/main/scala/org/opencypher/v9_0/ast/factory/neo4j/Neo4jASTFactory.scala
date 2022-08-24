@@ -95,6 +95,7 @@ import org.opencypher.v9_0.ast.DatabaseResource
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DbmsAction
 import org.opencypher.v9_0.ast.DbmsPrivilege
+import org.opencypher.v9_0.ast.DeallocateServers
 import org.opencypher.v9_0.ast.DefaultDatabaseScope
 import org.opencypher.v9_0.ast.DefaultGraphScope
 import org.opencypher.v9_0.ast.Delete
@@ -117,6 +118,7 @@ import org.opencypher.v9_0.ast.DropNodePropertyExistenceConstraint
 import org.opencypher.v9_0.ast.DropRelationshipPropertyExistenceConstraint
 import org.opencypher.v9_0.ast.DropRole
 import org.opencypher.v9_0.ast.DropRoleAction
+import org.opencypher.v9_0.ast.DropServer
 import org.opencypher.v9_0.ast.DropUniquePropertyConstraint
 import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DropUserAction
@@ -244,6 +246,7 @@ import org.opencypher.v9_0.ast.ShowRoleAction
 import org.opencypher.v9_0.ast.ShowRoles
 import org.opencypher.v9_0.ast.ShowRolesPrivileges
 import org.opencypher.v9_0.ast.ShowServerAction
+import org.opencypher.v9_0.ast.ShowServers
 import org.opencypher.v9_0.ast.ShowTransactionAction
 import org.opencypher.v9_0.ast.ShowTransactionsClause
 import org.opencypher.v9_0.ast.ShowUserAction
@@ -2053,6 +2056,25 @@ class Neo4jASTFactory(query: String)
     }
     list
   }
+
+  // Server commands
+
+  override def dropServer(p: InputPosition, serverName: SimpleEither[String, Parameter]): DropServer =
+    DropServer(serverName.asScala)(p)
+
+  override def showServers(
+    p: InputPosition,
+    yieldExpr: Yield,
+    returnWithoutGraph: Return,
+    where: Where
+  ): ShowServers =
+    ShowServers(yieldOrWhere(yieldExpr, returnWithoutGraph, where))(p)
+
+  override def deallocateServers(
+    p: InputPosition,
+    serverNames: util.List[SimpleEither[String, Parameter]]
+  ): DeallocateServers =
+    DeallocateServers(serverNames.asScala.map(_.asScala).toList)(p)
 
   // Database commands
 
