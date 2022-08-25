@@ -125,6 +125,7 @@ import org.opencypher.v9_0.expressions.functions.Exists
 import org.opencypher.v9_0.expressions.functions.Id
 import org.opencypher.v9_0.expressions.functions.Max
 import org.opencypher.v9_0.expressions.functions.Min
+import org.opencypher.v9_0.expressions.functions.Nodes
 import org.opencypher.v9_0.expressions.functions.Sum
 import org.opencypher.v9_0.util.DummyPosition
 import org.opencypher.v9_0.util.InputPosition
@@ -543,6 +544,10 @@ trait AstConstructionTestSupport extends CypherTestSupport {
       RelationshipPattern(None, None, None, None, None, BOTH)(pos),
       NodePattern(Some(nodeVar2), None, None, None)(pos)
     )(pos))(pos))(Set.empty)
+
+  def nodes(p: PathExpression): FunctionInvocation = {
+    FunctionInvocation(FunctionName(Nodes.name)(p.position), p)(p.position)
+  }
 
   def query(part: QueryPart): Query =
     Query(part)(pos)
