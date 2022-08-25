@@ -18,6 +18,7 @@ package org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.prettifier.Prettifier
 import org.opencypher.v9_0.ast.semantics.SemanticAnalysisTooling
 import org.opencypher.v9_0.ast.semantics.SemanticCheck
+import org.opencypher.v9_0.ast.semantics.SemanticCheck.success
 import org.opencypher.v9_0.ast.semantics.SemanticCheck.when
 import org.opencypher.v9_0.ast.semantics.SemanticCheckResult
 import org.opencypher.v9_0.ast.semantics.SemanticFeature
@@ -39,6 +40,10 @@ import org.opencypher.v9_0.util.symbols.CTInteger
 import org.opencypher.v9_0.util.symbols.CTList
 import org.opencypher.v9_0.util.symbols.CTMap
 import org.opencypher.v9_0.util.symbols.CTString
+
+import java.util
+
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 sealed trait AdministrationCommand extends StatementWithGraph with SemanticAnalysisTooling {
 
@@ -292,7 +297,7 @@ final case class SetOwnPassword(newPassword: Expression, currentPassword: Expres
 
 sealed trait HomeDatabaseAction
 case object RemoveHomeDatabaseAction extends HomeDatabaseAction
-final case class SetHomeDatabaseAction(name: Either[String, Parameter]) extends HomeDatabaseAction
+final case class SetHomeDatabaseAction(name: DatabaseName) extends HomeDatabaseAction
 
 final case class UserOptions(
   requirePasswordChange: Option[Boolean],
@@ -721,6 +726,7 @@ object ShowDatabase {
 
   val NAME_COL = "name"
   val ALIASES_COL = "aliases"
+  val TYPE_COL = "type"
   val ACCESS_COL = "access"
   val DATABASE_ID_COL = "databaseID"
   val SERVER_ID_COL = "serverID"
@@ -742,11 +748,13 @@ object ShowDatabase {
   val STORE_COL = "store"
   val LAST_COMMITTED_TX_COL = "lastCommittedTxn"
   val REPLICATION_LAG_COL = "replicationLag"
+  val CONSTITUENTS_COL = "constituents"
 
   def apply(scope: DatabaseScope, yieldOrWhere: YieldOrWhere)(position: InputPosition): ShowDatabase = {
     val showColumns = List(
       // (column, brief)
       (ShowColumn(NAME_COL)(position), true),
+      (ShowColumn(TYPE_COL)(position), true),
       (ShowColumn(ALIASES_COL, CTList(CTString))(position), true),
       (ShowColumn(ACCESS_COL)(position), true),
       (ShowColumn(DATABASE_ID_COL)(position), false),
@@ -772,7 +780,8 @@ object ShowDatabase {
       (ShowColumn(LAST_STOP_TIME_COL, CTDateTime)(position), false),
       (ShowColumn(STORE_COL)(position), false),
       (ShowColumn(LAST_COMMITTED_TX_COL, CTInteger)(position), false),
-      (ShowColumn(REPLICATION_LAG_COL, CTInteger)(position), false)
+      (ShowColumn(REPLICATION_LAG_COL, CTInteger)(position), false),
+      (ShowColumn(CONSTITUENTS_COL, CTList(CTString))(position), true)
     )
     val briefShowColumns = showColumns.filter(_._2).map(_._1)
     val allShowColumns = showColumns.map(_._1)
@@ -787,7 +796,7 @@ object ShowDatabase {
 }
 
 final case class CreateDatabase(
-  dbName: Either[String, Parameter],
+  dbName: DatabaseName,
   ifExistsDo: IfExistsDo,
   options: Options,
   waitUntilComplete: WaitUntilComplete
@@ -812,21 +821,55 @@ final case class CreateDatabase(
   }
 }
 
+final case class CreateCompositeDatabase(
+  databaseName: DatabaseName,
+  ifExistsDo: IfExistsDo,
+  waitUntilComplete: WaitUntilComplete
+)(
+  val position: InputPosition
+) extends WriteAdministrationCommand {
+
+  override def name: String = ifExistsDo match {
+    case IfExistsReplace | IfExistsInvalidSyntax => "CREATE OR REPLACE COMPOSITE DATABASE"
+    case _                                       => "CREATE COMPOSITE DATABASE"
+  }
+
+  override def semanticCheck: SemanticCheck = ifExistsDo match {
+    case IfExistsInvalidSyntax =>
+      val name = Prettifier.escapeName(databaseName)
+      error(
+        s"Failed to create the specified composite database '$name': cannot have both `OR REPLACE` and `IF NOT EXISTS`.",
+        position
+      )
+    case _ =>
+      databaseName match {
+        case nsn @ NamespacedName(_, Some(_)) =>
+          error(
+            s"Failed to create the specified composite database '${nsn.toString}': COMPOSITE DATABASE names cannot contain \".\". " +
+              "COMPOSITE DATABASE names using '.' must be quoted with backticks e.g. `composite.database`.",
+            nsn.position
+          )
+        case _ => super.semanticCheck
+      }
+  }
+}
+
 final case class DropDatabase(
-  dbName: Either[String, Parameter],
+  dbName: DatabaseName,
   ifExists: Boolean,
+  composite: Boolean,
   additionalAction: DropDatabaseAdditionalAction,
   waitUntilComplete: WaitUntilComplete
 )(val position: InputPosition) extends WaitableAdministrationCommand {
 
-  override def name = "DROP DATABASE"
+  override def name: String = if (composite) "DROP COMPOSITE DATABASE" else "DROP DATABASE"
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
       SemanticState.recordCurrentScope(this)
 }
 
-final case class AlterDatabase(dbName: Either[String, Parameter], ifExists: Boolean, access: Access)(
+final case class AlterDatabase(dbName: DatabaseName, ifExists: Boolean, access: Access)(
   val position: InputPosition
 ) extends WriteAdministrationCommand {
 
@@ -837,7 +880,7 @@ final case class AlterDatabase(dbName: Either[String, Parameter], ifExists: Bool
       SemanticState.recordCurrentScope(this)
 }
 
-final case class StartDatabase(dbName: Either[String, Parameter], waitUntilComplete: WaitUntilComplete)(
+final case class StartDatabase(dbName: DatabaseName, waitUntilComplete: WaitUntilComplete)(
   val position: InputPosition
 ) extends WaitableAdministrationCommand {
 
@@ -848,7 +891,7 @@ final case class StartDatabase(dbName: Either[String, Parameter], waitUntilCompl
       SemanticState.recordCurrentScope(this)
 }
 
-final case class StopDatabase(dbName: Either[String, Parameter], waitUntilComplete: WaitUntilComplete)(
+final case class StopDatabase(dbName: DatabaseName, waitUntilComplete: WaitUntilComplete)(
   val position: InputPosition
 ) extends WaitableAdministrationCommand {
 
@@ -895,11 +938,19 @@ sealed abstract class DropDatabaseAdditionalAction(val name: String)
 case object DumpData extends DropDatabaseAdditionalAction("DUMP DATA")
 case object DestroyData extends DropDatabaseAdditionalAction("DESTROY DATA")
 
-final case class ShowAliases(override val yieldOrWhere: YieldOrWhere, defaultColumns: DefaultOrAllShowColumns)(
+final case class ShowAliases(
+  aliasName: Option[DatabaseName],
+  override val yieldOrWhere: YieldOrWhere,
+  defaultColumns: DefaultOrAllShowColumns
+)(
   val position: InputPosition
 ) extends ReadAdministrationCommand {
   override val defaultColumnSet: List[ShowColumn] = defaultColumns.columns
-  override def name: String = "SHOW ALIASES FOR DATABASE"
+
+  override def name: String = aliasName match {
+    case None    => "SHOW ALIASES"
+    case Some(_) => "SHOW ALIAS"
+  }
 
   override def semanticCheck: SemanticCheck =
     super.semanticCheck chain
@@ -911,7 +962,12 @@ final case class ShowAliases(override val yieldOrWhere: YieldOrWhere, defaultCol
 
 object ShowAliases {
 
-  def apply(yieldOrWhere: YieldOrWhere)(position: InputPosition): ShowAliases = {
+  def apply(yieldOrWhere: YieldOrWhere)(position: InputPosition): ShowAliases = apply(None, yieldOrWhere)(position)
+
+  def apply(
+    aliasName: Option[DatabaseName],
+    yieldOrWhere: YieldOrWhere
+  )(position: InputPosition): ShowAliases = {
     val showColumns = List(
       // (column, brief)
       (ShowColumn("name")(position), true),
@@ -919,7 +975,8 @@ object ShowAliases {
       (ShowColumn("location")(position), true),
       (ShowColumn("url")(position), true),
       (ShowColumn("user")(position), true),
-      (ShowColumn("driver", CTMap)(position), false)
+      (ShowColumn("driver", CTMap)(position), false),
+      (ShowColumn("properties", CTMap)(position), false)
     )
 
     val briefShowColumns = showColumns.filter(_._2).map(_._1)
@@ -929,7 +986,7 @@ object ShowAliases {
       case _             => false
     }
     val columns = DefaultOrAllShowColumns(allColumns, briefShowColumns, allShowColumns)
-    ShowAliases(yieldOrWhere, columns)(position)
+    ShowAliases(aliasName, yieldOrWhere, columns)(position)
   }
 }
 
@@ -953,9 +1010,10 @@ object AliasDriverSettingsCheck {
 }
 
 final case class CreateLocalDatabaseAlias(
-  aliasName: Either[String, Parameter],
-  targetName: Either[String, Parameter],
-  ifExistsDo: IfExistsDo
+  aliasName: DatabaseName,
+  targetName: DatabaseName,
+  ifExistsDo: IfExistsDo,
+  properties: Option[Either[Map[String, Expression], Parameter]] = None
 )(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name: String = ifExistsDo match {
@@ -968,18 +1026,32 @@ final case class CreateLocalDatabaseAlias(
         s"Failed to create the specified alias '${Prettifier.escapeName(aliasName)}': cannot have both `OR REPLACE` and `IF NOT EXISTS`.",
         position
       )
-    case _ => super.semanticCheck chain SemanticState.recordCurrentScope(this)
+    case _ => super.semanticCheck chain
+        namespacedNameHasNoDots chain
+        SemanticState.recordCurrentScope(this)
+  }
+
+  private def namespacedNameHasNoDots: SemanticCheck = aliasName match {
+    case nsn @ NamespacedName(nameComponents, Some(_)) =>
+      if (nameComponents.length > 1) error(
+        s"'.' is not a valid character in the local alias name '${nsn.toString}'. " +
+          "Local alias names using '.' must be quoted with backticks when adding a local alias to a composite database e.g. `local.alias`.",
+        nsn.position
+      )
+      else success
+    case _ => success
   }
 }
 
 final case class CreateRemoteDatabaseAlias(
-  aliasName: Either[String, Parameter],
-  targetName: Either[String, Parameter],
+  aliasName: DatabaseName,
+  targetName: DatabaseName,
   ifExistsDo: IfExistsDo,
   url: Either[String, Parameter],
   username: Either[String, Parameter],
   password: Expression,
-  driverSettings: Option[Either[Map[String, Expression], Parameter]] = None
+  driverSettings: Option[Either[Map[String, Expression], Parameter]] = None,
+  properties: Option[Either[Map[String, Expression], Parameter]] = None
 )(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name: String = ifExistsDo match {
@@ -1003,9 +1075,10 @@ final case class CreateRemoteDatabaseAlias(
 }
 
 final case class AlterLocalDatabaseAlias(
-  aliasName: Either[String, Parameter],
-  targetName: Either[String, Parameter],
-  ifExists: Boolean = false
+  aliasName: DatabaseName,
+  targetName: Option[DatabaseName],
+  ifExists: Boolean = false,
+  properties: Option[Either[Map[String, Expression], Parameter]] = None
 )(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "ALTER ALIAS"
@@ -1014,13 +1087,14 @@ final case class AlterLocalDatabaseAlias(
 }
 
 final case class AlterRemoteDatabaseAlias(
-  aliasName: Either[String, Parameter],
-  targetName: Option[Either[String, Parameter]] = None,
+  aliasName: DatabaseName,
+  targetName: Option[DatabaseName] = None,
   ifExists: Boolean = false,
   url: Option[Either[String, Parameter]] = None,
   username: Option[Either[String, Parameter]] = None,
   password: Option[Expression] = None,
-  driverSettings: Option[Either[Map[String, Expression], Parameter]] = None
+  driverSettings: Option[Either[Map[String, Expression], Parameter]] = None,
+  properties: Option[Either[Map[String, Expression], Parameter]] = None
 )(val position: InputPosition) extends WriteAdministrationCommand {
 
   override def name = "ALTER ALIAS"
@@ -1048,8 +1122,9 @@ final case class AlterRemoteDatabaseAlias(
     }
 }
 
-final case class DropDatabaseAlias(aliasName: Either[String, Parameter], ifExists: Boolean)(val position: InputPosition)
-    extends WriteAdministrationCommand {
+final case class DropDatabaseAlias(aliasName: DatabaseName, ifExists: Boolean)(
+  val position: InputPosition
+) extends WriteAdministrationCommand {
 
   override def name = "DROP ALIAS"
 

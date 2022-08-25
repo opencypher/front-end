@@ -37,6 +37,7 @@ import org.opencypher.v9_0.ast.ConstraintVersion
 import org.opencypher.v9_0.ast.ConstraintVersion0
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
+import org.opencypher.v9_0.ast.CreateCompositeDatabase
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateFulltextNodeIndex
 import org.opencypher.v9_0.ast.CreateFulltextRelationshipIndex
@@ -56,6 +57,7 @@ import org.opencypher.v9_0.ast.CreateTextRelationshipIndex
 import org.opencypher.v9_0.ast.CreateUniquePropertyConstraint
 import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CurrentUser
+import org.opencypher.v9_0.ast.DatabaseName
 import org.opencypher.v9_0.ast.DatabasePrivilege
 import org.opencypher.v9_0.ast.DatabaseScope
 import org.opencypher.v9_0.ast.DbmsPrivilege
@@ -104,6 +106,7 @@ import org.opencypher.v9_0.ast.Merge
 import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.NamespacedName
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.OnCreate
 import org.opencypher.v9_0.ast.OnMatch
@@ -111,6 +114,7 @@ import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.OrderBy
+import org.opencypher.v9_0.ast.ParameterName
 import org.opencypher.v9_0.ast.ParsedAsYield
 import org.opencypher.v9_0.ast.PrivilegeQualifier
 import org.opencypher.v9_0.ast.ProcedureAllQualifier
@@ -197,6 +201,7 @@ import org.opencypher.v9_0.ast.Where
 import org.opencypher.v9_0.ast.With
 import org.opencypher.v9_0.ast.Yield
 import org.opencypher.v9_0.ast.YieldOrWhere
+import org.opencypher.v9_0.ast.prettifier.Prettifier.escapeName
 import org.opencypher.v9_0.expressions.CoerceTo
 import org.opencypher.v9_0.expressions.Expression
 import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
@@ -234,12 +239,21 @@ case class Prettifier(
   def optionsToString(options: Map[String, Expression]): String =
     if (options.nonEmpty)
       s" OPTIONS ${options.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}"
-    else " OPTIONS {}"
+    else {
+      " OPTIONS {}"
+    }
 
-  def driverSettingsToString(settings: Map[String, Expression]): String =
-    if (settings.nonEmpty)
-      s" DRIVER ${settings.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}"
-    else " DRIVER {}"
+  def propertiesMapToString(name: String, properties: Option[Either[Map[String, Expression], Parameter]]): String =
+    properties match {
+      case Some(Left(props)) =>
+        if (props.nonEmpty) {
+          s" $name ${props.map({ case (s, e) => s"${backtick(s)}: ${expr(e)}" }).mkString("{", ", ", "}")}"
+        } else {
+          s" $name {}"
+        }
+      case Some(Right(parameter)) => s" $name ${expr(parameter)}"
+      case None                   => ""
+    }
 
   def asString(command: SchemaCommand): String = {
     def propertiesToString(properties: Seq[Property]): String =
@@ -604,19 +618,31 @@ case class Prettifier(
 
       case x @ CreateDatabase(dbName, ifExistsDo, options, waitUntilComplete) =>
         val formattedOptions = asString(options)
+        val withoutNamespace = dbName match {
+          case n: NamespacedName => Left(n.toString)
+          case ParameterName(p)  => Right(p)
+        }
         ifExistsDo match {
           case IfExistsDoNothing | IfExistsInvalidSyntax =>
-            s"${x.name} ${Prettifier.escapeName(dbName)} IF NOT EXISTS$formattedOptions${waitUntilComplete.name}"
-          case _ => s"${x.name} ${Prettifier.escapeName(dbName)}$formattedOptions${waitUntilComplete.name}"
+            s"${x.name} ${Prettifier.escapeName(withoutNamespace)} IF NOT EXISTS$formattedOptions${waitUntilComplete.name}"
+          case _ => s"${x.name} ${Prettifier.escapeName(withoutNamespace)}$formattedOptions${waitUntilComplete.name}"
         }
 
-      case x @ DropDatabase(dbName, ifExists, additionalAction, waitUntilComplete) =>
+      case x @ CreateCompositeDatabase(name, ifExistsDo, waitUntilComplete) =>
+        val ifExists = ifExistsDo match {
+          case IfExistsInvalidSyntax | IfExistsDoNothing => " IF NOT EXISTS"
+          case _                                         => ""
+        }
+        s"${x.name} ${escapeName(name)}$ifExists${waitUntilComplete.name}"
+
+      case x @ DropDatabase(dbName, ifExists, _, additionalAction, waitUntilComplete) =>
         (ifExists, additionalAction) match {
           case (false, DestroyData) =>
             s"${x.name} ${Prettifier.escapeName(dbName)} DESTROY DATA${waitUntilComplete.name}"
           case (true, DestroyData) =>
             s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS DESTROY DATA${waitUntilComplete.name}"
-          case (false, DumpData) => s"${x.name} ${Prettifier.escapeName(dbName)} DUMP DATA${waitUntilComplete.name}"
+          case (false, DumpData) =>
+            s"${x.name} ${Prettifier.escapeName(dbName)} DUMP DATA${waitUntilComplete.name}"
           case (true, DumpData) =>
             s"${x.name} ${Prettifier.escapeName(dbName)} IF EXISTS DUMP DATA${waitUntilComplete.name}"
         }
@@ -632,47 +658,65 @@ case class Prettifier(
       case x @ StopDatabase(dbName, waitUntilComplete) =>
         s"${x.name} ${Prettifier.escapeName(dbName)}${waitUntilComplete.name}"
 
-      case x @ CreateLocalDatabaseAlias(aliasName, targetName, ifExistsDo) =>
+      case x @ CreateLocalDatabaseAlias(aliasName, targetName, ifExistsDo, properties) =>
+        val propertiesString = propertiesMapToString("PROPERTIES", properties)
         ifExistsDo match {
           case IfExistsDoNothing | IfExistsInvalidSyntax =>
-            s"${x.name} ${Prettifier.escapeName(aliasName)} IF NOT EXISTS FOR DATABASE ${Prettifier.escapeName(targetName)}"
+            s"${x.name} ${Prettifier.escapeName(aliasName)} IF NOT EXISTS FOR DATABASE ${Prettifier.escapeName(targetName)}$propertiesString"
           case _ =>
-            s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE ${Prettifier.escapeName(targetName)}"
+            s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE ${Prettifier.escapeName(targetName)}$propertiesString"
         }
 
-      case x @ CreateRemoteDatabaseAlias(aliasName, targetName, ifExistsDo, url, username, password, driverSettings) =>
+      case x @ CreateRemoteDatabaseAlias(
+          aliasName,
+          targetName,
+          ifExistsDo,
+          url,
+          username,
+          password,
+          driverSettings,
+          properties
+        ) =>
         val urlString = url match {
           case Left(s)          => expr.quote(s)
           case Right(parameter) => expr(parameter)
         }
 
-        val driverSettingsString = driverSettings match {
-          case Some(Left(settings))   => driverSettingsToString(settings)
-          case Some(Right(parameter)) => s" DRIVER ${expr(parameter)}"
-          case None                   => ""
-        }
+        val driverSettingsString = propertiesMapToString("DRIVER", driverSettings)
+        val propertiesString = propertiesMapToString("PROPERTIES", properties)
 
         ifExistsDo match {
           case IfExistsDoNothing | IfExistsInvalidSyntax =>
             s"${x.name} ${Prettifier.escapeName(aliasName)} IF NOT EXISTS FOR DATABASE ${Prettifier.escapeName(targetName)} AT $urlString " +
               s"USER ${Prettifier.escapeName(username)} PASSWORD ${expr.escapePassword(password)}" +
-              driverSettingsString
+              driverSettingsString + propertiesString
           case _ =>
             s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE ${Prettifier.escapeName(targetName)} AT $urlString " +
               s"USER ${Prettifier.escapeName(username)} PASSWORD ${expr.escapePassword(password)}" +
-              driverSettingsString
+              driverSettingsString + propertiesString
         }
 
       case x @ DropDatabaseAlias(aliasName, ifExists) =>
         if (ifExists) s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS FOR DATABASE"
         else s"${x.name} ${Prettifier.escapeName(aliasName)} FOR DATABASE"
 
-      case x @ AlterLocalDatabaseAlias(aliasName, targetName, ifExists) =>
+      case x @ AlterLocalDatabaseAlias(aliasName, targetName, ifExists, properties) =>
+        val target = targetName.map(tgt => "TARGET " + Prettifier.escapeName(tgt)).getOrElse("")
+        val propertiesString = propertiesMapToString("PROPERTIES", properties)
         if (ifExists)
-          s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS SET DATABASE TARGET ${Prettifier.escapeName(targetName)}"
-        else s"${x.name} ${Prettifier.escapeName(aliasName)} SET DATABASE TARGET ${Prettifier.escapeName(targetName)}"
+          s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS SET DATABASE $target$propertiesString"
+        else s"${x.name} ${Prettifier.escapeName(aliasName)} SET DATABASE $target$propertiesString"
 
-      case x @ AlterRemoteDatabaseAlias(aliasName, targetName, ifExists, url, username, password, driverSettings) =>
+      case x @ AlterRemoteDatabaseAlias(
+          aliasName,
+          targetName,
+          ifExists,
+          url,
+          username,
+          password,
+          driverSettings,
+          properties
+        ) =>
         val targetString = targetName match {
           case Some(targetName) =>
             val urlString = url match {
@@ -696,20 +740,18 @@ case class Prettifier(
           case None => ""
         }
 
-        val driverSettingsString = driverSettings match {
-          case Some(Left(settings))   => driverSettingsToString(settings)
-          case Some(Right(parameter)) => s" DRIVER ${expr(parameter)}"
-          case None                   => ""
-        }
+        val driverSettingsString = propertiesMapToString("DRIVER", driverSettings)
+        val propertiesString = propertiesMapToString("PROPERTIES", properties)
 
         if (ifExists)
-          s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS SET DATABASE$targetString$userString$passwordString$driverSettingsString"
+          s"${x.name} ${Prettifier.escapeName(aliasName)} IF EXISTS SET DATABASE$targetString$userString$passwordString$driverSettingsString$propertiesString"
         else
-          s"${x.name} ${Prettifier.escapeName(aliasName)} SET DATABASE$targetString$userString$passwordString$driverSettingsString"
+          s"${x.name} ${Prettifier.escapeName(aliasName)} SET DATABASE$targetString$userString$passwordString$driverSettingsString$propertiesString"
 
-      case x @ ShowAliases(yields, _) =>
+      case x @ ShowAliases(aliasName, yields, _) =>
+        val an = aliasName.map(an => s" ${escapeName(an)}").getOrElse("")
         val (y: String, r: String) = showClausesAsString(yields)
-        s"${x.name}$y$r"
+        s"${x.name}$an FOR DATABASE$y$r"
 
       case x @ DropServer(serverName) =>
         val name = serverName match {
@@ -1254,6 +1296,16 @@ object Prettifier {
     case Right(p) => s"$$${ExpressionStringifier.backtick(p.name)}"
   }
 
+  def escapeName(name: DatabaseName)(implicit d: DummyImplicit): String = name match {
+    case NamespacedName(names, Some(namespace)) =>
+      ExpressionStringifier.backtick(namespace) + "." + ExpressionStringifier.backtick(names.mkString("."))
+    case NamespacedName(names, None) => ExpressionStringifier.backtick(names.mkString("."))
+    case ParameterName(p)            => "$" + ExpressionStringifier.backtick(p.name)
+  }
+
   def escapeNames(names: Seq[Either[String, Parameter]]): String = names.map(escapeName).mkString(", ")
+
+  def escapeNames(names: Seq[DatabaseName])(implicit d: DummyImplicit): String =
+    names.map(escapeName).mkString(", ")
 
 }

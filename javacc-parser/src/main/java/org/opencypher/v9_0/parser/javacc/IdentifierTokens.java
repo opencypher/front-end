@@ -42,6 +42,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.CHANGE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.COMMAND;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.COMMANDS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.COMMIT;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.COMPOSITE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.CONSTRAINT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.CONSTRAINTS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.CONTAINS;
@@ -136,6 +137,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.PRIVILEGE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PRIVILEGES;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PROCEDURES;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.PROPERTIES;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.PROPERTY;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.RANGE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.READ;
@@ -233,6 +235,7 @@ public class IdentifierTokens {
             COMMAND,
             COMMANDS,
             COMMIT,
+            COMPOSITE,
             CONSTRAINT,
             CONSTRAINTS,
             CONTAINS,
@@ -326,6 +329,7 @@ public class IdentifierTokens {
             PRIVILEGES,
             PROCEDURE,
             PROCEDURES,
+            PROPERTIES,
             PROPERTY,
             RANGE,
             READ,

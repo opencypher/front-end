@@ -16,6 +16,8 @@
 package org.opencypher.v9_0.rewriting
 
 import org.opencypher.v9_0.ast
+import org.opencypher.v9_0.ast.CreateDatabase
+import org.opencypher.v9_0.ast.NamespacedName
 import org.opencypher.v9_0.ast.SetExactPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetIncludingPropertiesFromMapItem
 import org.opencypher.v9_0.ast.SetProperty
@@ -31,6 +33,7 @@ import org.opencypher.v9_0.expressions.ShortestPaths
 import org.opencypher.v9_0.expressions.Variable
 import org.opencypher.v9_0.util.ASTNode
 import org.opencypher.v9_0.util.AnonymousVariableNameGenerator
+import org.opencypher.v9_0.util.DeprecatedDatabaseNameNotification
 import org.opencypher.v9_0.util.DeprecatedNodesOrRelationshipsInSetClauseNotification
 import org.opencypher.v9_0.util.DeprecatedRelTypeSeparatorNotification
 import org.opencypher.v9_0.util.FixedLengthRelationshipInShortestPath
@@ -73,6 +76,13 @@ object Deprecations {
           None,
           Some(FixedLengthRelationshipInShortestPath(relPat.position))
         )
+
+      case c @ CreateDatabase(nn @ NamespacedName(_, Some(_)), _, _, _) =>
+        Deprecation(
+          None,
+          Some(DeprecatedDatabaseNameNotification(nn.toString, Some(c.position)))
+        )
+
     }
   }
 

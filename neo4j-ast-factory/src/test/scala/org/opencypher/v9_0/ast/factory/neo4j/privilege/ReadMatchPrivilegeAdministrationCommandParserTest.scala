@@ -193,7 +193,7 @@ class ReadMatchPrivilegeAdministrationCommandParserTest extends AdministrationAn
               test(s"validExpressions $verb ${action.name} $graphKeyword $nodeKeyword $preposition") {
                 parsing(s"$verb ${action.name} {*} ON $graphKeyword `f:oo` $nodeKeyword * $preposition role") shouldGive
                   func(
-                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(literalFColonOo) _))(pos),
+                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(namespacedName("f:oo")) _))(pos),
                     ast.AllPropertyResource() _,
                     List(ast.LabelAllQualifier() _),
                     Seq(literalRole)
@@ -202,7 +202,7 @@ class ReadMatchPrivilegeAdministrationCommandParserTest extends AdministrationAn
                   s"$verb ${action.name} {bar} ON $graphKeyword `f:oo` $nodeKeyword * $preposition role"
                 ) shouldGive
                   func(
-                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(literalFColonOo) _))(pos),
+                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(namespacedName("f:oo")) _))(pos),
                     ast.PropertiesResource(Seq("bar")) _,
                     List(ast.LabelAllQualifier() _),
                     Seq(literalRole)
@@ -397,7 +397,7 @@ class ReadMatchPrivilegeAdministrationCommandParserTest extends AdministrationAn
                   s"$verb ${action.name} {*} ON $graphKeyword `f:oo` $relTypeKeyword * $preposition role"
                 ) shouldGive
                   func(
-                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(literalFColonOo) _))(pos),
+                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(namespacedName("f:oo")) _))(pos),
                     ast.AllPropertyResource() _,
                     List(ast.RelationshipAllQualifier() _),
                     Seq(literalRole)
@@ -406,7 +406,7 @@ class ReadMatchPrivilegeAdministrationCommandParserTest extends AdministrationAn
                   s"$verb ${action.name} {bar} ON $graphKeyword `f:oo` $relTypeKeyword * $preposition role"
                 ) shouldGive
                   func(
-                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(literalFColonOo) _))(pos),
+                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(namespacedName("f:oo")) _))(pos),
                     ast.PropertiesResource(Seq("bar")) _,
                     List(ast.RelationshipAllQualifier() _),
                     Seq(literalRole)
@@ -593,7 +593,7 @@ class ReadMatchPrivilegeAdministrationCommandParserTest extends AdministrationAn
                   s"$verb ${action.name} {*} ON $graphKeyword `f:oo` $elementKeyword * $preposition role"
                 ) shouldGive
                   func(
-                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(literalFColonOo) _))(pos),
+                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(namespacedName("f:oo")) _))(pos),
                     ast.AllPropertyResource() _,
                     List(ast.ElementsAllQualifier() _),
                     Seq(literalRole)
@@ -602,7 +602,7 @@ class ReadMatchPrivilegeAdministrationCommandParserTest extends AdministrationAn
                   s"$verb ${action.name} {bar} ON $graphKeyword `f:oo` $elementKeyword * $preposition role"
                 ) shouldGive
                   func(
-                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(literalFColonOo) _))(pos),
+                    ast.GraphPrivilege(action, List(ast.NamedGraphScope(namespacedName("f:oo")) _))(pos),
                     ast.PropertiesResource(Seq("bar")) _,
                     List(ast.ElementsAllQualifier() _),
                     Seq(literalRole)

@@ -18,9 +18,9 @@ package org.opencypher.v9_0.parser.javacc;
 import java.util.ArrayList;
 import java.util.List;
 import org.opencypher.v9_0.ast.factory.ASTExceptionFactory;
-import org.opencypher.v9_0.ast.factory.SimpleEither;
+import org.opencypher.v9_0.ast.factory.ASTFactory;
 
-public class AliasName<PARAMETER> {
+public class AliasName<DATABASE_NAME, PARAMETER> {
     ASTExceptionFactory exceptionFactory;
     Token start;
     List<String> names = new ArrayList<>();
@@ -41,27 +41,29 @@ public class AliasName<PARAMETER> {
         names.add(token.image);
     }
 
-    public SimpleEither<String, PARAMETER> getRemoteAliasName() throws Exception {
+    public DATABASE_NAME getRemoteAliasName(ASTFactory astFactory) throws Exception {
         if (parameter != null) {
-            return SimpleEither.right(parameter);
+            return (DATABASE_NAME) astFactory.databaseName(parameter);
         } else {
-            if (names.size() > 1) {
+            if (names.size() > 2) {
                 throw exceptionFactory.syntaxException(
                         new ParseException(ASTExceptionFactory.invalidDotsInRemoteAliasName(String.join(".", names))),
                         start.beginOffset,
                         start.beginLine,
                         start.beginColumn);
             } else {
-                return SimpleEither.left(names.get(0));
+                return (DATABASE_NAME) astFactory.databaseName(
+                        astFactory.inputPosition(start.beginOffset, start.beginLine, start.beginColumn), names);
             }
         }
     }
 
-    public SimpleEither<String, PARAMETER> getLocalAliasName() {
+    public DATABASE_NAME getLocalAliasName(ASTFactory astFactory) {
         if (parameter != null) {
-            return SimpleEither.right(parameter);
+            return (DATABASE_NAME) astFactory.databaseName(parameter);
         } else {
-            return SimpleEither.left(String.join(".", names));
+            return (DATABASE_NAME) astFactory.databaseName(
+                    astFactory.inputPosition(start.beginOffset, start.beginLine, start.beginColumn), names);
         }
     }
 }

@@ -54,9 +54,12 @@ import org.opencypher.v9_0.ast.AssignRoleAction
 import org.opencypher.v9_0.ast.BuiltInFunctions
 import org.opencypher.v9_0.ast.Clause
 import org.opencypher.v9_0.ast.CommandResultItem
+import org.opencypher.v9_0.ast.CompositeDatabaseManagementActions
 import org.opencypher.v9_0.ast.ConstraintVersion2
 import org.opencypher.v9_0.ast.Create
 import org.opencypher.v9_0.ast.CreateAliasAction
+import org.opencypher.v9_0.ast.CreateCompositeDatabase
+import org.opencypher.v9_0.ast.CreateCompositeDatabaseAction
 import org.opencypher.v9_0.ast.CreateConstraintAction
 import org.opencypher.v9_0.ast.CreateDatabase
 import org.opencypher.v9_0.ast.CreateDatabaseAction
@@ -87,6 +90,7 @@ import org.opencypher.v9_0.ast.CreateUser
 import org.opencypher.v9_0.ast.CreateUserAction
 import org.opencypher.v9_0.ast.CurrentUser
 import org.opencypher.v9_0.ast.DatabaseAction
+import org.opencypher.v9_0.ast.DatabaseName
 import org.opencypher.v9_0.ast.DatabasePrivilegeQualifier
 import org.opencypher.v9_0.ast.DbmsAction
 import org.opencypher.v9_0.ast.DeallocateServers
@@ -98,6 +102,7 @@ import org.opencypher.v9_0.ast.DenyPrivilege
 import org.opencypher.v9_0.ast.DescSortItem
 import org.opencypher.v9_0.ast.DestroyData
 import org.opencypher.v9_0.ast.DropAliasAction
+import org.opencypher.v9_0.ast.DropCompositeDatabaseAction
 import org.opencypher.v9_0.ast.DropConstraintAction
 import org.opencypher.v9_0.ast.DropConstraintOnName
 import org.opencypher.v9_0.ast.DropDatabase
@@ -148,6 +153,7 @@ import org.opencypher.v9_0.ast.MergeAction
 import org.opencypher.v9_0.ast.MergeAdminAction
 import org.opencypher.v9_0.ast.NamedDatabaseScope
 import org.opencypher.v9_0.ast.NamedGraphScope
+import org.opencypher.v9_0.ast.NamespacedName
 import org.opencypher.v9_0.ast.NoOptions
 import org.opencypher.v9_0.ast.NoWait
 import org.opencypher.v9_0.ast.NodeExistsConstraints
@@ -158,6 +164,7 @@ import org.opencypher.v9_0.ast.Options
 import org.opencypher.v9_0.ast.OptionsMap
 import org.opencypher.v9_0.ast.OptionsParam
 import org.opencypher.v9_0.ast.OrderBy
+import org.opencypher.v9_0.ast.ParameterName
 import org.opencypher.v9_0.ast.ParsedAsYield
 import org.opencypher.v9_0.ast.PointIndexes
 import org.opencypher.v9_0.ast.PrivilegeCommand
@@ -1687,6 +1694,18 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     finalName <- oneOf(Left(name), Right(param))
   } yield finalName
 
+  def _databaseName: Gen[DatabaseName] = for {
+    namespacedName <- _namespacedName
+    param <- _stringParameter
+    finalName <- oneOf(namespacedName, ParameterName(param)(pos))
+  } yield finalName
+
+  def _databaseNameNoNamespace: Gen[DatabaseName] = for {
+    name <- listOfN(1, _identifier)
+    param <- _stringParameter
+    finalName <- oneOf(NamespacedName(name)(pos), ParameterName(param)(pos))
+  } yield finalName
+
   def _optionsMapAsEither: Gen[Options] = for {
     map <- oneOrMore(tuple(_identifier, _expression)).map(_.toMap)
     param <- _mapParameter
@@ -1708,6 +1727,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _ifExistsDo: Gen[IfExistsDo] =
     oneOf(IfExistsReplace, IfExistsDoNothing, IfExistsThrowError, IfExistsInvalidSyntax)
+
+  def _namespacedName: Gen[NamespacedName] = for {
+    name <- listOfN(1, _identifier)
+    namespace <- _identifier
+    maybeNamespace <- option(namespace)
+  } yield NamespacedName(name, maybeNamespace)(pos)
 
   // User commands
 
@@ -1765,7 +1790,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
       else option(_setHomeDatabaseAction)
   } yield AlterUser(userName, isEncryptedPassword, password, UserOptions(requirePasswordChange, suspended, homeDatabase), ifExists)(pos)
 
-  def _setHomeDatabaseAction: Gen[SetHomeDatabaseAction] = _nameAsEither.map(db => SetHomeDatabaseAction(db))
+  def _setHomeDatabaseAction: Gen[SetHomeDatabaseAction] = _databaseName.map(db => SetHomeDatabaseAction(db))
 
   def _setOwnPassword: Gen[SetOwnPassword] = for {
     newPassword <- _password
@@ -1856,7 +1881,10 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     RemoveRoleAction,
     AllDatabaseManagementActions,
     CreateDatabaseAction,
+    CreateCompositeDatabaseAction,
     DropDatabaseAction,
+    DropCompositeDatabaseAction,
+    CompositeDatabaseManagementActions,
     AlterDatabaseAction,
     SetDatabaseAccessAction,
     AllAliasManagementActions,
@@ -2020,7 +2048,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _databasePrivilege: Gen[PrivilegeCommand] = for {
     databaseAction <- _databaseAction
-    namedScope <- _listOfNameOfEither.map(_.map(n => NamedDatabaseScope(n)(pos)))
+    namedScope <- oneOrMore(_databaseName).map(_.map(n => NamedDatabaseScope(n)(pos)))
     databaseScope <- oneOf(
       namedScope,
       List(AllDatabasesScope()(pos)),
@@ -2039,7 +2067,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _graphPrivilege: Gen[PrivilegeCommand] = for {
     graphAction <- _graphAction
-    namedScope <- _listOfNameOfEither.map(_.map(n => NamedGraphScope(n)(pos)))
+    namedScope <- oneOrMore(_databaseName).map(_.map(n => NamedGraphScope(n)(pos)))
     graphScope <-
       oneOf(namedScope, List(AllGraphsScope()(pos)), List(DefaultGraphScope()(pos)), List(HomeGraphScope()(pos)))
     (qualifier, maybeResource) <- _graphQualifierAndResource(graphAction)
@@ -2063,7 +2091,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   // Database commands
 
   def _showDatabase: Gen[ShowDatabase] = for {
-    dbName <- _nameAsEither
+    dbName <- _databaseName
     scope <- oneOf(
       NamedDatabaseScope(dbName)(pos),
       AllDatabasesScope()(pos),
@@ -2074,38 +2102,46 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield ShowDatabase(scope, yields)(pos)
 
   def _createDatabase: Gen[CreateDatabase] = for {
-    dbName <- _nameAsEither
+    dbName <- _databaseNameNoNamespace
     ifExistsDo <- _ifExistsDo
     wait <- _waitUntilComplete
     options <- _optionsMapAsEither
   } yield CreateDatabase(dbName, ifExistsDo, options, wait)(pos)
 
+  def _createCompositeDatabase: Gen[CreateCompositeDatabase] = for {
+    dbName <- _databaseName
+    ifExistsDo <- _ifExistsDo
+    wait <- _waitUntilComplete
+  } yield CreateCompositeDatabase(dbName, ifExistsDo, wait)(pos)
+
   def _dropDatabase: Gen[DropDatabase] = for {
-    dbName <- _nameAsEither
+    dbName <- _databaseName
     ifExists <- boolean
+    composite <- boolean
     additionalAction <- Gen.oneOf(DumpData, DestroyData)
     wait <- _waitUntilComplete
-  } yield DropDatabase(dbName, ifExists, additionalAction, wait)(pos)
+  } yield DropDatabase(dbName, ifExists, composite, additionalAction, wait)(pos)
 
   def _alterDatabase: Gen[AlterDatabase] = for {
-    dbName <- _nameAsEither
+    dbName <- _databaseName
     ifExists <- boolean
     access <- _access
   } yield AlterDatabase(dbName, ifExists, access)(pos)
 
   def _startDatabase: Gen[StartDatabase] = for {
-    dbName <- _nameAsEither
+    dbName <- _databaseName
     wait <- _waitUntilComplete
   } yield StartDatabase(dbName, wait)(pos)
 
   def _stopDatabase: Gen[StopDatabase] = for {
-    dbName <- _nameAsEither
+    dbName <- _databaseName
     wait <- _waitUntilComplete
   } yield StopDatabase(dbName, wait)(pos)
 
   def _multiDatabaseCommand: Gen[AdministrationCommand] = oneOf(
     _showDatabase,
     _createDatabase,
+    _createCompositeDatabase,
     _dropDatabase,
     _alterDatabase,
     _startDatabase,
@@ -2122,48 +2158,57 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   } yield wait
 
   def _createLocalDatabaseAlias: Gen[CreateLocalDatabaseAlias] = for {
-    aliasName <- _nameAsEither
-    targetName <- _nameAsEither
+    aliasName <- _databaseName
+    targetName <- _databaseName
     ifExistsDo <- _ifExistsDo
-  } yield CreateLocalDatabaseAlias(aliasName, targetName, ifExistsDo)(pos)
+    properties <- option(_optionalMapAsEither)
+  } yield CreateLocalDatabaseAlias(aliasName, targetName, ifExistsDo, properties)(pos)
 
   def _createRemoteDatabaseAlias: Gen[CreateRemoteDatabaseAlias] = for {
-    aliasName <- _nameAsEither
-    targetName <- _nameAsEither
+    aliasName <- _databaseName
+    targetName <- _databaseName
     ifExistsDo <- _ifExistsDo
     url <- _nameAsEither
     username <- _nameAsEither
     password <- _password
     driverSettings <- option(_optionalMapAsEither)
-  } yield CreateRemoteDatabaseAlias(aliasName, targetName, ifExistsDo, url, username, password, driverSettings)(pos)
+    properties <- option(_optionalMapAsEither)
+  } yield CreateRemoteDatabaseAlias(aliasName, targetName, ifExistsDo, url, username, password, driverSettings, properties)(pos)
 
   def _dropAlias: Gen[DropDatabaseAlias] = for {
-    aliasName <- _nameAsEither
+    aliasName <- _databaseName
     ifExists <- boolean
   } yield DropDatabaseAlias(aliasName, ifExists)(pos)
 
   def _alterLocalAlias: Gen[AlterLocalDatabaseAlias] = for {
-    aliasName <- _nameAsEither
-    targetName <- _nameAsEither
+    aliasName <- _databaseName
+    targetName <- option(_databaseName)
     ifExists <- boolean
-  } yield AlterLocalDatabaseAlias(aliasName, targetName, ifExists)(pos)
+    properties <-
+      if (targetName.isEmpty) some(_optionalMapAsEither)
+      else option(_optionalMapAsEither)
+  } yield AlterLocalDatabaseAlias(aliasName, targetName, ifExists, properties)(pos)
 
   def _alterRemoteAlias: Gen[AlterRemoteDatabaseAlias] = for {
-    aliasName <- _nameAsEither
-    targetName <- option(_nameAsEither)
+    aliasName <- _databaseName
+    targetName <- option(_databaseName)
     ifExists <- boolean
     url <- if (targetName.nonEmpty) some(_nameAsEither) else const(None)
     username <- option(_nameAsEither)
     password <- option(_password)
     // All four are not allowed to be None
     driverSettings <-
-      if (url.isEmpty && username.isEmpty && password.isEmpty) some(_optionalMapAsEither)
-      else option(_optionalMapAsEither)
-  } yield AlterRemoteDatabaseAlias(aliasName, targetName, ifExists, url, username, password, driverSettings)(pos)
+      if (url.isEmpty && username.isEmpty && password.isEmpty)
+        some(_optionalMapAsEither)
+      else
+        option(_optionalMapAsEither)
+    properties <- option(_optionalMapAsEither)
+  } yield AlterRemoteDatabaseAlias(aliasName, targetName, ifExists, url, username, password, driverSettings, properties)(pos)
 
   def _showAliases: Gen[ShowAliases] = for {
+    dbName <- option(_databaseName)
     yields <- _eitherYieldOrWhere
-  } yield ShowAliases(yields)(pos)
+  } yield ShowAliases(dbName, yields)(pos)
 
   def _aliasCommands: Gen[AdministrationCommand] = oneOf(
     _createLocalDatabaseAlias,

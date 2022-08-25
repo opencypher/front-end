@@ -17,6 +17,7 @@ package org.opencypher.v9_0.ast.factory.neo4j.privilege
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.factory.neo4j.AdministrationAndSchemaCommandParserTestBase
+import org.opencypher.v9_0.expressions.Parameter
 
 class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
@@ -112,14 +113,16 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
 
   test("SHOW ROLE role1, $roleParam, role2, role3 PRIVILEGES") {
     yields(ast.ShowPrivileges(
-      ast.ShowRolesPrivileges(List(literalRole1, param("roleParam"), literalRole2, literal("role3")))(pos),
+      ast.ShowRolesPrivileges(List(literalRole1, stringParam("roleParam"), literalRole2, literal("role3")))(pos),
       None
     ))
   }
 
   test("SHOW ROLES role1, $roleParam1, role2, $roleParam2 PRIVILEGES") {
     yields(ast.ShowPrivileges(
-      ast.ShowRolesPrivileges(List(literalRole1, param("roleParam1"), literalRole2, param("roleParam2")))(pos),
+      ast.ShowRolesPrivileges(List(literalRole1, stringParam("roleParam1"), literalRole2, stringParam("roleParam2")))(
+        pos
+      ),
       None
     ))
   }
@@ -390,12 +393,12 @@ class ShowPrivilegesAdministrationCommandParserTest extends AdministrationAndSch
     type privilegeFunc = List[String] => ast.ShowPrivilegeScope
 
     def userPrivilegeFunc(users: List[String]): ast.ShowPrivilegeScope = {
-      val literalUsers = users.map(u => literal(u))
+      val literalUsers: List[Either[String, Parameter]] = users.map(u => literal(u))
       ast.ShowUsersPrivileges(literalUsers)(pos)
     }
 
     def rolePrivilegeFunc(roles: List[String]): ast.ShowPrivilegeScope = {
-      val literalRoles = roles.map(r => literal(r))
+      val literalRoles: List[Either[String, Parameter]] = roles.map(r => literal(r))
       ast.ShowRolesPrivileges(literalRoles)(pos)
     }
 
