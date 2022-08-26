@@ -439,7 +439,8 @@ import scala.language.implicitConversions
 final case class Privilege(
   privilegeType: PrivilegeType,
   resource: ActionResource,
-  qualifier: util.List[PrivilegeQualifier]
+  qualifier: util.List[PrivilegeQualifier],
+  immutable: Boolean
 )
 
 trait DecorateTuple {
@@ -1825,6 +1826,7 @@ class Neo4jASTFactory(query: String)
   ): AdministrationCommand =
     GrantPrivilege(
       privilege.privilegeType,
+      privilege.immutable,
       Option(privilege.resource),
       privilege.qualifier.asScala.toList,
       roles.asScala.map(_.asScala).toSeq
@@ -1837,6 +1839,7 @@ class Neo4jASTFactory(query: String)
   ): AdministrationCommand =
     DenyPrivilege(
       privilege.privilegeType,
+      privilege.immutable,
       Option(privilege.resource),
       privilege.qualifier.asScala.toList,
       roles.asScala.map(_.asScala).toSeq
@@ -1851,6 +1854,7 @@ class Neo4jASTFactory(query: String)
   ): AdministrationCommand = (revokeGrant, revokeDeny) match {
     case (true, false) => RevokePrivilege(
         privilege.privilegeType,
+        privilege.immutable,
         Option(privilege.resource),
         privilege.qualifier.asScala.toList,
         roles.asScala.map(_.asScala).toSeq,
@@ -1858,6 +1862,7 @@ class Neo4jASTFactory(query: String)
       )(p)
     case (false, true) => RevokePrivilege(
         privilege.privilegeType,
+        privilege.immutable,
         Option(privilege.resource),
         privilege.qualifier.asScala.toList,
         roles.asScala.map(_.asScala).toSeq,
@@ -1865,6 +1870,7 @@ class Neo4jASTFactory(query: String)
       )(p)
     case _ => RevokePrivilege(
         privilege.privilegeType,
+        privilege.immutable,
         Option(privilege.resource),
         privilege.qualifier.asScala.toList,
         roles.asScala.map(_.asScala).toSeq,
@@ -1876,25 +1882,33 @@ class Neo4jASTFactory(query: String)
     p: InputPosition,
     action: AdministrationAction,
     scope: util.List[DatabaseScope],
-    qualifier: util.List[PrivilegeQualifier]
+    qualifier: util.List[PrivilegeQualifier],
+    immutable: Boolean
   ): Privilege =
-    Privilege(DatabasePrivilege(action.asInstanceOf[DatabaseAction], scope.asScala.toList)(p), null, qualifier)
+    Privilege(
+      DatabasePrivilege(action.asInstanceOf[DatabaseAction], scope.asScala.toList)(p),
+      null,
+      qualifier,
+      immutable
+    )
 
   override def dbmsPrivilege(
     p: InputPosition,
     action: AdministrationAction,
-    qualifier: util.List[PrivilegeQualifier]
+    qualifier: util.List[PrivilegeQualifier],
+    immutable: Boolean
   ): Privilege =
-    Privilege(DbmsPrivilege(action.asInstanceOf[DbmsAction])(p), null, qualifier)
+    Privilege(DbmsPrivilege(action.asInstanceOf[DbmsAction])(p), null, qualifier, immutable)
 
   override def graphPrivilege(
     p: InputPosition,
     action: AdministrationAction,
     scope: util.List[GraphScope],
     resource: ActionResource,
-    qualifier: util.List[PrivilegeQualifier]
+    qualifier: util.List[PrivilegeQualifier],
+    immutable: Boolean
   ): Privilege =
-    Privilege(GraphPrivilege(action.asInstanceOf[GraphAction], scope.asScala.toList)(p), resource, qualifier)
+    Privilege(GraphPrivilege(action.asInstanceOf[GraphAction], scope.asScala.toList)(p), resource, qualifier, immutable)
 
   override def privilegeAction(action: ActionType): AdministrationAction = action match {
     case ActionType.DATABASE_ALL          => AllDatabaseAction
