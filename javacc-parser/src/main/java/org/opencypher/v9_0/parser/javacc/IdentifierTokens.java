@@ -100,6 +100,8 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.IMPERSONATE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.IN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.INDEX;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.INDEXES;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.INF;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.INFINITY;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.IS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.JOIN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.KEY;
@@ -113,6 +115,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.MATCH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.MERGE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.NAME;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.NAMES;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.NAN;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.NEW;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.NODE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.NODES;
@@ -293,6 +296,8 @@ public class IdentifierTokens {
             IN,
             INDEX,
             INDEXES,
+            INF,
+            INFINITY,
             IS,
             JOIN,
             KEY,
@@ -306,6 +311,7 @@ public class IdentifierTokens {
             MERGE,
             NAME,
             NAMES,
+            NAN,
             NEW,
             NODE,
             NODES,

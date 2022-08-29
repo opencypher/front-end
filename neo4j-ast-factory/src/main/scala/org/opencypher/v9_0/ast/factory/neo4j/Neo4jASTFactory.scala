@@ -345,6 +345,7 @@ import org.opencypher.v9_0.expressions.GraphPatternQuantifier
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.Infinity
 import org.opencypher.v9_0.expressions.IntervalQuantifier
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
@@ -366,6 +367,7 @@ import org.opencypher.v9_0.expressions.MapProjection
 import org.opencypher.v9_0.expressions.MapProjectionElement
 import org.opencypher.v9_0.expressions.Modulo
 import org.opencypher.v9_0.expressions.Multiply
+import org.opencypher.v9_0.expressions.NaN
 import org.opencypher.v9_0.expressions.NamedPatternPart
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NodePattern
@@ -925,6 +927,10 @@ class Neo4jASTFactory(query: String)
   override def newTrueLiteral(p: InputPosition): Expression = True()(p)
 
   override def newFalseLiteral(p: InputPosition): Expression = False()(p)
+
+  override def newInfinityLiteral(p: InputPosition): Expression = Infinity()(p)
+
+  override def newNaNLiteral(p: InputPosition): Expression = NaN()(p)
 
   override def newNullLiteral(p: InputPosition): Expression = Null()(p)
 

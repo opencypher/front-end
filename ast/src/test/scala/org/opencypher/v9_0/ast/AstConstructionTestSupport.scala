@@ -50,6 +50,7 @@ import org.opencypher.v9_0.expressions.HasLabelsOrTypes
 import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.In
 import org.opencypher.v9_0.expressions.InequalityExpression
+import org.opencypher.v9_0.expressions.Infinity
 import org.opencypher.v9_0.expressions.IsNotNull
 import org.opencypher.v9_0.expressions.IsNull
 import org.opencypher.v9_0.expressions.LabelExpression
@@ -70,6 +71,7 @@ import org.opencypher.v9_0.expressions.Modulo
 import org.opencypher.v9_0.expressions.MultiRelationshipPathStep
 import org.opencypher.v9_0.expressions.Multiply
 import org.opencypher.v9_0.expressions.NODE_TYPE
+import org.opencypher.v9_0.expressions.NaN
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NilPathStep
 import org.opencypher.v9_0.expressions.NodePathStep
@@ -283,6 +285,10 @@ trait AstConstructionTestSupport extends CypherTestSupport {
   def trueLiteral: True = True()(pos)
 
   def falseLiteral: False = False()(pos)
+
+  def InfinityLiteral: Infinity = Infinity()(pos)
+
+  def NaNLiteral: NaN = NaN()(pos)
 
   def literal(a: Any): Expression = a match {
     case null               => nullLiteral

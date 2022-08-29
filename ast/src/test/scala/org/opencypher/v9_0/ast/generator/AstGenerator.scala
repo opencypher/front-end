@@ -330,6 +330,7 @@ import org.opencypher.v9_0.expressions.GraphPatternQuantifier
 import org.opencypher.v9_0.expressions.GreaterThan
 import org.opencypher.v9_0.expressions.GreaterThanOrEqual
 import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.Infinity
 import org.opencypher.v9_0.expressions.IntervalQuantifier
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
@@ -344,6 +345,7 @@ import org.opencypher.v9_0.expressions.LessThanOrEqual
 import org.opencypher.v9_0.expressions.ListComprehension
 import org.opencypher.v9_0.expressions.ListLiteral
 import org.opencypher.v9_0.expressions.ListSlice
+import org.opencypher.v9_0.expressions.Literal
 import org.opencypher.v9_0.expressions.LiteralEntry
 import org.opencypher.v9_0.expressions.MapExpression
 import org.opencypher.v9_0.expressions.MapProjection
@@ -351,6 +353,7 @@ import org.opencypher.v9_0.expressions.MapProjectionElement
 import org.opencypher.v9_0.expressions.Modulo
 import org.opencypher.v9_0.expressions.Multiply
 import org.opencypher.v9_0.expressions.NODE_TYPE
+import org.opencypher.v9_0.expressions.NaN
 import org.opencypher.v9_0.expressions.NamedPatternPart
 import org.opencypher.v9_0.expressions.Namespace
 import org.opencypher.v9_0.expressions.NodePattern
@@ -545,6 +548,12 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _booleanLit: Gen[BooleanLiteral] =
     oneOf(True()(pos), False()(pos))
+
+  def _infinityLit: Gen[Literal] =
+    const(Infinity()(pos))
+
+  def _nanLit: Gen[Literal] =
+    const(NaN()(pos))
 
   def _unsignedIntString(prefix: String, radix: Int): Gen[String] = for {
     num <- posNum[Int]
@@ -853,7 +862,9 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
         lzy(_signedOctIntLit),
         lzy(_doubleLit),
         lzy(_variable),
-        lzy(_parameter)
+        lzy(_parameter),
+        lzy(_infinityLit),
+        lzy(_nanLit)
       ),
       1 -> oneOf(
         lzy(_predicateComparison),

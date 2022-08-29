@@ -54,6 +54,7 @@ import org.opencypher.v9_0.expressions.HasTypes
 import org.opencypher.v9_0.expressions.HexIntegerLiteral
 import org.opencypher.v9_0.expressions.ImplicitProcedureArgument
 import org.opencypher.v9_0.expressions.In
+import org.opencypher.v9_0.expressions.Infinity
 import org.opencypher.v9_0.expressions.IntegerLiteral
 import org.opencypher.v9_0.expressions.InvalidNotEquals
 import org.opencypher.v9_0.expressions.IsNotNull
@@ -76,6 +77,7 @@ import org.opencypher.v9_0.expressions.Modulo
 import org.opencypher.v9_0.expressions.MultiRelationshipPathStep
 import org.opencypher.v9_0.expressions.Multiply
 import org.opencypher.v9_0.expressions.NODE_TYPE
+import org.opencypher.v9_0.expressions.NaN
 import org.opencypher.v9_0.expressions.NilPathStep
 import org.opencypher.v9_0.expressions.NodePathStep
 import org.opencypher.v9_0.expressions.NodePattern
@@ -654,6 +656,12 @@ object SemanticExpressionCheck extends SemanticAnalysisTooling {
 
       case x: BooleanLiteral =>
         specifyType(CTBoolean, x)
+
+      case x: Infinity =>
+        specifyType(CTFloat, x)
+
+      case x: NaN =>
+        specifyType(CTFloat, x)
 
       case x: SemanticCheckableExpression =>
         x.semanticCheck(ctx)
