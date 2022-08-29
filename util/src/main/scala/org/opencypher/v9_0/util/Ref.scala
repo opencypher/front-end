@@ -17,6 +17,8 @@ package org.opencypher.v9_0.util
 
 object Ref {
   def apply[T <: AnyRef](v: T) = new Ref[T](v)
+
+  def unapply[T <: AnyRef](v: Ref[T]): Option[T] = Some(v.value)
 }
 
 final class Ref[+T <: AnyRef](val value: T) {
