@@ -15,6 +15,10 @@
  */
 package org.opencypher.v9_0.ast
 
+import org.opencypher.v9_0.ast.CatalogName.quote
+import org.opencypher.v9_0.ast.CatalogName.separatorChar
+import org.opencypher.v9_0.ast.CatalogName.separatorString
+
 object CatalogName {
 
   def apply(head: String, tail: List[String]): CatalogName = {
@@ -24,9 +28,21 @@ object CatalogName {
   def apply(parts: String*): CatalogName = {
     CatalogName(parts.head, parts.tail.toList)
   }
+
+  val separatorChar: Char = '.'
+  val separatorString: String = separatorChar.toString
+  val quoteChar = "`"
+
+  def quote(str: String): String = quoteChar ++ str ++ quoteChar
 }
 
 /**
  * A qualified graph name is used in a Cypher query to address a specific graph in the catalog.
  */
-case class CatalogName(parts: List[String])
+case class CatalogName(parts: List[String]) {
+
+  def qualifiedNameString: String =
+    parts
+      .map(part => if (part.contains(separatorChar)) quote(part) else part)
+      .mkString(separatorString)
+}
