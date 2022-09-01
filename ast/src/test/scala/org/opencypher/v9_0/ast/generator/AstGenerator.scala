@@ -118,6 +118,7 @@ import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.EnableServer
 import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
@@ -2248,10 +2249,16 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
   // Server commands
 
   def _serverCommand: Gen[AdministrationCommand] = oneOf(
+    _enableServer,
     _dropServer,
     _deallocateServer,
     _showServers
   )
+
+  def _enableServer: Gen[EnableServer] = for {
+    serverName <- _nameAsEither
+    options <- _optionsMapAsEither
+  } yield EnableServer(serverName, options)(pos)
 
   def _showServers: Gen[ShowServers] = for {
     yields <- _eitherYieldOrWhere

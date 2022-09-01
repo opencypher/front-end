@@ -130,6 +130,7 @@ import org.opencypher.v9_0.ast.DropUserAction
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.EnableServer
 import org.opencypher.v9_0.ast.ExecuteAdminProcedureAction
 import org.opencypher.v9_0.ast.ExecuteBoostedFunctionAction
 import org.opencypher.v9_0.ast.ExecuteBoostedProcedureAction
@@ -2091,6 +2092,13 @@ class Neo4jASTFactory(query: String)
   }
 
   // Server commands
+
+  override def enableServer(
+    p: InputPosition,
+    serverName: SimpleEither[String, Parameter],
+    options: SimpleEither[util.Map[String, Expression], Parameter]
+  ): EnableServer =
+    EnableServer(serverName.asScala, asOptionsAst(options))(p)
 
   override def dropServer(p: InputPosition, serverName: SimpleEither[String, Parameter]): DropServer =
     DropServer(serverName.asScala)(p)

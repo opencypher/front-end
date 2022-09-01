@@ -78,6 +78,7 @@ import org.opencypher.v9_0.ast.DropUser
 import org.opencypher.v9_0.ast.DumpData
 import org.opencypher.v9_0.ast.ElementQualifier
 import org.opencypher.v9_0.ast.ElementsAllQualifier
+import org.opencypher.v9_0.ast.EnableServer
 import org.opencypher.v9_0.ast.ExecutableBy
 import org.opencypher.v9_0.ast.Foreach
 import org.opencypher.v9_0.ast.FunctionAllQualifier
@@ -752,6 +753,18 @@ case class Prettifier(
         val an = aliasName.map(an => s" ${escapeName(an)}").getOrElse("")
         val (y: String, r: String) = showClausesAsString(yields)
         s"${x.name}$an FOR DATABASE$y$r"
+
+      case x @ EnableServer(serverName, options) =>
+        val name = serverName match {
+          case Left(s)          => expr.quote(s)
+          case Right(parameter) => expr(parameter)
+        }
+        val optionString = options match {
+          case OptionsMap(optionsMap)  => optionsToString(optionsMap)
+          case OptionsParam(parameter) => s" OPTIONS ${expr(parameter)}"
+          case NoOptions               => ""
+        }
+        s"${x.name} $name$optionString"
 
       case x @ DropServer(serverName) =>
         val name = serverName match {

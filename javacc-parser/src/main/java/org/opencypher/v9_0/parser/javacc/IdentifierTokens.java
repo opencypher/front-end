@@ -71,6 +71,7 @@ import static org.opencypher.v9_0.parser.javacc.CypherConstants.EACH;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ELEMENT;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ELEMENTS;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ELSE;
+import static org.opencypher.v9_0.parser.javacc.CypherConstants.ENABLE;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ENCRYPTED;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.END;
 import static org.opencypher.v9_0.parser.javacc.CypherConstants.ENDS;
@@ -268,6 +269,7 @@ public class IdentifierTokens {
             ELEMENT,
             ELEMENTS,
             ELSE,
+            ENABLE,
             ENCRYPTED,
             END,
             ENDS,
