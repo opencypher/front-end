@@ -193,6 +193,7 @@ import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.RemoveRoleAction
 import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.RenameRoleAction
+import org.opencypher.v9_0.ast.RenameServer
 import org.opencypher.v9_0.ast.RenameUser
 import org.opencypher.v9_0.ast.RenameUserAction
 import org.opencypher.v9_0.ast.Return
@@ -2250,6 +2251,7 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
 
   def _serverCommand: Gen[AdministrationCommand] = oneOf(
     _enableServer,
+    _renameServer,
     _dropServer,
     _deallocateServer,
     _showServers
@@ -2259,6 +2261,11 @@ class AstGenerator(simpleStrings: Boolean = true, allowedVarNames: Option[Seq[St
     serverName <- _nameAsEither
     options <- _optionsMapAsEither
   } yield EnableServer(serverName, options)(pos)
+
+  def _renameServer: Gen[RenameServer] = for {
+    serverName <- _nameAsEither
+    newName <- _nameAsEither
+  } yield RenameServer(serverName, newName)(pos)
 
   def _showServers: Gen[ShowServers] = for {
     yields <- _eitherYieldOrWhere

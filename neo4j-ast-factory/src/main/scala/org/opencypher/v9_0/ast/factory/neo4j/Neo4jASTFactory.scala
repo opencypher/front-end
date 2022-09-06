@@ -206,6 +206,7 @@ import org.opencypher.v9_0.ast.RemoveRoleAction
 import org.opencypher.v9_0.ast.RemovedSyntax
 import org.opencypher.v9_0.ast.RenameRole
 import org.opencypher.v9_0.ast.RenameRoleAction
+import org.opencypher.v9_0.ast.RenameServer
 import org.opencypher.v9_0.ast.RenameUser
 import org.opencypher.v9_0.ast.RenameUserAction
 import org.opencypher.v9_0.ast.Return
@@ -2099,6 +2100,13 @@ class Neo4jASTFactory(query: String)
     options: SimpleEither[util.Map[String, Expression], Parameter]
   ): EnableServer =
     EnableServer(serverName.asScala, asOptionsAst(options))(p)
+
+  override def renameServer(
+    p: InputPosition,
+    serverName: SimpleEither[String, Parameter],
+    newName: SimpleEither[String, Parameter]
+  ): RenameServer =
+    RenameServer(serverName.asScala, newName.asScala)(p)
 
   override def dropServer(p: InputPosition, serverName: SimpleEither[String, Parameter]): DropServer =
     DropServer(serverName.asScala)(p)

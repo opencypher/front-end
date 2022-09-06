@@ -137,6 +137,7 @@ import org.opencypher.v9_0.ast.RemoveHomeDatabaseAction
 import org.opencypher.v9_0.ast.RemoveLabelItem
 import org.opencypher.v9_0.ast.RemovePropertyItem
 import org.opencypher.v9_0.ast.RenameRole
+import org.opencypher.v9_0.ast.RenameServer
 import org.opencypher.v9_0.ast.RenameUser
 import org.opencypher.v9_0.ast.Return
 import org.opencypher.v9_0.ast.ReturnItem
@@ -765,6 +766,17 @@ case class Prettifier(
           case NoOptions               => ""
         }
         s"${x.name} $name$optionString"
+
+      case x @ RenameServer(serverName, newName) =>
+        val from = serverName match {
+          case Left(s)          => expr.quote(s)
+          case Right(parameter) => expr(parameter)
+        }
+        val to = newName match {
+          case Left(s)          => expr.quote(s)
+          case Right(parameter) => expr(parameter)
+        }
+        s"${x.name} $from TO $to"
 
       case x @ DropServer(serverName) =>
         val name = serverName match {
