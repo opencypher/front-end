@@ -17,11 +17,9 @@ package org.opencypher.v9_0.ast.factory.neo4j
 
 import org.opencypher.v9_0.ast
 import org.opencypher.v9_0.ast.NamespacedName
-import org.opencypher.v9_0.ast.ParameterName
 import org.opencypher.v9_0.expressions.Parameter
 import org.opencypher.v9_0.expressions.StringLiteral
 import org.opencypher.v9_0.util.symbols.CTMap
-import org.opencypher.v9_0.util.symbols.CTString
 
 class MultiDatabaseAdministrationCommandParserTest extends AdministrationAndSchemaCommandParserTestBase {
 
@@ -505,7 +503,7 @@ class MultiDatabaseAdministrationCommandParserTest extends AdministrationAndSche
 
       test(s"ALTER DATABASE $$foo SET ACCESS $accessKeyword") {
         assertAst(ast.AlterDatabase(
-          ParameterName(Parameter("foo", CTString)((1, 16, 15)))((1, 16, 15)),
+          stringParamName("foo"),
           ifExists = false,
           accessType
         )(

@@ -2135,6 +2135,16 @@ class Neo4jASTFactory(query: String)
     )(p)
   }
 
+  override def createCompositeDatabase(
+    p: InputPosition,
+    replace: Boolean,
+    compositeDatabaseName: DatabaseName,
+    ifNotExists: Boolean,
+    wait: WaitUntilComplete
+  ): AdministrationCommand = {
+    CreateCompositeDatabase(compositeDatabaseName, ifExistsDo(replace, ifNotExists), wait)(p)
+  }
+
   override def dropDatabase(
     p: InputPosition,
     databaseName: DatabaseName,
@@ -2223,7 +2233,11 @@ class Neo4jASTFactory(query: String)
     }
   }
 
-  // Database commands
+  override def databaseName(p: InputPosition, names: util.List[String]): DatabaseName = NamespacedName(names)(p)
+
+  override def databaseName(param: Parameter): DatabaseName = ParameterName(param)(param.position)
+
+  // Alias commands
 
   override def createLocalDatabaseAlias(
     p: InputPosition,
@@ -2322,20 +2336,6 @@ class Neo4jASTFactory(query: String)
       Option(aliasName),
       yieldOrWhere(yieldExpr, returnWithoutGraph, where)
     )(p)
-
-  override def createCompositeDatabase(
-    p: InputPosition,
-    replace: Boolean,
-    compositeDatabaseName: DatabaseName,
-    ifNotExists: Boolean,
-    wait: WaitUntilComplete
-  ): AdministrationCommand = {
-    CreateCompositeDatabase(compositeDatabaseName, ifExistsDo(replace, ifNotExists), wait)(p)
-  }
-
-  override def databaseName(p: InputPosition, names: util.List[String]): DatabaseName = NamespacedName(names)(p)
-
-  override def databaseName(param: Parameter): DatabaseName = ParameterName(param)(param.position)
 
   private def ifExistsDo(replace: Boolean, ifNotExists: Boolean): IfExistsDo = {
     (replace, ifNotExists) match {

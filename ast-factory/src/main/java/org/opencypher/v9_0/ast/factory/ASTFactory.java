@@ -549,6 +549,9 @@ public interface ASTFactory<
             WAIT_CLAUSE waitClause,
             SimpleEither<Map<String, EXPRESSION>, PARAMETER> options);
 
+    ADMINISTRATION_COMMAND createCompositeDatabase(
+            POS p, boolean replace, DATABASE_NAME compositeDatabaseName, boolean ifNotExists, WAIT_CLAUSE waitClause);
+
     ADMINISTRATION_COMMAND dropDatabase(
             POS p, DATABASE_NAME databaseName, boolean ifExists, boolean composite, boolean dumpData, WAIT_CLAUSE wait);
 
@@ -612,8 +615,4 @@ public interface ASTFactory<
 
     ADMINISTRATION_COMMAND showAliases(
             POS p, DATABASE_NAME aliasName, YIELD yieldExpr, RETURN_CLAUSE returnWithoutGraph, WHERE where);
-
-    // Composite Database
-    ADMINISTRATION_COMMAND createCompositeDatabase(
-            POS p, boolean replace, DATABASE_NAME compositeDatabaseName, boolean ifNotExists, WAIT_CLAUSE waitClause);
 }
