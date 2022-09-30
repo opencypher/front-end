@@ -34,7 +34,7 @@
 
   <properties>
     <licensing.prepend.text>ASL-2-header.txt</licensing.prepend.text>
-    <scala.version>2.13.8</scala.version>
+    <scala.version>2.13.9</scala.version>
     <scala.binary.version>2.13</scala.binary.version>
     <scala.test.version>3.0.9</scala.test.version>
     <scala.check.version>1.14.0</scala.check.version>
